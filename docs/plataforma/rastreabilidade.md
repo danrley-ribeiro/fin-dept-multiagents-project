@@ -41,13 +41,21 @@ Regras verificadas pelo `trace.py` (resumo):
 ```{include} ../_generated/cobertura.md
 ```
 
-## Grafo completo
+## Grafos por parte
 
-```{needflow}
-:types: prob, goal, req, role, agent, prot, norm
-:show_link_names:
-:scale: 60
-```
+O grafo com todos os objetos ao mesmo tempo é detalhado demais para ser lido, por isso a
+documentação **nunca o exibe**. Cada grafo mostra apenas um recorte:
+
+| Recorte | Onde |
+|---|---|
+| Árvore de objetivos | [Project charter](../dsm1/project_charter.md) |
+| Objetivo-folha → problema | [Project charter](../dsm1/project_charter.md) |
+| Agente → objetivo | [Modelo formal](../dsm1/formal_model.md) |
+| Requisito → papel → protocolo → norma, por grupo de até 4 requisitos | [Matriz de rastreabilidade](../dsm1/traceability.md) |
+
+Os grafos de requisitos são gerados por `tools/trace.py`: os requisitos são agrupados por tipo,
+com no máximo 4 por grafo (`GRAPH_CHUNK`), e tipos com poucos requisitos são reunidos em um grupo
+único. Assim os grafos continuam legíveis à medida que novas entregas acrescentam requisitos.
 
 ## Exportação
 

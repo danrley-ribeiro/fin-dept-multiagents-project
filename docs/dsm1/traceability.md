@@ -20,12 +20,12 @@ mesma fonte das tabelas do PDF.
 :style: datatables
 ```
 
-## Grafo requisito → papel → protocolo → norma
+## Grafos por parte: requisito → papel → protocolo → norma
 
-```{needflow}
-:types: req, role, prot, norm
-:link_types: assigned_to, uses_protocol, constrained_by
-:scale: 55
+Cada grafo mostra até 4 requisitos com seus papéis, protocolos e normas (gerado por
+`tools/trace.py`). O conjunto completo fica na matriz acima, não em um único grafo.
+
+```{include} ../_generated/grafos_requisitos.md
 ```
 
 ## Itens pendentes (DSM2 e futuro)

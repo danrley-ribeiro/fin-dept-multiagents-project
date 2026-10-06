@@ -41,11 +41,9 @@ descartadas deterministicamente.
 MCP é **instrumental** (agente → fonte de dados, como *tool*). Um agente nunca usa MCP
 para "conversar" com outro agente.
 
-## Árvore de objetivos e responsabilidades
+## Agentes e os objetivos que perseguem
 
 ```{needflow}
-:types: goal, agent
-:link_types: refines, pursues
-:show_link_names:
-:scale: 70
+:filter: type == "agent" or (type == "goal" and id != "G-00")
+:link_types: pursues
 ```

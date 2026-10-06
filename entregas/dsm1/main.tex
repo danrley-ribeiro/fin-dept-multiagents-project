@@ -34,6 +34,7 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{float}
+\usepackage[section]{placeins}
 \usepackage{needspace}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
@@ -67,8 +68,8 @@
 \definecolor{good}{HTML}{15803D}
 
 % ------------------------------------------------------------ sumário
-\titlecontents{section}[1.7em]{\addvspace{3pt}\small\bfseries\color{navy}}{\contentslabel{1.7em}}{}{\titlerule*[0.55pc]{.}\contentspage}
-\titlecontents{subsection}[3.9em]{\footnotesize\color{navy!75}}{\contentslabel{2.2em}}{}{\titlerule*[0.55pc]{.}\contentspage}
+\titlecontents{section}[2.2em]{\addvspace{25pt}\large\bfseries}{\contentslabel{2.2em}}{}{\titlerule*[0.7pc]{.}\contentspage}[\addvspace{4pt}]
+\titlecontents{subsection}[4.9em]{\addvspace{10pt}\normalsize}{\contentslabel{2.7em}}{}{\titlerule*[0.7pc]{.}\contentspage}
 \setcounter{tocdepth}{2}
 
 % ------------------------------------------------------------ tipografia e layout
@@ -77,43 +78,41 @@
 \linespread{1.04}
 \renewcommand{\arraystretch}{1.18}
 \setlist{nosep, leftmargin=1.1em, itemsep=0.15em, topsep=0.2em}
-\captionsetup{font={small,sf}, labelfont={bf,color=accent}, skip=4pt}
+\captionsetup{font={small,sf}, labelfont=bf, skip=4pt}
 
-\titleformat{\section}{\needspace{7\baselineskip}\large\color{navy}}{\thesection.}{0.45em}{\MakeUppercase}[{\vspace{0.05em}\color{accent}\titlerule[0.9pt]}]
-\titlespacing*{\section}{0pt}{1.0em}{0.55em}
-\titleformat{\subsection}{\needspace{5\baselineskip}\normalsize\color{accent}}{\thesubsection}{0.5em}{}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{\MakeUppercase}
+\titlespacing*{\section}{0pt}{1.3em}{0.6em}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
 \titlespacing*{\subsection}{0pt}{0.7em}{0.25em}
 
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\headrulewidth}{0.5pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{accent}\leaders\hrule height \headrulewidth\hfill}}
-\fancyhead[L]{\scriptsize\color{muted}INE5628 / DSM1 — Sistema Multiagente de Controladoria Terceirizada}
-\fancyhead[R]{\scriptsize\color{muted}Entrega 1: Cenário, Requisitos e Modelagem}
-\fancyfoot[L]{\scriptsize\color{muted}UFSC / CTC / INE — Prof. Rafael Luiz Cancian}
-\fancyfoot[R]{\scriptsize\color{muted}Página \thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\scriptsize INE5628 / DSM1 — Sistema Multiagente de Controladoria Terceirizada}
+\fancyhead[R]{\scriptsize Entrega 1: Cenário, Requisitos e Modelagem}
+\fancyfoot[L]{\scriptsize UFSC / CTC / INE — Prof. Rafael Luiz Cancian}
+\fancyfoot[R]{\scriptsize Página \thepage}
 \fancypagestyle{first}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}
-  \fancyfoot[L]{\scriptsize\color{muted}UFSC / CTC / INE — Sistemas Multiagentes}
-  \fancyfoot[R]{\scriptsize\color{muted}Página \thepage}}
+  \fancyfoot[L]{\scriptsize UFSC / CTC / INE — Sistemas Multiagentes}
+  \fancyfoot[R]{\scriptsize Página \thepage}}
 
 % ------------------------------------------------------------ caixas
-\newtcolorbox{callout}[1][]{enhanced, breakable, colback=accentlight, colframe=accentlight,
-  borderline west={3pt}{0pt}{accent}, arc=3pt, boxrule=0pt, left=10pt, right=8pt, top=5pt, bottom=5pt,
-  fontupper=\small, #1}
-\newcommand{\callouttitle}[1]{{\color{navy}\MakeUppercase{#1}}\par\vspace{1pt}}
+\newenvironment{callout}{\par\addvspace{0.6em}\begingroup}{\endgroup\par\addvspace{0.6em}}
+\newcommand{\callouttitle}[1]{{\bfseries #1}\par\vspace{2pt}}
 
 % ------------------------------------------------------------ tabelas
 \newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
-\newcommand{\hd}[1]{\textcolor{white}{\textbf{#1}}}
-\newcommand{\headrow}{\rowcolor{navy}}
-\newenvironment{dtable}[1]{\scriptsize\rowcolors{2}{white}{rowalt}\xltabular{\linewidth}{#1}}{\endxltabular}
+\newcommand{\hd}[1]{\textbf{#1}}
+\newcommand{\headrow}{\toprule}
+\setlength{\heavyrulewidth}{0.5pt}\setlength{\lightrulewidth}{0.3pt}
+\newenvironment{dtable}[1]{\footnotesize\renewcommand{\arraystretch}{1.3}\xltabular{\linewidth}{#1}}{\bottomrule\endxltabular\par\addvspace{0.4em}}
 
 % ------------------------------------------------------------ rastreabilidade
-\newcommand{\idtarget}[1]{\hypertarget{#1}{\textbf{\textcolor{accent}{#1}}}}
-\newcommand{\idref}[1]{\hyperlink{#1}{\textcolor{accent}{#1}}}
-\newcommand{\llmflag}{\textcolor{warn}{\textbf{flag}}}
-\newcommand{\llmno}{\textcolor{muted}{não}}
+\newcommand{\idtarget}[1]{\hypertarget{#1}{\textbf{#1}}}
+\newcommand{\idref}[1]{\hyperlink{#1}{#1}}
+\newcommand{\llmflag}{\textbf{flag}}
+\newcommand{\llmno}{não}
 \newcommand{\decisao}[1]{\textbf{\texttt{\detokenize{#1}}}}
 \newcommand{\code}[1]{\texttt{\small #1}}
 
@@ -121,19 +120,39 @@
 
 % =====================================================================
 \begin{document}
-\thispagestyle{first}
+% ------------------------------------------------------------ capa (página exclusiva)
+\begin{titlepage}
+\centering
+{\large\bfseries UNIVERSIDADE FEDERAL DE SANTA CATARINA\par}
+{\normalsize Centro Tecnológico \textbullet{} Departamento de Informática e Estatística\par}
+{\normalsize INE5628 — Sistemas Multiagentes\par}
+\vfill
+{\fontsize{30}{36}\selectfont\bfseries DSM1\par}
+\vspace{0.9cm}
+{\fontsize{22}{28}\selectfont\bfseries Sistema Multiagente de\\Controladoria Terceirizada\par}
+\vspace{0.7cm}
+{\Large Entrega 1: Cenário-Problema, Requisitos,\\Modelagem AOSE e Rastreabilidade\par}
+\vfill
+{\large\bfseries Autores\par}\vspace{0.3cm}
+{\large \autorA{} (\matA)\par \autorB{} (\matB)\par}
+\vspace{1cm}
+{\large\bfseries Professor\par}\vspace{0.3cm}
+{\large Prof. Dr. Rafael Luiz Cancian\par}
+\vfill
+{\normalsize Peso: 20\% da MPDSM \textbullet{} Prazo: 10/10/2026 \textbullet{} Versão \versao\par}
+\vspace{0.3cm}
+{\normalsize Documentação: \href{\docsURL}{\texttt{\docsURL}}\par}
+\vspace{0.8cm}
+{\large Florianópolis, 2026\par}
+\end{titlepage}
 
-% ------------------------------------------------------------ cabeçalho
-\begin{tcolorbox}[enhanced, colback=navy, colframe=navy, arc=5pt, boxrule=0pt,
-  borderline west={5pt}{0pt}{accent}, left=14pt, right=12pt, top=12pt, bottom=10pt]
-  {\color{white}\fontsize{21}{25}\selectfont DSM1 — Sistema Multiagente de\\[1pt] Controladoria Terceirizada\par}
-  \vspace{5pt}
-  {\color{accentlight!80!accent}\large Entrega 1: Cenário-Problema, Requisitos, Modelagem AOSE e Rastreabilidade\par}
-  \vspace{7pt}
-  {\color{white!65!navy}\scriptsize Disciplina: INE5628 (UFSC) \;|\; Peso: 20\% MPDSM \;|\; Prazo: 10/10/2026 \;|\; Versão: \versao\par
-   Autores: \autorA\ (\matA) \;·\; \autorB\ (\matB) \;|\;
-   Documentação: \href{\docsURL}{\color{white!80!accent}\texttt{\docsURL}}\par}
-\end{tcolorbox}
+% ------------------------------------------------------------ sumário (página exclusiva)
+\thispagestyle{empty}
+{\centering\fontsize{20}{24}\selectfont\bfseries Sumário\par}
+\vspace{1.2cm}
+\makeatletter\@starttoc{toc}\makeatother
+\clearpage
+\setcounter{page}{1}
 
 \begin{callout}
 \callouttitle{Resumo executivo do projeto}
@@ -149,10 +168,6 @@ padrão}, restrita à narrativa em três agentes. Todos os \nObj{} objetos possu
 rastreabilidade validada automaticamente, publicada em \href{\docsURL}{documentação navegável}.
 \end{callout}
 
-\begin{tcolorbox}[enhanced, colback=white, colframe=accent!25, arc=3pt, boxrule=0.6pt, left=10pt, right=10pt, top=6pt, bottom=6pt]
-\callouttitle{Sumário}
-\makeatletter\@starttoc{toc}\makeatother
-\end{tcolorbox}
 
 % =====================================================================
 \section{Cenário-problema, motivação e objetivos}
@@ -176,13 +191,13 @@ sobre uma empresa sintética com gabarito, com fontes acessadas por \emph{MCP se
 Aplicando o checklist de adequação de \textcite[Tab.~5.1]{cancian2026}:
 
 \begin{dtable}{L{2.25cm} Y L{1.05cm}}
-\headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \endhead
-Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textcolor{good}{\textbf{sim}}\\
-Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textcolor{good}{\textbf{sim}}\\
-Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textcolor{good}{\textbf{sim}}\\
-Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textcolor{good}{\textbf{sim}}\\
-Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textcolor{good}{\textbf{sim}}\\
-Evidência & Cenários com gabarito e protocolos com transições inválidas tornam o comportamento testável. & \textcolor{good}{\textbf{sim}}\\
+\headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \midrule\endhead
+Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textbf{sim}\\
+Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textbf{sim}\\
+Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textbf{sim}\\
+Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textbf{sim}\\
+Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textbf{sim}\\
+Evidência & Cenários com gabarito e protocolos com transições inválidas tornam o comportamento testável. & \textbf{sim}\\
 \end{dtable}
 
 \textbf{Condição explícita de rejeição.} Se a demanda se reduzir a gerar um único relatório por uma sequência fixa
@@ -230,7 +245,7 @@ Recursos externos classificados por observabilidade, acionabilidade, exclusivida
 (escrita em fonte externa é sempre ação restrita):
 
 \begin{dtable}{L{3.4cm} Y Y L{2.6cm} L{2.6cm}}
-\headrow \hd{Recurso} & \hd{Observabilidade} & \hd{Acionabilidade} & \hd{Exclusividade} & \hd{Autoridade}\\ \endhead
+\headrow \hd{Recurso} & \hd{Observabilidade} & \hd{Acionabilidade} & \hd{Exclusividade} & \hd{Autoridade}\\ \midrule\endhead
 \input{generated/ambiente.tex}
 \end{dtable}
 
@@ -240,8 +255,8 @@ Os requisitos seguem o template AOSE \parencite[Cap.~4]{cancian2026}: cada um li
 \textbf{evidência observável} capaz de distinguir implementação correta de execução apenas aparente. Os IDs
 reaparecem nos testes derivados, nas métricas e na matriz da Seção~\ref{sec:trace}.
 
-\begin{dtable}{L{1.15cm} L{1.45cm} Y L{1.45cm} L{4.6cm}}
-\headrow \hd{ID} & \hd{Tipo} & \hd{Requisito} & \hd{Papéis} & \hd{Evidência observável de aceite}\\ \endhead
+\begin{dtable}{L{1.5cm} L{1.95cm} Y L{1.45cm} L{4.4cm}}
+\headrow \hd{ID} & \hd{Tipo} & \hd{Requisito} & \hd{Papéis} & \hd{Evidência observável de aceite}\\ \midrule\endhead
 \input{generated/requisitos.tex}
 \end{dtable}
 
@@ -253,7 +268,7 @@ $role = \langle Resp, Perm, Obl, Prot\rangle$. Os papéis humanos \code{ROLE-SOL
 (aprovador) ficam fora da fronteira, mas participam de protocolos.
 
 \begin{dtable}{L{2.75cm} Y Y Y L{1.35cm} L{0.75cm}}
-\headrow \hd{Agente / cognição} & \hd{Responsabilidades (Resp)} & \hd{Permissões (Perm)} & \hd{Obrigações (Obl)} & \hd{Protocolos} & \hd{LLM}\\ \endhead
+\headrow \hd{Agente / cognição} & \hd{Responsabilidades (Resp)} & \hd{Permissões (Perm)} & \hd{Obrigações (Obl)} & \hd{Protocolos} & \hd{LLM}\\ \midrule\endhead
 \input{generated/papeis.tex}
 \end{dtable}
 
@@ -276,7 +291,7 @@ muda a cada ciclo; o conhecimento (regras de rateio, alçadas, fórmulas) é ver
 sobre lançamentos $\rightarrow$ desejo de conformidade $\rightarrow$ intenção de aprovar, apontar ou vetar.
 
 \begin{dtable}{L{2.35cm} Y Y Y Y}
-\headrow \hd{Agente $\rightarrow$ objetivo} & \hd{Percepções (P)} & \hd{Estado interno (B)} & \hd{Conhecimento (K)} & \hd{Ações (A)}\\ \endhead
+\headrow \hd{Agente $\rightarrow$ objetivo} & \hd{Percepções (P)} & \hd{Estado interno (B)} & \hd{Conhecimento (K)} & \hd{Ações (A)}\\ \midrule\endhead
 \input{generated/peas.tex}
 \end{dtable}
 
@@ -292,7 +307,7 @@ agente, com semântica de protocolo; \cite{a2a2025}); \textbf{MCP é instrumenta
 
 \subsection{Mecanismos de coordenação}
 \begin{dtable}{L{3.0cm} Y L{3.6cm}}
-\headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \endhead
+\headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \midrule\endhead
 Tarefa & Orquestrador delega subtarefas do DAG (padrão supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\
 Informação & Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\
 Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\
@@ -343,7 +358,7 @@ decisão humana); \decisao{DENY} (fora da allowlist do papel; bloqueio fail-clos
 \end{callout}
 
 \begin{dtable}{L{1.2cm} L{4.1cm} Y L{2.4cm} L{1.9cm}}
-\headrow \hd{Norma} & \hd{Regra} & \hd{Consequência} & \hd{Decisão} & \hd{Imposta por}\\ \endhead
+\headrow \hd{Norma} & \hd{Regra} & \hd{Consequência} & \hd{Decisão} & \hd{Imposta por}\\ \midrule\endhead
 \input{generated/normas.tex}
 \end{dtable}
 
@@ -355,7 +370,7 @@ As métricas serão coletadas dos traces JSONL (\code{SVC-AUD}) em cenários sin
 controlados (a partir da DSM2), sempre contra a baseline em workflow.
 
 \begin{dtable}{L{1.0cm} L{3.3cm} Y L{3.0cm} L{2.1cm}}
-\headrow \hd{ID} & \hd{Métrica} & \hd{Fórmula} & \hd{Alvo} & \hd{Mede}\\ \endhead
+\headrow \hd{ID} & \hd{Métrica} & \hd{Fórmula} & \hd{Alvo} & \hd{Mede}\\ \midrule\endhead
 \input{generated/metricas.tex}
 \end{dtable}
 
@@ -376,7 +391,7 @@ execuções são \nPend{} \emph{stubs} rastreáveis pendentes da DSM2.
 \end{figure}
 
 \begin{dtable}{L{1.35cm} L{1.35cm} L{1.0cm} L{2.6cm} Y L{3.3cm} L{2.2cm}}
-\headrow \hd{Problema} & \hd{Requisito} & \hd{Objetivo} & \hd{Agente} & \hd{Protocolo / Norma} & \hd{Teste (planejado)} & \hd{Métrica}\\ \endhead
+\headrow \hd{Problema} & \hd{Requisito} & \hd{Objetivo} & \hd{Agente} & \hd{Protocolo / Norma} & \hd{Teste (planejado)} & \hd{Métrica}\\ \midrule\endhead
 \input{generated/matriz.tex}
 \end{dtable}
 
@@ -391,7 +406,8 @@ A2A concreto, componentes e execução dos testes serão decididos e documentado
 \textbf{Repositório:} \href{\repoURL}{\texttt{\repoURL}}\par}
 \end{callout}
 
-\begingroup\footnotesize\RaggedRight
+\clearpage
+\begingroup\small\RaggedRight
 \printbibliography[heading=bibintoc, title={Referências}]
 \endgroup
 

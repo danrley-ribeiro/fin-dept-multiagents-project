@@ -356,6 +356,38 @@ def mermaid_fsm(prot: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+GRAPH_CHUNK = 4      # requisitos por grafo — mantém cada grafo legível
+GRAPH_MIN_GROUP = 3  # tipos com menos requisitos que isso são reunidos em "Demais requisitos"
+
+
+def graphs_by_part(data: dict, index: dict) -> str:
+    groups: dict[str, list[dict]] = {}
+    for r in data["requirements"]:
+        groups.setdefault(r["tipo"], []).append(r)
+    merged: dict[str, list[dict]] = {}
+    for tipo, reqs in groups.items():
+        key = tipo if len(reqs) >= GRAPH_MIN_GROUP else "Demais requisitos"
+        merged.setdefault(key, []).extend(reqs)
+
+    out: list[str] = []
+    for tipo, reqs in merged.items():
+        for start in range(0, len(reqs), GRAPH_CHUNK):
+            part = reqs[start:start + GRAPH_CHUNK]
+            ids = {r["id"] for r in part}
+            for r in part:
+                ids |= set(as_list(r.get("papeis"))) | set(as_list(r.get("protocolos"))) | set(as_list(r.get("normas")))
+            span = part[0]["id"] if len(part) == 1 else f"{part[0]['id']} a {part[-1]['id']}"
+            ids_list = ", ".join(f'"{i}"' for i in sorted(ids))
+            out.append(
+                f"### {tipo}: {span}\n\n"
+                "```{needflow}\n"
+                f":filter: id in [{ids_list}]\n"
+                ":link_types: assigned_to, uses_protocol, constrained_by\n"
+                "```\n"
+            )
+    return "\n".join(out)
+
+
 HEADERS = {
     "problems": "Problemas de negócio",
     "stakeholders": "Stakeholders",
@@ -406,6 +438,10 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
            f"| Stubs pendentes para DSM2/futuro | {len(pend)} |",
            f"| Testes executados | 0 (execução na DSM2) |"]
     (DOCS_GEN / "cobertura.md").write_text("\n".join(cov) + "\n", encoding="utf-8")
+
+    # grafos de rastreabilidade POR PARTE (nunca o grafo completo): requisitos agrupados por
+    # tipo, no máximo GRAPH_CHUNK por grafo; tipos pequenos são reunidos em um grupo único.
+    (DOCS_GEN / "grafos_requisitos.md").write_text(banner + graphs_by_part(data, index), encoding="utf-8")
 
     # diagramas de estado editáveis
     MMD_DIR.mkdir(parents=True, exist_ok=True)

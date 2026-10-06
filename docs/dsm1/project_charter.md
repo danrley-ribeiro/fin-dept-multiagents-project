@@ -40,10 +40,18 @@ forma terceirizada e coordenada, entregando à liderança o resultado do períod
 análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com evidência
 reconstruível de cada decisão.
 
+**Árvore de objetivos**
+
 ```{needflow}
-:types: goal, prob
-:show_link_names:
-:scale: 70
+:types: goal
+:link_types: refines
+```
+
+**Objetivos específicos × problemas que endereçam**
+
+```{needflow}
+:filter: type == "prob" or (type == "goal" and id != "G-00")
+:link_types: addresses
 ```
 
 ```{include} ../_generated/goals.md

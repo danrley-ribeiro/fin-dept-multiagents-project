@@ -1,4 +1,4 @@
-# Como contribuir (fluxo para duas pessoas)
+# Como contribuir
 
 A documentação segue o modelo *docs-as-code*: tudo vive no repositório GitHub e é
 publicado automaticamente no Read the Docs a cada push em `main`.

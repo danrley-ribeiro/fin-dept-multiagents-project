@@ -36,7 +36,6 @@ tabelas do PDF da entrega. Veja [Rastreabilidade](plataforma/rastreabilidade.md)
 
 plataforma/rastreabilidade
 plataforma/como-contribuir
-plataforma/ADR-001-plataforma-docs
 ```
 
 ```{toctree}

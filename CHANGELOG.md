@@ -10,7 +10,7 @@ Registro por entrega.
 - Validador e gerador de rastreabilidade (`tools/trace.py`): cobertura de 100% dos requisitos.
 - Documentação Sphinx + sphinx-needs (`docs/`), pronta para o Read the Docs.
 - PDF da entrega (`entregas/dsm1/main.pdf`) com figuras TikZ editáveis.
-- ADR-001 (plataforma de documentação) e ADR-002 (LLM opcional por flag).
+- ADR-002 (LLM opcional por flag).
 
 ## DSM2 — pendente
 

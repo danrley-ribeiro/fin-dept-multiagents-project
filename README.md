@@ -60,7 +60,7 @@ Situação atual: **18/18 requisitos (100%) com cadeia completa**, 136 objetos r
 models/              Fonte única dos modelos (YAML editável)
 tools/trace.py       Validador + gerador de rastreabilidade
 docs/                Documentação Sphinx + sphinx-needs (MyST Markdown)
-  plataforma/        Rastreabilidade, fluxo de contribuição, ADR-001
+  plataforma/        Rastreabilidade e fluxo de contribuição
   dsm1/              Entrega 1 (completa)
   dsm2/              Entrega 2 (esqueleto pendente)
 diagrams/dsm1/       Diagramas Mermaid editáveis

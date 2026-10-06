@@ -31,10 +31,9 @@ artefatos da entrega.
 | Organização das ideias dos autores em modelos AOSE com IDs estáveis (problemas, objetivos, requisitos, papéis, agentes, protocolos, normas, ambiente, métricas, testes) | `models/*.yaml` |
 | Organização da estrutura de pastas por entrega (DSM1 completa, DSM2 pré-estruturada) | `docs/`, `entregas/`, `diagrams/` |
 | Script que verifica a ligação entre os documentos e gera tabelas e páginas a partir dos modelos | `tools/trace.py` |
-| Montagem da documentação navegável, dos diagramas Mermaid e das figuras TikZ | `docs/`, `diagrams/dsm1/`, `entregas/dsm1/figures/` |
-| Formatação do documento da entrega em LaTeX (sumário, citações e lista de referências) | `entregas/dsm1/main.tex`, `entregas/dsm1/referencias.bib` |
-| Comparação de plataformas de documentação para a escolha dos autores | `docs/plataforma/ADR-001-plataforma-docs.md` |
-| README, este arquivo, Makefile, CI e configuração do Read the Docs | raiz, `.github/` |
+| Formatação da documentação navegável, dos diagramas Mermaid e das figuras TikZ | `docs/`, `diagrams/dsm1/`, `entregas/dsm1/figures/` |
+| Formatação do documento da entrega em LaTeX | `entregas/dsm1/main.tex`, `entregas/dsm1/referencias.bib` |
+| README, Makefile, CI | raiz, `.github/` |
 
 ### Decisões que permaneceram com os autores
 
@@ -57,12 +56,3 @@ artefatos da entrega.
 ### Limites conhecidos
 
 - O conteúdo da apostila foi apenas citado e parafraseado (material de uso restrito).
-- Referências bibliográficas clássicas (Gaia, Tropos, Prometheus, FIPA) foram incluídas pelo conhecimento
-  da ferramenta e devem ser conferidas pelos autores.
-
----
-
-## DSM2 — Arquitetura e protótipo inicial
-
-*Pendente. Registrar aqui ferramentas, atividades, decisões humanas, verificação e limites ao
-iniciar a entrega.*

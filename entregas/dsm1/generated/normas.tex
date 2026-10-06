@@ -1,9 +1,9 @@
 % ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão
-\textbf{NORM-01} & Efeito externo exige aprovação humana & Ação retida no Approval Gate até approve; timeout expira sem executar & \decisao{REQUIRE_APPROVAL} & SVC-POL \\
-\textbf{NORM-02} & Fora da allowlist do papel é negado & Bloqueio fail-closed, sem opção de aprovação, registrado em log & \decisao{DENY} & SVC-POL, SVC-MCP \\
-\textbf{NORM-03} & Período em fechamento é exclusivo & reserve-failure explicado; reserva expira por TTL & \decisao{DENY} & SVC-LCK \\
-\textbf{NORM-04} & Não conformidade crítica bloqueia publicação & Publicação vetada até correção reavaliada ou waiver humano justificado & \decisao{DENY} & SVC-POL \\
-\textbf{NORM-05} & LLM não calcula números nem autoriza ações & Texto descartado e substituído pelo template; proposta tratada como não autorizada & \decisao{DENY} & SVC-MOD, SVC-POL \\
-\textbf{NORM-06} & Logs e memória sem segredos nem dados pessoais desnecessários & Redaction; se a sanitização falhar, a gravação é recusada (fail-closed) & \decisao{OBRIGACAO} & SVC-AUD, SVC-MEM \\
-\textbf{NORM-07} & LLM só por flag, só em papéis permitidos, dentro da cota & Chamada LLM bloqueada e agente segue em modo determinístico (template) & \decisao{DENY} & SVC-MOD \\
+\textbf{NORM-01} & Efeito externo exige aprovação humana & Ação retida no Approval Gate até approve; timeout expira sem executar & \decisao{REQUIRE_APPROVAL} & SVC-POL \\ \rowsep
+\textbf{NORM-02} & Fora da allowlist do papel é negado & Bloqueio fail-closed, sem opção de aprovação, registrado em log & \decisao{DENY} & SVC-POL, SVC-MCP \\ \rowsep
+\textbf{NORM-03} & Período em fechamento é exclusivo & reserve-failure explicado; reserva expira por TTL & \decisao{DENY} & SVC-LCK \\ \rowsep
+\textbf{NORM-04} & Não conformidade crítica bloqueia publicação & Publicação vetada até correção reavaliada ou waiver humano justificado & \decisao{DENY} & SVC-POL \\ \rowsep
+\textbf{NORM-05} & LLM não calcula números nem autoriza ações & Texto descartado e substituído pelo template; proposta tratada como não autorizada & \decisao{DENY} & SVC-MOD, SVC-POL \\ \rowsep
+\textbf{NORM-06} & Logs e memória sem segredos nem dados pessoais desnecessários & Redaction; se a sanitização falhar, a gravação é recusada (fail-closed) & \decisao{OBRIGACAO} & SVC-AUD, SVC-MEM \\ \rowsep
+\textbf{NORM-07} & LLM só por flag, só em papéis permitidos, dentro da cota & Chamada LLM bloqueada e agente segue em modo determinístico (template) & \decisao{DENY} & SVC-MOD \\ \rowsep
 \textbf{NORM-08} & Somente saída aprovada vira memória & Não é indexada em embeddings nem no grafo & \decisao{DENY} & SVC-MEM \\

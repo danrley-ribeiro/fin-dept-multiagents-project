@@ -105,11 +105,12 @@
 \newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
 \newcommand{\hd}[1]{\textbf{#1}}
 \newcommand{\headrow}{\toprule}
+\newcommand{\rowsep}{\specialrule{0.25pt}{1.5pt}{1.5pt}}
 \setlength{\heavyrulewidth}{0.5pt}\setlength{\lightrulewidth}{0.3pt}
 \newenvironment{dtable}[1]{\footnotesize\renewcommand{\arraystretch}{1.3}\xltabular{\linewidth}{#1}}{\bottomrule\endxltabular\par\addvspace{0.4em}}
 
 % ------------------------------------------------------------ rastreabilidade
-\newcommand{\idtarget}[1]{\hypertarget{#1}{\textbf{#1}}}
+\newcommand{\idtarget}[1]{\leavevmode\textbf{#1}\hypertarget{#1}{}}
 \newcommand{\idref}[1]{\hyperlink{#1}{#1}}
 \newcommand{\llmflag}{\textbf{flag}}
 \newcommand{\llmno}{não}
@@ -192,11 +193,11 @@ Aplicando o checklist de adequação de \textcite[Tab.~5.1]{cancian2026}:
 
 \begin{dtable}{L{2.25cm} Y L{1.05cm}}
 \headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \midrule\endhead
-Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textbf{sim}\\
-Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textbf{sim}\\
-Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textbf{sim}\\
-Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textbf{sim}\\
-Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textbf{sim}\\
+Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textbf{sim}\\ \rowsep
+Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textbf{sim}\\ \rowsep
+Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textbf{sim}\\ \rowsep
+Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textbf{sim}\\ \rowsep
+Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textbf{sim}\\ \rowsep
 Evidência & Cenários com gabarito e protocolos com transições inválidas tornam o comportamento testável. & \textbf{sim}\\
 \end{dtable}
 
@@ -308,11 +309,11 @@ agente, com semântica de protocolo; \cite{a2a2025}); \textbf{MCP é instrumenta
 \subsection{Mecanismos de coordenação}
 \begin{dtable}{L{3.0cm} Y L{3.6cm}}
 \headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \midrule\endhead
-Tarefa & Orquestrador delega subtarefas do DAG (padrão supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\
-Informação & Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\
-Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\
-Recurso exclusivo & Um fechamento por (entidade, competência), com TTL & \code{PROT-LCK} (reserva)\\
-Autorização humana & Lançar ajuste no ERP, alterar orçamento, publicar relatório & \code{PROT-APR} (Approval Gate)\\
+Tarefa & Orquestrador delega subtarefas do DAG (padrão supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\ \rowsep
+Informação & Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\ \rowsep
+Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\ \rowsep
+Recurso exclusivo & Um fechamento por (entidade, competência), com TTL & \code{PROT-LCK} (reserva)\\ \rowsep
+Autorização humana & Lançar ajuste no ERP, alterar orçamento, publicar relatório & \code{PROT-APR} (Approval Gate)\\ \rowsep
 Fronteira & Pedido do usuário e resposta final explícita & \code{PROT-SOL} (FIPA-Request)\\
 \end{dtable}
 

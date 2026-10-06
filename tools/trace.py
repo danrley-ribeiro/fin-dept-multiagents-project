@@ -473,6 +473,10 @@ def generate_tex(data: dict, index: dict, back: dict) -> None:
     banner = "% ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão\n"
 
     def write(name: str, lines: list[str]) -> None:
+        # filete fino (\rowsep, definido em main.tex) entre as linhas; a última recebe \bottomrule
+        rows = [i for i, ln in enumerate(lines) if ln.endswith("\\\\")]
+        for i in rows[:-1]:
+            lines[i] = lines[i] + r" \rowsep"
         (TEX_GEN / name).write_text(banner + "\n".join(lines) + "\n", encoding="utf-8")
 
     # requisitos
@@ -486,7 +490,7 @@ def generate_tex(data: dict, index: dict, back: dict) -> None:
     def items_tex(xs):
         return r"\newline ".join(r"\textbullet~" + tex(x) for x in xs)
     write("papeis.tex", [
-        rf"\textbf{{{tex(ag['titulo'])}}}\newline{{\scriptsize\color{{muted}}{ag['id']} · {tex(ag['cognicao'])}}} & "
+        rf"\textbf{{{tex(ag['titulo'])}}}\newline{{\scriptsize\itshape {ag['id']} · {tex(ag['cognicao'])}}} & "
         rf"{items_tex(index[ag['papeis'][0]]['resp'])} & {items_tex(index[ag['papeis'][0]]['perm'])} & "
         rf"{items_tex(index[ag['papeis'][0]]['obl'])} & "
         rf"{', '.join(p.removeprefix('PROT-') for p in index[ag['papeis'][0]]['protocolos'])} & "
@@ -496,7 +500,7 @@ def generate_tex(data: dict, index: dict, back: dict) -> None:
 
     # PEAS / BDI
     write("peas.tex", [
-        rf"\textbf{{{tex(ag['titulo'].split(' (')[0])}}}\newline{{\scriptsize\color{{muted}}{ag['id']} $\rightarrow$ {', '.join(ag['objetivos'])}}} & {items_tex(ag['percepcoes'])} & {items_tex(ag['estado'])} & "
+        rf"\textbf{{{tex(ag['titulo'].split(' (')[0])}}}\newline{{\scriptsize\itshape {ag['id']} $\rightarrow$ {', '.join(ag['objetivos'])}}} & {items_tex(ag['percepcoes'])} & {items_tex(ag['estado'])} & "
         rf"{items_tex(ag['conhecimento'])} & {items_tex(ag['acoes'])} \\"
         for ag in data["agents"]
     ])

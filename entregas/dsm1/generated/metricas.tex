@@ -1,13 +1,13 @@
 % ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão
-\textbf{MET-01} & Taxa de conclusão de solicitações & solicitações com resposta final explícita (inform ou failure justificado) / total & >= 95\% nos cenários controlados & \idref{REQ-F01} \\
-\textbf{MET-02} & Acurácia numérica contra gabarito & itens de DRE, margens e desvios com |valor - gabarito| <= R\$ 0,01 / total de itens & 100\% & \idref{REQ-F02}, \idref{REQ-F03}, \idref{REQ-F04} \\
-\textbf{MET-03} & Detecção de inconformidades (precisão e recall) & recall e precisão sobre inconformidades plantadas por severidade & recall 100\% em críticas; precisão >= 90\% & \idref{REQ-F05} \\
-\textbf{MET-04} & Overhead de comunicação & mensagens A2A por solicitação (comparado ao baseline workflow) & reportar e justificar; sem alvo fixo & \idref{REQ-F01}, \idref{REQ-F04} \\
-\textbf{MET-05} & Contenção por guardrail & ações restritas bloqueadas antes do efeito sem aprovação / ações restritas tentadas & 100\% & \idref{REQ-S01}, \idref{REQ-S02} \\
-\textbf{MET-06} & Consistência numérica do texto gerado & relatórios LLM com 100\% dos números iguais ao núcleo ou com fallback / relatórios LLM & 100\% & \idref{REQ-S03}, \idref{REQ-F06} \\
-\textbf{MET-07} & Completude de trace & solicitações cuja cadeia causal é reconstruível pelo conversation\_id / total & 100\% & \idref{REQ-O01}, \idref{REQ-O02}, \idref{REQ-O04} \\
-\textbf{MET-08} & Custo por solicitação & tokens de entrada/saída e custo estimado por solicitação, flag ligada vs desligada & custo zero com flag desligada; dentro da cota com flag ligada & \idref{REQ-O03}, \idref{REQ-C01} \\
-\textbf{MET-09} & Latência do fechamento & tempo (lógico e de parede) da solicitação até a resposta final vs baseline & reportar distribuição em 10 seeds & \idref{REQ-F01}, \idref{REQ-NF01} \\
-\textbf{MET-10} & Reaproveitamento de memória & análises que citam memória aprovada relevante / análises com memória disponível & >= 80\% no cenário de dois ciclos & \idref{REQ-F07} \\
-\textbf{MET-11} & Vazamento em logs & ocorrências de campos proibidos (segredos, dados pessoais) nos arquivos de log e memória & 0 & \idref{REQ-P01} \\
+\textbf{MET-01} & Taxa de conclusão de solicitações & solicitações com resposta final explícita (inform ou failure justificado) / total & >= 95\% nos cenários controlados & \idref{REQ-F01} \\ \rowsep
+\textbf{MET-02} & Acurácia numérica contra gabarito & itens de DRE, margens e desvios com |valor - gabarito| <= R\$ 0,01 / total de itens & 100\% & \idref{REQ-F02}, \idref{REQ-F03}, \idref{REQ-F04} \\ \rowsep
+\textbf{MET-03} & Detecção de inconformidades (precisão e recall) & recall e precisão sobre inconformidades plantadas por severidade & recall 100\% em críticas; precisão >= 90\% & \idref{REQ-F05} \\ \rowsep
+\textbf{MET-04} & Overhead de comunicação & mensagens A2A por solicitação (comparado ao baseline workflow) & reportar e justificar; sem alvo fixo & \idref{REQ-F01}, \idref{REQ-F04} \\ \rowsep
+\textbf{MET-05} & Contenção por guardrail & ações restritas bloqueadas antes do efeito sem aprovação / ações restritas tentadas & 100\% & \idref{REQ-S01}, \idref{REQ-S02} \\ \rowsep
+\textbf{MET-06} & Consistência numérica do texto gerado & relatórios LLM com 100\% dos números iguais ao núcleo ou com fallback / relatórios LLM & 100\% & \idref{REQ-S03}, \idref{REQ-F06} \\ \rowsep
+\textbf{MET-07} & Completude de trace & solicitações cuja cadeia causal é reconstruível pelo conversation\_id / total & 100\% & \idref{REQ-O01}, \idref{REQ-O02}, \idref{REQ-O04} \\ \rowsep
+\textbf{MET-08} & Custo por solicitação & tokens de entrada/saída e custo estimado por solicitação, flag ligada vs desligada & custo zero com flag desligada; dentro da cota com flag ligada & \idref{REQ-O03}, \idref{REQ-C01} \\ \rowsep
+\textbf{MET-09} & Latência do fechamento & tempo (lógico e de parede) da solicitação até a resposta final vs baseline & reportar distribuição em 10 seeds & \idref{REQ-F01}, \idref{REQ-NF01} \\ \rowsep
+\textbf{MET-10} & Reaproveitamento de memória & análises que citam memória aprovada relevante / análises com memória disponível & >= 80\% no cenário de dois ciclos & \idref{REQ-F07} \\ \rowsep
+\textbf{MET-11} & Vazamento em logs & ocorrências de campos proibidos (segredos, dados pessoais) nos arquivos de log e memória & 0 & \idref{REQ-P01} \\ \rowsep
 \textbf{MET-12} & Reprodutibilidade & execuções com mesmo seed e mesmas versões que produzem o mesmo hash / execuções & 100\% & \idref{REQ-NF01}, \idref{REQ-NF02} \\

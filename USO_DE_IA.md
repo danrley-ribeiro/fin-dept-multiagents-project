@@ -13,20 +13,28 @@ Duas coisas distintas aparecem aqui:
 
 ## DSM1 — Cenário, requisitos e modelagem
 
-**Ferramenta:** Claude Code (modelo Claude Opus 5.5, Anthropic), assistente de programação em terminal.
+**Modelo utilizado no desenvolvimento:** **Claude Opus 5.5** (Anthropic), por meio do Claude Code
+(assistente de programação em terminal).
 **Período:** 06/10/2026.
 
-### O que a IA fez
+### Papel da IA
 
-| Atividade | Artefatos | Natureza da contribuição |
-|---|---|---|
-| Análise do enunciado da DSM1/DSM2, do PDF de referência e dos capítulos 4–5 da apostila | — | leitura e síntese para orientar a modelagem |
-| Proposta da plataforma de documentação (comparação Mintlify × Backstage × MkDocs × Sphinx-needs/RTD) | `docs/plataforma/ADR-001-plataforma-docs.md` | pesquisa e recomendação; **decisão tomada pelos autores** |
-| Rascunho dos modelos AOSE (problemas, stakeholders, objetivos, requisitos, papéis, agentes, protocolos, normas, ambiente, métricas, testes) a partir das ideias dos autores | `models/*.yaml` | redação a partir de `arquitetura-sistema-multiagente-controladoria.md` e `ideias.txt` (autores) |
-| Script de validação e geração de rastreabilidade | `tools/trace.py` | código gerado e executado |
-| Páginas da documentação, diagramas Mermaid e figuras TikZ | `docs/`, `diagrams/dsm1/`, `entregas/dsm1/figures/` | redação e diagramação |
-| Documento LaTeX da entrega | `entregas/dsm1/main.tex` | redação e diagramação |
-| README, este arquivo, Makefile, CI e configuração do Read the Docs | raiz, `.github/` | redação |
+A IA trabalhou **organizando os arquivos e a documentação** do projeto. A concepção do sistema
+(orquestrador, cinco agentes especializados, camadas de comunicação, governança, configuração de
+modelos e memória) foi definida pelos autores em `arquitetura-sistema-multiagente-controladoria.md`
+e `ideias.txt`. A ferramenta partiu desse material para estruturar, padronizar e interligar os
+artefatos da entrega.
+
+| Atividade de organização | Artefatos |
+|---|---|
+| Leitura do enunciado da DSM1/DSM2, do PDF de referência e dos capítulos 4–5 da apostila, para alinhar a estrutura dos documentos ao que é avaliado | — |
+| Organização das ideias dos autores em modelos AOSE com IDs estáveis (problemas, objetivos, requisitos, papéis, agentes, protocolos, normas, ambiente, métricas, testes) | `models/*.yaml` |
+| Organização da estrutura de pastas por entrega (DSM1 completa, DSM2 pré-estruturada) | `docs/`, `entregas/`, `diagrams/` |
+| Script que verifica a ligação entre os documentos e gera tabelas e páginas a partir dos modelos | `tools/trace.py` |
+| Montagem da documentação navegável, dos diagramas Mermaid e das figuras TikZ | `docs/`, `diagrams/dsm1/`, `entregas/dsm1/figures/` |
+| Formatação do documento da entrega em LaTeX (sumário, citações e lista de referências) | `entregas/dsm1/main.tex`, `entregas/dsm1/referencias.bib` |
+| Comparação de plataformas de documentação para a escolha dos autores | `docs/plataforma/ADR-001-plataforma-docs.md` |
+| README, este arquivo, Makefile, CI e configuração do Read the Docs | raiz, `.github/` |
 
 ### Decisões que permaneceram com os autores
 

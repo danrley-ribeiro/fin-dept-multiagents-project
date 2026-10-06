@@ -1,0 +1,57 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\setlength{\labelsep}{0pt}\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{v-1.9.7 }
+
+\bibitem[{ANTHROPIC} 2025]{mcp2025}
+\abntrefinfo{{ANTHROPIC}}{{ANTHROPIC}}{2025}
+{{ANTHROPIC}. \emph{Model {C}ontext {P}rotocol specification}. 2025.
+Dispon{\'\i}vel em: \url{https://modelcontextprotocol.io}. Acesso em: 6 out.
+  2026.}
+
+\bibitem[Bresciani et al. 2004]{bresciani2004tropos}
+\abntrefinfo{Bresciani et al.}{BRESCIANI et al.}{2004}
+{BRESCIANI, P. et al. Tropos: an agent-oriented software development
+  methodology.
+\emph{Autonomous Agents and Multi-Agent Systems}, v.~8, n.~3, p. 203--236,
+  2004.}
+
+\bibitem[Cancian 2026]{cancian2026}
+\abntrefinfo{Cancian}{CANCIAN}{2026}
+{CANCIAN, R.~L. \emph{Sistemas multiagentes inteligentes}. Florianópolis,
+  2026. Material didático da disciplina INE5628. Versão rascunho 0.26.09.}
+
+\bibitem[{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS} 2002]{fipa2002acl}
+\abntrefinfo{{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS}}{{FOUNDATION FOR
+  INTELLIGENT PHYSICAL AGENTS}}{2002a}
+{{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS}. \emph{{FIPA} {ACL} message
+  structure specification}.
+Genebra, 2002. Documento SC00061G.}
+
+\bibitem[{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS} 2002]{fipa2002request}
+\abntrefinfo{{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS}}{{FOUNDATION FOR
+  INTELLIGENT PHYSICAL AGENTS}}{2002b}
+{{FOUNDATION FOR INTELLIGENT PHYSICAL AGENTS}. \emph{{FIPA} request interaction
+  protocol specification}.
+Genebra, 2002. Documento SC00026H.}
+
+\bibitem[{LINUX FOUNDATION} 2025]{a2a2025}
+\abntrefinfo{{LINUX FOUNDATION}}{{LINUX FOUNDATION}}{2025}
+{{LINUX FOUNDATION}. \emph{Agent2{A}gent ({A2A}) protocol specification}. 2025.
+Dispon{\'\i}vel em: \url{https://a2a-protocol.org}. Acesso em: 6 out. 2026.}
+
+\bibitem[Padgham e Winikoff 2004]{padgham2004prometheus}
+\abntrefinfo{Padgham e Winikoff}{PADGHAM; WINIKOFF}{2004}
+{PADGHAM, L.; WINIKOFF, M. \emph{Developing intelligent agent systems}: a
+  practical guide. Chichester: John Wiley \& Sons, 2004.}
+
+\bibitem[Wooldridge, Jennings e Kinny 2000]{wooldridge2000gaia}
+\abntrefinfo{Wooldridge, Jennings e Kinny}{WOOLDRIDGE; JENNINGS; KINNY}{2000}
+{WOOLDRIDGE, M.; JENNINGS, N.~R.; KINNY, D. The {G}aia methodology for
+  agent-oriented analysis and design.
+\emph{Autonomous Agents and Multi-Agent Systems}, v.~3, n.~3, p. 285--312,
+  2000.}
+
+\end{thebibliography}

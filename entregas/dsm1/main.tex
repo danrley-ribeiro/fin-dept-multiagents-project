@@ -43,6 +43,13 @@
 \newunicodechar{⟩}{\ensuremath{\rangle}}
 \newunicodechar{≠}{\ensuremath{\neq}}
 \newunicodechar{→}{\ensuremath{\rightarrow}}
+\usepackage{csquotes}
+\usepackage[backend=bibtex, style=authoryear, maxcitenames=2, uniquelist=false, dashed=false, giveninits=true]{biblatex}
+\addbibresource{referencias.bib}
+\DeclareFieldFormat{urldate}{\mkbibparens{acesso em #1}}
+\appto\biburlsetup{\Urlmuskip=0mu\relax}
+\renewcommand*{\nameyeardelim}{\addcomma\space}
+\usepackage{titletoc}
 \usepackage[hidelinks, pdfusetitle]{hyperref}
 \hypersetup{pdftitle={DSM1 — Sistema Multiagente de Controladoria Terceirizada},
             pdfauthor={\autorA, \autorB}, pdfsubject={INE5628 — Entrega 1}}
@@ -58,6 +65,11 @@
 \definecolor{warn}{HTML}{B45309}
 \definecolor{bad}{HTML}{B91C1C}
 \definecolor{good}{HTML}{15803D}
+
+% ------------------------------------------------------------ sumário
+\titlecontents{section}[1.7em]{\addvspace{3pt}\small\bfseries\color{navy}}{\contentslabel{1.7em}}{}{\titlerule*[0.55pc]{.}\contentspage}
+\titlecontents{subsection}[3.9em]{\footnotesize\color{navy!75}}{\contentslabel{2.2em}}{}{\titlerule*[0.55pc]{.}\contentspage}
+\setcounter{tocdepth}{2}
 
 % ------------------------------------------------------------ tipografia e layout
 \setlength{\parindent}{0pt}
@@ -128,13 +140,19 @@
 Este documento especifica a Entrega 1 (DSM1) de um \textbf{Sistema Multiagente (SMA) para terceirização da
 Controladoria}: um orquestrador e cinco agentes especializados (Custos e Rentabilidade, Orçamento, Resultados e
 Indicadores, Controles Internos e Relatórios Gerenciais), apoiados por serviços de plataforma de comunicação
-(A2A/MCP), auditoria, configuração de modelos, memória e política de segurança. A modelagem segue AOSE
-(Tropos, Gaia e Prometheus; Cancian, 2026) e estabelece a justificativa do SMA, a fronteira e o ambiente,
+(A2A/MCP), auditoria, configuração de modelos, memória e política de segurança. A modelagem segue AOSE \parencite{cancian2026},
+combinando Tropos \parencite{bresciani2004tropos}, Gaia \parencite{wooldridge2000gaia} e Prometheus
+\parencite{padgham2004prometheus}, e estabelece a justificativa do SMA, a fronteira e o ambiente,
 \nReq{} requisitos com evidência observável, papéis $\langle$Resp, Perm, Obl, Prot$\rangle$, \nProt{} protocolos
 como máquinas de estados, \nNorm{} normas e \nMet{} métricas. A IA generativa é \textbf{opcional e desligada por
 padrão}, restrita à narrativa em três agentes. Todos os \nObj{} objetos possuem ID estável e formam uma cadeia de
 rastreabilidade validada automaticamente, publicada em \href{\docsURL}{documentação navegável}.
 \end{callout}
+
+\begin{tcolorbox}[enhanced, colback=white, colframe=accent!25, arc=3pt, boxrule=0.6pt, left=10pt, right=10pt, top=6pt, bottom=6pt]
+\callouttitle{Sumário}
+\makeatletter\@starttoc{toc}\makeatother
+\end{tcolorbox}
 
 % =====================================================================
 \section{Cenário-problema, motivação e objetivos}
@@ -149,13 +167,13 @@ alçada, segregação de funções e duplicidade (\code{PROB-04}) e gera relató
 (\code{PROB-06}), conhecimento que se perde entre ciclos (\code{PROB-07}) e ações com efeito externo sem
 controle humano (\code{PROB-08}).
 
-\textbf{Stakeholders} (recorte Tropos): CFO/diretoria contratante, controller humano (aprovador), contabilidade
+\textbf{Stakeholders} (recorte Tropos; \cite{bresciani2004tropos}): CFO/diretoria contratante, controller humano (aprovador), contabilidade
 do cliente, auditoria interna/externa, TI/Segurança e DPO (LGPD), equipe de desenvolvimento e avaliador.
 \textbf{Cenários âncora (MVP):} \emph{“feche o resultado do mês”} e \emph{“avalie o orçamento do trimestre”},
 sobre uma empresa sintética com gabarito, com fontes acessadas por \emph{MCP servers} simulados e offline.
 
 \subsection{Justificativa para o paradigma multiagente (hipótese MAS)}
-Aplicando o checklist de adequação de Cancian (2026, Tab.~5.1):
+Aplicando o checklist de adequação de \textcite[Tab.~5.1]{cancian2026}:
 
 \begin{dtable}{L{2.25cm} Y L{1.05cm}}
 \headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \endhead
@@ -187,7 +205,16 @@ controle; (G-08) reutilizar conhecimento aprovado; (G-09) restringir efeitos ext
 \section{Fronteira do sistema e caracterização do ambiente}
 Pertencem ao \textbf{software modelado} os seis agentes e os sete serviços de plataforma (Figura~\ref{fig:org}).
 Permanecem no \textbf{ambiente}, ainda que representados por adapters, os usuários humanos (solicitante, aprovador,
-auditor), as fontes externas e o relógio/calendário de fechamento. O ambiente é:
+auditor), as fontes externas e o relógio/calendário de fechamento.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/fig_organizacao.tex}}
+  \caption{Organização em camadas: fronteira do SMA, agentes, serviços de plataforma transversais, protocolos e ambiente.}
+  \label{fig:org}
+\end{figure}
+
+O ambiente é:
 \begin{itemize}
   \item \textbf{Parcialmente observável:} cada agente vê apenas o que seus conectores MCP e mensagens A2A entregam
         ($see_i: S \to P_i$): Custos não lê a base normativa e Controles Internos não lê as regras de rateio.
@@ -198,12 +225,6 @@ auditor), as fontes externas e o relógio/calendário de fechamento. O ambiente 
   \item \textbf{Com recursos compartilhados:} o período em fechamento é exclusivo e o orçamento de tokens é consumível.
 \end{itemize}
 
-\begin{figure}[H]
-  \centering
-  \resizebox{\linewidth}{!}{\input{figures/fig_organizacao.tex}}
-  \caption{Organização em camadas: fronteira do SMA, agentes, serviços de plataforma transversais, protocolos e ambiente.}
-  \label{fig:org}
-\end{figure}
 
 Recursos externos classificados por observabilidade, acionabilidade, exclusividade e autoridade
 (escrita em fonte externa é sempre ação restrita):
@@ -215,7 +236,7 @@ Recursos externos classificados por observabilidade, acionabilidade, exclusivida
 
 % =====================================================================
 \section{Especificação de requisitos e critérios de aceite}
-Os requisitos seguem o template AOSE (Cancian, 2026, Cap.~4): cada um liga-se a um papel responsável e a uma
+Os requisitos seguem o template AOSE \parencite[Cap.~4]{cancian2026}: cada um liga-se a um papel responsável e a uma
 \textbf{evidência observável} capaz de distinguir implementação correta de execução apenas aparente. Os IDs
 reaparecem nos testes derivados, nas métricas e na matriz da Seção~\ref{sec:trace}.
 
@@ -226,7 +247,7 @@ reaparecem nos testes derivados, nas métricas e na matriz da Seção~\ref{sec:t
 
 % =====================================================================
 \section{Agentes, papéis e arquitetura da organização}
-O modelo organizacional (Gaia) separa \textbf{papéis} (o que precisa ser feito, sob quais direitos e deveres),
+O modelo organizacional (Gaia; \cite{wooldridge2000gaia}) separa \textbf{papéis} (o que precisa ser feito, sob quais direitos e deveres),
 \textbf{agentes} (entidades que os assumem) e \textbf{serviços de plataforma}. Cada papel é a tupla
 $role = \langle Resp, Perm, Obl, Prot\rangle$. Os papéis humanos \code{ROLE-SOL} (solicitante) e \code{ROLE-APR}
 (aprovador) ficam fora da fronteira, mas participam de protocolos.
@@ -264,10 +285,10 @@ sobre lançamentos $\rightarrow$ desejo de conformidade $\rightarrow$ intenção
 
 \subsection{Comunicação: A2A entre agentes, MCP com plataformas}
 Toda comunicação entre agentes usa a mensagem imutável $m=\langle s, r, p, c, o, k\rangle$ (remetente, destinatário,
-performativo FIPA-ACL, conteúdo, ontologia \code{ctrl-fin-v1} e \code{conversation\_id}), com prazo lógico
+performativo FIPA-ACL \parencite{fipa2002acl}, conteúdo, ontologia \code{ctrl-fin-v1} e \code{conversation\_id}), com prazo lógico
 \code{reply\_by}: respostas tardias são descartadas deterministicamente. \textbf{A2A é social} (agente $\leftrightarrow$
-agente, com semântica de protocolo); \textbf{MCP é instrumental} (agente $\rightarrow$ fonte de dados, como
-\emph{tool}). Nenhum agente usa MCP para conversar com outro.
+agente, com semântica de protocolo; \cite{a2a2025}); \textbf{MCP é instrumental} (agente $\rightarrow$ fonte de dados, como
+\emph{tool}; \cite{mcp2025}). Nenhum agente usa MCP para conversar com outro.
 
 \subsection{Mecanismos de coordenação}
 \begin{dtable}{L{3.0cm} Y L{3.6cm}}
@@ -286,12 +307,12 @@ de Custos por unidade de negócio).
 
 
 \subsection{Protocolos como máquinas de estados}
-Os \nProt{} protocolos são especificados como FSMs (\code{models/protocols.yaml}). As transições válidas originam
+Os \nProt{} protocolos são especificados como FSMs (\code{models/protocols.yaml}), seguindo a estrutura do FIPA-Request \parencite{fipa2002request}. As transições válidas originam
 testes nominais e as \textbf{transições inválidas} originam testes negativos, a executar na DSM2
 (Figura~\ref{fig:fsm}): uma sequência que o modelo proíbe deve ser rejeitada mesmo que cada mensagem isolada
 seja bem formada.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \resizebox{\linewidth}{!}{\input{figures/fig_fsm.tex}}
   \caption{FSMs de delegação e do Approval Gate. Estados com borda dupla são finais; em vermelho, transições inválidas que viram testes negativos.}
@@ -304,7 +325,7 @@ Orçamento, consultas A2A de Resultados, verificação com possibilidade de veto
 Approval Gate até a decisão humana. Cada mensagem carrega o mesmo \code{conversation\_id}, o que permite
 reconstruir a cadeia causal a partir do trace.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \resizebox{\linewidth}{!}{\input{figures/fig_sequencia.tex}}
   \caption{Cenário âncora “feche o resultado do mês” (fluxo nominal). Na alternativa de veto, o Orquestrador libera a reserva e responde \texttt{failure}.}
@@ -363,22 +384,15 @@ execuções são \nPend{} \emph{stubs} rastreáveis pendentes da DSM2.
 \callouttitle{Disposições finais e próximos passos}
 A DSM1 entrega cenário, fronteira, requisitos, organização de papéis, modelo PEAS/BDI, protocolos, normas e
 métricas com rastreabilidade validada automaticamente. Os modelos editáveis estão em \code{models/*.yaml},
-\code{diagrams/dsm1/*.mmd} (Mermaid) e \code{entregas/dsm1/figures/*.tex} (TikZ); o uso de IA está declarado em
-\code{USO\_DE\_IA.md}. A \textbf{DSM2} (arquitetura e protótipo) está apenas pré-estruturada: runtime, transporte
+\code{diagrams/dsm1/*.mmd} (Mermaid) e \code{entregas/dsm1/figures/*.tex} (TikZ). Na organização dos arquivos e da
+documentação foi utilizado o modelo de IA \textbf{Claude Opus 5.5} (Anthropic), conforme \code{USO\_DE\_IA.md}. A \textbf{DSM2} (arquitetura e protótipo) está apenas pré-estruturada: runtime, transporte
 A2A concreto, componentes e execução dos testes serão decididos e documentados nela.\par\vspace{2pt}
 {\RaggedRight\textbf{Documentação navegável:} \href{\docsURL}{\texttt{\docsURL}}\\
 \textbf{Repositório:} \href{\repoURL}{\texttt{\repoURL}}\par}
 \end{callout}
 
-{\footnotesize
-\textbf{Referências.}
-CANCIAN, R. L. \emph{Sistemas Multiagentes Inteligentes}. Florianópolis: UFSC, 2026 (material da disciplina).
-\textbullet\; WOOLDRIDGE, M.; JENNINGS, N.; KINNY, D. The Gaia methodology for agent-oriented analysis and design. \emph{JAAMAS}, 3(3), 2000.
-\textbullet\; BRESCIANI, P. et al. Tropos: an agent-oriented software development methodology. \emph{JAAMAS}, 8(3), 2004.
-\textbullet\; PADGHAM, L.; WINIKOFF, M. \emph{Developing Intelligent Agent Systems: a practical guide}. Wiley, 2004.
-\textbullet\; FIPA. \emph{ACL Message Structure} (SC00061) e \emph{Request Interaction Protocol} (SC00026), 2002.
-\textbullet\; Agent2Agent (A2A) Protocol Specification. Linux Foundation, 2025.
-\textbullet\; Model Context Protocol Specification. Anthropic, 2025.
-\par}
+\begingroup\footnotesize\RaggedRight
+\printbibliography[heading=bibintoc, title={Referências}]
+\endgroup
 
 \end{document}

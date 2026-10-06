@@ -304,7 +304,7 @@ Toda comunicação entre agentes usa a mensagem imutável $m=\langle s, r, p, c,
 performativo FIPA-ACL \parencite{fipa2002acl}, conteúdo, ontologia \code{ctrl-fin-v1} e \code{conversation\_id}), com prazo lógico
 \code{reply\_by}: respostas tardias são descartadas deterministicamente. \textbf{A2A é social} (agente $\leftrightarrow$
 agente, com semântica de protocolo; \cite{a2a2025}); \textbf{MCP é instrumental} (agente $\rightarrow$ fonte de dados, como
-\emph{tool}; \cite{mcp2025}). Nenhum agente usa MCP para conversar com outro.
+\emph{tool}; \cite{mcp2026}). Nenhum agente usa MCP para conversar com outro.
 
 \subsection{Mecanismos de coordenação}
 \begin{dtable}{L{3.0cm} Y L{3.6cm}}
@@ -400,8 +400,8 @@ execuções são \nPend{} \emph{stubs} rastreáveis pendentes da DSM2.
 \callouttitle{Disposições finais e próximos passos}
 A DSM1 entrega cenário, fronteira, requisitos, organização de papéis, modelo PEAS/BDI, protocolos, normas e
 métricas com rastreabilidade validada automaticamente. Os modelos editáveis estão em \code{models/*.yaml},
-\code{diagrams/dsm1/*.mmd} (Mermaid) e \code{entregas/dsm1/figures/*.tex} (TikZ). Na organização dos arquivos e da
-documentação foi utilizado o modelo de IA \textbf{Claude Opus 5.5} (Anthropic), conforme \code{USO\_DE\_IA.md}. A \textbf{DSM2} (arquitetura e protótipo) está apenas pré-estruturada: runtime, transporte
+\code{diagrams/dsm1/*.mmd} (Mermaid) e \code{entregas/dsm1/figures/*.tex} (TikZ). O uso de IA na organização dos arquivos e da
+documentação está declarado em \code{USO\_DE\_IA.md}. A \textbf{DSM2} (arquitetura e protótipo) está apenas pré-estruturada: runtime, transporte
 A2A concreto, componentes e execução dos testes serão decididos e documentados nela.\par\vspace{2pt}
 {\RaggedRight\textbf{Documentação navegável:} \href{\docsURL}{\texttt{\docsURL}}\\
 \textbf{Repositório:} \href{\repoURL}{\texttt{\repoURL}}\par}

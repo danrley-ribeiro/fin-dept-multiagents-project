@@ -13,8 +13,7 @@ Duas coisas distintas aparecem aqui:
 
 ## DSM1 — Cenário, requisitos e modelagem
 
-**Modelo utilizado no desenvolvimento:** **Claude Opus 5.5** (Anthropic), por meio do Claude Code
-(assistente de programação em terminal).
+**Modelo utilizado no desenvolvimento:** **Claude Opus 5.5**.
 **Período:** 06/10/2026.
 
 ### Papel da IA

@@ -36,3 +36,5 @@ docs/_build/
 *.bcf
 *.run.xml
 *.loq
+*-blx.bib
+*-SAVE-ERROR

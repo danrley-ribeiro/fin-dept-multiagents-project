@@ -1,0 +1,330 @@
+# Requisitos (template AOSE: ID, tipo, descrição, papel, evidência observável de aceite).
+# Links de saída: objetivos (satisfies), problemas (addresses), papeis (assigned_to),
+# protocolos (uses_protocol), normas (constrained_by). Testes e métricas apontam para cá.
+items:
+  # ---------------- Funcionais ----------------
+  - id: REQ-F01
+    tipo: Funcional
+    titulo: Decomposição e agregação de solicitações
+    descricao: >-
+      O Orquestrador deve mapear cada solicitação do catálogo ("fechar o resultado
+      do mês", "avaliar o orçamento do trimestre") para um DAG de subtarefas,
+      delegá-las aos papéis competentes e agregar uma resposta final; pedido fora
+      do catálogo recebe not-understood explícito.
+    evidencia: >-
+      Trace com o DAG gerado e, por subtarefa, request → agree → inform/failure
+      sob o mesmo conversation_id; resposta final com status explícito.
+    objetivos: [G-01]
+    problemas: [PROB-01]
+    papeis: [ROLE-ORQ, ROLE-SOL]
+    protocolos: [PROT-SOL, PROT-DEL]
+    normas: []
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F02
+    tipo: Funcional
+    titulo: Apuração de custos, margem e rentabilidade
+    descricao: >-
+      Apurar custos fixos e variáveis, aplicar rateio por critério configurado e
+      calcular margem de contribuição e rentabilidade por produto, serviço e UN a
+      partir do balancete obtido via MCP.
+    evidencia: >-
+      Valores idênticos ao gabarito do dataset sintético (tolerância R$ 0,01) e
+      cada valor acompanhado de proveniência (fonte MCP, consulta, versão do rateio).
+    objetivos: [G-02]
+    problemas: [PROB-02]
+    papeis: [ROLE-CUS]
+    protocolos: [PROT-DEL]
+    normas: []
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F03
+    tipo: Funcional
+    titulo: Orçado x realizado e forecast
+    descricao: >-
+      Comparar orçado x realizado por conta e centro de custo, sinalizar desvios
+      acima de limiar configurável (percentual e absoluto) e projetar o forecast
+      do trimestre com método declarado.
+    evidencia: >-
+      Desvios sinalizados exatamente nos itens plantados acima do limiar do
+      cenário de teste; forecast reproduzível com o mesmo seed.
+    objetivos: [G-03]
+    problemas: [PROB-03]
+    papeis: [ROLE-ORC]
+    protocolos: [PROT-DEL, PROT-QRY]
+    normas: []
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F04
+    tipo: Funcional
+    titulo: Resultado consolidado via A2A
+    descricao: >-
+      Montar DRE gerencial, EBITDA, fluxo de caixa (método indireto) e KPIs,
+      obtendo custos e orçamento dos agentes especialistas por query-ref A2A, sem
+      reimplementar suas regras.
+    evidencia: >-
+      Trace mostra query-ref RES→CUS e RES→ORC antes do inform final; DRE igual ao
+      gabarito; inform não solicitado é rejeitado.
+    objetivos: [G-04]
+    problemas: [PROB-01]
+    papeis: [ROLE-RES, ROLE-CUS, ROLE-ORC]
+    protocolos: [PROT-QRY, PROT-DEL]
+    normas: []
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F05
+    tipo: Funcional
+    titulo: Controles internos com veto
+    descricao: >-
+      Verificar alçada, segregação de funções, duplicidade, conciliação pendente e
+      competência sobre o pacote do fechamento, emitindo parecer com regra violada
+      e severidade; não conformidade crítica veta a publicação.
+    evidencia: >-
+      Todas as inconformidades críticas plantadas detectadas; publicação em estado
+      VETADO é bloqueada até correção ou waiver humano.
+    objetivos: [G-05]
+    problemas: [PROB-04]
+    papeis: [ROLE-CIN, ROLE-ORQ]
+    protocolos: [PROT-CMP]
+    normas: [NORM-04]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F06
+    tipo: Funcional
+    titulo: Relatório executivo por template com LLM opcional
+    descricao: >-
+      Gerar relatório executivo por template determinístico a partir dos
+      resultados consolidados; com a flag LLM ativa, acrescentar narrativa e
+      insights preservando os números do núcleo.
+    evidencia: >-
+      Com flag desligada o relatório é gerado sem rede; com flag ligada todo
+      número do texto coincide com o núcleo ou o template é usado.
+    objetivos: [G-06]
+    problemas: [PROB-05]
+    papeis: [ROLE-REL]
+    protocolos: [PROT-DEL]
+    normas: [NORM-05, NORM-07]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-F07
+    tipo: Funcional
+    titulo: Memória de longo prazo com proveniência
+    descricao: >-
+      Toda saída aprovada pelo controller vira memória (embedding + nós e arestas
+      de conta, indicador, decisão e período); os agentes consultam a memória
+      antes de nova análise e citam a proveniência usada.
+    evidencia: >-
+      Saída não aprovada não aparece na memória; análise seguinte cita o ID da
+      memória e a fonte original.
+    objetivos: [G-08]
+    problemas: [PROB-07]
+    papeis: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-REL]
+    protocolos: [PROT-APR]
+    normas: [NORM-08]
+    prioridade: Should
+    entrega: DSM1
+
+  # ---------------- Segurança ----------------
+  - id: REQ-S01
+    tipo: Segurança
+    titulo: Ações com efeito externo só com aprovação
+    descricao: >-
+      Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é
+      executado autonomamente: a SafetyPolicy classifica em ALLOW,
+      REQUIRE_APPROVAL ou DENY e retém a ação no Approval Gate.
+    evidencia: >-
+      ActionRequest em PENDENTE até approve humano; ação DENY nunca executa
+      efeito colateral, mesmo com aprovação.
+    objetivos: [G-09]
+    problemas: [PROB-08]
+    papeis: [ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR]
+    protocolos: [PROT-APR]
+    normas: [NORM-01, NORM-02]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-S02
+    tipo: Segurança
+    titulo: Exclusão mútua do período em fechamento
+    descricao: >-
+      Dois fechamentos concorrentes da mesma entidade e competência são impedidos
+      por reserva exclusiva com TTL; o conflito retorna falha explicada.
+    evidencia: >-
+      Segunda reserva sobreposta recebe reserve-failure com o dono atual; reserva
+      expirada é liberada.
+    objetivos: [G-01, G-05]
+    problemas: [PROB-01, PROB-04]
+    papeis: [ROLE-ORQ]
+    protocolos: [PROT-LCK]
+    normas: [NORM-03]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-S03
+    tipo: Segurança
+    titulo: LLM não calcula nem autoriza
+    descricao: >-
+      Todo número presente em texto gerado por LLM é validado contra o núcleo
+      determinístico; divergência descarta o texto e aciona o template. Proposta
+      de ação vinda de LLM nunca é tratada como autorização.
+    evidencia: >-
+      Mock de LLM que altera um valor provoca fallback registrado em log; mock que
+      sugere ação não gera execução.
+    objetivos: [G-06, G-09]
+    problemas: [PROB-05, PROB-06]
+    papeis: [ROLE-REL, ROLE-RES, ROLE-ORC]
+    protocolos: [PROT-APR]
+    normas: [NORM-05]
+    prioridade: Must
+    entrega: DSM1
+
+  # ---------------- Observabilidade ----------------
+  - id: REQ-O01
+    tipo: Observabilidade
+    titulo: Log de decisão
+    descricao: >-
+      Cada decisão registra critério/regra, referências dos dados de entrada,
+      agente, conversation_id e timestamp em JSONL append-only, via interceptor
+      central (não por agente).
+    evidencia: >-
+      Script reconstrói a sequência causal de uma solicitação a partir do
+      conversation_id sem inspecionar o código.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+    protocolos: [PROT-DEL]
+    normas: [NORM-06]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-O02
+    tipo: Observabilidade
+    titulo: Log de prompt
+    descricao: >-
+      Quando a flag LLM estiver ativa, registrar o prompt exato (após redaction),
+      versão do template, modelo e fontes anexadas.
+    evidencia: >-
+      Com flag ligada há um registro de prompt por chamada; com flag desligada
+      nenhum registro de prompt é criado.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-REL, ROLE-RES, ROLE-ORC]
+    protocolos: []
+    normas: [NORM-06, NORM-07]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-O03
+    tipo: Observabilidade
+    titulo: Log de custo e tokens
+    descricao: >-
+      Registrar tokens de entrada e saída, modelo e custo estimado por chamada,
+      agregados por tarefa, solicitação e agente.
+    evidencia: >-
+      Soma dos custos por chamada igual ao total da tarefa; custo zero com flag
+      desligada.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-REL, ROLE-RES, ROLE-ORC]
+    protocolos: []
+    normas: [NORM-07]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-O04
+    tipo: Observabilidade
+    titulo: Interface de observabilidade segura
+    descricao: >-
+      Dashboard web, mobile e desktop autenticado com filtros por agente, período,
+      tarefa e custo sobre os logs de auditoria. Especificado na DSM1;
+      implementação em entrega futura.
+    evidencia: >-
+      Cada filtro retorna exatamente os registros do recorte em base de teste;
+      acesso sem autenticação é negado.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-APR, ROLE-SOL]
+    protocolos: []
+    normas: [NORM-06]
+    prioridade: Could
+    entrega: DSM1
+
+  # ---------------- Configuração ----------------
+  - id: REQ-C01
+    tipo: Configuração
+    titulo: Modelo por agente trocável sem redeploy
+    descricao: >-
+      Registro central define por agente a flag LLM (padrão desligada), modelo,
+      limite de tokens e orçamento; a mudança vale na próxima tarefa sem redeploy;
+      LLM só é habilitável em REL, RES e ORC; cota excedida bloqueia a chamada e
+      aciona o template.
+    evidencia: >-
+      Troca de modelo refletida na tarefa seguinte; configuração com LLM em ORQ,
+      CUS ou CIN é rejeitada; cota estourada gera fallback registrado.
+    objetivos: [G-07, G-09]
+    problemas: [PROB-06]
+    papeis: [ROLE-REL, ROLE-RES, ROLE-ORC, ROLE-APR]
+    protocolos: []
+    normas: [NORM-07]
+    prioridade: Must
+    entrega: DSM1
+
+  # ---------------- Privacidade ----------------
+  - id: REQ-P01
+    tipo: Privacidade
+    titulo: Redaction fail-closed (LGPD e sigilo)
+    descricao: >-
+      Logs, traces e memória passam por redaction de segredos, credenciais e
+      dados pessoais, com política de retenção; falha de sanitização impede a
+      gravação.
+    evidencia: >-
+      Registro com chave de API ou CPF sintético é sanitizado ou recusado; nenhum
+      campo proibido aparece nos arquivos JSONL.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-ORQ, ROLE-CIN, ROLE-REL]
+    protocolos: []
+    normas: [NORM-06]
+    prioridade: Must
+    entrega: DSM1
+
+  # ---------------- Não funcionais ----------------
+  - id: REQ-NF01
+    tipo: Não funcional
+    titulo: Execução offline e reprodutível
+    descricao: >-
+      O núcleo executa sem rede e sem API paga, com MCP mocks, dados sintéticos e
+      seed fixo; o LLM é estritamente opcional.
+    evidencia: >-
+      Duas execuções com o mesmo seed e flag desligada produzem saídas com o mesmo
+      hash.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-ORQ, ROLE-REL]
+    protocolos: [PROT-DEL]
+    normas: [NORM-07]
+    prioridade: Must
+    entrega: DSM1
+
+  - id: REQ-NF02
+    tipo: Não funcional
+    titulo: Versionamento de prompts, regras e configuração
+    descricao: >-
+      Templates de prompt, regras de conformidade e configurações de modelo têm
+      ID e versão, registrados em cada log de decisão e de prompt.
+    evidencia: >-
+      Todo registro de log contém as versões vigentes; mudança de versão aparece
+      no trace seguinte.
+    objetivos: [G-07]
+    problemas: [PROB-06]
+    papeis: [ROLE-REL, ROLE-CIN]
+    protocolos: []
+    normas: [NORM-07]
+    prioridade: Should
+    entrega: DSM1

@@ -1,0 +1,24 @@
+DSM1 — Cenário, requisitos e modelagem
+Peso: 20% da MPDSM. Prazo inicial: 10/10/2026 23:55.
+
+Entregar
+PDF de aproximadamente 4–6 páginas;
+diagramas/modelos editáveis;
+README.md
+;
+USO_DE_IA.md
+.
+Conteúdo
+cenário-problema, motivação e objetivo;
+fronteira e ambiente;
+requisitos;
+agentes, papéis e responsabilidades;
+objetivos, percepções, ações e estado/conhecimento;
+interações e coordenação previstas;
+métricas/evidências de sucesso.
+Critério	Peso
+Problema e objetivos	20%
+Agentes e ambiente	25%
+Interações e coordenação	25%
+Rastreabilidade	20%
+Documentação e autoria	10%

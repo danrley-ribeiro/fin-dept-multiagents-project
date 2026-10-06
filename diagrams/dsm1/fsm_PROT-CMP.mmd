@@ -1,0 +1,13 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> CRIADA
+    CRIADA --> EM_ANALISE: request
+    EM_ANALISE --> LIBERADO: conforme
+    EM_ANALISE --> LIBERADO_COM_RESSALVA: nao_conforme_nao_critico
+    EM_ANALISE --> VETADO: veto
+    LIBERADO_COM_RESSALVA --> LIBERADO: publicar
+    VETADO --> EM_ANALISE: correcao
+    VETADO --> LIBERADO_COM_RESSALVA: waiver_humano
+    VETADO --> BLOQUEADO: prazo_esgotado
+    LIBERADO --> [*]
+    BLOQUEADO --> [*]

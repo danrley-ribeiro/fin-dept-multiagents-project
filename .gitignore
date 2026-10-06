@@ -1,0 +1,35 @@
+# --- Arquivos de insumo locais (NÃO versionar) ---
+# Apostila da disciplina: "Proibido compartilhar. Uso exclusivo em sala-de-aula."
+Sistemas Multiagentes Inteligentes.pdf
+# Rascunhos de ideia (conteúdo incorporado em docs/ e models/)
+arquitetura-sistema-multiagente-controladoria.md
+arquitetura-sistema-multiagente-controladoria.pdf
+ideias.txt
+
+# --- Ambiente Python ---
+.venv/
+__pycache__/
+*.pyc
+
+# --- Build da documentação ---
+docs/_build/
+
+# --- LaTeX (auxiliares; main.pdf É versionado) ---
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+*.bbl
+*.blg
+*.lof
+*.lot
+
+# --- SO / editores ---
+.DS_Store
+.idea/
+.vscode/
+.playwright-mcp/

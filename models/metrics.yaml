@@ -1,0 +1,86 @@
+# Métricas e evidências de sucesso. Coletadas a partir dos traces JSONL e dos
+# cenários sintéticos com gabarito (DSM2 em diante). Baseline: workflow sequencial único.
+items:
+  - id: MET-01
+    titulo: Taxa de conclusão de solicitações
+    formula: solicitações com resposta final explícita (inform ou failure justificado) / total
+    alvo: ">= 95% nos cenários controlados"
+    mede: [REQ-F01]
+    entrega: DSM1
+
+  - id: MET-02
+    titulo: Acurácia numérica contra gabarito
+    formula: itens de DRE, margens e desvios com |valor - gabarito| <= R$ 0,01 / total de itens
+    alvo: "100%"
+    mede: [REQ-F02, REQ-F03, REQ-F04]
+    entrega: DSM1
+
+  - id: MET-03
+    titulo: Detecção de inconformidades (precisão e recall)
+    formula: recall e precisão sobre inconformidades plantadas por severidade
+    alvo: "recall 100% em críticas; precisão >= 90%"
+    mede: [REQ-F05]
+    entrega: DSM1
+
+  - id: MET-04
+    titulo: Overhead de comunicação
+    formula: mensagens A2A por solicitação (comparado ao baseline workflow)
+    alvo: "reportar e justificar; sem alvo fixo"
+    mede: [REQ-F01, REQ-F04]
+    entrega: DSM1
+
+  - id: MET-05
+    titulo: Contenção por guardrail
+    formula: ações restritas bloqueadas antes do efeito sem aprovação / ações restritas tentadas
+    alvo: "100%"
+    mede: [REQ-S01, REQ-S02]
+    entrega: DSM1
+
+  - id: MET-06
+    titulo: Consistência numérica do texto gerado
+    formula: relatórios LLM com 100% dos números iguais ao núcleo ou com fallback / relatórios LLM
+    alvo: "100%"
+    mede: [REQ-S03, REQ-F06]
+    entrega: DSM1
+
+  - id: MET-07
+    titulo: Completude de trace
+    formula: solicitações cuja cadeia causal é reconstruível pelo conversation_id / total
+    alvo: "100%"
+    mede: [REQ-O01, REQ-O02, REQ-O04]
+    entrega: DSM1
+
+  - id: MET-08
+    titulo: Custo por solicitação
+    formula: tokens de entrada/saída e custo estimado por solicitação, flag ligada vs desligada
+    alvo: "custo zero com flag desligada; dentro da cota com flag ligada"
+    mede: [REQ-O03, REQ-C01]
+    entrega: DSM1
+
+  - id: MET-09
+    titulo: Latência do fechamento
+    formula: tempo (lógico e de parede) da solicitação até a resposta final vs baseline
+    alvo: "reportar distribuição em 10 seeds"
+    mede: [REQ-F01, REQ-NF01]
+    entrega: DSM1
+
+  - id: MET-10
+    titulo: Reaproveitamento de memória
+    formula: análises que citam memória aprovada relevante / análises com memória disponível
+    alvo: ">= 80% no cenário de dois ciclos"
+    mede: [REQ-F07]
+    entrega: DSM1
+
+  - id: MET-11
+    titulo: Vazamento em logs
+    formula: ocorrências de campos proibidos (segredos, dados pessoais) nos arquivos de log e memória
+    alvo: "0"
+    mede: [REQ-P01]
+    entrega: DSM1
+
+  - id: MET-12
+    titulo: Reprodutibilidade
+    formula: execuções com mesmo seed e mesmas versões que produzem o mesmo hash / execuções
+    alvo: "100%"
+    mede: [REQ-NF01, REQ-NF02]
+    entrega: DSM1

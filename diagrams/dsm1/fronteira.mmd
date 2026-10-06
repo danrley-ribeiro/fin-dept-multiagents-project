@@ -1,0 +1,15 @@
+%% Fronteira do sistema (DSM1): o que é modelado como software x o que permanece no ambiente.
+flowchart LR
+  subgraph AMB["Ambiente (observado ou acionado, não controlado)"]
+    U["Usuários humanos<br/>(solicitante, aprovador, auditor)"]
+    F["Fontes externas<br/>ERP · planilhas · base histórica · APIs · normas"]
+    R["Relógio / calendário de fechamento"]
+  end
+  subgraph SW["Software modelado"]
+    AG["6 agentes<br/>(ORQ, CUS, ORC, RES, CIN, REL)"]
+    SV["7 serviços de plataforma<br/>(A2A, MCP, AUD, MOD, MEM, POL, LCK)"]
+  end
+  U <-- "ENV-UI: solicitação, aprovação, dashboard" --> SV
+  F <-- "SVC-MCP: leitura; escrita só com aprovação" --> SV
+  R -- "reply_by, TTL" --> AG
+  AG <--> SV

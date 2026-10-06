@@ -1,0 +1,9 @@
+% ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão
+\textbf{ERP — razão contábil, balancete e lançamentos} & Leitura via MCP (balancete, lançamentos, centros de custo, plano de contas) & Escrita de ajuste contábil — ação restrita (REQUIRE\_APPROVAL) & Período contábil exclusivo durante o fechamento & Contabilidade do cliente (STK-03) \\
+\textbf{Planilhas de orçamento e premissas} & Leitura via MCP (orçado por conta/centro de custo, premissas) & Alteração de orçamento — ação restrita (REQUIRE\_APPROVAL) & Não exclusiva para leitura & Diretoria / FP\&A do cliente (STK-01) \\
+\textbf{Base analítica histórica (data warehouse)} & Leitura via MCP (séries históricas, fechamentos anteriores) & Nenhuma (somente leitura) & Não exclusiva & TI do cliente (STK-05) \\
+\textbf{APIs financeiras de mercado (câmbio, IPCA, Selic)} & Leitura via MCP; pode falhar ou atrasar & Nenhuma & Não exclusiva (cota de chamadas) & Provedor externo \\
+\textbf{Base normativa interna (políticas de alçada, SoD, manual contábil)} & Leitura via MCP/RAG com proveniência (documento, trecho, versão) & Nenhuma & Não exclusiva & Compliance / Auditoria (STK-04) \\
+\textbf{Período contábil em fechamento (recurso compartilhado)} & Estado de reserva consultável & Reservar / liberar via protocolo de reserva & Exclusivo por (entidade, competência), com TTL & SVC-LCK \\
+\textbf{Orçamento de tokens e custo de IA (recurso consumível)} & Saldo por agente/tarefa consultável no registro de modelos & Consumido apenas por chamadas LLM habilitadas por flag & Cota por agente e por tarefa & Controller (STK-02) via SVC-MOD \\
+\textbf{Interface do usuário (solicitação, aprovação e observabilidade)} & Recebe solicitações e decisões de aprovação humanas & Exibe resultado final, pedidos de aprovação e dashboard & Não exclusiva & Usuários autenticados (STK-01, STK-02, STK-04) \\

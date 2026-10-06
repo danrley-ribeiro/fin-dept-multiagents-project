@@ -1,0 +1,150 @@
+# Agentes de software (instâncias) e mapeamento PEAS/BDI.
+# Princípio: Estado ≠ Conhecimento ≠ Memória (Cancian, 2026).
+# llm: nao_permitido | flag  (flag = opcional, desligada por padrão; só narrativa, nunca números)
+items:
+  - id: AG-ORQ
+    titulo: Orquestrador (Controladoria Master)
+    papeis: [ROLE-ORQ]
+    cognicao: Reativo a protocolos + biblioteca de planos (intenção → DAG)
+    llm: nao_permitido
+    objetivos: [G-01]
+    recursos: [ENV-UI, ENV-PER]
+    percepcoes:
+      - Solicitação do usuário (intenção, competência, entidade)
+      - Mensagens agree/refuse/inform/failure dos especialistas
+      - Parecer e veto de Controles Internos
+      - Decisão do Approval Gate
+    estado:
+      - DAG de subtarefas e status por conversation_id
+      - Reserva de período ativa
+      - Relógio lógico e prazos reply_by
+    conhecimento:
+      - Catálogo de intenções e planos (fechar mês, avaliar orçamento)
+      - Diretório de papéis e Agent Cards
+    acoes:
+      - Enviar request a especialistas
+      - Reservar e liberar período
+      - Solicitar verificação de conformidade
+      - Propor publicação ao Approval Gate
+      - Entregar resposta final ou falha explícita
+    justificativa: Única fronteira com o usuário; mantém compromissos e prazos de várias conversas em paralelo.
+    entrega: DSM1
+
+  - id: AG-CUS
+    titulo: Agente de Custos e Rentabilidade
+    papeis: [ROLE-CUS]
+    cognicao: Deliberativo determinístico (regras de rateio + cálculo)
+    llm: nao_permitido
+    objetivos: [G-02]
+    recursos: [ENV-ERP, ENV-BD]
+    percepcoes:
+      - Request de apuração (competência, entidade, dimensão)
+      - Query-ref de Resultados
+      - Balancete e lançamentos via MCP
+    estado:
+      - Custos apurados do período e versão do rateio aplicado
+      - Pendências de dados de origem
+    conhecimento:
+      - Critérios de rateio e classificação fixo/variável
+      - Memória aprovada de ciclos anteriores
+    acoes:
+      - Calcular margem de contribuição e rentabilidade
+      - Responder inform com proveniência
+      - Responder failure com dado ausente
+    justificativa: Mantém estado de custos por período e responde a vários consumidores sob seus próprios critérios.
+    entrega: DSM1
+
+  - id: AG-ORC
+    titulo: Agente de Orçamento e Controle Orçamentário
+    papeis: [ROLE-ORC]
+    cognicao: Determinístico (variância + forecast) com narrativa LLM opcional
+    llm: flag
+    llm_uso: Narrativa explicativa dos desvios (sem gerar números)
+    objetivos: [G-03]
+    recursos: [ENV-PLN, ENV-ERP, ENV-TOK]
+    percepcoes:
+      - Request de avaliação orçamentária
+      - Query-ref de Resultados
+      - Orçado e realizado via MCP
+    estado:
+      - Desvios por conta e centro de custo
+      - Forecast do trimestre e premissas
+    conhecimento:
+      - Limiar de desvio (% e R$) e método de forecast
+      - Memória aprovada de justificativas de desvio
+    acoes:
+      - Sinalizar desvio acima do limiar
+      - Projetar forecast
+      - Propor alteração de orçamento (restrita)
+    justificativa: Decide autonomamente o que é desvio relevante sob limiares próprios e propõe correções.
+    entrega: DSM1
+
+  - id: AG-RES
+    titulo: Agente de Resultados e Indicadores
+    papeis: [ROLE-RES]
+    cognicao: Determinístico (DRE, EBITDA, DFC, KPIs) com comentário LLM opcional
+    llm: flag
+    llm_uso: Comentário analítico sobre a variação dos indicadores
+    objetivos: [G-04]
+    recursos: [ENV-ERP, ENV-API, ENV-TOK]
+    percepcoes:
+      - Request de consolidação de resultado
+      - Inform de custos (CUS) e de orçamento (ORC)
+      - Índices de mercado via MCP
+    estado:
+      - DRE e KPIs em construção e pendências de insumos
+    conhecimento:
+      - Estrutura da DRE gerencial e fórmulas de KPIs
+      - Memória aprovada de fechamentos anteriores
+    acoes:
+      - Enviar query-ref a CUS e ORC
+      - Consolidar DRE, EBITDA, DFC e KPIs
+      - Informar resultado ao Orquestrador
+    justificativa: Depende de informação de outros agentes (dependência de informação) e decide quando o resultado está completo.
+    entrega: DSM1
+
+  - id: AG-CIN
+    titulo: Agente de Controles Internos
+    papeis: [ROLE-CIN]
+    cognicao: BDI com regras simbólicas (crenças sobre lançamentos, intenção de vetar)
+    llm: nao_permitido
+    objetivos: [G-05]
+    recursos: [ENV-ERP, ENV-NRM]
+    percepcoes:
+      - Request de verificação do pacote de fechamento
+      - Lançamentos, aprovadores e conciliações via MCP
+      - Waiver ou correção informados pelo Orquestrador
+    estado:
+      - Crenças sobre conformidade de cada lançamento
+      - Intenções ativas (aprovar, apontar, vetar)
+    conhecimento:
+      - Regras de alçada, SoD, duplicidade e competência (base normativa)
+    acoes:
+      - Emitir parecer conforme / não conforme
+      - Vetar publicação por não conformidade crítica
+      - Reavaliar após correção
+    justificativa: Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e de Relatórios.
+    entrega: DSM1
+
+  - id: AG-REL
+    titulo: Agente de Relatórios Gerenciais e Análises
+    papeis: [ROLE-REL]
+    cognicao: Template determinístico + LLM opcional (híbrido)
+    llm: flag
+    llm_uso: Síntese executiva e insights orientados à decisão (números vindos do núcleo)
+    objetivos: [G-06]
+    recursos: [ENV-TOK, ENV-UI]
+    percepcoes:
+      - Request de relatório com resultados consolidados e parecer de conformidade
+      - Memória aprovada relevante
+    estado:
+      - Rascunho do relatório e versão do template
+    conhecimento:
+      - Templates de relatório executivo
+      - Memória aprovada (embeddings e grafo)
+    acoes:
+      - Gerar relatório por template
+      - Gerar narrativa LLM (se flag ativa) e validar números
+      - Propor publicação (restrita)
+    justificativa: Única unidade que decide como comunicar à liderança; possui modo de operação configurável e fallback próprio.
+    entrega: DSM1

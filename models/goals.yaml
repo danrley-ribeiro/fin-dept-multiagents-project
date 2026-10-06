@@ -1,0 +1,86 @@
+# Árvore de objetivos (Tropos/Prometheus). G-00 é o objetivo sistêmico; os demais o refinam.
+# Todo objetivo-folha precisa ser satisfeito por >= 1 requisito.
+items:
+  - id: G-00
+    titulo: Controladoria terceirizada coordenada e auditável
+    descricao: >-
+      Executar as rotinas de controladoria da empresa cliente de forma
+      terceirizada e coordenada, entregando à liderança o resultado do período e
+      análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com
+      evidência reconstruível de cada decisão.
+    refina: []
+    problemas: [PROB-01, PROB-02, PROB-03, PROB-04, PROB-05, PROB-06, PROB-07, PROB-08]
+    stakeholders: [STK-01, STK-02, STK-04]
+    entrega: DSM1
+
+  - id: G-01
+    titulo: Atender solicitações decompondo-as em tarefas coordenadas
+    descricao: Transformar pedidos da liderança em subtarefas atribuídas e uma resposta final agregada.
+    refina: [G-00]
+    problemas: [PROB-01]
+    stakeholders: [STK-01]
+    entrega: DSM1
+
+  - id: G-02
+    titulo: Apurar custos, margens e rentabilidade
+    descricao: Custos fixos/variáveis, margem de contribuição e rentabilidade por produto, serviço ou UN.
+    refina: [G-00]
+    problemas: [PROB-02]
+    stakeholders: [STK-01, STK-03]
+    entrega: DSM1
+
+  - id: G-03
+    titulo: Controlar o orçamento
+    descricao: Orçado x realizado contínuo, desvios sinalizados e forecast.
+    refina: [G-00]
+    problemas: [PROB-03]
+    stakeholders: [STK-01]
+    entrega: DSM1
+
+  - id: G-04
+    titulo: Consolidar resultado e indicadores
+    descricao: DRE gerencial, EBITDA, fluxo de caixa e KPIs corporativos consistentes.
+    refina: [G-00]
+    problemas: [PROB-01]
+    stakeholders: [STK-01, STK-04]
+    entrega: DSM1
+
+  - id: G-05
+    titulo: Garantir conformidade antes da publicação
+    descricao: Validar políticas, alçadas e regras contábeis e impedir publicação de resultado não conforme.
+    refina: [G-00]
+    problemas: [PROB-04]
+    stakeholders: [STK-04, STK-03]
+    entrega: DSM1
+
+  - id: G-06
+    titulo: Entregar relatórios executivos acionáveis
+    descricao: Relatório claro, consistente com a DRE e orientado à decisão.
+    refina: [G-00]
+    problemas: [PROB-05]
+    stakeholders: [STK-01]
+    entrega: DSM1
+
+  - id: G-07
+    titulo: Manter auditabilidade total e custo de IA sob controle
+    descricao: Registrar decisões, prompts, fontes e custos de forma segura e reconstruível.
+    refina: [G-00]
+    problemas: [PROB-06]
+    stakeholders: [STK-04, STK-05, STK-06, STK-07]
+    entrega: DSM1
+
+  - id: G-08
+    titulo: Reutilizar conhecimento aprovado
+    descricao: Análises aprovadas viram memória consultável com proveniência.
+    refina: [G-00]
+    problemas: [PROB-07]
+    stakeholders: [STK-01, STK-06]
+    entrega: DSM1
+
+  - id: G-09
+    titulo: Restringir efeitos externos à autorização humana
+    descricao: Nenhuma ação com efeito no mundo real sem classificação de política e aprovação quando exigida.
+    refina: [G-00]
+    problemas: [PROB-08]
+    stakeholders: [STK-02, STK-05]
+    entrega: DSM1

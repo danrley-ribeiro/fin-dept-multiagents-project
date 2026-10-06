@@ -1,0 +1,54 @@
+# Casos de teste DERIVADOS dos modelos. Na DSM1 são apenas especificados
+# (status: planejado); a execução e o resultado real pertencem à DSM2.
+# Nenhum teste é marcado como PASS antes de existir código e execução real.
+items:
+  - {id: TEST-01, nome: test_intent_decomposition_dag, verifica: [REQ-F01], derivado_de: PROT-DEL, tipo: protocolo-nominal,
+     esperado: "'fechar o mês' gera DAG CUS∥ORC → RES → CIN → REL e resposta final inform", entrega: DSM2, status: planejado}
+  - {id: TEST-02, nome: test_unknown_intent_not_understood, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: protocolo-negativo,
+     esperado: "intenção fora do catálogo termina em RECUSADA com not-understood", entrega: DSM2, status: planejado}
+  - {id: TEST-03, nome: test_delegation_rejects_inform_before_agree, verifica: [REQ-F01], derivado_de: PROT-DEL, tipo: protocolo-negativo,
+     esperado: "inform em AGUARDANDO levanta ProtocolViolation", entrega: DSM2, status: planejado}
+  - {id: TEST-04, nome: test_contribution_margin_matches_gold, verifica: [REQ-F02], derivado_de: ROLE-CUS, tipo: cenario,
+     esperado: "margens por produto/UN iguais ao gabarito com proveniência", entrega: DSM2, status: planejado}
+  - {id: TEST-05, nome: test_budget_variance_flags_threshold, verifica: [REQ-F03], derivado_de: ROLE-ORC, tipo: cenario,
+     esperado: "somente desvios plantados acima do limiar são sinalizados", entrega: DSM2, status: planejado}
+  - {id: TEST-06, nome: test_results_query_ref_to_costs, verifica: [REQ-F04], derivado_de: PROT-QRY, tipo: protocolo-nominal,
+     esperado: "query-ref → inform antes do inform final de RES; DRE igual ao gabarito", entrega: DSM2, status: planejado}
+  - {id: TEST-07, nome: test_query_ref_rejects_unsolicited_inform, verifica: [REQ-F04], derivado_de: PROT-QRY, tipo: protocolo-negativo,
+     esperado: "inform com conversation_id desconhecido é rejeitado", entrega: DSM2, status: planejado}
+  - {id: TEST-08, nome: test_critical_nonconformity_vetoes_close, verifica: [REQ-F05], derivado_de: PROT-CMP, tipo: protocolo-negativo,
+     esperado: "publicar em VETADO é rejeitado; waiver humano libera com ressalva", entrega: DSM2, status: planejado}
+  - {id: TEST-09, nome: test_planted_nonconformities_detected, verifica: [REQ-F05], derivado_de: NORM-04, tipo: cenario,
+     esperado: "recall 100% das críticas plantadas (alçada, SoD, duplicidade)", entrega: DSM2, status: planejado}
+  - {id: TEST-10, nome: test_report_template_without_llm, verifica: [REQ-F06, REQ-NF01], derivado_de: ROLE-REL, tipo: cenario,
+     esperado: "relatório completo com flag desligada e rede bloqueada", entrega: DSM2, status: planejado}
+  - {id: TEST-11, nome: test_memory_only_approved_with_provenance, verifica: [REQ-F07], derivado_de: NORM-08, tipo: seguranca,
+     esperado: "saída não aprovada não é indexada; aprovada é recuperada com fonte", entrega: DSM2, status: planejado}
+  - {id: TEST-12, nome: test_external_action_requires_approval, verifica: [REQ-S01], derivado_de: PROT-APR, tipo: seguranca,
+     esperado: "ajuste no ERP fica PENDENTE; execute sem approve levanta ApprovalRequired", entrega: DSM2, status: planejado}
+  - {id: TEST-13, nome: test_denied_action_never_executes, verifica: [REQ-S01], derivado_de: NORM-02, tipo: seguranca,
+     esperado: "ação fora da allowlist nunca chega ao conector MCP", entrega: DSM2, status: planejado}
+  - {id: TEST-14, nome: test_period_lock_conflict_rejected, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: concorrencia,
+     esperado: "segunda reserva sobreposta recebe reserve-failure; TTL libera", entrega: DSM2, status: planejado}
+  - {id: TEST-15, nome: test_llm_numeric_mismatch_falls_back, verifica: [REQ-S03, REQ-F06], derivado_de: NORM-05, tipo: seguranca,
+     esperado: "mock LLM com número alterado aciona template e log de fallback", entrega: DSM2, status: planejado}
+  - {id: TEST-16, nome: test_trace_causal_reconstruction, verifica: [REQ-O01], derivado_de: SVC-AUD, tipo: observabilidade,
+     esperado: "sequência causal completa reconstruída pelo conversation_id", entrega: DSM2, status: planejado}
+  - {id: TEST-17, nome: test_prompt_log_only_when_llm_enabled, verifica: [REQ-O02], derivado_de: NORM-07, tipo: observabilidade,
+     esperado: "registro de prompt existe sse flag ligada", entrega: DSM2, status: planejado}
+  - {id: TEST-18, nome: test_cost_log_per_call_and_task, verifica: [REQ-O03], derivado_de: SVC-AUD, tipo: observabilidade,
+     esperado: "soma por chamada = total da tarefa; zero com flag desligada", entrega: DSM2, status: planejado}
+  - {id: TEST-19, nome: test_dashboard_filters_and_auth, verifica: [REQ-O04], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "filtros retornam o recorte exato; acesso anônimo negado", entrega: FUTURA, status: planejado}
+  - {id: TEST-20, nome: test_model_swap_without_redeploy, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: configuracao,
+     esperado: "troca de modelo vale na próxima tarefa sem reiniciar agentes", entrega: DSM2, status: planejado}
+  - {id: TEST-21, nome: test_llm_not_allowed_roles_rejected, verifica: [REQ-C01], derivado_de: NORM-07, tipo: configuracao,
+     esperado: "habilitar LLM em ORQ, CUS ou CIN é rejeitado na validação", entrega: DSM2, status: planejado}
+  - {id: TEST-22, nome: test_token_limit_exceeded_fallback, verifica: [REQ-C01, REQ-O03], derivado_de: NORM-07, tipo: configuracao,
+     esperado: "cota esgotada bloqueia chamada e usa template", entrega: DSM2, status: planejado}
+  - {id: TEST-23, nome: test_redaction_fail_closed, verifica: [REQ-P01], derivado_de: NORM-06, tipo: seguranca,
+     esperado: "segredo/CPF sintético sanitizado; falha de sanitização recusa gravação", entrega: DSM2, status: planejado}
+  - {id: TEST-24, nome: test_offline_seeded_reproducibility, verifica: [REQ-NF01], derivado_de: SVC-MCP, tipo: reprodutibilidade,
+     esperado: "mesmo seed → mesmo hash de saída, sem rede", entrega: DSM2, status: planejado}
+  - {id: TEST-25, nome: test_versions_recorded_in_logs, verifica: [REQ-NF02], derivado_de: SVC-AUD, tipo: observabilidade,
+     esperado: "todo log contém versões de prompt, regras e configuração", entrega: DSM2, status: planejado}

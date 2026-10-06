@@ -1,0 +1,13 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> PROPOSTA
+    PROPOSTA --> EXECUTADA: allow
+    PROPOSTA --> NEGADA: deny
+    PROPOSTA --> PENDENTE: require_approval
+    PENDENTE --> EXECUTADA: approve
+    PENDENTE --> REJEITADA: reject
+    PENDENTE --> EXPIRADA: timeout
+    EXECUTADA --> [*]
+    NEGADA --> [*]
+    REJEITADA --> [*]
+    EXPIRADA --> [*]

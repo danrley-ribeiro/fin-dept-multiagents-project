@@ -1,0 +1,41 @@
+%% Modelo organizacional (DSM1) — agentes, serviços de plataforma, protocolos e ambiente.
+%% Editável em qualquer editor Mermaid (https://mermaid.live). IDs: models/*.yaml
+flowchart TB
+  SOL(["ROLE-SOL · Solicitante (CFO/Diretoria)"])
+  APR(["ROLE-APR · Aprovador (controller humano)"])
+  subgraph SMA["Fronteira do SMA de Controladoria"]
+    ORQ["AG-ORQ · Orquestrador"]
+    subgraph ESP["Agentes especializados"]
+      direction LR
+      CUS["AG-CUS<br/>Custos e Rentabilidade"]
+      ORC["AG-ORC<br/>Orçamento · LLM opc."]
+      RES["AG-RES<br/>Resultados e Indicadores · LLM opc."]
+      CIN["AG-CIN<br/>Controles Internos"]
+      REL["AG-REL<br/>Relatórios Gerenciais · LLM opc."]
+    end
+    subgraph PLAT["Serviços de plataforma (não-agentes)"]
+      direction LR
+      A2A{{"A2A"}}
+      MCP{{"MCP"}}
+      AUD{{"Auditoria"}}
+      MOD{{"Modelos"}}
+      MEM{{"Memória"}}
+      POL{{"SafetyPolicy"}}
+      LCK{{"Reserva"}}
+    end
+  end
+  subgraph FONTES["Ambiente: fontes externas"]
+    direction LR
+    ERP[("ERP")]
+    PLN[("Orçamento")]
+    BD[("Histórico")]
+    API[("Mercado")]
+    NRM[("Normas")]
+  end
+  SOL -- "PROT-SOL" --> ORQ
+  ORQ -- "PROT-DEL · PROT-CMP (veto)" --> ESP
+  RES -- "PROT-QRY" --> CUS
+  RES -- "PROT-QRY" --> ORC
+  ORQ -- "PROT-LCK · PROT-APR" --> PLAT
+  POL <-- "aprovação / waiver" --> APR
+  PLAT -- "MCP (leitura; escrita só aprovada)" --> FONTES

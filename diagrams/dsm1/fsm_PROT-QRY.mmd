@@ -1,0 +1,12 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> CRIADA
+    CRIADA --> AGUARDANDO: query-ref
+    AGUARDANDO --> RESPONDIDA: inform
+    AGUARDANDO --> RECUSADA: refuse
+    AGUARDANDO --> FALHOU: failure
+    AGUARDANDO --> EXPIRADA: timeout
+    RESPONDIDA --> [*]
+    RECUSADA --> [*]
+    FALHOU --> [*]
+    EXPIRADA --> [*]

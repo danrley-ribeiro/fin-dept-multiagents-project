@@ -1,0 +1,120 @@
+# Protocolos de interação (modelo de interação). Cada protocolo é uma FSM:
+# transições válidas viram testes nominais e as inválidas viram testes negativos (DSM2).
+# Mensagem: m = <s, r, p, c, o, k>  (remetente, destinatário, performativo, conteúdo, ontologia, conversation_id)
+items:
+  - id: PROT-SOL
+    titulo: Solicitação do usuário (FIPA-Request externo)
+    proposito: Receber um pedido da liderança e devolver resultado ou falha explícita.
+    participantes: [ROLE-SOL, ROLE-ORQ]
+    meio: Interface (ENV-UI)
+    performativos: [request, agree, not-understood, refuse, inform, failure]
+    estado_inicial: RECEBIDA
+    estados_finais: [CONCLUIDA, FALHOU, RECUSADA]
+    transicoes:
+      - [RECEBIDA, not-understood, RECUSADA]
+      - [RECEBIDA, refuse, RECUSADA]
+      - [RECEBIDA, agree, EM_EXECUCAO]
+      - [EM_EXECUCAO, inform, CONCLUIDA]
+      - [EM_EXECUCAO, failure, FALHOU]
+    invalidas:
+      - [RECEBIDA, inform, "resultado antes de aceitar a solicitação"]
+      - [CONCLUIDA, inform, "segundo resultado para a mesma conversa"]
+    entrega: DSM1
+
+  - id: PROT-DEL
+    titulo: Delegação de subtarefa (FIPA-Request via A2A)
+    proposito: Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by.
+    participantes: [ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+    meio: SVC-A2A
+    performativos: [request, agree, refuse, inform, failure]
+    estado_inicial: CRIADA
+    estados_finais: [CONCLUIDA, FALHOU, RECUSADA, EXPIRADA]
+    transicoes:
+      - [CRIADA, request, AGUARDANDO]
+      - [AGUARDANDO, agree, EM_EXECUCAO]
+      - [AGUARDANDO, refuse, RECUSADA]
+      - [AGUARDANDO, timeout, EXPIRADA]
+      - [EM_EXECUCAO, inform, CONCLUIDA]
+      - [EM_EXECUCAO, failure, FALHOU]
+      - [EM_EXECUCAO, timeout, EXPIRADA]
+    invalidas:
+      - [AGUARDANDO, inform, "resultado antes de agree"]
+      - [EXPIRADA, inform, "resposta após reply_by é descartada"]
+    entrega: DSM1
+
+  - id: PROT-QRY
+    titulo: Consulta entre especialistas (FIPA-Query-Ref via A2A)
+    proposito: Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.
+    participantes: [ROLE-RES, ROLE-CUS, ROLE-ORC]
+    meio: SVC-A2A
+    performativos: [query-ref, inform, refuse, failure]
+    estado_inicial: CRIADA
+    estados_finais: [RESPONDIDA, RECUSADA, FALHOU, EXPIRADA]
+    transicoes:
+      - [CRIADA, query-ref, AGUARDANDO]
+      - [AGUARDANDO, inform, RESPONDIDA]
+      - [AGUARDANDO, refuse, RECUSADA]
+      - [AGUARDANDO, failure, FALHOU]
+      - [AGUARDANDO, timeout, EXPIRADA]
+    invalidas:
+      - [CRIADA, inform, "inform não solicitado (conversation_id desconhecido)"]
+    entrega: DSM1
+
+  - id: PROT-CMP
+    titulo: Verificação de conformidade com veto
+    proposito: Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.
+    participantes: [ROLE-ORQ, ROLE-CIN, ROLE-APR]
+    meio: SVC-A2A
+    performativos: [request, inform(conforme), inform(nao_conforme), veto, waiver, request(reavaliar)]
+    estado_inicial: CRIADA
+    estados_finais: [LIBERADO, BLOQUEADO]
+    transicoes:
+      - [CRIADA, request, EM_ANALISE]
+      - [EM_ANALISE, conforme, LIBERADO]
+      - [EM_ANALISE, nao_conforme_nao_critico, LIBERADO_COM_RESSALVA]
+      - [EM_ANALISE, veto, VETADO]
+      - [LIBERADO_COM_RESSALVA, publicar, LIBERADO]
+      - [VETADO, correcao, EM_ANALISE]
+      - [VETADO, waiver_humano, LIBERADO_COM_RESSALVA]
+      - [VETADO, prazo_esgotado, BLOQUEADO]
+    invalidas:
+      - [VETADO, publicar, "publicar resultado vetado sem waiver ou correção"]
+    entrega: DSM1
+
+  - id: PROT-LCK
+    titulo: Reserva de período contábil
+    proposito: Garantir exclusão mútua de um fechamento por (entidade, competência).
+    participantes: [ROLE-ORQ, SVC-LCK]
+    meio: Chamada local ao serviço
+    performativos: [reserve, reserve-accept, reserve-failure, release]
+    estado_inicial: LIVRE
+    estados_finais: [LIVRE]
+    transicoes:
+      - [LIVRE, reserve, RESERVADO]
+      - [RESERVADO, reserve_outro_dono, RESERVADO]
+      - [RESERVADO, release, LIVRE]
+      - [RESERVADO, ttl_expirado, LIVRE]
+    invalidas:
+      - [RESERVADO, reserve_outro_dono_aceito, "segunda reserva sobreposta aceita"]
+      - [LIVRE, release, "liberar reserva inexistente"]
+    entrega: DSM1
+
+  - id: PROT-APR
+    titulo: Approval Gate (human-in-the-loop)
+    proposito: Reter ações com efeito externo até decisão humana explícita.
+    participantes: [ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR, SVC-POL]
+    meio: SVC-POL + ENV-UI
+    performativos: [propose-action, classify, approve, reject, execute, expire]
+    estado_inicial: PROPOSTA
+    estados_finais: [EXECUTADA, NEGADA, REJEITADA, EXPIRADA]
+    transicoes:
+      - [PROPOSTA, allow, EXECUTADA]
+      - [PROPOSTA, deny, NEGADA]
+      - [PROPOSTA, require_approval, PENDENTE]
+      - [PENDENTE, approve, EXECUTADA]
+      - [PENDENTE, reject, REJEITADA]
+      - [PENDENTE, timeout, EXPIRADA]
+    invalidas:
+      - [PENDENTE, execute, "execução sem aprovação humana"]
+      - [NEGADA, approve, "ação DENY não admite aprovação"]
+    entrega: DSM1

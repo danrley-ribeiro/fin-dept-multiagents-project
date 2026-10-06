@@ -1,0 +1,14 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> CRIADA
+    CRIADA --> AGUARDANDO: request
+    AGUARDANDO --> EM_EXECUCAO: agree
+    AGUARDANDO --> RECUSADA: refuse
+    AGUARDANDO --> EXPIRADA: timeout
+    EM_EXECUCAO --> CONCLUIDA: inform
+    EM_EXECUCAO --> FALHOU: failure
+    EM_EXECUCAO --> EXPIRADA: timeout
+    CONCLUIDA --> [*]
+    FALHOU --> [*]
+    RECUSADA --> [*]
+    EXPIRADA --> [*]

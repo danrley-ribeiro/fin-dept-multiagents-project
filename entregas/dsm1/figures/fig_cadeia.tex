@@ -1,0 +1,31 @@
+% Figura editável (TikZ): cadeia de rastreabilidade com exemplo concreto (REQ-S01).
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=2mm]},
+  box/.style={draw=navy, fill=white, rounded corners=3pt, minimum width=1.95cm, minimum height=0.95cm, align=center, line width=0.6pt},
+  pend/.style={box, dashed, draw=muted, text=muted},
+  ex/.style={font=\sffamily\bfseries\tiny, text=accent, align=center, anchor=north},
+]
+\node[box]  (n0) at (0,0)     {\textbf{Problema}};
+\node[box]  (n1) at (2.38,0)  {\textbf{Requisito}};
+\node[box]  (n2) at (4.76,0)  {\textbf{Objetivo}};
+\node[box]  (n3) at (7.14,0)  {\textbf{Papel /}\\\textbf{Agente}};
+\node[box]  (n4) at (9.52,0)  {\textbf{Protocolo /}\\\textbf{Norma}};
+\node[pend] (n5) at (11.9,0)  {\textbf{Componente}\\(DSM2)};
+\node[pend] (n6) at (14.28,0) {\textbf{Teste}\\(planejado)};
+\node[ex] at (n0.south) {PROB-08};
+\node[ex] at (n1.south) {REQ-S01};
+\node[ex] at (n2.south) {G-09};
+\node[ex] at (n3.south) {ROLE-APR · AG-ORQ};
+\node[ex] at (n4.south) {PROT-APR · NORM-01};
+\node[ex] at (n5.south) {COMP-POL};
+\node[ex] at (n6.south) {TEST-12};
+\draw[->, navy, thick] (n0) -- (n1);
+\draw[->, navy, thick] (n1) -- (n2);
+\draw[->, navy, thick] (n2) -- (n3);
+\draw[->, navy, thick] (n3) -- (n4);
+\draw[->, navy, thick] (n4) -- (n5);
+\draw[->, navy, thick] (n5) -- (n6);
+\draw[->, accent, dashed, thick] (n6.north) -- ++(0,0.45) -| node[pos=0.25, above, font=\sffamily\tiny, text=accent] {evidência do teste retroalimenta o critério de aceite} (n1.north);
+\node[box, fill=accentlight, minimum width=1.6cm] (met) at (2.38,-1.8) {\textbf{Métrica}};
+\node[font=\sffamily\bfseries\tiny, text=accent, anchor=west] at (met.east) {MET-05: 100\% das ações restritas contidas antes do efeito};
+\draw[->, accent, thick] (met) -- (2.38,-0.95);
+\end{tikzpicture}

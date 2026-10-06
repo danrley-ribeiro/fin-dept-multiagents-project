@@ -1,0 +1,72 @@
+% Figura editável (TikZ): organização em camadas do SMA de Controladoria (DSM1).
+% IDs conforme models/*.yaml. Incluída por main.tex via \input.
+\begin{tikzpicture}[
+  font=\sffamily\scriptsize, >={Stealth[length=2mm]},
+  band/.style={draw=accent!35, fill=accentlight, rounded corners=4pt},
+  bandlabel/.style={font=\sffamily\bfseries\tiny, text=accent, anchor=north west},
+  ag/.style={draw=navy, fill=white, rounded corners=2pt, minimum width=2.05cm, minimum height=0.95cm, align=center, line width=0.6pt},
+  svc/.style={draw=plat, fill=platlight, rounded corners=2pt, minimum width=3.3cm, minimum height=0.62cm, align=center},
+  comm/.style={draw=accent, fill=white, rounded corners=2pt, minimum height=0.6cm, align=center},
+  src/.style={cylinder, shape border rotate=90, aspect=0.2, draw=muted, fill=gray!8, minimum width=1.75cm, minimum height=0.75cm, align=center},
+  hum/.style={draw=navy, fill=navy!7, rounded corners=7pt, minimum height=0.62cm, align=center},
+  llm/.style={font=\sffamily\bfseries\tiny, text=warn},
+  lbl/.style={font=\sffamily\tiny, fill=white, inner sep=1pt, text=navy},
+]
+% ---------- humanos (fora da fronteira)
+\node[hum] (sol) at (6.0,7.55) {\textbf{Solicitante} (CFO / Diretoria) · ROLE-SOL};
+\node[hum] (apr) at (14.55,7.55) {\textbf{Aprovador} (controller) · ROLE-APR};
+
+% ---------- fronteira do sistema
+\draw[navy, dashed, rounded corners=6pt, line width=0.7pt] (-0.2,1.95) rectangle (16.45,7.0);
+\node[font=\sffamily\bfseries\tiny, text=navy, anchor=south west] at (-0.15,7.0) {FRONTEIRA DO SMA};
+
+% ---------- camada de orquestração
+\draw[band] (0.0,5.75) rectangle (12.1,6.85);
+\node[bandlabel] at (0.05,6.85) {ORQUESTRAÇÃO};
+\node[ag, minimum width=3.6cm, fill=navy, text=white] (orq) at (6.0,6.25) {\textbf{AG-ORQ · Orquestrador}\\[-1pt]{\tiny decompõe, delega, agrega}};
+
+% ---------- agentes especializados
+\draw[band] (0.0,3.75) rectangle (12.1,5.45);
+\node[bandlabel] at (0.05,5.45) {AGENTES ESPECIALIZADOS};
+\node[ag] (cus) at (1.25,4.5) {\textbf{AG-CUS}\\Custos e\\Rentabilidade};
+\node[ag] (res) at (3.65,4.5) {\textbf{AG-RES}\\Resultados e\\Indicadores};
+\node[ag] (orc) at (6.05,4.5) {\textbf{AG-ORC}\\Orçamento e\\Controle};
+\node[ag] (cin) at (8.45,4.5) {\textbf{AG-CIN}\\Controles\\Internos};
+\node[ag] (rel) at (10.85,4.5) {\textbf{AG-REL}\\Relatórios\\Gerenciais};
+\foreach \n in {res,orc,rel} \node[llm, anchor=north] at (\n.south) {LLM opcional (flag)};
+
+% ---------- comunicação
+\draw[band] (0.0,2.1) rectangle (12.1,3.25);
+\node[bandlabel] at (0.05,3.25) {COMUNICAÇÃO};
+\node[comm, minimum width=7.1cm] (a2a) at (4.25,2.6) {\textbf{SVC-A2A} · agente $\leftrightarrow$ agente (FIPA-ACL, conversation\_id)};
+\node[comm, minimum width=3.6cm] (mcp) at (10.0,2.6) {\textbf{SVC-MCP} · agente $\rightarrow$ fonte (tools)};
+
+% ---------- serviços de plataforma (transversais)
+\draw[band, draw=plat!50, fill=platlight!40] (12.45,2.1) rectangle (16.3,6.85);
+\node[bandlabel, text=plat] at (12.5,6.85) {SERVIÇOS DE PLATAFORMA};
+\node[svc] (pol) at (14.37,6.15) {\textbf{SVC-POL} SafetyPolicy / Approval};
+\node[svc] (aud) at (14.37,5.35) {\textbf{SVC-AUD} Auditoria (JSONL)};
+\node[svc] (mod) at (14.37,4.55) {\textbf{SVC-MOD} Registro de modelos};
+\node[svc] (mem) at (14.37,3.75) {\textbf{SVC-MEM} Memória (emb.\ + grafo)};
+\node[svc] (lck) at (14.37,2.95) {\textbf{SVC-LCK} Reserva de período};
+
+% ---------- ambiente (fontes externas)
+\node[font=\sffamily\bfseries\tiny, text=muted, anchor=west] at (-0.15,1.45) {AMBIENTE};
+\node[src] (erp) at (1.4,0.85) {ERP};
+\node[src] (pln) at (3.8,0.85) {Orçamento};
+\node[src] (bd)  at (6.2,0.85) {Histórico};
+\node[src] (api) at (8.6,0.85) {Mercado};
+\node[src] (nrm) at (11.0,0.85) {Normas};
+
+% ---------- interações
+\draw[->, navy, thick] (sol) -- node[lbl, right] {PROT-SOL} (orq);
+\draw[->, navy, thick] (orq.south) -- node[lbl] {PROT-DEL · PROT-CMP (veto)} (6.05,5.45);
+\draw[->, accent, thick] (res) -- node[lbl, above] {QRY} (cus);
+\draw[->, accent, thick] (res.north east) to[bend left=18] node[lbl, above] {QRY} (orc.north west);
+\foreach \n in {cus,res,orc,cin,rel} \draw[accent!60, line width=0.6pt] (\n.south |- 0,3.75) -- (\n.south |- 0,3.25);
+\draw[->, muted, thick] (mcp.south) -- (10.0,1.55) -| (erp.north);
+\foreach \n in {pln,bd,api,nrm} \draw[->, muted] (\n.north |- 0,1.55) -- (\n.north);
+\draw[->, plat, thick] (orq.east) -- node[lbl, above] {PROT-LCK · PROT-APR} (pol.west);
+\draw[<->, plat, thick] (apr) -- node[lbl, right] {aprovação / waiver} (pol);
+\draw[->, plat, dashed] (12.1,4.55) -- node[lbl, below, font=\sffamily\tiny] {intercepta} (mod.west);
+\end{tikzpicture}

@@ -1,0 +1,48 @@
+% Figura editável (TikZ): cenário âncora "feche o resultado do mês" (fluxo nominal).
+% Fonte equivalente em Mermaid: diagrams/dsm1/sequencia_fechar_mes.mmd
+\begin{tikzpicture}[font=\sffamily\tiny, >={Stealth[length=1.6mm]},
+  part/.style={draw=navy, fill=navy, text=white, rounded corners=2pt, minimum width=1.38cm, minimum height=0.5cm, font=\sffamily\bfseries\tiny, align=center},
+  hpart/.style={part, fill=navy!8, text=navy},
+  spart/.style={part, draw=plat, fill=platlight, text=plat},
+  m/.style={->, navy, line width=0.5pt},
+  r/.style={->, navy, dashed, line width=0.5pt},
+  ml/.style={above, inner sep=1pt, fill=white, fill opacity=0.85, text opacity=1},
+]
+\def\H{8.3}
+\foreach \x/\n/\s in {0/Solicitante/hpart, 1.75/AG-ORQ/part, 3.5/SVC-LCK/spart, 5.25/AG-CUS/part, 7.0/AG-ORC/part,
+                      8.75/AG-RES/part, 10.5/AG-CIN/part, 12.25/AG-REL/part, 14.0/SVC-POL/spart, 15.75/Aprovador/hpart} {
+  \node[\s] at (\x,0.35) {\n};
+  \draw[muted!60, densely dashed] (\x,0.1) -- (\x,-\H);
+}
+% x: SOL 0 | ORQ 1.75 | LCK 3.5 | CUS 5.25 | ORC 7.0 | RES 8.75 | CIN 10.5 | REL 12.25 | POL 14.0 | APR 15.75
+\newcommand{\M}[5][m]{\draw[#1] (#2,-#5*0.36) -- node[ml]{#4} (#3,-#5*0.36);}
+\M{0}{1.75}{request(fechar\_mes)}{1}
+\M{1.75}{3.5}{reserve}{2}
+\M[r]{3.5}{1.75}{accept(ttl)}{3}
+\M[r]{1.75}{0}{agree}{4}
+\M{1.75}{5.25}{request(custos)}{5}
+\M{1.75}{7.0}{request(orçado$\times$real)}{6}
+\M[r]{5.25}{1.75}{inform(margens)}{7}
+\M[r]{7.0}{1.75}{inform(desvios)}{8}
+\M{1.75}{8.75}{request(consolidar)}{9}
+\M{8.75}{5.25}{query-ref}{10}
+\M[r]{5.25}{8.75}{inform}{11}
+\M{8.75}{7.0}{query-ref}{12}
+\M[r]{7.0}{8.75}{inform}{13}
+\M[r]{8.75}{1.75}{inform(DRE, EBITDA, KPIs)}{14}
+\M{1.75}{10.5}{request(conformidade)}{15}
+\M[r]{10.5}{1.75}{inform(conforme)}{16}
+\M{1.75}{12.25}{request(relatório)}{17}
+\M[r]{12.25}{1.75}{inform(template | LLM validado)}{18}
+\M{1.75}{14.0}{propose(publicar)}{19}
+\M{14.0}{15.75}{REQUIRE\_APPROVAL}{20}
+\M[r]{15.75}{14.0}{approve}{21}
+\M{1.75}{3.5}{release}{22}
+\M[r]{1.75}{0}{inform(resultado)}{22.6}
+% bloco paralelo e alternativa de veto
+\draw[accent, rounded corners=2pt] (1.55,-1.67) rectangle (7.35,-3.06);
+\node[anchor=north east, font=\sffamily\bfseries\tiny, text=accent] at (1.5,-1.67) {par};
+\draw[warn, rounded corners=2pt] (1.55,-5.27) rectangle (10.75,-5.94);
+\node[anchor=north west, font=\sffamily\bfseries\tiny, text=warn, fill=white, inner sep=1pt] at (10.8,-5.31) {alt: veto $\rightarrow$ release + failure};
+\node[anchor=east, font=\sffamily\tiny, text=muted] at (16.3,-\H-0.25) {toda mensagem é interceptada por SVC-AUD};
+\end{tikzpicture}

@@ -1,0 +1,8 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> LIVRE
+    LIVRE --> RESERVADO: reserve
+    RESERVADO --> RESERVADO: reserve_outro_dono
+    RESERVADO --> LIVRE: release
+    RESERVADO --> LIVRE: ttl_expirado
+    LIVRE --> [*]

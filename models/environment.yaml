@@ -1,0 +1,102 @@
+# Modelo de ambiente: propriedades e recursos externos.
+# Recursos são classificados por observabilidade, acionabilidade, exclusividade e autoridade.
+# Na DSM1 as fontes externas são especificadas como MCP servers mock offline (dados sintéticos).
+propriedades:
+  - nome: Parcialmente observável
+    justificativa: >-
+      Cada agente só percebe o que seus conectores MCP e as mensagens A2A
+      entregam. Custos não enxerga a base normativa; Controles Internos não
+      enxerga as regras de rateio; ninguém tem o estado global instantâneo.
+  - nome: Dinâmico
+    justificativa: >-
+      Lançamentos, estornos e conciliações continuam chegando ao ERP durante o
+      fechamento; o estado muda enquanto os agentes deliberam.
+  - nome: Discreto
+    justificativa: >-
+      Contas, centros de custo, períodos e lançamentos têm identificadores e
+      valores bem definidos; o tempo é tratado por relógio lógico por ciclo.
+  - nome: Estocástico / com incerteza
+    justificativa: >-
+      APIs de mercado podem falhar ou atrasar, dados podem chegar incompletos e a
+      aprovação humana tem tempo de resposta incerto.
+  - nome: Sequencial por ciclo
+    justificativa: >-
+      Decisões de um fechamento (ajustes aprovados, memória) afetam o próximo
+      ciclo; dentro do ciclo há dependências de precedência.
+  - nome: Multiagente com recursos compartilhados
+    justificativa: >-
+      Período contábil (exclusivo durante o fechamento) e orçamento de tokens
+      (consumível) são disputados e exigem coordenação.
+
+items:
+  - id: ENV-ERP
+    titulo: ERP — razão contábil, balancete e lançamentos
+    observabilidade: Leitura via MCP (balancete, lançamentos, centros de custo, plano de contas)
+    acionabilidade: Escrita de ajuste contábil — ação restrita (REQUIRE_APPROVAL)
+    exclusividade: Período contábil exclusivo durante o fechamento
+    autoridade: Contabilidade do cliente (STK-03)
+    acesso: SVC-MCP
+    entrega: DSM1
+
+  - id: ENV-PLN
+    titulo: Planilhas de orçamento e premissas
+    observabilidade: Leitura via MCP (orçado por conta/centro de custo, premissas)
+    acionabilidade: Alteração de orçamento — ação restrita (REQUIRE_APPROVAL)
+    exclusividade: Não exclusiva para leitura
+    autoridade: Diretoria / FP&A do cliente (STK-01)
+    acesso: SVC-MCP
+    entrega: DSM1
+
+  - id: ENV-BD
+    titulo: Base analítica histórica (data warehouse)
+    observabilidade: Leitura via MCP (séries históricas, fechamentos anteriores)
+    acionabilidade: Nenhuma (somente leitura)
+    exclusividade: Não exclusiva
+    autoridade: TI do cliente (STK-05)
+    acesso: SVC-MCP
+    entrega: DSM1
+
+  - id: ENV-API
+    titulo: APIs financeiras de mercado (câmbio, IPCA, Selic)
+    observabilidade: Leitura via MCP; pode falhar ou atrasar
+    acionabilidade: Nenhuma
+    exclusividade: Não exclusiva (cota de chamadas)
+    autoridade: Provedor externo
+    acesso: SVC-MCP
+    entrega: DSM1
+
+  - id: ENV-NRM
+    titulo: Base normativa interna (políticas de alçada, SoD, manual contábil)
+    observabilidade: Leitura via MCP/RAG com proveniência (documento, trecho, versão)
+    acionabilidade: Nenhuma
+    exclusividade: Não exclusiva
+    autoridade: Compliance / Auditoria (STK-04)
+    acesso: SVC-MCP
+    entrega: DSM1
+
+  - id: ENV-PER
+    titulo: Período contábil em fechamento (recurso compartilhado)
+    observabilidade: Estado de reserva consultável
+    acionabilidade: Reservar / liberar via protocolo de reserva
+    exclusividade: Exclusivo por (entidade, competência), com TTL
+    autoridade: SVC-LCK
+    acesso: SVC-LCK
+    entrega: DSM1
+
+  - id: ENV-TOK
+    titulo: Orçamento de tokens e custo de IA (recurso consumível)
+    observabilidade: Saldo por agente/tarefa consultável no registro de modelos
+    acionabilidade: Consumido apenas por chamadas LLM habilitadas por flag
+    exclusividade: Cota por agente e por tarefa
+    autoridade: Controller (STK-02) via SVC-MOD
+    acesso: SVC-MOD
+    entrega: DSM1
+
+  - id: ENV-UI
+    titulo: Interface do usuário (solicitação, aprovação e observabilidade)
+    observabilidade: Recebe solicitações e decisões de aprovação humanas
+    acionabilidade: Exibe resultado final, pedidos de aprovação e dashboard
+    exclusividade: Não exclusiva
+    autoridade: Usuários autenticados (STK-01, STK-02, STK-04)
+    acesso: SVC-POL
+    entrega: DSM1

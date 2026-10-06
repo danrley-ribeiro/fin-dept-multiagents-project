@@ -1,0 +1,47 @@
+%% Cenário âncora "feche o resultado do mês" (DSM1). Cada seta é uma mensagem FIPA-ACL
+%% com conversation_id; todas são interceptadas por SVC-AUD.
+sequenceDiagram
+  autonumber
+  actor SOL as Solicitante
+  participant ORQ as AG-ORQ
+  participant LCK as SVC-LCK
+  participant CUS as AG-CUS
+  participant ORC as AG-ORC
+  participant RES as AG-RES
+  participant CIN as AG-CIN
+  participant REL as AG-REL
+  participant POL as SVC-POL
+  actor APR as Aprovador
+  SOL->>ORQ: request(fechar_mes, 2026-09)
+  ORQ->>LCK: reserve(entidade, 2026-09)
+  LCK-->>ORQ: reserve-accept(ttl)
+  ORQ-->>SOL: agree
+  par subtarefas independentes
+    ORQ->>CUS: request(apurar_custos)
+    CUS-->>ORQ: agree · inform(margens + proveniência)
+  and
+    ORQ->>ORC: request(orcado_x_realizado)
+    ORC-->>ORQ: agree · inform(desvios + forecast)
+  end
+  ORQ->>RES: request(consolidar_resultado)
+  RES->>CUS: query-ref(custos_por_UN)
+  CUS-->>RES: inform
+  RES->>ORC: query-ref(desvios)
+  ORC-->>RES: inform
+  RES-->>ORQ: inform(DRE, EBITDA, DFC, KPIs)
+  ORQ->>CIN: request(compliance_check, pacote)
+  alt não conformidade crítica
+    CIN-->>ORQ: veto(regra, evidência)
+    ORQ->>LCK: release
+    ORQ-->>SOL: failure(bloqueado: aguarda correção ou waiver)
+  else conforme
+    CIN-->>ORQ: inform(conforme)
+    ORQ->>REL: request(relatorio_executivo)
+    REL-->>ORQ: inform(relatório: template ou LLM validado)
+    ORQ->>POL: propose-action(publicar_relatorio)
+    POL->>APR: REQUIRE_APPROVAL
+    APR-->>POL: approve
+    POL-->>ORQ: executada
+    ORQ->>LCK: release
+    ORQ-->>SOL: inform(resultado + relatório)
+  end

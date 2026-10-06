@@ -1,0 +1,5 @@
+/* Ajustes visuais da documentação */
+table.NEEDS_DATATABLES { font-size: 0.82rem; }
+.needs_meta .needs_id { font-family: var(--font-stack--monospace); font-weight: 600; }
+.badge-ok { background: #D9EAD3; color: #274E13; padding: 0.1rem 0.45rem; border-radius: 0.3rem; font-weight: 600; }
+.badge-pend { background: #FFF2CC; color: #7F6000; padding: 0.1rem 0.45rem; border-radius: 0.3rem; font-weight: 600; }

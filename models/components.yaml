@@ -1,0 +1,17 @@
+# STUBS da DSM2 — componentes de implementação ainda NÃO projetados.
+# Existem apenas para fechar a cadeia de rastreabilidade (Agente/Serviço → Componente).
+# Runtime, linguagem, caminhos de arquivo e transporte A2A concreto serão decididos na DSM2.
+items:
+  - {id: COMP-ORQ, titulo: Componente do Orquestrador,           realiza: [AG-ORQ],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-CUS, titulo: Componente de Custos e Rentabilidade, realiza: [AG-CUS],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-ORC, titulo: Componente de Orçamento,              realiza: [AG-ORC],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-RES, titulo: Componente de Resultados e Indicadores, realiza: [AG-RES], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-CIN, titulo: Componente de Controles Internos,     realiza: [AG-CIN],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-REL, titulo: Componente de Relatórios Gerenciais,  realiza: [AG-REL],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-A2A, titulo: Barramento/adaptador A2A,              realiza: [SVC-A2A], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-MCP, titulo: MCP servers mock (ERP, planilhas, BD, mercado, normas), realiza: [SVC-MCP], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-AUD, titulo: AuditService / tracer JSONL,           realiza: [SVC-AUD], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-MOD, titulo: ModelRegistry e gateway LLM,           realiza: [SVC-MOD], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-MEM, titulo: MemoryService (embeddings + grafo),    realiza: [SVC-MEM], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-POL, titulo: SafetyPolicy e Approval Gate,          realiza: [SVC-POL], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-LCK, titulo: PeriodLockService,                     realiza: [SVC-LCK], caminho: a definir na DSM2, entrega: DSM2, status: pendente}

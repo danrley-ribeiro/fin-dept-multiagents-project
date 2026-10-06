@@ -1,0 +1,11 @@
+%% GERADO por tools/trace.py a partir de models/protocols.yaml
+stateDiagram-v2
+    [*] --> RECEBIDA
+    RECEBIDA --> RECUSADA: not-understood
+    RECEBIDA --> RECUSADA: refuse
+    RECEBIDA --> EM_EXECUCAO: agree
+    EM_EXECUCAO --> CONCLUIDA: inform
+    EM_EXECUCAO --> FALHOU: failure
+    CONCLUIDA --> [*]
+    FALHOU --> [*]
+    RECUSADA --> [*]

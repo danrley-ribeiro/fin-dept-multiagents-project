@@ -1,0 +1,61 @@
+# Problemas de negócio (origem da cadeia de rastreabilidade).
+# Cada problema precisa ser endereçado por >= 1 requisito (verificado por tools/trace.py).
+items:
+  - id: PROB-01
+    titulo: Fechamento mensal lento e manual
+    descricao: >-
+      Consolidação de balancete, rateios, DRE e indicadores feita em planilhas e
+      e-mails consome dias após o fim do mês, atrasando decisões da liderança.
+    entrega: DSM1
+
+  - id: PROB-02
+    titulo: Baixa visibilidade de margem e rentabilidade
+    descricao: >-
+      Custos fixos e variáveis ficam dispersos entre ERP e planilhas e o rateio é
+      aplicado de forma inconsistente, impedindo enxergar margem de contribuição
+      por produto, serviço ou unidade de negócio.
+    entrega: DSM1
+
+  - id: PROB-03
+    titulo: Desvios orçamentários detectados tarde
+    descricao: >-
+      A comparação orçado x realizado só é consolidada no fim do trimestre;
+      desvios relevantes chegam à diretoria quando já não há margem de correção.
+    entrega: DSM1
+
+  - id: PROB-04
+    titulo: Riscos de conformidade não detectados antes da publicação
+    descricao: >-
+      Lançamentos manuais acima da alçada, violação de segregação de funções,
+      duplicidades e contas não conciliadas passam despercebidos até a auditoria.
+    entrega: DSM1
+
+  - id: PROB-05
+    titulo: Relatórios executivos inconsistentes e pouco acionáveis
+    descricao: >-
+      Cada analista monta o relatório gerencial de um jeito, com números que às
+      vezes divergem da DRE e sem destacar o que a liderança precisa decidir.
+    entrega: DSM1
+
+  - id: PROB-06
+    titulo: Automação de IA sem auditabilidade nem controle de custo
+    descricao: >-
+      Soluções de IA atuam como caixa-preta: não registram critério, prompt,
+      fontes nem custo de tokens, o que inviabiliza auditoria, conformidade com a
+      LGPD e previsibilidade de gastos.
+    entrega: DSM1
+
+  - id: PROB-07
+    titulo: Conhecimento analítico se perde entre ciclos
+    descricao: >-
+      Análises e justificativas aprovadas em um mês não são reaproveitadas nos
+      seguintes, gerando retrabalho e explicações inconsistentes para o mesmo
+      fenômeno.
+    entrega: DSM1
+
+  - id: PROB-08
+    titulo: Ações automatizadas com efeito externo sem controle humano
+    descricao: >-
+      Uma automação capaz de lançar ajustes no ERP, alterar orçamento ou publicar
+      relatório à diretoria pode causar dano material se agir sem autorização.
+    entrega: DSM1

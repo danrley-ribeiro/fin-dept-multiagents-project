@@ -1,0 +1,24 @@
+DSM2 — Arquitetura e protótipo inicial
+Peso: 25% da MPDSM. Prazo inicial: 31/10/2026 23:55.
+
+Entregar
+código-fonte executável;
+diagrama de arquitetura;
+README.md
+;
+testes iniciais;
+USO_DE_IA.md
+.
+Requisitos
+justificar arquitetura e runtime;
+implementar agentes principais e ambiente;
+implementar estado/conhecimento e comportamento básico;
+demonstrar ao menos uma interação;
+incluir cenário controlado para depuração;
+registrar limitações.
+Critério	Peso
+Arquitetura e justificativa	25%
+Implementação	25%
+Interação e corretude	20%
+Testes e reprodutibilidade	20%
+Documentação e autoria	10%

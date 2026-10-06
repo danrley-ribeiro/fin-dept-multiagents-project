@@ -1,0 +1,384 @@
+% =====================================================================
+%  DSM1 — Sistema Multiagente de Controladoria Terceirizada
+%  INE5628 — Sistemas Multiagentes (UFSC/CTC/INE)
+%
+%  Compilar:  latexmk -pdf main.tex     (ou: make pdf, na raiz)
+%  As tabelas em generated/ são geradas por tools/trace.py a partir de
+%  models/*.yaml — não edite à mão; edite os YAML e rode `make trace`.
+% =====================================================================
+\documentclass[10pt,a4paper]{article}
+
+% ------------------------------------------------------------ autoria
+\newcommand{\autorA}{Autor A}      % TODO(autoria): nome completo
+\newcommand{\matA}{00000000}       % TODO(autoria): matrícula
+\newcommand{\autorB}{Autor B}      % TODO(autoria): nome completo
+\newcommand{\matB}{00000000}       % TODO(autoria): matrícula
+\newcommand{\repoURL}{https://github.com/danrley-ribeiro/fin-dept-multiagents-project}
+\newcommand{\docsURL}{https://fin-dept-multiagents-project.readthedocs.io}
+\newcommand{\versao}{1.0}
+
+% ------------------------------------------------------------ pacotes
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[default,semibold]{sourcesanspro}
+\usepackage[a4paper, left=1.75cm, right=1.75cm, top=2.15cm, bottom=1.9cm, headsep=0.55cm, footskip=0.9cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{amsmath, amssymb}
+\usepackage{microtype}
+\usepackage{array, booktabs, xltabular, makecell}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{needspace}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shapes.misc, calc, fit, backgrounds}
+\usepackage{newunicodechar}
+\newunicodechar{⟨}{\ensuremath{\langle}}
+\newunicodechar{⟩}{\ensuremath{\rangle}}
+\newunicodechar{≠}{\ensuremath{\neq}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\usepackage[hidelinks, pdfusetitle]{hyperref}
+\hypersetup{pdftitle={DSM1 — Sistema Multiagente de Controladoria Terceirizada},
+            pdfauthor={\autorA, \autorB}, pdfsubject={INE5628 — Entrega 1}}
+
+% ------------------------------------------------------------ cores
+\definecolor{navy}{HTML}{111A2E}
+\definecolor{accent}{HTML}{1565A8}
+\definecolor{accentlight}{HTML}{E7F0FA}
+\definecolor{muted}{HTML}{6B7280}
+\definecolor{rowalt}{HTML}{F5F7FA}
+\definecolor{plat}{HTML}{5B4B8A}
+\definecolor{platlight}{HTML}{EFEBF7}
+\definecolor{warn}{HTML}{B45309}
+\definecolor{bad}{HTML}{B91C1C}
+\definecolor{good}{HTML}{15803D}
+
+% ------------------------------------------------------------ tipografia e layout
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\linespread{1.04}
+\renewcommand{\arraystretch}{1.18}
+\setlist{nosep, leftmargin=1.1em, itemsep=0.15em, topsep=0.2em}
+\captionsetup{font={small,sf}, labelfont={bf,color=accent}, skip=4pt}
+
+\titleformat{\section}{\needspace{7\baselineskip}\large\color{navy}}{\thesection.}{0.45em}{\MakeUppercase}[{\vspace{0.05em}\color{accent}\titlerule[0.9pt]}]
+\titlespacing*{\section}{0pt}{1.0em}{0.55em}
+\titleformat{\subsection}{\needspace{5\baselineskip}\normalsize\color{accent}}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{0.7em}{0.25em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{accent}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\scriptsize\color{muted}INE5628 / DSM1 — Sistema Multiagente de Controladoria Terceirizada}
+\fancyhead[R]{\scriptsize\color{muted}Entrega 1: Cenário, Requisitos e Modelagem}
+\fancyfoot[L]{\scriptsize\color{muted}UFSC / CTC / INE — Prof. Rafael Luiz Cancian}
+\fancyfoot[R]{\scriptsize\color{muted}Página \thepage}
+\fancypagestyle{first}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[L]{\scriptsize\color{muted}UFSC / CTC / INE — Sistemas Multiagentes}
+  \fancyfoot[R]{\scriptsize\color{muted}Página \thepage}}
+
+% ------------------------------------------------------------ caixas
+\newtcolorbox{callout}[1][]{enhanced, breakable, colback=accentlight, colframe=accentlight,
+  borderline west={3pt}{0pt}{accent}, arc=3pt, boxrule=0pt, left=10pt, right=8pt, top=5pt, bottom=5pt,
+  fontupper=\small, #1}
+\newcommand{\callouttitle}[1]{{\color{navy}\MakeUppercase{#1}}\par\vspace{1pt}}
+
+% ------------------------------------------------------------ tabelas
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcommand{\hd}[1]{\textcolor{white}{\textbf{#1}}}
+\newcommand{\headrow}{\rowcolor{navy}}
+\newenvironment{dtable}[1]{\scriptsize\rowcolors{2}{white}{rowalt}\xltabular{\linewidth}{#1}}{\endxltabular}
+
+% ------------------------------------------------------------ rastreabilidade
+\newcommand{\idtarget}[1]{\hypertarget{#1}{\textbf{\textcolor{accent}{#1}}}}
+\newcommand{\idref}[1]{\hyperlink{#1}{\textcolor{accent}{#1}}}
+\newcommand{\llmflag}{\textcolor{warn}{\textbf{flag}}}
+\newcommand{\llmno}{\textcolor{muted}{não}}
+\newcommand{\decisao}[1]{\textbf{\texttt{\detokenize{#1}}}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\input{generated/contagens.tex}
+
+% =====================================================================
+\begin{document}
+\thispagestyle{first}
+
+% ------------------------------------------------------------ cabeçalho
+\begin{tcolorbox}[enhanced, colback=navy, colframe=navy, arc=5pt, boxrule=0pt,
+  borderline west={5pt}{0pt}{accent}, left=14pt, right=12pt, top=12pt, bottom=10pt]
+  {\color{white}\fontsize{21}{25}\selectfont DSM1 — Sistema Multiagente de\\[1pt] Controladoria Terceirizada\par}
+  \vspace{5pt}
+  {\color{accentlight!80!accent}\large Entrega 1: Cenário-Problema, Requisitos, Modelagem AOSE e Rastreabilidade\par}
+  \vspace{7pt}
+  {\color{white!65!navy}\scriptsize Disciplina: INE5628 (UFSC) \;|\; Peso: 20\% MPDSM \;|\; Prazo: 10/10/2026 \;|\; Versão: \versao\par
+   Autores: \autorA\ (\matA) \;·\; \autorB\ (\matB) \;|\;
+   Documentação: \href{\docsURL}{\color{white!80!accent}\texttt{\docsURL}}\par}
+\end{tcolorbox}
+
+\begin{callout}
+\callouttitle{Resumo executivo do projeto}
+Este documento especifica a Entrega 1 (DSM1) de um \textbf{Sistema Multiagente (SMA) para terceirização da
+Controladoria}: um orquestrador e cinco agentes especializados (Custos e Rentabilidade, Orçamento, Resultados e
+Indicadores, Controles Internos e Relatórios Gerenciais), apoiados por serviços de plataforma de comunicação
+(A2A/MCP), auditoria, configuração de modelos, memória e política de segurança. A modelagem segue AOSE
+(Tropos, Gaia e Prometheus; Cancian, 2026) e estabelece a justificativa do SMA, a fronteira e o ambiente,
+\nReq{} requisitos com evidência observável, papéis $\langle$Resp, Perm, Obl, Prot$\rangle$, \nProt{} protocolos
+como máquinas de estados, \nNorm{} normas e \nMet{} métricas. A IA generativa é \textbf{opcional e desligada por
+padrão}, restrita à narrativa em três agentes. Todos os \nObj{} objetos possuem ID estável e formam uma cadeia de
+rastreabilidade validada automaticamente, publicada em \href{\docsURL}{documentação navegável}.
+\end{callout}
+
+% =====================================================================
+\section{Cenário-problema, motivação e objetivos}
+
+\subsection{Contexto e problema operacional}
+Uma empresa de médio porte terceiriza (BPO) sua Controladoria. Todo mês é preciso fechar o resultado
+(balancete $\rightarrow$ rateios $\rightarrow$ DRE $\rightarrow$ indicadores $\rightarrow$ relatório) e, a cada
+trimestre, avaliar o orçamento. Hoje o ciclo leva dias de consolidação manual (\code{PROB-01}), não mostra margem
+por produto ou unidade (\code{PROB-02}), detecta desvios orçamentários tarde (\code{PROB-03}), deixa passar riscos de
+alçada, segregação de funções e duplicidade (\code{PROB-04}) e gera relatórios inconsistentes com a DRE
+(\code{PROB-05}). Automatizar com IA traz problemas novos: decisões sem trilha nem controle de custo
+(\code{PROB-06}), conhecimento que se perde entre ciclos (\code{PROB-07}) e ações com efeito externo sem
+controle humano (\code{PROB-08}).
+
+\textbf{Stakeholders} (recorte Tropos): CFO/diretoria contratante, controller humano (aprovador), contabilidade
+do cliente, auditoria interna/externa, TI/Segurança e DPO (LGPD), equipe de desenvolvimento e avaliador.
+\textbf{Cenários âncora (MVP):} \emph{“feche o resultado do mês”} e \emph{“avalie o orçamento do trimestre”},
+sobre uma empresa sintética com gabarito, com fontes acessadas por \emph{MCP servers} simulados e offline.
+
+\subsection{Justificativa para o paradigma multiagente (hipótese MAS)}
+Aplicando o checklist de adequação de Cancian (2026, Tab.~5.1):
+
+\begin{dtable}{L{2.25cm} Y L{1.05cm}}
+\headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \endhead
+Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textcolor{good}{\textbf{sim}}\\
+Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textcolor{good}{\textbf{sim}}\\
+Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textcolor{good}{\textbf{sim}}\\
+Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textcolor{good}{\textbf{sim}}\\
+Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textcolor{good}{\textbf{sim}}\\
+Evidência & Cenários com gabarito e protocolos com transições inválidas tornam o comportamento testável. & \textcolor{good}{\textbf{sim}}\\
+\end{dtable}
+
+\textbf{Condição explícita de rejeição.} Se a demanda se reduzir a gerar um único relatório por uma sequência fixa
+de etapas, sem veto, sem dependência entre unidades de decisão e sem recurso disputado, um \emph{workflow}
+determinístico basta. Esse workflow sequencial é a \textbf{baseline} das entregas seguintes. \textbf{Hipóteses
+verificáveis:} (H1) o veto de Controles Internos barra 100\% das inconformidades críticas plantadas antes da
+publicação; (H2) a decomposição mantém 100\% de acurácia contra o gabarito, com custo de comunicação mensurável;
+(H3) com a flag LLM desligada, todos os relatórios são gerados sem rede e a custo zero.
+
+\subsection{Objetivos do sistema}
+\textbf{Objetivo geral (\code{G-00}):} executar as rotinas de controladoria de forma terceirizada e coordenada,
+entregando à liderança o resultado do período e análises confiáveis, respeitando alçadas, sigilo e aprovação
+humana, com evidência reconstruível de cada decisão. \textbf{Objetivos específicos:} (G-01) atender solicitações
+decompondo-as em tarefas coordenadas; (G-02) apurar custos, margens e rentabilidade; (G-03) controlar o orçamento
+e projetar forecast; (G-04) consolidar DRE, EBITDA, fluxo de caixa e KPIs; (G-05) garantir conformidade antes da
+publicação; (G-06) entregar relatórios executivos acionáveis; (G-07) manter auditabilidade total e custo de IA sob
+controle; (G-08) reutilizar conhecimento aprovado; (G-09) restringir efeitos externos à autorização humana.
+
+% =====================================================================
+\section{Fronteira do sistema e caracterização do ambiente}
+Pertencem ao \textbf{software modelado} os seis agentes e os sete serviços de plataforma (Figura~\ref{fig:org}).
+Permanecem no \textbf{ambiente}, ainda que representados por adapters, os usuários humanos (solicitante, aprovador,
+auditor), as fontes externas e o relógio/calendário de fechamento. O ambiente é:
+\begin{itemize}
+  \item \textbf{Parcialmente observável:} cada agente vê apenas o que seus conectores MCP e mensagens A2A entregam
+        ($see_i: S \to P_i$): Custos não lê a base normativa e Controles Internos não lê as regras de rateio.
+  \item \textbf{Dinâmico e estocástico:} lançamentos e estornos chegam durante o fechamento ($next: S\times A\to S$
+        muda também por eventos externos); APIs falham ou atrasam; a resposta humana tem duração incerta.
+  \item \textbf{Discreto e sequencial por ciclo:} contas, competências e lançamentos têm identificadores bem
+        definidos; ajustes aprovados e memória de um ciclo afetam o próximo.
+  \item \textbf{Com recursos compartilhados:} o período em fechamento é exclusivo e o orçamento de tokens é consumível.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/fig_organizacao.tex}}
+  \caption{Organização em camadas: fronteira do SMA, agentes, serviços de plataforma transversais, protocolos e ambiente.}
+  \label{fig:org}
+\end{figure}
+
+Recursos externos classificados por observabilidade, acionabilidade, exclusividade e autoridade
+(escrita em fonte externa é sempre ação restrita):
+
+\begin{dtable}{L{3.4cm} Y Y L{2.6cm} L{2.6cm}}
+\headrow \hd{Recurso} & \hd{Observabilidade} & \hd{Acionabilidade} & \hd{Exclusividade} & \hd{Autoridade}\\ \endhead
+\input{generated/ambiente.tex}
+\end{dtable}
+
+% =====================================================================
+\section{Especificação de requisitos e critérios de aceite}
+Os requisitos seguem o template AOSE (Cancian, 2026, Cap.~4): cada um liga-se a um papel responsável e a uma
+\textbf{evidência observável} capaz de distinguir implementação correta de execução apenas aparente. Os IDs
+reaparecem nos testes derivados, nas métricas e na matriz da Seção~\ref{sec:trace}.
+
+\begin{dtable}{L{1.15cm} L{1.45cm} Y L{1.45cm} L{4.6cm}}
+\headrow \hd{ID} & \hd{Tipo} & \hd{Requisito} & \hd{Papéis} & \hd{Evidência observável de aceite}\\ \endhead
+\input{generated/requisitos.tex}
+\end{dtable}
+
+% =====================================================================
+\section{Agentes, papéis e arquitetura da organização}
+O modelo organizacional (Gaia) separa \textbf{papéis} (o que precisa ser feito, sob quais direitos e deveres),
+\textbf{agentes} (entidades que os assumem) e \textbf{serviços de plataforma}. Cada papel é a tupla
+$role = \langle Resp, Perm, Obl, Prot\rangle$. Os papéis humanos \code{ROLE-SOL} (solicitante) e \code{ROLE-APR}
+(aprovador) ficam fora da fronteira, mas participam de protocolos.
+
+\begin{dtable}{L{2.75cm} Y Y Y L{1.35cm} L{0.75cm}}
+\headrow \hd{Agente / cognição} & \hd{Responsabilidades (Resp)} & \hd{Permissões (Perm)} & \hd{Obrigações (Obl)} & \hd{Protocolos} & \hd{LLM}\\ \endhead
+\input{generated/papeis.tex}
+\end{dtable}
+
+\begin{callout}
+\callouttitle{Serviços de plataforma não são agentes}
+Comunicação A2A, gateway MCP, auditoria, registro de modelos, memória, SafetyPolicy e reserva de período são
+\textbf{serviços compartilhados}: não têm objetivo local, iniciativa nem identidade social. Assim se evita a
+\emph{agentificação excessiva}, audita-se o sistema como um todo e trocam-se peças (modelos, agentes, fontes)
+sem efeito nas demais camadas. A \textbf{IA generativa} é \textbf{flag} (opcional, desligada por padrão) apenas em
+Relatórios, Resultados e Orçamento, e só para narrativa. Números vêm sempre do núcleo determinístico e o registro
+de modelos rejeita LLM em Orquestrador, Custos e Controles Internos (ADR-002).
+\end{callout}
+
+% =====================================================================
+\section{Objetivos, percepções, ações e estado/conhecimento}
+Para cada agente $i$: percepção $see_i: S\to P_i$, atualização de crenças $upd_i: B_i\times P_i\to B_i$ e decisão
+$act_i: B_i\times K_i\to A_i$. Mantém-se a separação \textbf{Estado $\neq$ Conhecimento $\neq$ Memória}: o estado
+muda a cada ciclo; o conhecimento (regras de rateio, alçadas, fórmulas) é versionado; a memória contém apenas saídas
+\textbf{aprovadas} de ciclos anteriores (\code{SVC-MEM}). Em Controles Internos o ciclo é BDI explícito: crenças
+sobre lançamentos $\rightarrow$ desejo de conformidade $\rightarrow$ intenção de aprovar, apontar ou vetar.
+
+\begin{dtable}{L{2.35cm} Y Y Y Y}
+\headrow \hd{Agente $\rightarrow$ objetivo} & \hd{Percepções (P)} & \hd{Estado interno (B)} & \hd{Conhecimento (K)} & \hd{Ações (A)}\\ \endhead
+\input{generated/peas.tex}
+\end{dtable}
+
+% =====================================================================
+\section{Interações, coordenação e guardrails de segurança}
+
+\subsection{Comunicação: A2A entre agentes, MCP com plataformas}
+Toda comunicação entre agentes usa a mensagem imutável $m=\langle s, r, p, c, o, k\rangle$ (remetente, destinatário,
+performativo FIPA-ACL, conteúdo, ontologia \code{ctrl-fin-v1} e \code{conversation\_id}), com prazo lógico
+\code{reply\_by}: respostas tardias são descartadas deterministicamente. \textbf{A2A é social} (agente $\leftrightarrow$
+agente, com semântica de protocolo); \textbf{MCP é instrumental} (agente $\rightarrow$ fonte de dados, como
+\emph{tool}). Nenhum agente usa MCP para conversar com outro.
+
+\subsection{Mecanismos de coordenação}
+\begin{dtable}{L{3.0cm} Y L{3.6cm}}
+\headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \endhead
+Tarefa & Orquestrador delega subtarefas do DAG (padrão supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\
+Informação & Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\
+Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\
+Recurso exclusivo & Um fechamento por (entidade, competência), com TTL & \code{PROT-LCK} (reserva)\\
+Autorização humana & Lançar ajuste no ERP, alterar orçamento, publicar relatório & \code{PROT-APR} (Approval Gate)\\
+Fronteira & Pedido do usuário e resposta final explícita & \code{PROT-SOL} (FIPA-Request)\\
+\end{dtable}
+
+O Contract Net não é o mecanismo principal porque cada subtarefa tem um único papel competente: não há disputa a
+leiloar. Ele fica registrado como evolução para o caso de várias instâncias do mesmo papel (por exemplo, um agente
+de Custos por unidade de negócio).
+
+
+\subsection{Protocolos como máquinas de estados}
+Os \nProt{} protocolos são especificados como FSMs (\code{models/protocols.yaml}). As transições válidas originam
+testes nominais e as \textbf{transições inválidas} originam testes negativos, a executar na DSM2
+(Figura~\ref{fig:fsm}): uma sequência que o modelo proíbe deve ser rejeitada mesmo que cada mensagem isolada
+seja bem formada.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/fig_fsm.tex}}
+  \caption{FSMs de delegação e do Approval Gate. Estados com borda dupla são finais; em vermelho, transições inválidas que viram testes negativos.}
+  \label{fig:fsm}
+\end{figure}
+
+\subsection{Cenário âncora: “feche o resultado do mês”}
+A Figura~\ref{fig:seq} encadeia os protocolos no cenário âncora: reserva do período, subtarefas paralelas de Custos e
+Orçamento, consultas A2A de Resultados, verificação com possibilidade de veto, relatório e publicação retida no
+Approval Gate até a decisão humana. Cada mensagem carrega o mesmo \code{conversation\_id}, o que permite
+reconstruir a cadeia causal a partir do trace.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/fig_sequencia.tex}}
+  \caption{Cenário âncora “feche o resultado do mês” (fluxo nominal). Na alternativa de veto, o Orquestrador libera a reserva e responde \texttt{failure}.}
+  \label{fig:seq}
+\end{figure}
+
+\subsection{Fronteira de autoridade e normas (human-in-the-loop)}
+\begin{callout}
+\callouttitle{Política de segurança: capacidade $\neq$ autorização}
+Nenhuma proposta de agente, e muito menos de um LLM, dispara efeito externo sem passar pela
+\textbf{SafetyPolicy} determinística, que classifica cada ação em três zonas:
+\decisao{ALLOW} (leitura e cálculo internos);
+\decisao{REQUIRE_APPROVAL} (ajuste no ERP, alteração de orçamento, publicação, retidos no Approval Gate até
+decisão humana); \decisao{DENY} (fora da allowlist do papel; bloqueio fail-closed, sem opção de aprovação).
+\end{callout}
+
+\begin{dtable}{L{1.2cm} L{4.1cm} Y L{2.4cm} L{1.9cm}}
+\headrow \hd{Norma} & \hd{Regra} & \hd{Consequência} & \hd{Decisão} & \hd{Imposta por}\\ \endhead
+\input{generated/normas.tex}
+\end{dtable}
+
+% =====================================================================
+\section{Métricas de sucesso e matriz de rastreabilidade}\label{sec:trace}
+
+\subsection{Métricas e evidências observáveis}
+As métricas serão coletadas dos traces JSONL (\code{SVC-AUD}) em cenários sintéticos com gabarito e seeds
+controlados (a partir da DSM2), sempre contra a baseline em workflow.
+
+\begin{dtable}{L{1.0cm} L{3.3cm} Y L{3.0cm} L{2.1cm}}
+\headrow \hd{ID} & \hd{Métrica} & \hd{Fórmula} & \hd{Alvo} & \hd{Mede}\\ \endhead
+\input{generated/metricas.tex}
+\end{dtable}
+
+\subsection{Matriz de rastreabilidade ponta a ponta (AOSE)}
+A cadeia liga cada necessidade do negócio a requisito, objetivo, papel/agente, protocolo/norma, componente, teste e
+métrica, e a evidência do teste volta ao requisito (Figura~\ref{fig:cadeia}). Os \nObj{} objetos vêm de uma
+\textbf{fonte única} (\code{models/*.yaml}). O script \code{tools/trace.py} falha diante de ID órfão, link quebrado
+ou requisito sem objetivo, papel, protocolo/norma, teste ou métrica, e gera tanto esta tabela quanto a
+documentação navegável: \textbf{\nReq/\nReq{} requisitos (100\%) com cadeia completa}. Os \nTest{} testes estão
+\textbf{especificados, não executados} (nenhum é declarado aprovado antes de existir código). Componentes e
+execuções são \nPend{} \emph{stubs} rastreáveis pendentes da DSM2.
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/fig_cadeia.tex}}
+  \caption{Cadeia de rastreabilidade com exemplo concreto. Em tracejado, itens que se materializam na DSM2.}
+  \label{fig:cadeia}
+\end{figure}
+
+\begin{dtable}{L{1.35cm} L{1.35cm} L{1.0cm} L{2.6cm} Y L{3.3cm} L{2.2cm}}
+\headrow \hd{Problema} & \hd{Requisito} & \hd{Objetivo} & \hd{Agente} & \hd{Protocolo / Norma} & \hd{Teste (planejado)} & \hd{Métrica}\\ \endhead
+\input{generated/matriz.tex}
+\end{dtable}
+
+\begin{callout}
+\callouttitle{Disposições finais e próximos passos}
+A DSM1 entrega cenário, fronteira, requisitos, organização de papéis, modelo PEAS/BDI, protocolos, normas e
+métricas com rastreabilidade validada automaticamente. Os modelos editáveis estão em \code{models/*.yaml},
+\code{diagrams/dsm1/*.mmd} (Mermaid) e \code{entregas/dsm1/figures/*.tex} (TikZ); o uso de IA está declarado em
+\code{USO\_DE\_IA.md}. A \textbf{DSM2} (arquitetura e protótipo) está apenas pré-estruturada: runtime, transporte
+A2A concreto, componentes e execução dos testes serão decididos e documentados nela.\par\vspace{2pt}
+{\RaggedRight\textbf{Documentação navegável:} \href{\docsURL}{\texttt{\docsURL}}\\
+\textbf{Repositório:} \href{\repoURL}{\texttt{\repoURL}}\par}
+\end{callout}
+
+{\footnotesize
+\textbf{Referências.}
+CANCIAN, R. L. \emph{Sistemas Multiagentes Inteligentes}. Florianópolis: UFSC, 2026 (material da disciplina).
+\textbullet\; WOOLDRIDGE, M.; JENNINGS, N.; KINNY, D. The Gaia methodology for agent-oriented analysis and design. \emph{JAAMAS}, 3(3), 2000.
+\textbullet\; BRESCIANI, P. et al. Tropos: an agent-oriented software development methodology. \emph{JAAMAS}, 8(3), 2004.
+\textbullet\; PADGHAM, L.; WINIKOFF, M. \emph{Developing Intelligent Agent Systems: a practical guide}. Wiley, 2004.
+\textbullet\; FIPA. \emph{ACL Message Structure} (SC00061) e \emph{Request Interaction Protocol} (SC00026), 2002.
+\textbullet\; Agent2Agent (A2A) Protocol Specification. Linux Foundation, 2025.
+\textbullet\; Model Context Protocol Specification. Anthropic, 2025.
+\par}
+
+\end{document}

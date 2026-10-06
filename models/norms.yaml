@@ -1,0 +1,74 @@
+# Normas organizacionais: escopo, condição e consequência; realizadas por serviços.
+# decisao: ALLOW | REQUIRE_APPROVAL | DENY | OBRIGACAO
+items:
+  - id: NORM-01
+    titulo: Efeito externo exige aprovação humana
+    escopo: Lançar ajuste no ERP, alterar orçamento, publicar relatório à diretoria
+    condicao: Qualquer papel propõe ação com efeito fora do sistema
+    consequencia: Ação retida no Approval Gate até approve; timeout expira sem executar
+    decisao: REQUIRE_APPROVAL
+    imposta_por: [SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-02
+    titulo: Fora da allowlist do papel é negado
+    escopo: Toda tool MCP e ação de escrita
+    condicao: Ação não consta da allowlist do papel solicitante
+    consequencia: Bloqueio fail-closed, sem opção de aprovação, registrado em log
+    decisao: DENY
+    imposta_por: [SVC-POL, SVC-MCP]
+    entrega: DSM1
+
+  - id: NORM-03
+    titulo: Período em fechamento é exclusivo
+    escopo: Par (entidade, competência)
+    condicao: Já existe reserva ativa de outro dono
+    consequencia: reserve-failure explicado; reserva expira por TTL
+    decisao: DENY
+    imposta_por: [SVC-LCK]
+    entrega: DSM1
+
+  - id: NORM-04
+    titulo: Não conformidade crítica bloqueia publicação
+    escopo: Resultado do período e relatório executivo
+    condicao: Parecer de Controles Internos com severidade crítica
+    consequencia: Publicação vetada até correção reavaliada ou waiver humano justificado
+    decisao: DENY
+    imposta_por: [SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-05
+    titulo: LLM não calcula números nem autoriza ações
+    escopo: Toda saída de LLM (REL, RES, ORC)
+    condicao: Texto gerado contém número divergente do núcleo determinístico ou propõe ação
+    consequencia: Texto descartado e substituído pelo template; proposta tratada como não autorizada
+    decisao: DENY
+    imposta_por: [SVC-MOD, SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-06
+    titulo: Logs e memória sem segredos nem dados pessoais desnecessários
+    escopo: Traces JSONL, logs de prompt, memória de longo prazo
+    condicao: Conteúdo contém credencial, token, chave ou dado pessoal fora da finalidade
+    consequencia: Redaction; se a sanitização falhar, a gravação é recusada (fail-closed)
+    decisao: OBRIGACAO
+    imposta_por: [SVC-AUD, SVC-MEM]
+    entrega: DSM1
+
+  - id: NORM-07
+    titulo: LLM só por flag, só em papéis permitidos, dentro da cota
+    escopo: Configuração de modelos por agente
+    condicao: Flag desligada, papel não permitido (ORQ, CUS, CIN) ou cota de tokens esgotada
+    consequencia: Chamada LLM bloqueada e agente segue em modo determinístico (template)
+    decisao: DENY
+    imposta_por: [SVC-MOD]
+    entrega: DSM1
+
+  - id: NORM-08
+    titulo: Somente saída aprovada vira memória
+    escopo: MemoryService
+    condicao: Saída sem aprovação humana registrada
+    consequencia: Não é indexada em embeddings nem no grafo
+    decisao: DENY
+    imposta_por: [SVC-MEM]
+    entrega: DSM1

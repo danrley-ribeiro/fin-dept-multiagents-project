@@ -1,0 +1,68 @@
+# Serviços de plataforma (camadas transversais). NÃO são agentes:
+# não têm objetivos locais, iniciativa nem identidade social própria — são consultados
+# ou interceptam ações (critério de "agentificação excessiva", Cancian 2026, §4.3).
+items:
+  - id: SVC-A2A
+    titulo: Camada de comunicação A2A
+    camada: Comunicação
+    responsabilidade: >-
+      Transporta mensagens entre agentes com envelope FIPA-ACL
+      (remetente, destinatário, performativo, conteúdo, ontologia,
+      conversation_id, reply_by) e descoberta por Agent Card.
+    por_que_nao_agente: Transporte não decide; a semântica social fica nos papéis e protocolos.
+    entrega: DSM1
+
+  - id: SVC-MCP
+    titulo: Gateway MCP (conectores de dados)
+    camada: Comunicação
+    responsabilidade: >-
+      Expõe ERP, planilhas, base histórica, APIs de mercado e base normativa
+      como tools MCP tipadas; leitura por padrão, escrita apenas via SafetyPolicy.
+    por_que_nao_agente: Conector não tem objetivo próprio; é ferramenta do agente.
+    entrega: DSM1
+
+  - id: SVC-AUD
+    titulo: AuditService (governança e auditoria)
+    camada: Governança
+    responsabilidade: >-
+      Intercepta toda ação, mensagem e chamada de modelo e grava logs de decisão,
+      prompt e custo em JSONL append-only, com redaction fail-closed.
+    por_que_nao_agente: Interceptação central evita que cada agente logue de forma isolada.
+    entrega: DSM1
+
+  - id: SVC-MOD
+    titulo: ModelRegistry (configuração de modelos)
+    camada: Configuração
+    responsabilidade: >-
+      Registro central por agente: flag LLM (padrão desligada), modelo, limite de
+      tokens e orçamento; troca em runtime sem redeploy; impede LLM em papéis não
+      permitidos e valida números do texto gerado.
+    por_que_nao_agente: Configuração e validação não deliberam sobre o domínio.
+    entrega: DSM1
+
+  - id: SVC-MEM
+    titulo: MemoryService (embeddings e grafo de conhecimento)
+    camada: Memória
+    responsabilidade: >-
+      Persiste apenas saídas aprovadas como embeddings e nós/arestas (conta,
+      indicador, decisão, período) e responde consultas com proveniência.
+    por_que_nao_agente: Memória é recurso consultado, não entidade com objetivos.
+    entrega: DSM1
+
+  - id: SVC-POL
+    titulo: SafetyPolicy e Approval Gate
+    camada: Governança
+    responsabilidade: >-
+      Classifica toda ação proposta em ALLOW, REQUIRE_APPROVAL ou DENY
+      (fail-closed) e retém ações restritas até decisão humana.
+    por_que_nao_agente: Política determinística precisa ser previsível; não negocia.
+    entrega: DSM1
+
+  - id: SVC-LCK
+    titulo: PeriodLockService (reserva de período)
+    camada: Coordenação
+    responsabilidade: >-
+      Mantém tabela de reservas exclusivas por (entidade, competência) com TTL,
+      rejeitando reservas sobrepostas.
+    por_que_nao_agente: Invariante de exclusão mútua é melhor garantido por serviço simples.
+    entrega: DSM1

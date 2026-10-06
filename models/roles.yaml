@@ -1,0 +1,95 @@
+# Modelo de papéis (Gaia): role = <Resp, Perm, Obl, Prot>  (Cancian, 2026, §4.3).
+# Papéis humanos (exercido_por) ficam fora da fronteira do software, mas participam de protocolos.
+items:
+  - id: ROLE-SOL
+    titulo: Solicitante (humano)
+    exercido_por: [STK-01]
+    resp: [Formular solicitações à controladoria, Receber o resultado final]
+    perm: [Enviar request pela interface, Consultar dashboard de observabilidade]
+    obl: [Usar intenções do catálogo ou aceitar not-understood]
+    protocolos: [PROT-SOL]
+    llm: nao_aplicavel
+    entrega: DSM1
+
+  - id: ROLE-APR
+    titulo: Aprovador (controller humano)
+    exercido_por: [STK-02]
+    resp: [Decidir sobre ações restritas, Conceder waiver a não conformidades]
+    perm: [Aprovar ou rejeitar ActionRequest, Ajustar configuração de modelos e cotas]
+    obl: [Registrar justificativa da decisão]
+    protocolos: [PROT-APR, PROT-CMP]
+    llm: nao_aplicavel
+    entrega: DSM1
+
+  - id: ROLE-ORQ
+    titulo: Orquestrador
+    resp:
+      - Receber solicitações e mapear para intenção do catálogo
+      - Decompor em DAG de subtarefas e delegar aos papéis competentes
+      - Reservar o período e agregar a resposta final
+    perm:
+      - Delegar (request) a qualquer papel especialista
+      - Reservar e liberar período no PeriodLockService
+      - Propor publicação ao Approval Gate
+    obl:
+      - Responder toda solicitação com resultado ou falha explícita
+      - Respeitar reply_by e veto de conformidade
+      - Liberar a reserva ao término ou falha
+    protocolos: [PROT-SOL, PROT-DEL, PROT-CMP, PROT-LCK, PROT-APR]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-CUS
+    titulo: Analista de Custos e Rentabilidade
+    resp:
+      - Apurar custos fixos e variáveis e aplicar rateio por critério configurado
+      - Calcular margem de contribuição e rentabilidade por produto, serviço e UN
+    perm: [Ler ERP e base histórica via MCP, Responder query-ref de outros papéis]
+    obl: [Anexar proveniência a cada valor, Informar falha se dado de origem estiver ausente]
+    protocolos: [PROT-DEL, PROT-QRY]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-ORC
+    titulo: Analista de Orçamento e Controle Orçamentário
+    resp:
+      - Comparar orçado x realizado por conta e centro de custo
+      - Sinalizar desvios acima do limiar e projetar forecast
+    perm: [Ler planilhas de orçamento e ERP via MCP, Propor alteração de orçamento (restrita), Responder query-ref]
+    obl: [Explicitar limiar e método de forecast usados, Não alterar orçamento sem aprovação]
+    protocolos: [PROT-DEL, PROT-QRY, PROT-APR]
+    llm: flag
+    entrega: DSM1
+
+  - id: ROLE-RES
+    titulo: Analista de Resultados e Indicadores
+    resp:
+      - Montar DRE gerencial, EBITDA, fluxo de caixa e KPIs
+      - Obter custos e orçamento dos papéis especialistas
+    perm: [Iniciar query-ref para CUS e ORC, Ler ERP e APIs de mercado via MCP]
+    obl: [Não recalcular rateio próprio — usar o de CUS, Sinalizar inconsistência de fechamento]
+    protocolos: [PROT-DEL, PROT-QRY]
+    llm: flag
+    entrega: DSM1
+
+  - id: ROLE-CIN
+    titulo: Auditor de Controles Internos
+    resp:
+      - Verificar alçada, segregação de funções, duplicidade, conciliação e competência
+      - Emitir parecer conforme / não conforme com regra e severidade
+    perm: [Ler ERP e base normativa via MCP, Vetar publicação por não conformidade crítica]
+    obl: [Citar regra e evidência de cada apontamento, Reavaliar após waiver ou correção]
+    protocolos: [PROT-DEL, PROT-CMP]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-REL
+    titulo: Redator de Relatórios Gerenciais
+    resp:
+      - Sintetizar resultados em relatório executivo por template
+      - Acrescentar narrativa e insights quando a flag LLM estiver ativa
+    perm: [Consultar memória aprovada, Propor publicação do relatório (restrita)]
+    obl: [Preservar números do núcleo determinístico, Usar template se o texto LLM divergir]
+    protocolos: [PROT-DEL, PROT-APR]
+    llm: flag
+    entrega: DSM1

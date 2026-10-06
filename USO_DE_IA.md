@@ -1,5 +1,7 @@
 # Uso de IA
 
+**Autores:** Danrley Moreira Ribeiro (23102664) e Jiliard Mai Peifer (23103129).
+
 Registro do uso de ferramentas de IA generativa na produção dos artefatos do projeto, por entrega.
 Duas coisas distintas aparecem aqui:
 

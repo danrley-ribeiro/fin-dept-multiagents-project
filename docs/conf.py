@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 subprocess.run([sys.executable, str(ROOT / "tools" / "trace.py")], check=True)
 
 project = "SMA de Controladoria"
-author = "Autor A, Autor B"  # TODO(autoria): substituir pelos nomes reais
+author = "Danrley Moreira Ribeiro, Jiliard Mai Peifer"
 copyright = "2026, " + author
 language = "pt_BR"
 release = "DSM1"

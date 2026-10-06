@@ -14,12 +14,12 @@ narrativa em três agentes.
 
 ## Autoria
 
-| Nome | Matrícula | Contato |
-|---|---|---|
-| Autor A *(preencher)* | 00000000 | — |
-| Autor B *(preencher)* | 00000000 | — |
+| Nome | Matrícula |
+|---|---|
+| Danrley Moreira Ribeiro | 23102664 |
+| Jiliard Mai Peifer | 23103129 |
 
-Atualize também `\autorA`, `\autorB`, `\matA` e `\matB` em `entregas/dsm1/main.tex` e `author` em `docs/conf.py`.
+Grupo: *Estudante 1, Jiliard e Danrley* (Moodle INE5628).
 
 ## Entregas
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validador e gerador de rastreabilidade do SMA de Controladoria.
+"""Validador e gerador de rastreabilidade do Sistema Multiagente de Controladoria.
 
 Fonte única: models/*.yaml. Este script:
 
@@ -300,6 +300,7 @@ def need_body(item: dict) -> str:
     elif k == "protocols":
         parts.append(f"**Propósito:** {text(item['proposito'])}  \n**Meio:** {item['meio']}  \n"
                      f"**Performativos:** {', '.join(item['performativos'])}")
+        parts.append(f"**Diagrama: Máquina de estados {item['id']}** (`diagrams/dsm1/protocols_fsm_{item['id']}.mmd`)")
         parts.append(mermaid_block(item))
         inval = "\n".join(f"- `{s}` + `{e}` → rejeitar ({text(why)})" for s, e, why in item["invalidas"])
         parts.append(f"**Transições inválidas (origem de testes negativos)**\n\n{inval}")
@@ -446,7 +447,7 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
     # diagramas de estado editáveis
     MMD_DIR.mkdir(parents=True, exist_ok=True)
     for prot in data["protocols"]:
-        (MMD_DIR / f"fsm_{prot['id']}.mmd").write_text(
+        (MMD_DIR / f"protocols_fsm_{prot['id']}.mmd").write_text(
             "%% GERADO por tools/trace.py a partir de models/protocols.yaml\n" + mermaid_fsm(prot), encoding="utf-8")
 
 
@@ -577,7 +578,7 @@ def main() -> int:
     if not args.check:
         generate_docs(data, index, back)
         generate_tex(data, index, back)
-        print(f"✓ Gerados: {DOCS_GEN.relative_to(ROOT)}/, {TEX_GEN.relative_to(ROOT)}/, {MMD_DIR.relative_to(ROOT)}/fsm_*.mmd")
+        print(f"✓ Gerados: {DOCS_GEN.relative_to(ROOT)}/, {TEX_GEN.relative_to(ROOT)}/, {MMD_DIR.relative_to(ROOT)}/protocols_fsm_*.mmd")
     return 0
 
 

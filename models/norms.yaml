@@ -31,7 +31,7 @@ items:
   - id: NORM-04
     titulo: Não conformidade crítica bloqueia publicação
     escopo: Resultado do período e relatório executivo
-    condicao: Parecer de Controles Internos com severidade crítica
+    condicao: Parecer do Agente de Controles Internos com severidade crítica
     consequencia: Publicação vetada até correção reavaliada ou waiver humano justificado
     decisao: DENY
     imposta_por: [SVC-POL]
@@ -39,7 +39,7 @@ items:
 
   - id: NORM-05
     titulo: LLM não calcula números nem autoriza ações
-    escopo: Toda saída de LLM (REL, RES, ORC)
+    escopo: Toda saída de LLM (AG-REL, AG-RES, AG-ORC)
     condicao: Texto gerado contém número divergente do núcleo determinístico ou propõe ação
     consequencia: Texto descartado e substituído pelo template; proposta tratada como não autorizada
     decisao: DENY
@@ -58,7 +58,7 @@ items:
   - id: NORM-07
     titulo: LLM só por flag, só em papéis permitidos, dentro da cota
     escopo: Configuração de modelos por agente
-    condicao: Flag desligada, papel não permitido (ORQ, CUS, CIN) ou cota de tokens esgotada
+    condicao: Flag desligada, papel não permitido (AG-ORQ, AG-CUS, AG-CIN) ou cota de tokens esgotada
     consequencia: Chamada LLM bloqueada e agente segue em modo determinístico (template)
     decisao: DENY
     imposta_por: [SVC-MOD]
@@ -66,7 +66,7 @@ items:
 
   - id: NORM-08
     titulo: Somente saída aprovada vira memória
-    escopo: MemoryService
+    escopo: Serviço de Memória (SVC-MEM)
     condicao: Saída sem aprovação humana registrada
     consequencia: Não é indexada em embeddings nem no grafo
     decisao: DENY

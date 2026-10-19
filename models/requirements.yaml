@@ -10,7 +10,9 @@ items:
       O Orquestrador deve mapear cada solicitação do catálogo ("fechar o resultado
       do mês", "avaliar o orçamento do trimestre") para um DAG de subtarefas,
       delegá-las aos papéis competentes e agregar uma resposta final; pedido fora
-      do catálogo recebe not-understood explícito.
+      do catálogo recebe not-understood explícito. Se um especialista expirar ou
+      falhar, a subtarefa é reenviada uma vez; na segunda falha, a solicitação
+      termina em failure, com a reserva liberada e nada publicado.
     evidencia: >-
       Trace com o DAG gerado e, por subtarefa, request → agree → inform/failure
       sob o mesmo conversation_id; resposta final com status explícito.
@@ -66,7 +68,7 @@ items:
       obtendo custos e orçamento dos agentes especialistas por query-ref A2A, sem
       reimplementar suas regras.
     evidencia: >-
-      Trace mostra query-ref RES→CUS e RES→ORC antes do inform final; DRE igual ao
+      Trace mostra query-ref AG-RES→AG-CUS e AG-RES→AG-ORC antes do inform final; DRE igual ao
       gabarito; inform não solicitado é rejeitado.
     objetivos: [G-04]
     problemas: [PROB-01]
@@ -136,7 +138,7 @@ items:
     titulo: Ações com efeito externo só com aprovação
     descricao: >-
       Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é
-      executado autonomamente: a SafetyPolicy classifica em ALLOW,
+      executado autonomamente: a Política de Segurança classifica em ALLOW,
       REQUIRE_APPROVAL ou DENY e retém a ação no Approval Gate.
     evidencia: >-
       ActionRequest em PENDENTE até approve humano; ação DENY nunca executa
@@ -262,11 +264,11 @@ items:
     descricao: >-
       Registro central define por agente a flag LLM (padrão desligada), modelo,
       limite de tokens e orçamento; a mudança vale na próxima tarefa sem redeploy;
-      LLM só é habilitável em REL, RES e ORC; cota excedida bloqueia a chamada e
+      LLM só é habilitável em AG-REL, AG-RES e AG-ORC; cota excedida bloqueia a chamada e
       aciona o template.
     evidencia: >-
-      Troca de modelo refletida na tarefa seguinte; configuração com LLM em ORQ,
-      CUS ou CIN é rejeitada; cota estourada gera fallback registrado.
+      Troca de modelo refletida na tarefa seguinte; configuração com LLM em AG-ORQ,
+      AG-CUS ou AG-CIN é rejeitada; cota estourada gera fallback registrado.
     objetivos: [G-07, G-09]
     problemas: [PROB-06]
     papeis: [ROLE-REL, ROLE-RES, ROLE-ORC, ROLE-APR]

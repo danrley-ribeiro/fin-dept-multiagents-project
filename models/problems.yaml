@@ -6,6 +6,7 @@ items:
     descricao: >-
       Consolidação de balancete, rateios, DRE e indicadores feita em planilhas e
       e-mails consome dias após o fim do mês, atrasando decisões da liderança.
+      Referência do cenário sintético: resultado disponível em D+8 dias úteis.
     entrega: DSM1
 
   - id: PROB-02
@@ -21,6 +22,7 @@ items:
     descricao: >-
       A comparação orçado x realizado só é consolidada no fim do trimestre;
       desvios relevantes chegam à diretoria quando já não há margem de correção.
+      Referência do cenário sintético: até 90 dias entre o desvio e o alerta.
     entrega: DSM1
 
   - id: PROB-04
@@ -28,6 +30,8 @@ items:
     descricao: >-
       Lançamentos manuais acima da alçada, violação de segregação de funções,
       duplicidades e contas não conciliadas passam despercebidos até a auditoria.
+      Referência do cenário sintético: 4 de cada 10 inconformidades críticas só
+      aparecem na auditoria.
     entrega: DSM1
 
   - id: PROB-05
@@ -35,6 +39,8 @@ items:
     descricao: >-
       Cada analista monta o relatório gerencial de um jeito, com números que às
       vezes divergem da DRE e sem destacar o que a liderança precisa decidir.
+      Referência do cenário sintético: 1 de cada 4 relatórios com número
+      divergente da DRE.
     entrega: DSM1
 
   - id: PROB-06

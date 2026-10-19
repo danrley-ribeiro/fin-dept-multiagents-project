@@ -5,7 +5,7 @@ PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
 all: trace docs pdf
 
-trace:            ## valida a cadeia e regenera docs/_generated, entregas/dsm1/generated e diagrams/dsm1/fsm_*.mmd
+trace:            ## valida a cadeia e regenera docs/_generated, entregas/dsm1/generated e diagrams/dsm1/protocols_fsm_*.mmd
 	$(PYTHON) tools/trace.py
 
 check:            ## apenas valida a rastreabilidade (sem gerar arquivos)

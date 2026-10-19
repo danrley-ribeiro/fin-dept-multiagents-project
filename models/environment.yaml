@@ -5,7 +5,7 @@ propriedades:
   - nome: Parcialmente observável
     justificativa: >-
       Cada agente só percebe o que seus conectores MCP e as mensagens A2A
-      entregam. Custos não enxerga a base normativa; Controles Internos não
+      entregam. O Agente de Custos não enxerga a base normativa; o de Controles Internos não
       enxerga as regras de rateio; ninguém tem o estado global instantâneo.
   - nome: Dinâmico
     justificativa: >-

@@ -2,10 +2,10 @@
 # Todo objetivo-folha precisa ser satisfeito por >= 1 requisito.
 items:
   - id: G-00
-    titulo: Controladoria terceirizada coordenada e auditável
+    titulo: Controladoria coordenada e auditável
     descricao: >-
-      Executar as rotinas de controladoria da empresa cliente de forma
-      terceirizada e coordenada, entregando à liderança o resultado do período e
+      Executar as rotinas de controladoria da empresa de forma
+      coordenada, entregando à liderança o resultado do período e
       análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com
       evidência reconstruível de cada decisão.
     refina: []

@@ -44,7 +44,7 @@ items:
 
   - id: PROT-QRY
     titulo: Consulta entre especialistas (FIPA-Query-Ref via A2A)
-    proposito: Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.
+    proposito: O Agente de Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.
     participantes: [ROLE-RES, ROLE-CUS, ROLE-ORC]
     meio: SVC-A2A
     performativos: [query-ref, inform, refuse, failure]
@@ -62,7 +62,7 @@ items:
 
   - id: PROT-CMP
     titulo: Verificação de conformidade com veto
-    proposito: Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.
+    proposito: O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.
     participantes: [ROLE-ORQ, ROLE-CIN, ROLE-APR]
     meio: SVC-A2A
     performativos: [request, inform(conforme), inform(nao_conforme), veto, waiver, request(reavaliar)]

@@ -1,9 +1,9 @@
-# SMA de Controladoria — Sistema Multiagente para terceirização da Controladoria
+# Sistema Multiagente de Controladoria
 
 Projeto da disciplina **INE5628 — Sistemas Multiagentes** (UFSC/CTC/INE, Prof. Rafael Luiz Cancian).
 
-Um orquestrador e cinco agentes especializados (Custos e Rentabilidade, Orçamento e Controle
-Orçamentário, Resultados e Indicadores, Controles Internos e Relatórios Gerenciais) executam as
+O Orquestrador e cinco agentes especializados (Agente de Custos, Agente de Orçamento, Agente de
+Resultados, Agente de Controles Internos e Agente de Relatórios) executam as
 rotinas de controladoria de forma coordenada e auditável. Eles se apoiam em serviços de
 plataforma: comunicação A2A/MCP, auditoria, configuração de modelos, memória, política de
 segurança e reserva de período. A IA generativa é **opcional e desligada por padrão**, restrita à
@@ -19,14 +19,14 @@ narrativa em três agentes.
 | Danrley Moreira Ribeiro | 23102664 |
 | Jiliard Mai Peifer | 23103129 |
 
-Grupo: *Estudante 1, Jiliard e Danrley* (Moodle INE5628).
+Grupo: *Danrley e Jiliard* (Moodle INE5628).
 
 ## Entregas
 
-| Entrega | Conteúdo | Prazo | Situação |
-|---|---|---|---|
-| **DSM1** | Cenário, requisitos e modelagem (AOSE) | 10/10/2026 | ✅ concluída |
-| **DSM2** | Arquitetura e protótipo inicial | 31/10/2026 | ⏳ pendente (pré-estruturada em `docs/dsm2/` e `entregas/dsm2/`) |
+| Entrega | Conteúdo | Situação |
+|---|---|---|
+| **DSM1** | Cenário, requisitos e modelagem (AOSE) | ✅ concluída |
+| **DSM2** | Arquitetura e protótipo inicial | ⏳ pendente (pré-estruturada em `docs/dsm2/` e `entregas/dsm2/`) |
 
 Enunciados: [`DSM1`](DSM1) · [`DSM2`](DSM2). Exemplo de formato usado como referência: [`DSM1.pdf`](DSM1.pdf).
 
@@ -49,10 +49,10 @@ que é a **fonte única**. O script `tools/trace.py`:
    Componente → Teste → Métrica**: falha com ID órfão, link quebrado ou requisito sem objetivo,
    papel, protocolo/norma, teste, métrica ou componente;
 2. gera os objetos **sphinx-needs** da documentação (`docs/_generated/`), as **tabelas do PDF**
-   (`entregas/dsm1/generated/`) e os **diagramas de estado** dos protocolos (`diagrams/dsm1/fsm_*.mmd`).
+   (`entregas/dsm1/generated/`) e os **diagramas de estado** dos protocolos (`diagrams/dsm1/protocols_fsm_*.mmd`).
 
-Situação atual: **18/18 requisitos (100%) com cadeia completa**, 136 objetos rastreados,
-25 testes **especificados** (execução na DSM2) e 38 stubs pendentes da DSM2.
+Situação atual: **18/18 requisitos (100%) com cadeia completa**, 137 objetos rastreados,
+26 testes **especificados** (execução na DSM2) e 39 stubs pendentes da DSM2.
 
 ## Estrutura
 

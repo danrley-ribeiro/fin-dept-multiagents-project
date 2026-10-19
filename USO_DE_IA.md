@@ -14,7 +14,7 @@ Duas coisas distintas aparecem aqui:
 ## DSM1 — Cenário, requisitos e modelagem
 
 **Modelo utilizado no desenvolvimento:** **Claude Opus 5.5**.
-**Período:** 06/10/2026.
+**Período:** 06/10/2026 (versão inicial) e 19/10/2026 (revisão).
 
 ### Papel da IA
 
@@ -33,6 +33,7 @@ artefatos da entrega.
 | Formatação da documentação navegável, dos diagramas Mermaid e das figuras TikZ | `docs/`, `diagrams/dsm1/`, `entregas/dsm1/figures/` |
 | Formatação do documento da entrega em LaTeX | `entregas/dsm1/main.tex`, `entregas/dsm1/referencias.bib` |
 | README, Makefile, CI | raiz, `.github/` |
+| Revisão de 19/10/2026: nomes padronizados (português + ID), remoção de "terceirização", diagramas renomeados pela página da documentação, diagramas de sequência "avaliar o orçamento" e "veto e waiver", tratamento de falhas e linha de base do problema | `models/`, `docs/dsm1/`, `diagrams/dsm1/`, `entregas/dsm1/` |
 
 ### Decisões que permaneceram com os autores
 
@@ -48,9 +49,16 @@ artefatos da entrega.
   protocolo de veto sem declará-lo.
 - Documentação compilada com `sphinx -W` (nenhum aviso permitido).
 - PDF compilado e inspecionado visualmente página a página.
-- Nenhum teste foi declarado aprovado: os 25 testes estão apenas **especificados** (execução na DSM2).
-- **Revisão humana dos autores:** *(preencher: quem revisou, o que foi alterado e o que foi validado
-  contra a apostila)*.
+- Nenhum teste foi declarado aprovado: os 26 testes estão apenas **especificados** (execução na DSM2).
+- **Revisão humana dos autores**, dividida entre os dois:
+  - **Danrley Moreira Ribeiro:** revisou os modelos AOSE (`models/*.yaml`) e a cadeia de
+    rastreabilidade (`tools/trace.py`), conferindo requisitos, papéis e protocolos contra os
+    capítulos 4–5 da apostila. Pediu a análise de completude que levou ao segundo cenário âncora,
+    ao tratamento de falhas, à linha de base do problema e à indicação de onde estão as máquinas
+    de estados.
+  - **Jiliard Mai Peifer:** revisou o texto do PDF e do README. Definiu o nome do projeto
+    (Sistema Multiagente de Controladoria, sem "terceirização"), pediu a padronização dos nomes
+    dos agentes e a retirada do prazo do README.
 
 ### Limites conhecidos
 

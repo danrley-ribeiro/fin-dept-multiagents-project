@@ -9,7 +9,7 @@
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} Componente de Custos e Rentabilidade
+````{comp} Componente do Agente de Custos
 :id: COMP-CUS
 :entrega: DSM2
 :status: pendente
@@ -18,7 +18,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} Componente de Orçamento
+````{comp} Componente do Agente de Orçamento
 :id: COMP-ORC
 :entrega: DSM2
 :status: pendente
@@ -27,7 +27,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} Componente de Resultados e Indicadores
+````{comp} Componente do Agente de Resultados
 :id: COMP-RES
 :entrega: DSM2
 :status: pendente
@@ -36,7 +36,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} Componente de Controles Internos
+````{comp} Componente do Agente de Controles Internos
 :id: COMP-CIN
 :entrega: DSM2
 :status: pendente
@@ -45,7 +45,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} Componente de Relatórios Gerenciais
+````{comp} Componente do Agente de Relatórios
 :id: COMP-REL
 :entrega: DSM2
 :status: pendente
@@ -72,7 +72,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} AuditService / tracer JSONL
+````{comp} Serviço de Auditoria (tracer JSONL)
 :id: COMP-AUD
 :entrega: DSM2
 :status: pendente
@@ -81,7 +81,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} ModelRegistry e gateway LLM
+````{comp} Registro de Modelos e gateway LLM
 :id: COMP-MOD
 :entrega: DSM2
 :status: pendente
@@ -90,7 +90,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} MemoryService (embeddings + grafo)
+````{comp} Serviço de Memória
 :id: COMP-MEM
 :entrega: DSM2
 :status: pendente
@@ -99,7 +99,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} SafetyPolicy e Approval Gate
+````{comp} Política de Segurança e Approval Gate
 :id: COMP-POL
 :entrega: DSM2
 :status: pendente
@@ -108,7 +108,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````
 
-````{comp} PeriodLockService
+````{comp} Reserva de Período
 :id: COMP-LCK
 :entrega: DSM2
 :status: pendente

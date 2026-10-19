@@ -16,16 +16,16 @@ paga**.
 
 | Agente | LLM | Uso permitido |
 |---|---|---|
-| Relatórios Gerenciais (`AG-REL`) | **flag** (desligada por padrão) | síntese executiva e insights |
-| Resultados e Indicadores (`AG-RES`) | **flag** (desligada por padrão) | comentário analítico dos indicadores |
-| Orçamento (`AG-ORC`) | **flag** (desligada por padrão) | narrativa explicativa dos desvios |
-| Orquestrador, Custos, Controles Internos | **não permitido** | — |
+| Agente de Relatórios (`AG-REL`) | **flag** (desligada por padrão) | síntese executiva e insights |
+| Agente de Resultados (`AG-RES`) | **flag** (desligada por padrão) | comentário analítico dos indicadores |
+| Agente de Orçamento (`AG-ORC`) | **flag** (desligada por padrão) | narrativa explicativa dos desvios |
+| Orquestrador, Agente de Custos, Agente de Controles Internos | **não permitido** | — |
 
 1. Todo agente tem um **modo determinístico completo** (template); a flag apenas acrescenta texto.
 2. Números vêm sempre do núcleo determinístico; o texto gerado é validado e, havendo
    divergência, é descartado em favor do template ({need}`NORM-05`).
 3. Flag, modelo, limite de tokens e orçamento ficam no **registro central de modelos**
-   (`SVC-MOD`), alteráveis em runtime sem redeploy; habilitar LLM em agente não permitido
+   (Registro de Modelos, `SVC-MOD`), alteráveis em runtime sem redeploy; habilitar LLM em agente não permitido
    é rejeitado na validação ({need}`NORM-07`).
 4. Com a flag ligada, cada chamada gera log de prompt e de custo; com ela desligada, o
    custo é zero e não há registro de prompt.

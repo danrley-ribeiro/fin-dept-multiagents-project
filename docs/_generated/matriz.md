@@ -2,7 +2,7 @@
 
 | Problema | Requisito | Objetivo | Papel / Agente | Protocolo / Norma | Componente (DSM2) | Teste (planejado) | Métrica |
 |---|---|---|---|---|---|---|---|
-| {need}`PROB-01` | {need}`REQ-F01` | {need}`G-01` | {need}`ROLE-ORQ`, {need}`ROLE-SOL`, {need}`AG-ORQ` | {need}`PROT-SOL`, {need}`PROT-DEL` | {need}`COMP-ORQ` | {need}`TEST-01`, {need}`TEST-02`, {need}`TEST-03` | {need}`MET-01`, {need}`MET-04`, {need}`MET-09` |
+| {need}`PROB-01` | {need}`REQ-F01` | {need}`G-01` | {need}`ROLE-ORQ`, {need}`ROLE-SOL`, {need}`AG-ORQ` | {need}`PROT-SOL`, {need}`PROT-DEL` | {need}`COMP-ORQ` | {need}`TEST-01`, {need}`TEST-02`, {need}`TEST-03`, {need}`TEST-26` | {need}`MET-01`, {need}`MET-04`, {need}`MET-09` |
 | {need}`PROB-02` | {need}`REQ-F02` | {need}`G-02` | {need}`ROLE-CUS`, {need}`AG-CUS` | {need}`PROT-DEL` | {need}`COMP-CUS` | {need}`TEST-04` | {need}`MET-02` |
 | {need}`PROB-03` | {need}`REQ-F03` | {need}`G-03` | {need}`ROLE-ORC`, {need}`AG-ORC` | {need}`PROT-DEL`, {need}`PROT-QRY` | {need}`COMP-ORC` | {need}`TEST-05` | {need}`MET-02` |
 | {need}`PROB-01` | {need}`REQ-F04` | {need}`G-04` | {need}`ROLE-RES`, {need}`ROLE-CUS`, {need}`ROLE-ORC`, {need}`AG-CUS`, {need}`AG-ORC`, {need}`AG-RES` | {need}`PROT-QRY`, {need}`PROT-DEL` | {need}`COMP-CUS`, {need}`COMP-ORC`, {need}`COMP-RES` | {need}`TEST-06`, {need}`TEST-07` | {need}`MET-02`, {need}`MET-04` |

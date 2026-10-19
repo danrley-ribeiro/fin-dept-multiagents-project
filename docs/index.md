@@ -1,9 +1,9 @@
-# SMA de Controladoria — Documentação
+# Sistema Multiagente de Controladoria — Documentação
 
-Sistema Multiagente para **terceirização (BPO) da Controladoria** de uma empresa:
-orquestrador + cinco agentes especializados (Custos e Rentabilidade, Orçamento,
-Resultados e Indicadores, Controles Internos e Relatórios Gerenciais) sobre camadas
-de comunicação (A2A/MCP), governança e auditoria, configuração de modelos e memória.
+Sistema Multiagente para a **Controladoria** de uma empresa: o Orquestrador e cinco
+agentes especializados (Agente de Custos, Agente de Orçamento, Agente de Resultados,
+Agente de Controles Internos e Agente de Relatórios) sobre camadas de comunicação
+(A2A/MCP), governança e auditoria, registro de modelos e memória.
 
 Projeto da disciplina **INE5628 — Sistemas Multiagentes** (UFSC/CTC/INE,
 Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).

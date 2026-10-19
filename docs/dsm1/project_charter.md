@@ -2,8 +2,7 @@
 
 ## Cenário-problema
 
-Uma empresa de médio porte terceiriza (BPO) a sua **Controladoria**. Todo mês a equipe
-precisa fechar o resultado (balancete → rateios → DRE → indicadores → relatório à
+A **Controladoria** de uma empresa de médio porte precisa, todo mês, fechar o resultado (balancete → rateios → DRE → indicadores → relatório à
 diretoria) e, a cada trimestre, avaliar o orçamento. Hoje esse ciclo:
 
 - leva dias de consolidação manual em planilhas e e-mails;
@@ -13,13 +12,23 @@ diretoria) e, a cada trimestre, avaliar o orçamento. Hoje esse ciclo:
 - produz relatórios inconsistentes com a DRE;
 - e, quando usa IA, não deixa trilha de critério, prompt, fontes nem custo.
 
+**Linha de base do cenário sintético** (premissas da empresa sintética, não medições
+reais; servem de ponto de partida para ler as métricas):
+
+| Problema | Situação atual | Referência | Métrica |
+|---|---|---|---|
+| {need}`PROB-01` | Resultado do mês disponível só depois da consolidação manual | D+8 dias úteis | {need}`MET-09` |
+| {need}`PROB-03` | Desvio orçamentário percebido no fechamento do trimestre | até 90 dias até o alerta | {need}`MET-09` |
+| {need}`PROB-04` | Inconformidades críticas encontradas só na auditoria | 4 de cada 10 | {need}`MET-03` |
+| {need}`PROB-05` | Relatórios com número divergente da DRE | 1 de cada 4 | {need}`MET-02`, {need}`MET-06` |
+
 **Cenários âncora (MVP):** *"feche o resultado do mês"* e *"avalie o orçamento do
 trimestre"*, executados sobre uma **empresa sintética** com dados e gabarito
 controlados, acessados por **MCP servers mock offline**.
 
 ## Motivação
 
-Terceirizar a controladoria exige **escala** (vários clientes e ciclos), **confiança**
+Automatizar a controladoria exige **escala** (várias entidades e ciclos), **confiança**
 (números iguais ao gabarito, conformidade verificada antes de publicar) e
 **auditabilidade** (toda decisão reconstruível). Um único script ou um único LLM não
 atende às três ao mesmo tempo: o problema tem unidades de decisão distintas, com
@@ -35,8 +44,8 @@ informação distribuída, que precisam negociar dependências e respeitar vetos
 
 ## Objetivos
 
-**Objetivo geral (G-00):** executar as rotinas de controladoria da empresa cliente de
-forma terceirizada e coordenada, entregando à liderança o resultado do período e
+**Objetivo geral (G-00):** executar as rotinas de controladoria da empresa de forma
+coordenada, entregando à liderança o resultado do período e
 análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com evidência
 reconstruível de cada decisão.
 
@@ -63,10 +72,10 @@ Checklist de adequação (Cancian, 2026, Tab. 5.1), aplicado ao domínio:
 
 | Critério | Evidência no domínio | Favorável? |
 |---|---|---|
-| Autonomia | Controles Internos decide sozinho **vetar** a publicação; Orçamento decide o que é desvio relevante pelos seus limiares | sim |
+| Autonomia | O Agente de Controles Internos decide sozinho **vetar** a publicação; o de Orçamento decide o que é desvio relevante pelos seus limiares | sim |
 | Distribuição | Dados vivem em fontes heterogêneas (ERP, planilhas, base histórica, APIs, normas); nenhum agente vê tudo | sim |
-| Interdependência | Resultados **depende** de Custos e Orçamento (dependência de informação); o veto de CI altera as opções do Orquestrador e de Relatórios; o período é recurso exclusivo | sim |
-| Heterogeneidade | Cálculo determinístico (CUS), regras BDI (CIN), síntese com LLM opcional (REL) — ciclos cognitivos distintos | sim |
+| Interdependência | O Agente de Resultados **depende** dos de Custos e de Orçamento (dependência de informação); o veto do Agente de Controles Internos muda as opções do Orquestrador e do Agente de Relatórios; o período é recurso exclusivo | sim |
+| Heterogeneidade | Cálculo determinístico (`AG-CUS`), regras BDI (`AG-CIN`), síntese com LLM opcional (`AG-REL`): ciclos cognitivos distintos | sim |
 | Recursos | Período contábil (exclusão mútua) e orçamento de tokens (cota consumível) | sim |
 | Evidência | Comportamento testável por cenários com gabarito e protocolos com transições inválidas | sim |
 
@@ -77,7 +86,7 @@ sequencial único é adotado como **baseline** para as comparações das entrega
 
 **Hipóteses verificáveis (para a experimentação futura):**
 
-- **H1.** Com o veto de Controles Internos, 100% das inconformidades críticas plantadas
+- **H1.** Com o veto do Agente de Controles Internos, 100% das inconformidades críticas plantadas
   são barradas antes da publicação, contra a baseline sem veto.
 - **H2.** A decomposição em agentes mantém acurácia numérica de 100% contra o gabarito,
   com overhead de mensagens mensurável e justificável.

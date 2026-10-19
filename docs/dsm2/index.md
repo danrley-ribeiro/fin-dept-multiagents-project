@@ -46,8 +46,8 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 |---|---|
 | 6 agentes e 7 serviços especificados | mapear para componentes ({doc}`arquitetura`) |
 | 6 protocolos com FSM e transições inválidas | implementar FSM e testes nominais/negativos |
-| 8 normas (`NORM-*`) | implementar `SafetyPolicy`, `ModelRegistry` e redaction |
-| 25 testes planejados | escolher o subconjunto inicial e executar |
+| 8 normas (`NORM-*`) | implementar a Política de Segurança (`SVC-POL`), o Registro de Modelos (`SVC-MOD`) e a redaction |
+| 26 testes planejados | escolher o subconjunto inicial e executar |
 | 12 métricas | instrumentar o tracer para coletá-las |
 | ADR-002 (LLM por flag) | implementar a flag com mock de LLM (offline) |
 

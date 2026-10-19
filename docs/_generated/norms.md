@@ -43,7 +43,7 @@
 :enforced_by: SVC-POL
 
 **Escopo:** Resultado do período e relatório executivo  
-**Condição:** Parecer de Controles Internos com severidade crítica  
+**Condição:** Parecer do Agente de Controles Internos com severidade crítica  
 **Consequência:** Publicação vetada até correção reavaliada ou waiver humano justificado  
 **Decisão:** `DENY`
 ````
@@ -54,7 +54,7 @@
 :status: especificado
 :enforced_by: SVC-MOD, SVC-POL
 
-**Escopo:** Toda saída de LLM (REL, RES, ORC)  
+**Escopo:** Toda saída de LLM (AG-REL, AG-RES, AG-ORC)  
 **Condição:** Texto gerado contém número divergente do núcleo determinístico ou propõe ação  
 **Consequência:** Texto descartado e substituído pelo template; proposta tratada como não autorizada  
 **Decisão:** `DENY`
@@ -79,7 +79,7 @@
 :enforced_by: SVC-MOD
 
 **Escopo:** Configuração de modelos por agente  
-**Condição:** Flag desligada, papel não permitido (ORQ, CUS, CIN) ou cota de tokens esgotada  
+**Condição:** Flag desligada, papel não permitido (AG-ORQ, AG-CUS, AG-CIN) ou cota de tokens esgotada  
 **Consequência:** Chamada LLM bloqueada e agente segue em modo determinístico (template)  
 **Decisão:** `DENY`
 ````
@@ -90,7 +90,7 @@
 :status: especificado
 :enforced_by: SVC-MEM
 
-**Escopo:** MemoryService  
+**Escopo:** Serviço de Memória (SVC-MEM)  
 **Condição:** Saída sem aprovação humana registrada  
 **Consequência:** Não é indexada em embeddings nem no grafo  
 **Decisão:** `DENY`

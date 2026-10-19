@@ -1,5 +1,5 @@
 % =====================================================================
-%  DSM1 — Sistema Multiagente de Controladoria Terceirizada
+%  DSM1 — Sistema Multiagente de Controladoria
 %  INE5628 — Sistemas Multiagentes (UFSC/CTC/INE)
 %
 %  Compilar:  latexmk -pdf main.tex     (ou: make pdf, na raiz)
@@ -15,7 +15,7 @@
 \newcommand{\matB}{23103129}
 \newcommand{\repoURL}{https://github.com/danrley-ribeiro/fin-dept-multiagents-project}
 \newcommand{\docsURL}{https://fin-dept-multiagents-project.readthedocs.io}
-\newcommand{\versao}{1.0}
+\newcommand{\versao}{1.1}
 
 % ------------------------------------------------------------ pacotes
 \usepackage[T1]{fontenc}
@@ -52,7 +52,7 @@
 \renewcommand*{\nameyeardelim}{\addcomma\space}
 \usepackage{titletoc}
 \usepackage[hidelinks, pdfusetitle]{hyperref}
-\hypersetup{pdftitle={DSM1 — Sistema Multiagente de Controladoria Terceirizada},
+\hypersetup{pdftitle={DSM1 — Sistema Multiagente de Controladoria},
             pdfauthor={\autorA, \autorB}, pdfsubject={INE5628 — Entrega 1}}
 
 % ------------------------------------------------------------ cores
@@ -88,7 +88,7 @@
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
-\fancyhead[L]{\scriptsize INE5628 / DSM1 — Sistema Multiagente de Controladoria Terceirizada}
+\fancyhead[L]{\scriptsize INE5628 / DSM1 — Sistema Multiagente de Controladoria}
 \fancyhead[R]{\scriptsize Entrega 1: Cenário, Requisitos e Modelagem}
 \fancyfoot[L]{\scriptsize UFSC / CTC / INE — Prof. Rafael Luiz Cancian}
 \fancyfoot[R]{\scriptsize Página \thepage}
@@ -130,7 +130,7 @@
 \vfill
 {\fontsize{30}{36}\selectfont\bfseries DSM1\par}
 \vspace{0.9cm}
-{\fontsize{22}{28}\selectfont\bfseries Sistema Multiagente de\\Controladoria Terceirizada\par}
+{\fontsize{22}{28}\selectfont\bfseries Sistema Multiagente\\de Controladoria\par}
 \vspace{0.7cm}
 {\Large Entrega 1: Cenário-Problema, Requisitos,\\Modelagem AOSE e Rastreabilidade\par}
 \vfill
@@ -157,10 +157,10 @@
 
 \begin{callout}
 \callouttitle{Resumo executivo do projeto}
-Este documento especifica a Entrega 1 (DSM1) de um \textbf{Sistema Multiagente (SMA) para terceirização da
-Controladoria}: um orquestrador e cinco agentes especializados (Custos e Rentabilidade, Orçamento, Resultados e
-Indicadores, Controles Internos e Relatórios Gerenciais), apoiados por serviços de plataforma de comunicação
-(A2A/MCP), auditoria, configuração de modelos, memória e política de segurança. A modelagem segue AOSE \parencite{cancian2026},
+Este documento especifica a Entrega 1 (DSM1) do \textbf{Sistema Multiagente (SMA) de Controladoria}: o
+Orquestrador e cinco agentes especializados (Agente de Custos, Agente de Orçamento, Agente de Resultados, Agente de
+Controles Internos e Agente de Relatórios), apoiados por serviços de plataforma de comunicação (A2A/MCP),
+auditoria, registro de modelos, memória e política de segurança. A modelagem segue AOSE \parencite{cancian2026},
 combinando Tropos \parencite{bresciani2004tropos}, Gaia \parencite{wooldridge2000gaia} e Prometheus
 \parencite{padgham2004prometheus}, e estabelece a justificativa do SMA, a fronteira e o ambiente,
 \nReq{} requisitos com evidência observável, papéis $\langle$Resp, Perm, Obl, Prot$\rangle$, \nProt{} protocolos
@@ -174,12 +174,25 @@ rastreabilidade validada automaticamente, publicada em \href{\docsURL}{documenta
 \section{Cenário-problema, motivação e objetivos}
 
 \subsection{Contexto e problema operacional}
-Uma empresa de médio porte terceiriza (BPO) sua Controladoria. Todo mês é preciso fechar o resultado
+A Controladoria de uma empresa de médio porte precisa, todo mês, fechar o resultado
 (balancete $\rightarrow$ rateios $\rightarrow$ DRE $\rightarrow$ indicadores $\rightarrow$ relatório) e, a cada
 trimestre, avaliar o orçamento. Hoje o ciclo leva dias de consolidação manual (\code{PROB-01}), não mostra margem
 por produto ou unidade (\code{PROB-02}), detecta desvios orçamentários tarde (\code{PROB-03}), deixa passar riscos de
 alçada, segregação de funções e duplicidade (\code{PROB-04}) e gera relatórios inconsistentes com a DRE
-(\code{PROB-05}). Automatizar com IA traz problemas novos: decisões sem trilha nem controle de custo
+(\code{PROB-05}).
+
+\textbf{Linha de base do cenário sintético.} Os valores abaixo são premissas da empresa sintética (não medições
+de uma empresa real). Eles servem de ponto de partida para ler as métricas da Seção~\ref{sec:trace}.
+
+\begin{dtable}{L{1.5cm} Y L{3.4cm} L{2.4cm}}
+\headrow \hd{Problema} & \hd{Situação atual} & \hd{Referência} & \hd{Métrica}\\ \midrule\endhead
+\code{PROB-01} & Resultado do mês disponível só depois da consolidação manual & D+8 dias úteis & \code{MET-09}\\ \rowsep
+\code{PROB-03} & Desvio orçamentário percebido no fechamento do trimestre & até 90 dias até o alerta & \code{MET-09}\\ \rowsep
+\code{PROB-04} & Inconformidades críticas encontradas só na auditoria & 4 de cada 10 & \code{MET-03}\\ \rowsep
+\code{PROB-05} & Relatórios com número divergente da DRE & 1 de cada 4 & \code{MET-02}, \code{MET-06}\\
+\end{dtable}
+
+ Automatizar com IA traz problemas novos: decisões sem trilha nem controle de custo
 (\code{PROB-06}), conhecimento que se perde entre ciclos (\code{PROB-07}) e ações com efeito externo sem
 controle humano (\code{PROB-08}).
 
@@ -193,10 +206,10 @@ Aplicando o checklist de adequação de \textcite[Tab.~5.1]{cancian2026}:
 
 \begin{dtable}{L{2.25cm} Y L{1.05cm}}
 \headrow \hd{Critério} & \hd{Evidência no domínio} & \hd{MAS?}\\ \midrule\endhead
-Autonomia & Controles Internos decide sozinho \textbf{vetar} a publicação; Orçamento decide o que é desvio relevante pelos próprios limiares. & \textbf{sim}\\ \rowsep
+Autonomia & O Agente de Controles Internos decide sozinho \textbf{vetar} a publicação; o de Orçamento decide o que é desvio relevante pelos próprios limiares. & \textbf{sim}\\ \rowsep
 Distribuição & Dados em fontes heterogêneas (ERP, planilhas, histórico, mercado, normas); nenhum agente tem o estado global. & \textbf{sim}\\ \rowsep
-Interdependência & Resultados depende de Custos e Orçamento; o veto de Controles Internos altera as opções do Orquestrador e de Relatórios. & \textbf{sim}\\ \rowsep
-Heterogeneidade & Cálculo determinístico (Custos), regras BDI (Controles), síntese com LLM opcional (Relatórios). & \textbf{sim}\\ \rowsep
+Interdependência & O Agente de Resultados depende dos de Custos e de Orçamento; o veto do Agente de Controles Internos muda as opções do Orquestrador e do Agente de Relatórios. & \textbf{sim}\\ \rowsep
+Heterogeneidade & Cálculo determinístico (\code{AG-CUS}), regras BDI (\code{AG-CIN}), síntese com LLM opcional (\code{AG-REL}). & \textbf{sim}\\ \rowsep
 Recursos & Período contábil exclusivo durante o fechamento; orçamento de tokens consumível. & \textbf{sim}\\ \rowsep
 Evidência & Cenários com gabarito e protocolos com transições inválidas tornam o comportamento testável. & \textbf{sim}\\
 \end{dtable}
@@ -204,12 +217,12 @@ Evidência & Cenários com gabarito e protocolos com transições inválidas tor
 \textbf{Condição explícita de rejeição.} Se a demanda se reduzir a gerar um único relatório por uma sequência fixa
 de etapas, sem veto, sem dependência entre unidades de decisão e sem recurso disputado, um \emph{workflow}
 determinístico basta. Esse workflow sequencial é a \textbf{baseline} das entregas seguintes. \textbf{Hipóteses
-verificáveis:} (H1) o veto de Controles Internos barra 100\% das inconformidades críticas plantadas antes da
+verificáveis:} (H1) o veto do Agente de Controles Internos barra 100\% das inconformidades críticas plantadas antes da
 publicação; (H2) a decomposição mantém 100\% de acurácia contra o gabarito, com custo de comunicação mensurável;
 (H3) com a flag LLM desligada, todos os relatórios são gerados sem rede e a custo zero.
 
 \subsection{Objetivos do sistema}
-\textbf{Objetivo geral (\code{G-00}):} executar as rotinas de controladoria de forma terceirizada e coordenada,
+\textbf{Objetivo geral (\code{G-00}):} executar as rotinas de controladoria de forma coordenada,
 entregando à liderança o resultado do período e análises confiáveis, respeitando alçadas, sigilo e aprovação
 humana, com evidência reconstruível de cada decisão. \textbf{Objetivos específicos:} (G-01) atender solicitações
 decompondo-as em tarefas coordenadas; (G-02) apurar custos, margens e rentabilidade; (G-03) controlar o orçamento
@@ -225,15 +238,15 @@ auditor), as fontes externas e o relógio/calendário de fechamento.
 
 \begin{figure}[H]
   \centering
-  \resizebox{\linewidth}{!}{\input{figures/fig_organizacao.tex}}
-  \caption{Organização em camadas: fronteira do SMA, agentes, serviços de plataforma transversais, protocolos e ambiente.}
+  \resizebox{\linewidth}{!}{\input{figures/roles_organizacao.tex}}
+  \caption{Organização do SMA: fronteira, agentes, serviços de plataforma, protocolos e ambiente (Mermaid: \texttt{roles\_organizacao.mmd}).}
   \label{fig:org}
 \end{figure}
 
 O ambiente é:
 \begin{itemize}
   \item \textbf{Parcialmente observável:} cada agente vê apenas o que seus conectores MCP e mensagens A2A entregam
-        ($see_i: S \to P_i$): Custos não lê a base normativa e Controles Internos não lê as regras de rateio.
+        ($see_i: S \to P_i$): o Agente de Custos não lê a base normativa e o de Controles Internos não lê as regras de rateio.
   \item \textbf{Dinâmico e estocástico:} lançamentos e estornos chegam durante o fechamento ($next: S\times A\to S$
         muda também por eventos externos); APIs falham ou atrasam; a resposta humana tem duração incerta.
   \item \textbf{Discreto e sequencial por ciclo:} contas, competências e lançamentos têm identificadores bem
@@ -275,12 +288,12 @@ $role = \langle Resp, Perm, Obl, Prot\rangle$. Os papéis humanos \code{ROLE-SOL
 
 \begin{callout}
 \callouttitle{Serviços de plataforma não são agentes}
-Comunicação A2A, gateway MCP, auditoria, registro de modelos, memória, SafetyPolicy e reserva de período são
+Comunicação A2A, Gateway MCP, Auditoria, Registro de Modelos, Memória, Política de Segurança e Reserva de Período são
 \textbf{serviços compartilhados}: não têm objetivo local, iniciativa nem identidade social. Assim se evita a
 \emph{agentificação excessiva}, audita-se o sistema como um todo e trocam-se peças (modelos, agentes, fontes)
 sem efeito nas demais camadas. A \textbf{IA generativa} é \textbf{flag} (opcional, desligada por padrão) apenas em
-Relatórios, Resultados e Orçamento, e só para narrativa. Números vêm sempre do núcleo determinístico e o registro
-de modelos rejeita LLM em Orquestrador, Custos e Controles Internos (ADR-002).
+nos Agentes de Relatórios, de Resultados e de Orçamento, e só para narrativa. Os números vêm sempre do núcleo
+determinístico, e o Registro de Modelos rejeita LLM no Orquestrador e nos Agentes de Custos e de Controles Internos (ADR-002).
 \end{callout}
 
 % =====================================================================
@@ -288,7 +301,7 @@ de modelos rejeita LLM em Orquestrador, Custos e Controles Internos (ADR-002).
 Para cada agente $i$: percepção $see_i: S\to P_i$, atualização de crenças $upd_i: B_i\times P_i\to B_i$ e decisão
 $act_i: B_i\times K_i\to A_i$. Mantém-se a separação \textbf{Estado $\neq$ Conhecimento $\neq$ Memória}: o estado
 muda a cada ciclo; o conhecimento (regras de rateio, alçadas, fórmulas) é versionado; a memória contém apenas saídas
-\textbf{aprovadas} de ciclos anteriores (\code{SVC-MEM}). Em Controles Internos o ciclo é BDI explícito: crenças
+\textbf{aprovadas} de ciclos anteriores (\code{SVC-MEM}). No Agente de Controles Internos o ciclo é BDI explícito: crenças
 sobre lançamentos $\rightarrow$ desejo de conformidade $\rightarrow$ intenção de aprovar, apontar ou vetar.
 
 \begin{dtable}{L{2.35cm} Y Y Y Y}
@@ -310,8 +323,8 @@ agente, com semântica de protocolo; \cite{a2a2025}); \textbf{MCP é instrumenta
 \begin{dtable}{L{3.0cm} Y L{3.6cm}}
 \headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \midrule\endhead
 Tarefa & Orquestrador delega subtarefas do DAG (padrão supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\ \rowsep
-Informação & Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\ \rowsep
-Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\ \rowsep
+Informação & O Agente de Resultados obtém custos e orçamento consolidados sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\ \rowsep
+Autoridade / norma & A publicação depende do parecer do Agente de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\ \rowsep
 Recurso exclusivo & Um fechamento por (entidade, competência), com TTL & \code{PROT-LCK} (reserva)\\ \rowsep
 Autorização humana & Lançar ajuste no ERP, alterar orçamento, publicar relatório & \code{PROT-APR} (Approval Gate)\\ \rowsep
 Fronteira & Pedido do usuário e resposta final explícita & \code{PROT-SOL} (FIPA-Request)\\
@@ -323,36 +336,57 @@ de Custos por unidade de negócio).
 
 
 \subsection{Protocolos como máquinas de estados}
-Os \nProt{} protocolos são especificados como FSMs (\code{models/protocols.yaml}), seguindo a estrutura do FIPA-Request \parencite{fipa2002request}. As transições válidas originam
-testes nominais e as \textbf{transições inválidas} originam testes negativos, a executar na DSM2
-(Figura~\ref{fig:fsm}): uma sequência que o modelo proíbe deve ser rejeitada mesmo que cada mensagem isolada
-seja bem formada.
+Os \nProt{} protocolos são especificados como máquinas de estados (\code{models/protocols.yaml}), seguindo a
+estrutura do FIPA-Request \parencite{fipa2002request}. Cada transição válida origina um teste nominal e cada
+\textbf{transição inválida}, um teste negativo, a executar na DSM2: uma sequência que o modelo proíbe deve ser
+rejeitada mesmo que cada mensagem, isolada, seja bem formada. A Figura~\ref{fig:fsm} mostra \code{PROT-DEL} e
+\code{PROT-APR}; as máquinas de \code{PROT-SOL}, \code{PROT-QRY}, \code{PROT-CMP} e \code{PROT-LCK} estão em
+\code{diagrams/dsm1/protocols\_fsm\_PROT-*.mmd} e na página \emph{Interações, coordenação e normas} da documentação.
 
 \begin{figure}[!htbp]
   \centering
-  \resizebox{\linewidth}{!}{\input{figures/fig_fsm.tex}}
-  \caption{FSMs de delegação e do Approval Gate. Estados com borda dupla são finais; em vermelho, transições inválidas que viram testes negativos.}
+  \resizebox{\linewidth}{!}{\input{figures/protocols_fsm_del_apr.tex}}
+  \caption{Máquinas de estados: \code{PROT-DEL} e \code{PROT-APR}. Borda dupla indica estado final; em vermelho, transições inválidas que viram testes negativos.}
   \label{fig:fsm}
 \end{figure}
 
-\subsection{Cenário âncora: “feche o resultado do mês”}
-A Figura~\ref{fig:seq} encadeia os protocolos no cenário âncora: reserva do período, subtarefas paralelas de Custos e
-Orçamento, consultas A2A de Resultados, verificação com possibilidade de veto, relatório e publicação retida no
-Approval Gate até a decisão humana. Cada mensagem carrega o mesmo \code{conversation\_id}, o que permite
-reconstruir a cadeia causal a partir do trace.
+\subsection{Cenários âncora}
+\textbf{Fechar o resultado do mês} (Figura~\ref{fig:seq}): o Orquestrador reserva o período, delega em paralelo aos
+Agentes de Custos e de Orçamento, o Agente de Resultados consulta os dois via A2A, o Agente de Controles Internos
+verifica (e pode vetar) e o relatório só é publicado depois da aprovação humana no Approval Gate. Todas as mensagens
+carregam o mesmo \code{conversation\_id}, o que permite reconstruir a cadeia causal a partir do trace.
 
 \begin{figure}[!htbp]
   \centering
-  \resizebox{\linewidth}{!}{\input{figures/fig_sequencia.tex}}
-  \caption{Cenário âncora “feche o resultado do mês” (fluxo nominal). Na alternativa de veto, o Orquestrador libera a reserva e responde \texttt{failure}.}
+  \resizebox{\linewidth}{!}{\input{figures/protocols_sequencia_fechar_mes.tex}}
+  \caption{Sequência: fechar o resultado do mês (fluxo nominal). Se houver veto, o fluxo segue a sequência de veto e waiver da documentação (\texttt{protocols\_sequencia\_veto\_waiver.mmd}).}
   \label{fig:seq}
 \end{figure}
+
+\textbf{Avaliar o orçamento do trimestre} (Figura~\ref{fig:seq-orc}): a avaliação só lê dados, por isso dispensa a
+reserva de período. O Agente de Orçamento compara orçado e realizado e projeta o forecast; se um desvio passar do
+limiar, ele pode propor uma correção do orçamento, que fica retida até o aprovador decidir. O Agente de Resultados
+consulta os desvios para montar os indicadores do trimestre e o Agente de Relatórios redige o relatório, também
+publicado só com aprovação.
+
+\begin{figure}[!htbp]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figures/protocols_sequencia_avaliar_orcamento.tex}}
+  \caption{Sequência: avaliar o orçamento do trimestre (fluxo nominal). O bloco opcional só ocorre quando há desvio acima do limiar.}
+  \label{fig:seq-orc}
+\end{figure}
+
+\subsection{Tratamento de falhas}
+Se um especialista não responde até o \code{reply\_by} (\texttt{EXPIRADA}) ou responde \texttt{failure}, o
+Orquestrador reenvia a subtarefa uma vez, em nova conversa. Se falhar de novo, ele interrompe a solicitação:
+libera a reserva de período, não publica nada e responde \texttt{failure} ao solicitante indicando qual subtarefa
+falhou. Assim nenhum fechamento fica preso nem é publicado incompleto (\code{REQ-F01}, \code{TEST-26}).
 
 \subsection{Fronteira de autoridade e normas (human-in-the-loop)}
 \begin{callout}
 \callouttitle{Política de segurança: capacidade $\neq$ autorização}
 Nenhuma proposta de agente, e muito menos de um LLM, dispara efeito externo sem passar pela
-\textbf{SafetyPolicy} determinística, que classifica cada ação em três zonas:
+\textbf{Política de Segurança} (\code{SVC-POL}) determinística, que classifica cada ação em três zonas:
 \decisao{ALLOW} (leitura e cálculo internos);
 \decisao{REQUIRE_APPROVAL} (ajuste no ERP, alteração de orçamento, publicação, retidos no Approval Gate até
 decisão humana); \decisao{DENY} (fora da allowlist do papel; bloqueio fail-closed, sem opção de aprovação).
@@ -386,8 +420,8 @@ execuções são \nPend{} \emph{stubs} rastreáveis pendentes da DSM2.
 
 \begin{figure}[H]
   \centering
-  \resizebox{\linewidth}{!}{\input{figures/fig_cadeia.tex}}
-  \caption{Cadeia de rastreabilidade com exemplo concreto. Em tracejado, itens que se materializam na DSM2.}
+  \resizebox{\linewidth}{!}{\input{figures/traceability_cadeia.tex}}
+  \caption{Cadeia de rastreabilidade com exemplo concreto. Em tracejado, o que se materializa na DSM2.}
   \label{fig:cadeia}
 \end{figure}
 

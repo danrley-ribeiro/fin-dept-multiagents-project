@@ -8,7 +8,7 @@
 :derived_from: PROT-DEL
 
 `test_intent_decomposition_dag()` — tipo *protocolo-nominal*.  
-**Resultado esperado:** 'fechar o mês' gera DAG CUS∥ORC → RES → CIN → REL e resposta final inform  
+**Resultado esperado:** 'fechar o mês' gera DAG AG-CUS∥AG-ORC → AG-RES → AG-CIN → AG-REL e resposta final inform  
 **Execução:** DSM2 (status atual: planejado).
 ````
 
@@ -68,7 +68,7 @@
 :derived_from: PROT-QRY
 
 `test_results_query_ref_to_costs()` — tipo *protocolo-nominal*.  
-**Resultado esperado:** query-ref → inform antes do inform final de RES; DRE igual ao gabarito  
+**Resultado esperado:** query-ref → inform antes do inform final de AG-RES; DRE igual ao gabarito  
 **Execução:** DSM2 (status atual: planejado).
 ````
 
@@ -248,7 +248,7 @@
 :derived_from: NORM-07
 
 `test_llm_not_allowed_roles_rejected()` — tipo *configuracao*.  
-**Resultado esperado:** habilitar LLM em ORQ, CUS ou CIN é rejeitado na validação  
+**Resultado esperado:** habilitar LLM em AG-ORQ, AG-CUS ou AG-CIN é rejeitado na validação  
 **Execução:** DSM2 (status atual: planejado).
 ````
 
@@ -297,5 +297,17 @@
 
 `test_versions_recorded_in_logs()` — tipo *observabilidade*.  
 **Resultado esperado:** todo log contém versões de prompt, regras e configuração  
+**Execução:** DSM2 (status atual: planejado).
+````
+
+````{test} test_specialist_failure_retry_then_abort
+:id: TEST-26
+:entrega: DSM2
+:status: planejado
+:verifies: REQ-F01
+:derived_from: PROT-DEL
+
+`test_specialist_failure_retry_then_abort()` — tipo *protocolo-negativo*.  
+**Resultado esperado:** especialista que expira duas vezes: um reenvio, depois failure ao solicitante, reserva liberada e nada publicado  
 **Execução:** DSM2 (status atual: planejado).
 ````

@@ -2,22 +2,24 @@
 
 ## Fronteira
 
-Pertencem ao **software modelado**: os seis agentes (Orquestrador e cinco especialistas)
-e os sete serviços de plataforma (A2A, MCP, Auditoria, Registro de modelos, Memória,
-SafetyPolicy/Approval Gate e Reserva de período).
+Pertencem ao **software modelado** os seis agentes (o Orquestrador e cinco especialistas)
+e os sete serviços de plataforma: Comunicação A2A, Gateway MCP, Auditoria, Registro de
+Modelos, Memória, Política de Segurança (com o Approval Gate) e Reserva de Período.
 
-Permanecem no **ambiente**, mesmo quando representados por adapters: usuários humanos
+Ficam no **ambiente**, mesmo quando representados por adapters, os usuários humanos
 (solicitante, aprovador, auditor), ERP, planilhas de orçamento, base histórica, APIs de
 mercado, base normativa e o relógio/calendário de fechamento.
 
-```{mermaid} ../../diagrams/dsm1/fronteira.mmd
+**Diagrama: Fronteira do sistema** (`diagrams/dsm1/ambiente_fronteira.mmd`)
+
+```{mermaid} ../../diagrams/dsm1/ambiente_fronteira.mmd
 ```
 
 ## Propriedades do ambiente
 
 | Propriedade | Justificativa |
 |---|---|
-| **Parcialmente observável** | Cada agente só percebe o que seus conectores MCP e mensagens A2A entregam: Custos não enxerga a base normativa; Controles Internos não enxerga as regras de rateio; ninguém tem o estado global instantâneo. |
+| **Parcialmente observável** | Cada agente só percebe o que seus conectores MCP e mensagens A2A entregam: o Agente de Custos não enxerga a base normativa; o de Controles Internos não enxerga as regras de rateio; ninguém tem o estado global instantâneo. |
 | **Dinâmico** | Lançamentos, estornos e conciliações continuam chegando durante o fechamento. |
 | **Discreto** | Contas, centros de custo, competências e lançamentos têm identificadores e valores bem definidos; tempo por relógio lógico. |
 | **Estocástico / com incerteza** | APIs de mercado podem falhar ou atrasar; dados podem chegar incompletos; o tempo de resposta humano é incerto. |

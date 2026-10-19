@@ -1,6 +1,6 @@
 <!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
 
-````{svc} Camada de comunicação A2A
+````{svc} Comunicação A2A
 :id: SVC-A2A
 :entrega: DSM1
 :status: especificado
@@ -10,17 +10,17 @@
 **Por que não é agente:** Transporte não decide; a semântica social fica nos papéis e protocolos.
 ````
 
-````{svc} Gateway MCP (conectores de dados)
+````{svc} Gateway MCP
 :id: SVC-MCP
 :entrega: DSM1
 :status: especificado
 
 **Camada:** Comunicação  
-**Responsabilidade:** Expõe ERP, planilhas, base histórica, APIs de mercado e base normativa como tools MCP tipadas; leitura por padrão, escrita apenas via SafetyPolicy.  
+**Responsabilidade:** Expõe ERP, planilhas, base histórica, APIs de mercado e base normativa como tools MCP tipadas; leitura por padrão, escrita apenas via Política de Segurança (SVC-POL).  
 **Por que não é agente:** Conector não tem objetivo próprio; é ferramenta do agente.
 ````
 
-````{svc} AuditService (governança e auditoria)
+````{svc} Serviço de Auditoria
 :id: SVC-AUD
 :entrega: DSM1
 :status: especificado
@@ -30,7 +30,7 @@
 **Por que não é agente:** Interceptação central evita que cada agente logue de forma isolada.
 ````
 
-````{svc} ModelRegistry (configuração de modelos)
+````{svc} Registro de Modelos
 :id: SVC-MOD
 :entrega: DSM1
 :status: especificado
@@ -40,7 +40,7 @@
 **Por que não é agente:** Configuração e validação não deliberam sobre o domínio.
 ````
 
-````{svc} MemoryService (embeddings e grafo de conhecimento)
+````{svc} Serviço de Memória
 :id: SVC-MEM
 :entrega: DSM1
 :status: especificado
@@ -50,7 +50,7 @@
 **Por que não é agente:** Memória é recurso consultado, não entidade com objetivos.
 ````
 
-````{svc} SafetyPolicy e Approval Gate
+````{svc} Política de Segurança e Approval Gate
 :id: SVC-POL
 :entrega: DSM1
 :status: especificado
@@ -60,7 +60,7 @@
 **Por que não é agente:** Política determinística precisa ser previsível; não negocia.
 ````
 
-````{svc} PeriodLockService (reserva de período)
+````{svc} Reserva de Período
 :id: SVC-LCK
 :entrega: DSM1
 :status: especificado

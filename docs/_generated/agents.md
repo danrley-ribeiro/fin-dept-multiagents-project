@@ -1,6 +1,6 @@
 <!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
 
-````{agent} Orquestrador (Controladoria Master)
+````{agent} Orquestrador
 :id: AG-ORQ
 :entrega: DSM1
 :status: especificado
@@ -16,7 +16,7 @@
 
 - Solicitação do usuário (intenção, competência, entidade)
 - Mensagens agree/refuse/inform/failure dos especialistas
-- Parecer e veto de Controles Internos
+- Parecer e veto do Agente de Controles Internos
 - Decisão do Approval Gate
 
 **Estado interno (crenças)**
@@ -41,7 +41,7 @@
 **Por que é agente:** Única fronteira com o usuário; mantém compromissos e prazos de várias conversas em paralelo.
 ````
 
-````{agent} Agente de Custos e Rentabilidade
+````{agent} Agente de Custos
 :id: AG-CUS
 :entrega: DSM1
 :status: especificado
@@ -56,7 +56,7 @@
 **Percepções**
 
 - Request de apuração (competência, entidade, dimensão)
-- Query-ref de Resultados
+- Query-ref do Agente de Resultados
 - Balancete e lançamentos via MCP
 
 **Estado interno (crenças)**
@@ -78,7 +78,7 @@
 **Por que é agente:** Mantém estado de custos por período e responde a vários consumidores sob seus próprios critérios.
 ````
 
-````{agent} Agente de Orçamento e Controle Orçamentário
+````{agent} Agente de Orçamento
 :id: AG-ORC
 :entrega: DSM1
 :status: especificado
@@ -93,7 +93,7 @@
 **Percepções**
 
 - Request de avaliação orçamentária
-- Query-ref de Resultados
+- Query-ref do Agente de Resultados
 - Orçado e realizado via MCP
 
 **Estado interno (crenças)**
@@ -115,7 +115,7 @@
 **Por que é agente:** Decide autonomamente o que é desvio relevante sob limiares próprios e propõe correções.
 ````
 
-````{agent} Agente de Resultados e Indicadores
+````{agent} Agente de Resultados
 :id: AG-RES
 :entrega: DSM1
 :status: especificado
@@ -130,7 +130,7 @@
 **Percepções**
 
 - Request de consolidação de resultado
-- Inform de custos (CUS) e de orçamento (ORC)
+- Inform de custos (AG-CUS) e de orçamento (AG-ORC)
 - Índices de mercado via MCP
 
 **Estado interno (crenças)**
@@ -144,7 +144,7 @@
 
 **Ações**
 
-- Enviar query-ref a CUS e ORC
+- Enviar query-ref a AG-CUS e AG-ORC
 - Consolidar DRE, EBITDA, DFC e KPIs
 - Informar resultado ao Orquestrador
 
@@ -184,10 +184,10 @@
 - Vetar publicação por não conformidade crítica
 - Reavaliar após correção
 
-**Por que é agente:** Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e de Relatórios.
+**Por que é agente:** Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e do Agente de Relatórios.
 ````
 
-````{agent} Agente de Relatórios Gerenciais e Análises
+````{agent} Agente de Relatórios
 :id: AG-REL
 :entrega: DSM1
 :status: especificado

@@ -11,7 +11,7 @@
 :assigned_to: ROLE-ORQ, ROLE-SOL
 :uses_protocol: PROT-SOL, PROT-DEL
 
-O Orquestrador deve mapear cada solicitação do catálogo ("fechar o resultado do mês", "avaliar o orçamento do trimestre") para um DAG de subtarefas, delegá-las aos papéis competentes e agregar uma resposta final; pedido fora do catálogo recebe not-understood explícito.
+O Orquestrador deve mapear cada solicitação do catálogo ("fechar o resultado do mês", "avaliar o orçamento do trimestre") para um DAG de subtarefas, delegá-las aos papéis competentes e agregar uma resposta final; pedido fora do catálogo recebe not-understood explícito. Se um especialista expirar ou falhar, a subtarefa é reenviada uma vez; na segunda falha, a solicitação termina em failure, com a reserva liberada e nada publicado.
 
 **Evidência observável de aceite:** Trace com o DAG gerado e, por subtarefa, request → agree → inform/failure sob o mesmo conversation_id; resposta final com status explícito.
 ````
@@ -61,7 +61,7 @@ Comparar orçado x realizado por conta e centro de custo, sinalizar desvios acim
 
 Montar DRE gerencial, EBITDA, fluxo de caixa (método indireto) e KPIs, obtendo custos e orçamento dos agentes especialistas por query-ref A2A, sem reimplementar suas regras.
 
-**Evidência observável de aceite:** Trace mostra query-ref RES→CUS e RES→ORC antes do inform final; DRE igual ao gabarito; inform não solicitado é rejeitado.
+**Evidência observável de aceite:** Trace mostra query-ref AG-RES→AG-CUS e AG-RES→AG-ORC antes do inform final; DRE igual ao gabarito; inform não solicitado é rejeitado.
 ````
 
 ````{req} Controles internos com veto
@@ -127,7 +127,7 @@ Toda saída aprovada pelo controller vira memória (embedding + nós e arestas d
 :uses_protocol: PROT-APR
 :constrained_by: NORM-01, NORM-02
 
-Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é executado autonomamente: a SafetyPolicy classifica em ALLOW, REQUIRE_APPROVAL ou DENY e retém a ação no Approval Gate.
+Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é executado autonomamente: a Política de Segurança classifica em ALLOW, REQUIRE_APPROVAL ou DENY e retém a ação no Approval Gate.
 
 **Evidência observável de aceite:** ActionRequest em PENDENTE até approve humano; ação DENY nunca executa efeito colateral, mesmo com aprovação.
 ````
@@ -242,9 +242,9 @@ Dashboard web, mobile e desktop autenticado com filtros por agente, período, ta
 :assigned_to: ROLE-REL, ROLE-RES, ROLE-ORC, ROLE-APR
 :constrained_by: NORM-07
 
-Registro central define por agente a flag LLM (padrão desligada), modelo, limite de tokens e orçamento; a mudança vale na próxima tarefa sem redeploy; LLM só é habilitável em REL, RES e ORC; cota excedida bloqueia a chamada e aciona o template.
+Registro central define por agente a flag LLM (padrão desligada), modelo, limite de tokens e orçamento; a mudança vale na próxima tarefa sem redeploy; LLM só é habilitável em AG-REL, AG-RES e AG-ORC; cota excedida bloqueia a chamada e aciona o template.
 
-**Evidência observável de aceite:** Troca de modelo refletida na tarefa seguinte; configuração com LLM em ORQ, CUS ou CIN é rejeitada; cota estourada gera fallback registrado.
+**Evidência observável de aceite:** Troca de modelo refletida na tarefa seguinte; configuração com LLM em AG-ORQ, AG-CUS ou AG-CIN é rejeitada; cota estourada gera fallback registrado.
 ````
 
 ````{req} Redaction fail-closed (LGPD e sigilo)

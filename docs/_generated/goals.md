@@ -1,13 +1,13 @@
 <!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
 
-````{goal} Controladoria terceirizada coordenada e auditável
+````{goal} Controladoria coordenada e auditável
 :id: G-00
 :entrega: DSM1
 :status: especificado
 :addresses: PROB-01, PROB-02, PROB-03, PROB-04, PROB-05, PROB-06, PROB-07, PROB-08
 :concerns: STK-01, STK-02, STK-04
 
-Executar as rotinas de controladoria da empresa cliente de forma terceirizada e coordenada, entregando à liderança o resultado do período e análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com evidência reconstruível de cada decisão.
+Executar as rotinas de controladoria da empresa de forma coordenada, entregando à liderança o resultado do período e análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com evidência reconstruível de cada decisão.
 ````
 
 ````{goal} Atender solicitações decompondo-as em tarefas coordenadas

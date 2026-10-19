@@ -1,4 +1,4 @@
-"""Configuração Sphinx + sphinx-needs — SMA de Controladoria (INE5628).
+"""Configuração Sphinx + sphinx-needs — Sistema Multiagente de Controladoria (INE5628).
 
 Os objetos rastreáveis (needs) são gerados por tools/trace.py a partir de models/*.yaml
 em docs/_generated/. Não edite os arquivos gerados: edite os YAML e rode `make trace`.
@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Garante que os objetos gerados estejam atualizados também no Read the Docs.
 subprocess.run([sys.executable, str(ROOT / "tools" / "trace.py")], check=True)
 
-project = "SMA de Controladoria"
+project = "Sistema Multiagente de Controladoria"
 author = "Danrley Moreira Ribeiro, Jiliard Mai Peifer"
 copyright = "2026, " + author
 language = "pt_BR"
@@ -31,7 +31,7 @@ exclude_patterns = ["_build", "_generated/*.md"]  # gerados entram via {include}
 suppress_warnings = ["myst.header"]
 
 html_theme = "furo"
-html_title = "SMA de Controladoria — Documentação"
+html_title = "Sistema Multiagente de Controladoria — Documentação"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = {

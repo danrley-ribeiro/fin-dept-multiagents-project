@@ -5,7 +5,7 @@
 :entrega: DSM1
 :status: especificado
 
-Consolidação de balancete, rateios, DRE e indicadores feita em planilhas e e-mails consome dias após o fim do mês, atrasando decisões da liderança.
+Consolidação de balancete, rateios, DRE e indicadores feita em planilhas e e-mails consome dias após o fim do mês, atrasando decisões da liderança. Referência do cenário sintético: resultado disponível em D+8 dias úteis.
 ````
 
 ````{prob} Baixa visibilidade de margem e rentabilidade
@@ -21,7 +21,7 @@ Custos fixos e variáveis ficam dispersos entre ERP e planilhas e o rateio é ap
 :entrega: DSM1
 :status: especificado
 
-A comparação orçado x realizado só é consolidada no fim do trimestre; desvios relevantes chegam à diretoria quando já não há margem de correção.
+A comparação orçado x realizado só é consolidada no fim do trimestre; desvios relevantes chegam à diretoria quando já não há margem de correção. Referência do cenário sintético: até 90 dias entre o desvio e o alerta.
 ````
 
 ````{prob} Riscos de conformidade não detectados antes da publicação
@@ -29,7 +29,7 @@ A comparação orçado x realizado só é consolidada no fim do trimestre; desvi
 :entrega: DSM1
 :status: especificado
 
-Lançamentos manuais acima da alçada, violação de segregação de funções, duplicidades e contas não conciliadas passam despercebidos até a auditoria.
+Lançamentos manuais acima da alçada, violação de segregação de funções, duplicidades e contas não conciliadas passam despercebidos até a auditoria. Referência do cenário sintético: 4 de cada 10 inconformidades críticas só aparecem na auditoria.
 ````
 
 ````{prob} Relatórios executivos inconsistentes e pouco acionáveis
@@ -37,7 +37,7 @@ Lançamentos manuais acima da alçada, violação de segregação de funções, 
 :entrega: DSM1
 :status: especificado
 
-Cada analista monta o relatório gerencial de um jeito, com números que às vezes divergem da DRE e sem destacar o que a liderança precisa decidir.
+Cada analista monta o relatório gerencial de um jeito, com números que às vezes divergem da DRE e sem destacar o que a liderança precisa decidir. Referência do cenário sintético: 1 de cada 4 relatórios com número divergente da DRE.
 ````
 
 ````{prob} Automação de IA sem auditabilidade nem controle de custo

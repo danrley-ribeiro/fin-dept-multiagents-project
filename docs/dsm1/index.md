@@ -1,6 +1,6 @@
 # DSM1 — Cenário, requisitos e modelagem
 
-<span class="badge-ok">concluída</span> · Peso: 20% da MPDSM · Prazo: 10/10/2026 23:55 · Versão 1.0
+<span class="badge-ok">concluída</span> · Peso: 20% da MPDSM · Prazo: 10/10/2026 23:55 · Versão 1.1
 
 **PDF da entrega:** [`entregas/dsm1/main.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/main.pdf)
 (fonte LaTeX: `entregas/dsm1/main.tex`).

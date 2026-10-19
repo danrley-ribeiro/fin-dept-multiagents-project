@@ -10,6 +10,8 @@
 **Meio:** Interface (ENV-UI)  
 **Performativos:** request, agree, not-understood, refuse, inform, failure
 
+**Diagrama: Máquina de estados PROT-SOL** (`diagrams/dsm1/protocols_fsm_PROT-SOL.mmd`)
+
 ```{mermaid}
 stateDiagram-v2
     [*] --> RECEBIDA
@@ -39,6 +41,8 @@ stateDiagram-v2
 **Meio:** SVC-A2A  
 **Performativos:** request, agree, refuse, inform, failure
 
+**Diagrama: Máquina de estados PROT-DEL** (`diagrams/dsm1/protocols_fsm_PROT-DEL.mmd`)
+
 ```{mermaid}
 stateDiagram-v2
     [*] --> CRIADA
@@ -67,9 +71,11 @@ stateDiagram-v2
 :status: especificado
 :participants: ROLE-RES, ROLE-CUS, ROLE-ORC
 
-**Propósito:** Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.  
+**Propósito:** O Agente de Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.  
 **Meio:** SVC-A2A  
 **Performativos:** query-ref, inform, refuse, failure
+
+**Diagrama: Máquina de estados PROT-QRY** (`diagrams/dsm1/protocols_fsm_PROT-QRY.mmd`)
 
 ```{mermaid}
 stateDiagram-v2
@@ -96,9 +102,11 @@ stateDiagram-v2
 :status: especificado
 :participants: ROLE-ORQ, ROLE-CIN, ROLE-APR
 
-**Propósito:** Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.  
+**Propósito:** O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.  
 **Meio:** SVC-A2A  
 **Performativos:** request, inform(conforme), inform(nao_conforme), veto, waiver, request(reavaliar)
+
+**Diagrama: Máquina de estados PROT-CMP** (`diagrams/dsm1/protocols_fsm_PROT-CMP.mmd`)
 
 ```{mermaid}
 stateDiagram-v2
@@ -130,6 +138,8 @@ stateDiagram-v2
 **Meio:** Chamada local ao serviço  
 **Performativos:** reserve, reserve-accept, reserve-failure, release
 
+**Diagrama: Máquina de estados PROT-LCK** (`diagrams/dsm1/protocols_fsm_PROT-LCK.mmd`)
+
 ```{mermaid}
 stateDiagram-v2
     [*] --> LIVRE
@@ -155,6 +165,8 @@ stateDiagram-v2
 **Propósito:** Reter ações com efeito externo até decisão humana explícita.  
 **Meio:** SVC-POL + ENV-UI  
 **Performativos:** propose-action, classify, approve, reject, execute, expire
+
+**Diagrama: Máquina de estados PROT-APR** (`diagrams/dsm1/protocols_fsm_PROT-APR.mmd`)
 
 ```{mermaid}
 stateDiagram-v2

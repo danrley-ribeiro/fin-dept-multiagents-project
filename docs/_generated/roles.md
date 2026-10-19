@@ -62,7 +62,7 @@
 **Permissões (Perm)**
 
 - Delegar (request) a qualquer papel especialista
-- Reservar e liberar período no PeriodLockService
+- Reservar e liberar período na Reserva de Período (SVC-LCK)
 - Propor publicação ao Approval Gate
 
 **Obrigações (Obl)**
@@ -70,9 +70,10 @@
 - Responder toda solicitação com resultado ou falha explícita
 - Respeitar reply_by e veto de conformidade
 - Liberar a reserva ao término ou falha
+- Reenviar uma vez a subtarefa expirada ou com falha; na segunda falha, abortar e informar qual subtarefa falhou
 ````
 
-````{role} Analista de Custos e Rentabilidade
+````{role} Analista de Custos
 :id: ROLE-CUS
 :entrega: DSM1
 :status: especificado
@@ -95,7 +96,7 @@
 - Informar falha se dado de origem estiver ausente
 ````
 
-````{role} Analista de Orçamento e Controle Orçamentário
+````{role} Analista de Orçamento
 :id: ROLE-ORC
 :entrega: DSM1
 :status: especificado
@@ -119,7 +120,7 @@
 - Não alterar orçamento sem aprovação
 ````
 
-````{role} Analista de Resultados e Indicadores
+````{role} Analista de Resultados
 :id: ROLE-RES
 :entrega: DSM1
 :status: especificado
@@ -133,12 +134,12 @@
 
 **Permissões (Perm)**
 
-- Iniciar query-ref para CUS e ORC
+- Iniciar query-ref para ROLE-CUS e ROLE-ORC
 - Ler ERP e APIs de mercado via MCP
 
 **Obrigações (Obl)**
 
-- Não recalcular rateio próprio — usar o de CUS
+- Não recalcular rateio próprio — usar o de ROLE-CUS
 - Sinalizar inconsistência de fechamento
 ````
 
@@ -165,7 +166,7 @@
 - Reavaliar após waiver ou correção
 ````
 
-````{role} Redator de Relatórios Gerenciais
+````{role} Redator de Relatórios
 :id: ROLE-REL
 :entrega: DSM1
 :status: especificado

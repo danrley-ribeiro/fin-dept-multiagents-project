@@ -1,10 +1,10 @@
-% Figura editável (TikZ): organização em camadas do SMA de Controladoria (DSM1).
-% IDs conforme models/*.yaml. Incluída por main.tex via \input.
+% Figura editável (TikZ) "Organização do SMA": camadas do Sistema Multiagente de Controladoria (DSM1).
+% Equivalente em Mermaid: diagrams/dsm1/roles_organizacao.mmd (docs/dsm1/roles.md). IDs conforme models/*.yaml.
 \begin{tikzpicture}[
   font=\sffamily\scriptsize, >={Stealth[length=2mm]},
   band/.style={draw=accent!35, fill=accentlight, rounded corners=4pt},
   bandlabel/.style={font=\sffamily\bfseries\tiny, text=accent, anchor=north west},
-  ag/.style={draw=navy, fill=white, rounded corners=2pt, minimum width=2.05cm, minimum height=0.95cm, align=center, line width=0.6pt},
+  ag/.style={draw=navy, fill=white, rounded corners=2pt, inner xsep=1pt, minimum width=2.25cm, minimum height=0.95cm, align=center, line width=0.6pt},
   svc/.style={draw=plat, fill=platlight, rounded corners=2pt, minimum width=3.3cm, minimum height=0.62cm, align=center},
   comm/.style={draw=accent, fill=white, rounded corners=2pt, minimum height=0.6cm, align=center},
   src/.style={cylinder, shape border rotate=90, aspect=0.2, draw=muted, fill=gray!8, minimum width=1.75cm, minimum height=0.75cm, align=center},
@@ -28,11 +28,11 @@
 % ---------- agentes especializados
 \draw[band] (0.0,3.75) rectangle (12.1,5.45);
 \node[bandlabel] at (0.05,5.45) {AGENTES ESPECIALIZADOS};
-\node[ag] (cus) at (1.25,4.5) {\textbf{AG-CUS}\\Custos e\\Rentabilidade};
-\node[ag] (res) at (3.65,4.5) {\textbf{AG-RES}\\Resultados e\\Indicadores};
-\node[ag] (orc) at (6.05,4.5) {\textbf{AG-ORC}\\Orçamento e\\Controle};
-\node[ag] (cin) at (8.45,4.5) {\textbf{AG-CIN}\\Controles\\Internos};
-\node[ag] (rel) at (10.85,4.5) {\textbf{AG-REL}\\Relatórios\\Gerenciais};
+\node[ag] (cus) at (1.25,4.5) {\textbf{AG-CUS}\\Agente de\\Custos};
+\node[ag] (res) at (3.65,4.5) {\textbf{AG-RES}\\Agente de\\Resultados};
+\node[ag] (orc) at (6.05,4.5) {\textbf{AG-ORC}\\Agente de\\Orçamento};
+\node[ag] (cin) at (8.45,4.5) {\textbf{AG-CIN}\\Agente de\\Controles Internos};
+\node[ag] (rel) at (10.85,4.5) {\textbf{AG-REL}\\Agente de\\Relatórios};
 \foreach \n in {res,orc,rel} \node[llm, anchor=north] at (\n.south) {LLM opcional (flag)};
 
 % ---------- comunicação
@@ -44,11 +44,11 @@
 % ---------- serviços de plataforma (transversais)
 \draw[band, draw=plat!50, fill=platlight!40] (12.45,2.1) rectangle (16.3,6.85);
 \node[bandlabel, text=plat] at (12.5,6.85) {SERVIÇOS DE PLATAFORMA};
-\node[svc] (pol) at (14.37,6.15) {\textbf{SVC-POL} SafetyPolicy / Approval};
+\node[svc] (pol) at (14.37,6.15) {\textbf{SVC-POL} Política de Segurança};
 \node[svc] (aud) at (14.37,5.35) {\textbf{SVC-AUD} Auditoria (JSONL)};
-\node[svc] (mod) at (14.37,4.55) {\textbf{SVC-MOD} Registro de modelos};
+\node[svc] (mod) at (14.37,4.55) {\textbf{SVC-MOD} Registro de Modelos};
 \node[svc] (mem) at (14.37,3.75) {\textbf{SVC-MEM} Memória (emb.\ + grafo)};
-\node[svc] (lck) at (14.37,2.95) {\textbf{SVC-LCK} Reserva de período};
+\node[svc] (lck) at (14.37,2.95) {\textbf{SVC-LCK} Reserva de Período};
 
 % ---------- ambiente (fontes externas)
 \node[font=\sffamily\bfseries\tiny, text=muted, anchor=west] at (-0.15,1.45) {AMBIENTE};

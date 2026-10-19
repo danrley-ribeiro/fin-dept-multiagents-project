@@ -1,5 +1,5 @@
-% Figura editável (TikZ): cenário âncora "feche o resultado do mês" (fluxo nominal).
-% Fonte equivalente em Mermaid: diagrams/dsm1/sequencia_fechar_mes.mmd
+% Figura editável (TikZ) "Sequência: fechar o resultado do mês" (fluxo nominal).
+% Fonte equivalente em Mermaid: diagrams/dsm1/protocols_sequencia_fechar_mes.mmd
 \begin{tikzpicture}[font=\sffamily\tiny, >={Stealth[length=1.6mm]},
   part/.style={draw=navy, fill=navy, text=white, rounded corners=2pt, minimum width=1.38cm, minimum height=0.5cm, font=\sffamily\bfseries\tiny, align=center},
   hpart/.style={part, fill=navy!8, text=navy},
@@ -43,6 +43,6 @@
 \draw[accent, rounded corners=2pt] (1.55,-1.67) rectangle (7.35,-3.06);
 \node[anchor=north east, font=\sffamily\bfseries\tiny, text=accent] at (1.5,-1.67) {par};
 \draw[warn, rounded corners=2pt] (1.55,-5.27) rectangle (10.75,-5.94);
-\node[anchor=north west, font=\sffamily\bfseries\tiny, text=warn, fill=white, inner sep=1pt] at (10.8,-5.31) {alt: veto $\rightarrow$ release + failure};
+\node[anchor=north west, font=\sffamily\bfseries\tiny, text=warn, fill=white, inner sep=1pt] at (10.8,-5.31) {alt: veto $\rightarrow$ sequência de veto e waiver};
 \node[anchor=east, font=\sffamily\tiny, text=muted] at (16.3,-\H-0.25) {toda mensagem é interceptada por SVC-AUD};
 \end{tikzpicture}

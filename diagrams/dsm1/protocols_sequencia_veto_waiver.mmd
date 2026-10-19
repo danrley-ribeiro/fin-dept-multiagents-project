@@ -1,0 +1,41 @@
+%% Diagrama "Sequência: veto e waiver" (docs/dsm1/protocols.md). Continua o bloco de veto de
+%% "Sequência: fechar o resultado do mês" e segue a máquina de estados de PROT-CMP
+%% (EM_ANALISE → VETADO → correção | waiver humano | prazo esgotado). Mensagens interceptadas por SVC-AUD.
+sequenceDiagram
+  autonumber
+  actor SOL as Solicitante
+  participant ORQ as AG-ORQ Orquestrador
+  participant LCK as SVC-LCK Reserva
+  participant CIN as AG-CIN Controles Internos
+  participant REL as AG-REL Relatórios
+  participant POL as SVC-POL Política
+  actor APR as Aprovador
+  ORQ->>CIN: request(conformidade, pacote)
+  CIN-->>ORQ: veto(regra, evidência, severidade crítica)
+  Note over ORQ,CIN: PROT-CMP em VETADO: publicar é proibido, a reserva continua ativa (TTL)
+  alt correção
+    Note over ORQ: contabilidade do cliente corrige o lançamento no ERP (fora do SMA)
+    ORQ->>CIN: request(reavaliar)
+    CIN-->>ORQ: inform(conforme)
+  else waiver humano
+    ORQ->>POL: propose-action(waiver, regra)
+    POL->>APR: REQUIRE_APPROVAL
+    APR-->>POL: approve(justificativa)
+    POL-->>ORQ: executada
+    ORQ->>CIN: waiver(justificativa)
+    CIN-->>ORQ: inform(liberado com ressalva)
+  else prazo esgotado
+    Note over ORQ,CIN: PROT-CMP em BLOQUEADO
+    ORQ->>LCK: release
+    ORQ-->>SOL: failure(bloqueado: regra e evidência)
+  end
+  opt liberado (correção ou waiver)
+    ORQ->>REL: request(relatorio_executivo, ressalvas)
+    REL-->>ORQ: inform(relatório com ressalvas, se houver)
+    ORQ->>POL: propose-action(publicar_relatorio)
+    POL->>APR: REQUIRE_APPROVAL
+    APR-->>POL: approve
+    POL-->>ORQ: executada
+    ORQ->>LCK: release
+    ORQ-->>SOL: inform(resultado + relatório)
+  end

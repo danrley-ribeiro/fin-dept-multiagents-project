@@ -1,0 +1,33 @@
+%% Diagrama "Sequência: avaliar o orçamento do trimestre" (docs/dsm1/protocols.md; Figura 4 do PDF:
+%% entregas/dsm1/figures/protocols_sequencia_avaliar_orcamento.tex). Cada seta é uma mensagem FIPA-ACL
+%% com conversation_id; todas são interceptadas por SVC-AUD. Sem reserva de período: a avaliação só lê dados.
+sequenceDiagram
+  autonumber
+  actor SOL as Solicitante
+  participant ORQ as AG-ORQ Orquestrador
+  participant ORC as AG-ORC Orçamento
+  participant RES as AG-RES Resultados
+  participant REL as AG-REL Relatórios
+  participant POL as SVC-POL Política
+  actor APR as Aprovador
+  SOL->>ORQ: request(avaliar_orcamento, 2026-T3)
+  ORQ-->>SOL: agree
+  ORQ->>ORC: request(orcado_x_realizado, forecast)
+  ORC-->>ORQ: agree · inform(desvios + forecast)
+  opt desvio acima do limiar com correção proposta
+    ORC->>POL: propose-action(alterar_orcamento)
+    POL->>APR: REQUIRE_APPROVAL
+    APR-->>POL: approve | reject
+    POL-->>ORC: executada | rejeitada
+  end
+  ORQ->>RES: request(indicadores_trimestre)
+  RES->>ORC: query-ref(desvios)
+  ORC-->>RES: inform
+  RES-->>ORQ: inform(KPIs do trimestre)
+  ORQ->>REL: request(relatorio_orcamentario)
+  REL-->>ORQ: inform(relatório: template ou LLM validado)
+  ORQ->>POL: propose-action(publicar_relatorio)
+  POL->>APR: REQUIRE_APPROVAL
+  APR-->>POL: approve
+  POL-->>ORQ: executada
+  ORQ-->>SOL: inform(desvios + forecast + relatório)

@@ -1,16 +1,17 @@
-%% Cenário âncora "feche o resultado do mês" (DSM1). Cada seta é uma mensagem FIPA-ACL
+%% Diagrama "Sequência: fechar o resultado do mês" (docs/dsm1/protocols.md; Figura 3 do PDF:
+%% entregas/dsm1/figures/protocols_sequencia_fechar_mes.tex). Cada seta é uma mensagem FIPA-ACL
 %% com conversation_id; todas são interceptadas por SVC-AUD.
 sequenceDiagram
   autonumber
   actor SOL as Solicitante
-  participant ORQ as AG-ORQ
-  participant LCK as SVC-LCK
-  participant CUS as AG-CUS
-  participant ORC as AG-ORC
-  participant RES as AG-RES
-  participant CIN as AG-CIN
-  participant REL as AG-REL
-  participant POL as SVC-POL
+  participant ORQ as AG-ORQ Orquestrador
+  participant LCK as SVC-LCK Reserva
+  participant CUS as AG-CUS Custos
+  participant ORC as AG-ORC Orçamento
+  participant RES as AG-RES Resultados
+  participant CIN as AG-CIN Controles Internos
+  participant REL as AG-REL Relatórios
+  participant POL as SVC-POL Política
   actor APR as Aprovador
   SOL->>ORQ: request(fechar_mes, 2026-09)
   ORQ->>LCK: reserve(entidade, 2026-09)
@@ -32,8 +33,7 @@ sequenceDiagram
   ORQ->>CIN: request(compliance_check, pacote)
   alt não conformidade crítica
     CIN-->>ORQ: veto(regra, evidência)
-    ORQ->>LCK: release
-    ORQ-->>SOL: failure(bloqueado: aguarda correção ou waiver)
+    Note over ORQ,CIN: continua em "Sequência: veto e waiver"
   else conforme
     CIN-->>ORQ: inform(conforme)
     ORQ->>REL: request(relatorio_executivo)

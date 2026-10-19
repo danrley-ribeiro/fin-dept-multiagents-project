@@ -1,27 +1,28 @@
-%% Modelo organizacional (DSM1) — agentes, serviços de plataforma, protocolos e ambiente.
+%% Diagrama "Organização do SMA" (docs/dsm1/roles.md; Figura 1 do PDF: entregas/dsm1/figures/roles_organizacao.tex).
+%% Agentes, serviços de plataforma, protocolos e ambiente.
 %% Editável em qualquer editor Mermaid (https://mermaid.live). IDs: models/*.yaml
 flowchart TB
   SOL(["ROLE-SOL · Solicitante (CFO/Diretoria)"])
   APR(["ROLE-APR · Aprovador (controller humano)"])
-  subgraph SMA["Fronteira do SMA de Controladoria"]
+  subgraph SMA["Fronteira do Sistema Multiagente de Controladoria"]
     ORQ["AG-ORQ · Orquestrador"]
     subgraph ESP["Agentes especializados"]
       direction LR
-      CUS["AG-CUS<br/>Custos e Rentabilidade"]
-      ORC["AG-ORC<br/>Orçamento · LLM opc."]
-      RES["AG-RES<br/>Resultados e Indicadores · LLM opc."]
-      CIN["AG-CIN<br/>Controles Internos"]
-      REL["AG-REL<br/>Relatórios Gerenciais · LLM opc."]
+      CUS["AG-CUS<br/>Agente de Custos"]
+      ORC["AG-ORC<br/>Agente de Orçamento · LLM opc."]
+      RES["AG-RES<br/>Agente de Resultados · LLM opc."]
+      CIN["AG-CIN<br/>Agente de Controles Internos"]
+      REL["AG-REL<br/>Agente de Relatórios · LLM opc."]
     end
     subgraph PLAT["Serviços de plataforma (não-agentes)"]
       direction LR
-      A2A{{"A2A"}}
-      MCP{{"MCP"}}
-      AUD{{"Auditoria"}}
-      MOD{{"Modelos"}}
-      MEM{{"Memória"}}
-      POL{{"SafetyPolicy"}}
-      LCK{{"Reserva"}}
+      A2A{{"SVC-A2A · Comunicação A2A"}}
+      MCP{{"SVC-MCP · Gateway MCP"}}
+      AUD{{"SVC-AUD · Auditoria"}}
+      MOD{{"SVC-MOD · Registro de Modelos"}}
+      MEM{{"SVC-MEM · Memória"}}
+      POL{{"SVC-POL · Política de Segurança"}}
+      LCK{{"SVC-LCK · Reserva de Período"}}
     end
   end
   subgraph FONTES["Ambiente: fontes externas"]

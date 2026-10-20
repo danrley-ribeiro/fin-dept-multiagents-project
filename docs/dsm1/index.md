@@ -1,18 +1,18 @@
 # DSM1 — Cenário, requisitos e modelagem
 
-<span class="badge-ok">concluída</span> · Peso: 20% da MPDSM · Prazo: 10/10/2026 23:55 · Versão 1.1
+<span class="badge-ok">concluída</span>
 
-**PDF da entrega:** [`entregas/dsm1/main.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/main.pdf)
-(fonte LaTeX: `entregas/dsm1/main.tex`).
+**PDF da entrega:** [`entregas/dsm1/documentacao/main.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/documentacao/main.pdf)
+(fonte LaTeX: `entregas/dsm1/documentacao/main.tex`).
 
 ## Entregáveis exigidos
 
 | Exigido pelo enunciado | Onde está |
 |---|---|
-| PDF de ~4–6 páginas | `entregas/dsm1/main.pdf` |
-| Diagramas/modelos editáveis | `models/*.yaml` (modelos AOSE), `diagrams/dsm1/*.mmd` (Mermaid), `entregas/dsm1/figures/*.tex` (TikZ) |
-| `README.md` | raiz do repositório |
-| `USO_DE_IA.md` | raiz do repositório (seção DSM1) |
+| PDF de ~4–6 páginas | `entregas/dsm1/documentacao/main.pdf` (fonte: `main.tex`, arquivo único) |
+| Diagramas/modelos editáveis | `entregas/dsm1/modelos-editaveis/*.mmd` (Mermaid) e `entregas/dsm1/diagramas/*.png`; modelos AOSE em `models/*.yaml` |
+| `README.md` | `entregas/dsm1/README.md` |
+| `USO_DE_IA.md` | `entregas/dsm1/USO_DE_IA.md` |
 
 ## Conteúdo × critérios de avaliação
 

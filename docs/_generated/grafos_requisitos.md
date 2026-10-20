@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ### Funcional: REQ-F01 a REQ-F04
 
 ```{needflow}

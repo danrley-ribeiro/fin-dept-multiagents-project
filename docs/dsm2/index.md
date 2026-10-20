@@ -1,6 +1,6 @@
 # DSM2 — Arquitetura e protótipo inicial
 
-<span class="badge-pend">pendente</span> · Peso: 25% da MPDSM · Prazo: 31/10/2026 23:55
+<span class="badge-pend">pendente</span>
 
 ```{admonition} Entrega ainda não iniciada
 :class: warning
@@ -24,7 +24,7 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 | Implementação | 25% | [Protótipo](prototipo.md) |
 | Interação e corretude | 20% | [Protótipo](prototipo.md) · [Testes](testes.md) |
 | Testes e reprodutibilidade | 20% | [Testes](testes.md) |
-| Documentação e autoria | 10% | `README.md` · `USO_DE_IA.md` (seção DSM2) |
+| Documentação e autoria | 10% | `entregas/dsm2/README.md` · `entregas/dsm2/USO_DE_IA.md` |
 
 ## Checklist de entregáveis
 
@@ -37,7 +37,7 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 - [ ] Cenário controlado de depuração (seed fixo, dataset com gabarito)
 - [ ] Testes iniciais: mudar o `status` dos `TEST-*` escolhidos de `planejado` para `executado`, com resultado real
 - [ ] Limitações registradas
-- [ ] `README.md` e `USO_DE_IA.md` (seção DSM2) atualizados
+- [ ] `entregas/dsm2/README.md` e `entregas/dsm2/USO_DE_IA.md`
 - [ ] Componentes `COMP-*` com `caminho` real e `entrega: DSM2`, `status: implementado`
 
 ## Herdado da DSM1 → a fazer na DSM2

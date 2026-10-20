@@ -1,0 +1,535 @@
+\documentclass[10pt,a4paper]{article}
+
+\newcommand{\autorA}{Danrley Moreira Ribeiro}
+\newcommand{\matA}{23102664}
+\newcommand{\autorB}{Jiliard Mai Peifer}
+\newcommand{\matB}{23103129}
+\newcommand{\repoURL}{https://github.com/danrley-ribeiro/fin-dept-multiagents-project}
+\newcommand{\docsURL}{https://fin-dept-multiagents-project.readthedocs.io}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[default,semibold]{sourcesanspro}
+\usepackage[a4paper, left=1.2cm, right=1.2cm, top=1.5cm, bottom=1.4cm, headsep=0.4cm, footskip=0.7cm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{amsmath, amssymb}
+\usepackage{microtype}
+\usepackage{array, booktabs, xltabular, makecell}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shapes.misc, calc, fit, backgrounds}
+\usepackage{newunicodechar}
+\newunicodechar{⟨}{\ensuremath{\langle}}
+\newunicodechar{⟩}{\ensuremath{\rangle}}
+\newunicodechar{≠}{\ensuremath{\neq}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\usepackage[hidelinks, pdfusetitle]{hyperref}
+\hypersetup{pdftitle={DSM1 — Sistema Multiagente de Controladoria},
+            pdfauthor={\autorA, \autorB}, pdfsubject={INE5628 — Entrega 1}}
+
+\definecolor{navy}{HTML}{111A2E}
+\definecolor{accent}{HTML}{1565A8}
+\definecolor{accentlight}{HTML}{E7F0FA}
+\definecolor{muted}{HTML}{6B7280}
+\definecolor{rowalt}{HTML}{F5F7FA}
+\definecolor{plat}{HTML}{5B4B8A}
+\definecolor{platlight}{HTML}{EFEBF7}
+\definecolor{warn}{HTML}{B45309}
+\definecolor{bad}{HTML}{B91C1C}
+\definecolor{good}{HTML}{15803D}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\linespread{1.04}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+\setlist{nosep, leftmargin=1.2em, itemsep=0.25em, topsep=0.3em}
+\captionsetup{font={small,sf}, labelfont=bf, skip=5pt}
+\setlength{\textfloatsep}{8pt plus 3pt minus 2pt}
+\setlength{\floatsep}{12pt plus 3pt minus 2pt}
+\setlength{\intextsep}{8pt plus 3pt minus 2pt}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{\MakeUppercase}
+\titlespacing*{\section}{0pt}{1.0em}{0.4em}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.3em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[L]{\scriptsize DSM1 — Sistema Multiagente de Controladoria}
+\fancyhead[R]{\scriptsize \autorA{} e \autorB}
+\fancyfoot[L]{\scriptsize UFSC / CTC / INE — INE5628-08238 (20262) - Sistemas Multiagentes}
+\fancyfoot[R]{\scriptsize Página \thepage}
+\fancypagestyle{primeira}{\fancyhead{}}
+
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcommand{\hd}[1]{\textbf{#1}}
+\newcommand{\headrow}{\toprule}
+\newcommand{\rowsep}{\specialrule{0.2pt}{1.3pt}{1.3pt}}
+\setlength{\heavyrulewidth}{0.5pt}\setlength{\lightrulewidth}{0.3pt}
+\setlength{\aboverulesep}{0.5ex}\setlength{\belowrulesep}{0.5ex}
+\setlength{\tabcolsep}{4pt}
+\newenvironment{dtable}[2][\footnotesize]{#1\renewcommand{\arraystretch}{1.08}\setlength{\LTpre}{6pt}\setlength{\LTpost}{0pt}\xltabular{\linewidth}{#2}}{\bottomrule\endxltabular\par\addvspace{0.6em}}
+
+\newcommand{\idtarget}[1]{\leavevmode\textbf{#1}\hypertarget{#1}{}}
+\newcommand{\idref}[1]{\hyperlink{#1}{#1}}
+\newcommand{\llmflag}{\textbf{flag}}
+\newcommand{\llmno}{não}
+\newcommand{\decisao}[1]{\textbf{\texttt{\detokenize{#1}}}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\nReq}{18}
+\newcommand{\nObj}{137}
+\newcommand{\nTest}{26}
+\newcommand{\nMet}{12}
+\newcommand{\nProt}{6}
+\newcommand{\nNorm}{8}
+\newcommand{\nPend}{39}
+
+\begin{document}
+\thispagestyle{primeira}
+\begin{center}
+{\footnotesize UNIVERSIDADE FEDERAL DE SANTA CATARINA \textbullet{} CTC / INE \textbullet{} INE5628 — Sistemas Multiagentes \textbullet{} Prof. Dr. Rafael Luiz Cancian\par}
+\vspace{0.25em}
+{\Large\bfseries DSM1 — Sistema Multiagente de Controladoria\par}
+\vspace{0.1em}
+{\normalsize Entrega 1: cenário-problema, requisitos, modelagem AOSE e rastreabilidade\par}
+\vspace{0.2em}
+{\small \autorA{} (\matA) \textbullet{} \autorB{} (\matB)\par}
+{\footnotesize Documentação navegável: \href{\docsURL}{\texttt{\docsURL}}\par}
+{\footnotesize Repositório: \href{\repoURL}{\texttt{\repoURL}}\par}
+\end{center}
+\vspace{0.4em}
+
+\textbf{Resumo.} Especifica-se um \textbf{Sistema Multiagente (SMA) de Controladoria}: o Orquestrador e cinco
+agentes especializados (Custos, Orçamento, Resultados, Controles Internos e Relatórios), apoiados por serviços de
+plataforma (A2A/MCP, auditoria, registro de modelos, memória, política de segurança e reserva de período). A
+modelagem segue AOSE (Cancian, 2026), combinando Tropos (Bresciani et al., 2004), Gaia
+(Wooldridge et al., 2000) e Prometheus (Padgham e Winikoff, 2004): \nReq{} requisitos com evidência
+observável, papéis $\langle$Resp, Perm, Obl, Prot$\rangle$, \nProt{} protocolos como máquinas de estados,
+\nNorm{} normas e \nMet{} métricas. A IA generativa é \textbf{opcional e desligada por padrão}. Os \nObj{} objetos
+têm ID estável e formam uma cadeia de rastreabilidade validada automaticamente.
+
+\section{Cenário-problema, motivação e objetivos}
+\textbf{Problema.} A Controladoria de uma empresa de médio porte precisa, todo mês, fechar o resultado
+(balancete $\rightarrow$ rateios $\rightarrow$ DRE $\rightarrow$ indicadores $\rightarrow$ relatório) e, a cada
+trimestre, avaliar o orçamento. Hoje o ciclo leva dias de consolidação manual (\code{PROB-01}; linha de base
+sintética: resultado em D+8 dias úteis), não mostra margem por produto ou unidade (\code{PROB-02}), detecta desvios
+orçamentários tarde (\code{PROB-03}; até 90 dias), deixa passar riscos de alçada, segregação de funções e
+duplicidade (\code{PROB-04}; 4 de cada 10 inconformidades críticas só aparecem na auditoria) e gera relatórios
+divergentes da DRE (\code{PROB-05}; 1 de cada 4). Automatizar com IA traz problemas novos: decisões sem trilha nem
+controle de custo (\code{PROB-06}), conhecimento perdido entre ciclos (\code{PROB-07}) e efeitos externos sem
+controle humano (\code{PROB-08}). \textbf{Stakeholders} (Tropos): CFO/diretoria, controller (aprovador),
+contabilidade do cliente, auditoria, TI/Segurança e DPO (LGPD), equipe de desenvolvimento e avaliador.
+\textbf{Cenários âncora (MVP):} \emph{“feche o resultado do mês”} e \emph{“avalie o orçamento do trimestre”}, sobre
+uma empresa sintética com gabarito e fontes simuladas por \emph{MCP servers} offline.
+
+\textbf{Por que um SMA} (checklist de Cancian (2026, Tab.~5.1); os seis critérios se aplicam):
+\emph{autonomia} — o Agente de Controles Internos decide sozinho vetar a publicação e o de Orçamento julga desvios
+pelos próprios limiares; \emph{distribuição} — dados em ERP, planilhas, histórico, mercado e normas, sem agente com
+estado global; \emph{interdependência} — Resultados depende de Custos e Orçamento, e o veto muda as opções do
+Orquestrador e de Relatórios; \emph{heterogeneidade} — cálculo determinístico (\code{AG-CUS}), regras BDI
+(\code{AG-CIN}) e síntese com LLM opcional (\code{AG-REL}); \emph{recursos} — período contábil exclusivo e cota de
+tokens consumível; \emph{evidência} — gabarito e transições inválidas tornam o comportamento testável.
+\textbf{Condição de rejeição:} se a demanda se reduzir a um relatório por sequência fixa, sem veto, dependência ou
+recurso disputado, um \emph{workflow} determinístico basta; ele é a \textbf{baseline}. \textbf{Hipóteses:} (H1) o
+veto barra 100\% das inconformidades críticas plantadas; (H2) a decomposição mantém 100\% de acurácia contra o
+gabarito, com custo de comunicação mensurável; (H3) com a flag LLM desligada, tudo é gerado sem rede e a custo zero.
+
+\textbf{Objetivos.} Geral (\code{G-00}): executar as rotinas de controladoria de forma coordenada, entregando
+resultado e análises confiáveis, respeitando alçadas, sigilo e aprovação humana, com evidência reconstruível de cada
+decisão. Específicos: (G-01) decompor solicitações em tarefas coordenadas; (G-02) apurar custos, margens e
+rentabilidade; (G-03) controlar o orçamento e projetar forecast; (G-04) consolidar DRE, EBITDA, fluxo de caixa e
+KPIs; (G-05) garantir conformidade antes da publicação; (G-06) entregar relatórios executivos; (G-07) manter
+auditabilidade e custo de IA sob controle; (G-08) reutilizar conhecimento aprovado; (G-09) restringir efeitos
+externos à autorização humana.
+
+\section{Fronteira do sistema e caracterização do ambiente}
+São \textbf{software modelado} os seis agentes e os sete serviços de plataforma (Figura~\ref{fig:org}); ficam no
+\textbf{ambiente}, ainda que acessados por adapters, os humanos (solicitante, aprovador, auditor), as fontes externas
+e o calendário de fechamento. O ambiente é \textbf{parcialmente observável} (cada agente vê só o que seus conectores
+MCP e mensagens A2A entregam, $see_i: S\to P_i$), \textbf{dinâmico e estocástico} (lançamentos e estornos chegam
+durante o fechamento; APIs falham; a resposta humana tem duração incerta), \textbf{discreto e sequencial por ciclo}
+(ajustes aprovados e memória afetam o próximo ciclo) e tem \textbf{recursos compartilhados} (período exclusivo,
+cota de tokens). Escrita em fonte externa é sempre ação restrita.
+
+
+\begin{dtable}{L{3.3cm} Y Y L{2.7cm} L{2.6cm}}
+\headrow \hd{Recurso do ambiente} & \hd{Observabilidade} & \hd{Acionabilidade} & \hd{Exclusividade} & \hd{Autoridade}\\ \midrule\endhead
+\textbf{ERP — razão contábil, balancete e lançamentos} & Leitura via MCP (balancete, lançamentos, centros de custo, plano de contas) & Escrita de ajuste contábil — ação restrita (REQUIRE\_APPROVAL) & Período contábil exclusivo durante o fechamento & Contabilidade do cliente (STK-03) \\ \rowsep
+\textbf{Planilhas de orçamento e premissas} & Leitura via MCP (orçado por conta/centro de custo, premissas) & Alteração de orçamento — ação restrita (REQUIRE\_APPROVAL) & Não exclusiva para leitura & Diretoria / FP\&A do cliente (STK-01) \\ \rowsep
+\textbf{Base analítica histórica (data warehouse)} & Leitura via MCP (séries históricas, fechamentos anteriores) & Nenhuma (somente leitura) & Não exclusiva & TI do cliente (STK-05) \\ \rowsep
+\textbf{APIs financeiras de mercado (câmbio, IPCA, Selic)} & Leitura via MCP; pode falhar ou atrasar & Nenhuma & Não exclusiva (cota de chamadas) & Provedor externo \\ \rowsep
+\textbf{Base normativa interna (políticas de alçada, SoD, manual contábil)} & Leitura via MCP/RAG com proveniência (documento, trecho, versão) & Nenhuma & Não exclusiva & Compliance / Auditoria (STK-04) \\ \rowsep
+\textbf{Período contábil em fechamento (recurso compartilhado)} & Estado de reserva consultável & Reservar / liberar via protocolo de reserva & Exclusivo por (entidade, competência), com TTL & SVC-LCK \\ \rowsep
+\textbf{Orçamento de tokens e custo de IA (recurso consumível)} & Saldo por agente/tarefa consultável no registro de modelos & Consumido apenas por chamadas LLM habilitadas por flag & Cota por agente e por tarefa & Controller (STK-02) via SVC-MOD \\ \rowsep
+\textbf{Interface do usuário (solicitação, aprovação e observabilidade)} & Recebe solicitações e decisões de aprovação humanas & Exibe resultado final, pedidos de aprovação e dashboard & Não exclusiva & Usuários autenticados (STK-01, STK-02, STK-04) \\
+\end{dtable}
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\begin{tikzpicture}[
+  font=\sffamily\scriptsize, >={Stealth[length=2mm]},
+  band/.style={draw=accent!35, fill=accentlight, rounded corners=4pt},
+  bandlabel/.style={font=\sffamily\bfseries\tiny, text=accent, anchor=north west},
+  ag/.style={draw=navy, fill=white, rounded corners=2pt, inner xsep=1pt, minimum width=2.25cm, minimum height=0.95cm, align=center, line width=0.6pt},
+  svc/.style={draw=plat, fill=platlight, rounded corners=2pt, minimum width=3.3cm, minimum height=0.62cm, align=center},
+  comm/.style={draw=accent, fill=white, rounded corners=2pt, minimum height=0.6cm, align=center},
+  src/.style={cylinder, shape border rotate=90, aspect=0.2, draw=muted, fill=gray!8, minimum width=1.75cm, minimum height=0.75cm, align=center},
+  hum/.style={draw=navy, fill=navy!7, rounded corners=7pt, minimum height=0.62cm, align=center},
+  llm/.style={font=\sffamily\bfseries\tiny, text=warn},
+  lbl/.style={font=\sffamily\tiny, fill=white, inner sep=1pt, text=navy},
+]
+\node[hum] (sol) at (6.0,7.55) {\textbf{Solicitante} (CFO / Diretoria) · ROLE-SOL};
+\node[hum] (apr) at (14.55,7.55) {\textbf{Aprovador} (controller) · ROLE-APR};
+
+\draw[navy, dashed, rounded corners=6pt, line width=0.7pt] (-0.2,1.95) rectangle (16.45,7.0);
+\node[font=\sffamily\bfseries\tiny, text=navy, anchor=south west] at (-0.15,7.0) {FRONTEIRA DO SMA};
+
+\draw[band] (0.0,5.75) rectangle (12.1,6.85);
+\node[bandlabel] at (0.05,6.85) {ORQUESTRAÇÃO};
+\node[ag, minimum width=3.6cm, fill=navy, text=white] (orq) at (6.0,6.25) {\textbf{AG-ORQ · Orquestrador}\\[-1pt]{\tiny decompõe, delega, agrega}};
+
+\draw[band] (0.0,3.75) rectangle (12.1,5.45);
+\node[bandlabel] at (0.05,5.45) {AGENTES ESPECIALIZADOS};
+\node[ag] (cus) at (1.25,4.5) {\textbf{AG-CUS}\\Agente de\\Custos};
+\node[ag] (res) at (3.65,4.5) {\textbf{AG-RES}\\Agente de\\Resultados};
+\node[ag] (orc) at (6.05,4.5) {\textbf{AG-ORC}\\Agente de\\Orçamento};
+\node[ag] (cin) at (8.45,4.5) {\textbf{AG-CIN}\\Agente de\\Controles Internos};
+\node[ag] (rel) at (10.85,4.5) {\textbf{AG-REL}\\Agente de\\Relatórios};
+\foreach \n in {res,orc,rel} \node[llm, anchor=north] at (\n.south) {LLM opcional (flag)};
+
+\draw[band] (0.0,2.1) rectangle (12.1,3.25);
+\node[bandlabel] at (0.05,3.25) {COMUNICAÇÃO};
+\node[comm, minimum width=7.1cm] (a2a) at (4.25,2.6) {\textbf{SVC-A2A} · agente $\leftrightarrow$ agente (FIPA-ACL, conversation\_id)};
+\node[comm, minimum width=3.6cm] (mcp) at (10.0,2.6) {\textbf{SVC-MCP} · agente $\rightarrow$ fonte (tools)};
+
+\draw[band, draw=plat!50, fill=platlight!40] (12.45,2.1) rectangle (16.3,6.85);
+\node[bandlabel, text=plat] at (12.5,6.85) {SERVIÇOS DE PLATAFORMA};
+\node[svc] (pol) at (14.37,6.15) {\textbf{SVC-POL} Política de Segurança};
+\node[svc] (aud) at (14.37,5.35) {\textbf{SVC-AUD} Auditoria (JSONL)};
+\node[svc] (mod) at (14.37,4.55) {\textbf{SVC-MOD} Registro de Modelos};
+\node[svc] (mem) at (14.37,3.75) {\textbf{SVC-MEM} Memória (emb.\ + grafo)};
+\node[svc] (lck) at (14.37,2.95) {\textbf{SVC-LCK} Reserva de Período};
+
+\node[font=\sffamily\bfseries\tiny, text=muted, anchor=west] at (-0.15,1.45) {AMBIENTE};
+\node[src] (erp) at (1.4,0.85) {ERP};
+\node[src] (pln) at (3.8,0.85) {Orçamento};
+\node[src] (bd)  at (6.2,0.85) {Histórico};
+\node[src] (api) at (8.6,0.85) {Mercado};
+\node[src] (nrm) at (11.0,0.85) {Normas};
+
+\draw[->, navy, thick] (sol) -- node[lbl, right] {PROT-SOL} (orq);
+\draw[->, navy, thick] (orq.south) -- node[lbl] {PROT-DEL · PROT-CMP (veto)} (6.05,5.45);
+\draw[->, accent, thick] (res) -- node[lbl, above] {QRY} (cus);
+\draw[->, accent, thick] (res.north east) to[bend left=18] node[lbl, above] {QRY} (orc.north west);
+\foreach \n in {cus,res,orc,cin,rel} \draw[accent!60, line width=0.6pt] (\n.south |- 0,3.75) -- (\n.south |- 0,3.25);
+\draw[->, muted, thick] (mcp.south) -- (10.0,1.55) -| (erp.north);
+\foreach \n in {pln,bd,api,nrm} \draw[->, muted] (\n.north |- 0,1.55) -- (\n.north);
+\draw[->, plat, thick] (orq.east) -- node[lbl, above] {PROT-LCK · PROT-APR} (pol.west);
+\draw[<->, plat, thick] (apr) -- node[lbl, right] {aprovação / waiver} (pol);
+\draw[->, plat, dashed] (12.1,4.55) -- node[lbl, below, font=\sffamily\tiny] {intercepta} (mod.west);
+\end{tikzpicture}}
+  \caption{Organização do SMA: fronteira, agentes, serviços de plataforma, protocolos e ambiente (\texttt{roles\_organizacao.mmd}).}
+  \label{fig:org}
+\end{figure}
+
+\section{Requisitos e critérios de aceite}
+Template AOSE (Cancian, 2026, Cap.~4): cada requisito liga-se a papéis responsáveis e a uma
+\textbf{evidência observável} que distingue implementação correta de execução apenas aparente. Prefixos: F funcional,
+S segurança, O observabilidade, C configuração, P privacidade, NF não funcional.
+
+\begin{dtable}[\scriptsize]{L{1.2cm} Y L{1.3cm} L{5.6cm}}
+\headrow \hd{ID} & \hd{Requisito} & \hd{Papéis} & \hd{Evidência observável de aceite}\\ \midrule\endhead
+\idtarget{REQ-F01} & \textbf{Decomposição e agregação de solicitações.} O Orquestrador deve mapear cada solicitação do catálogo ("fechar o resultado do mês", "avaliar o orçamento do trimestre") para um DAG de subtarefas, delegá-las aos papéis competentes e agregar uma resposta final; pedido fora do catálogo recebe not-understood explícito. Se um especialista expirar ou falhar, a subtarefa é reenviada uma vez; na segunda falha, a solicitação termina em failure, com a reserva liberada e nada publicado. & ORQ, SOL & Trace com o DAG gerado e, por subtarefa, request $\rightarrow$ agree $\rightarrow$ inform/failure sob o mesmo conversation\_id; resposta final com status explícito. \\ \rowsep
+\idtarget{REQ-F02} & \textbf{Apuração de custos, margem e rentabilidade.} Apurar custos fixos e variáveis, aplicar rateio por critério configurado e calcular margem de contribuição e rentabilidade por produto, serviço e UN a partir do balancete obtido via MCP. & CUS & Valores idênticos ao gabarito do dataset sintético (tolerância R\$ 0,01) e cada valor acompanhado de proveniência (fonte MCP, consulta, versão do rateio). \\ \rowsep
+\idtarget{REQ-F03} & \textbf{Orçado x realizado e forecast.} Comparar orçado x realizado por conta e centro de custo, sinalizar desvios acima de limiar configurável (percentual e absoluto) e projetar o forecast do trimestre com método declarado. & ORC & Desvios sinalizados exatamente nos itens plantados acima do limiar do cenário de teste; forecast reproduzível com o mesmo seed. \\ \rowsep
+\idtarget{REQ-F04} & \textbf{Resultado consolidado via A2A.} Montar DRE gerencial, EBITDA, fluxo de caixa (método indireto) e KPIs, obtendo custos e orçamento dos agentes especialistas por query-ref A2A, sem reimplementar suas regras. & RES, CUS, ORC & Trace mostra query-ref AG-RES$\rightarrow$AG-CUS e AG-RES$\rightarrow$AG-ORC antes do inform final; DRE igual ao gabarito; inform não solicitado é rejeitado. \\ \rowsep
+\idtarget{REQ-F05} & \textbf{Controles internos com veto.} Verificar alçada, segregação de funções, duplicidade, conciliação pendente e competência sobre o pacote do fechamento, emitindo parecer com regra violada e severidade; não conformidade crítica veta a publicação. & CIN, ORQ & Todas as inconformidades críticas plantadas detectadas; publicação em estado VETADO é bloqueada até correção ou waiver humano. \\ \rowsep
+\idtarget{REQ-F06} & \textbf{Relatório executivo por template com LLM opcional.} Gerar relatório executivo por template determinístico a partir dos resultados consolidados; com a flag LLM ativa, acrescentar narrativa e insights preservando os números do núcleo. & REL & Com flag desligada o relatório é gerado sem rede; com flag ligada todo número do texto coincide com o núcleo ou o template é usado. \\ \rowsep
+\idtarget{REQ-F07} & \textbf{Memória de longo prazo com proveniência.} Toda saída aprovada pelo controller vira memória (embedding + nós e arestas de conta, indicador, decisão e período); os agentes consultam a memória antes de nova análise e citam a proveniência usada. & CUS, ORC, RES, REL & Saída não aprovada não aparece na memória; análise seguinte cita o ID da memória e a fonte original. \\ \rowsep
+\idtarget{REQ-S01} & \textbf{Ações com efeito externo só com aprovação.} Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é executado autonomamente: a Política de Segurança classifica em ALLOW, REQUIRE\_APPROVAL ou DENY e retém a ação no Approval Gate. & ORQ, REL, ORC, APR & ActionRequest em PENDENTE até approve humano; ação DENY nunca executa efeito colateral, mesmo com aprovação. \\ \rowsep
+\idtarget{REQ-S02} & \textbf{Exclusão mútua do período em fechamento.} Dois fechamentos concorrentes da mesma entidade e competência são impedidos por reserva exclusiva com TTL; o conflito retorna falha explicada. & ORQ & Segunda reserva sobreposta recebe reserve-failure com o dono atual; reserva expirada é liberada. \\ \rowsep
+\idtarget{REQ-S03} & \textbf{LLM não calcula nem autoriza.} Todo número presente em texto gerado por LLM é validado contra o núcleo determinístico; divergência descarta o texto e aciona o template. Proposta de ação vinda de LLM nunca é tratada como autorização. & REL, RES, ORC & Mock de LLM que altera um valor provoca fallback registrado em log; mock que sugere ação não gera execução. \\ \rowsep
+\idtarget{REQ-O01} & \textbf{Log de decisão.} Cada decisão registra critério/regra, referências dos dados de entrada, agente, conversation\_id e timestamp em JSONL append-only, via interceptor central (não por agente). & ORQ, CUS, ORC, RES, CIN, REL & Script reconstrói a sequência causal de uma solicitação a partir do conversation\_id sem inspecionar o código. \\ \rowsep
+\idtarget{REQ-O02} & \textbf{Log de prompt.} Quando a flag LLM estiver ativa, registrar o prompt exato (após redaction), versão do template, modelo e fontes anexadas. & REL, RES, ORC & Com flag ligada há um registro de prompt por chamada; com flag desligada nenhum registro de prompt é criado. \\ \rowsep
+\idtarget{REQ-O03} & \textbf{Log de custo e tokens.} Registrar tokens de entrada e saída, modelo e custo estimado por chamada, agregados por tarefa, solicitação e agente. & REL, RES, ORC & Soma dos custos por chamada igual ao total da tarefa; custo zero com flag desligada. \\ \rowsep
+\idtarget{REQ-O04} & \textbf{Interface de observabilidade segura.} Dashboard web, mobile e desktop autenticado com filtros por agente, período, tarefa e custo sobre os logs de auditoria. Especificado na DSM1; implementação em entrega futura. & APR, SOL & Cada filtro retorna exatamente os registros do recorte em base de teste; acesso sem autenticação é negado. \\ \rowsep
+\idtarget{REQ-C01} & \textbf{Modelo por agente trocável sem redeploy.} Registro central define por agente a flag LLM (padrão desligada), modelo, limite de tokens e orçamento; a mudança vale na próxima tarefa sem redeploy; LLM só é habilitável em AG-REL, AG-RES e AG-ORC; cota excedida bloqueia a chamada e aciona o template. & REL, RES, ORC, APR & Troca de modelo refletida na tarefa seguinte; configuração com LLM em AG-ORQ, AG-CUS ou AG-CIN é rejeitada; cota estourada gera fallback registrado. \\ \rowsep
+\idtarget{REQ-P01} & \textbf{Redaction fail-closed (LGPD e sigilo).} Logs, traces e memória passam por redaction de segredos, credenciais e dados pessoais, com política de retenção; falha de sanitização impede a gravação. & ORQ, CIN, REL & Registro com chave de API ou CPF sintético é sanitizado ou recusado; nenhum campo proibido aparece nos arquivos JSONL. \\ \rowsep
+\idtarget{REQ-NF01} & \textbf{Execução offline e reprodutível.} O núcleo executa sem rede e sem API paga, com MCP mocks, dados sintéticos e seed fixo; o LLM é estritamente opcional. & ORQ, REL & Duas execuções com o mesmo seed e flag desligada produzem saídas com o mesmo hash. \\ \rowsep
+\idtarget{REQ-NF02} & \textbf{Versionamento de prompts, regras e configuração.} Templates de prompt, regras de conformidade e configurações de modelo têm ID e versão, registrados em cada log de decisão e de prompt. & REL, CIN & Todo registro de log contém as versões vigentes; mudança de versão aparece no trace seguinte. \\
+\end{dtable}
+
+\section{Agentes, papéis e responsabilidades}
+O modelo organizacional (Gaia) separa \textbf{papéis} (tupla $\langle Resp, Perm, Obl, Prot\rangle$),
+\textbf{agentes} que os assumem e \textbf{serviços de plataforma}. Os papéis humanos \code{ROLE-SOL} e
+\code{ROLE-APR} ficam fora da fronteira, mas participam de protocolos. Os serviços (Comunicação A2A, Gateway MCP,
+Auditoria, Registro de Modelos, Memória, Política de Segurança, Reserva de Período) \textbf{não são agentes}: não têm
+objetivo local nem iniciativa, o que evita a agentificação excessiva. LLM é \textbf{flag} (desligado por padrão)
+apenas em Relatórios, Resultados e Orçamento, só para narrativa; o Registro de Modelos o rejeita nos demais (ADR-002).
+
+\begin{dtable}[\scriptsize]{L{2.5cm} Y Y Y L{1.25cm} L{0.6cm}}
+\headrow \hd{Agente / cognição} & \hd{Responsabilidades (Resp)} & \hd{Permissões (Perm)} & \hd{Obrigações (Obl)} & \hd{Protocolos} & \hd{LLM}\\ \midrule\endhead
+\textbf{Orquestrador}\newline{\scriptsize\itshape AG-ORQ · Reativo a protocolos + biblioteca de planos (intenção $\rightarrow$ DAG)} & Receber solicitações e mapear para intenção do catálogo; Decompor em DAG de subtarefas e delegar aos papéis competentes; Reservar o período e agregar a resposta final & Delegar (request) a qualquer papel especialista; Reservar e liberar período na Reserva de Período (SVC-LCK); Propor publicação ao Approval Gate & Responder toda solicitação com resultado ou falha explícita; Respeitar reply\_by e veto de conformidade; Liberar a reserva ao término ou falha; Reenviar uma vez a subtarefa expirada ou com falha; na segunda falha, abortar e informar qual subtarefa falhou & SOL, DEL, CMP, LCK, APR & \llmno \\ \rowsep
+\textbf{Agente de Custos}\newline{\scriptsize\itshape AG-CUS · Deliberativo determinístico (regras de rateio + cálculo)} & Apurar custos fixos e variáveis e aplicar rateio por critério configurado; Calcular margem de contribuição e rentabilidade por produto, serviço e UN & Ler ERP e base histórica via MCP; Responder query-ref de outros papéis & Anexar proveniência a cada valor; Informar falha se dado de origem estiver ausente & DEL, QRY & \llmno \\ \rowsep
+\textbf{Agente de Orçamento}\newline{\scriptsize\itshape AG-ORC · Determinístico (variância + forecast) com narrativa LLM opcional} & Comparar orçado x realizado por conta e centro de custo; Sinalizar desvios acima do limiar e projetar forecast & Ler planilhas de orçamento e ERP via MCP; Propor alteração de orçamento (restrita); Responder query-ref & Explicitar limiar e método de forecast usados; Não alterar orçamento sem aprovação & DEL, QRY, APR & \llmflag \\ \rowsep
+\textbf{Agente de Resultados}\newline{\scriptsize\itshape AG-RES · Determinístico (DRE, EBITDA, DFC, KPIs) com comentário LLM opcional} & Montar DRE gerencial, EBITDA, fluxo de caixa e KPIs; Obter custos e orçamento dos papéis especialistas & Iniciar query-ref para ROLE-CUS e ROLE-ORC; Ler ERP e APIs de mercado via MCP & Não recalcular rateio próprio — usar o de ROLE-CUS; Sinalizar inconsistência de fechamento & DEL, QRY & \llmflag \\ \rowsep
+\textbf{Agente de Controles Internos}\newline{\scriptsize\itshape AG-CIN · BDI com regras simbólicas (crenças sobre lançamentos, intenção de vetar)} & Verificar alçada, segregação de funções, duplicidade, conciliação e competência; Emitir parecer conforme / não conforme com regra e severidade & Ler ERP e base normativa via MCP; Vetar publicação por não conformidade crítica & Citar regra e evidência de cada apontamento; Reavaliar após waiver ou correção & DEL, CMP & \llmno \\ \rowsep
+\textbf{Agente de Relatórios}\newline{\scriptsize\itshape AG-REL · Template determinístico + LLM opcional (híbrido)} & Sintetizar resultados em relatório executivo por template; Acrescentar narrativa e insights quando a flag LLM estiver ativa & Consultar memória aprovada; Propor publicação do relatório (restrita) & Preservar números do núcleo determinístico; Usar template se o texto LLM divergir & DEL, APR & \llmflag \\
+\end{dtable}
+
+\section{Objetivos, percepções, ações e estado/conhecimento}
+Para cada agente $i$: $see_i: S\to P_i$, $upd_i: B_i\times P_i\to B_i$ e $act_i: B_i\times K_i\to A_i$, com
+\textbf{Estado $\neq$ Conhecimento $\neq$ Memória}: o estado muda a cada ciclo; o conhecimento (rateios, alçadas,
+fórmulas) é versionado; a memória guarda só saídas \textbf{aprovadas} (\code{SVC-MEM}). Em Controles Internos o ciclo
+é BDI explícito: crenças sobre lançamentos $\rightarrow$ desejo de conformidade $\rightarrow$ intenção de aprovar,
+apontar ou vetar.
+
+\begin{dtable}[\scriptsize]{L{2.1cm} Y Y Y Y}
+\headrow \hd{Agente $\rightarrow$ objetivo} & \hd{Percepções (P)} & \hd{Estado interno (B)} & \hd{Conhecimento (K)} & \hd{Ações (A)}\\ \midrule\endhead
+\textbf{Orquestrador}\newline{\scriptsize\itshape AG-ORQ $\rightarrow$ G-01} & Solicitação do usuário (intenção, competência, entidade); Mensagens agree/refuse/inform/failure dos especialistas; Parecer e veto do Agente de Controles Internos; Decisão do Approval Gate & DAG de subtarefas e status por conversation\_id; Reserva de período ativa; Relógio lógico e prazos reply\_by & Catálogo de intenções e planos (fechar mês, avaliar orçamento); Diretório de papéis e Agent Cards & Enviar request a especialistas; Reservar e liberar período; Solicitar verificação de conformidade; Propor publicação ao Approval Gate; Entregar resposta final ou falha explícita \\ \rowsep
+\textbf{Agente de Custos}\newline{\scriptsize\itshape AG-CUS $\rightarrow$ G-02} & Request de apuração (competência, entidade, dimensão); Query-ref do Agente de Resultados; Balancete e lançamentos via MCP & Custos apurados do período e versão do rateio aplicado; Pendências de dados de origem & Critérios de rateio e classificação fixo/variável; Memória aprovada de ciclos anteriores & Calcular margem de contribuição e rentabilidade; Responder inform com proveniência; Responder failure com dado ausente \\ \rowsep
+\textbf{Agente de Orçamento}\newline{\scriptsize\itshape AG-ORC $\rightarrow$ G-03} & Request de avaliação orçamentária; Query-ref do Agente de Resultados; Orçado e realizado via MCP & Desvios por conta e centro de custo; Forecast do trimestre e premissas & Limiar de desvio (\% e R\$) e método de forecast; Memória aprovada de justificativas de desvio & Sinalizar desvio acima do limiar; Projetar forecast; Propor alteração de orçamento (restrita) \\ \rowsep
+\textbf{Agente de Resultados}\newline{\scriptsize\itshape AG-RES $\rightarrow$ G-04} & Request de consolidação de resultado; Inform de custos (AG-CUS) e de orçamento (AG-ORC); Índices de mercado via MCP & DRE e KPIs em construção e pendências de insumos & Estrutura da DRE gerencial e fórmulas de KPIs; Memória aprovada de fechamentos anteriores & Enviar query-ref a AG-CUS e AG-ORC; Consolidar DRE, EBITDA, DFC e KPIs; Informar resultado ao Orquestrador \\ \rowsep
+\textbf{Agente de Controles Internos}\newline{\scriptsize\itshape AG-CIN $\rightarrow$ G-05} & Request de verificação do pacote de fechamento; Lançamentos, aprovadores e conciliações via MCP; Waiver ou correção informados pelo Orquestrador & Crenças sobre conformidade de cada lançamento; Intenções ativas (aprovar, apontar, vetar) & Regras de alçada, SoD, duplicidade e competência (base normativa) & Emitir parecer conforme / não conforme; Vetar publicação por não conformidade crítica; Reavaliar após correção \\ \rowsep
+\textbf{Agente de Relatórios}\newline{\scriptsize\itshape AG-REL $\rightarrow$ G-06} & Request de relatório com resultados consolidados e parecer de conformidade; Memória aprovada relevante & Rascunho do relatório e versão do template & Templates de relatório executivo; Memória aprovada (embeddings e grafo) & Gerar relatório por template; Gerar narrativa LLM (se flag ativa) e validar números; Propor publicação (restrita) \\
+\end{dtable}
+
+\section{Interações e coordenação}
+\textbf{Comunicação.} Entre agentes, mensagem imutável $m=\langle s, r, p, c, o, k\rangle$ (remetente, destinatário,
+performativo FIPA-ACL (FIPA, 2002a), conteúdo, ontologia \code{ctrl-fin-v1}, \code{conversation\_id}) com
+prazo \code{reply\_by}; respostas tardias são descartadas. \textbf{A2A é social} (agente $\leftrightarrow$ agente;
+Linux Foundation, 2025); \textbf{MCP é instrumental} (agente $\rightarrow$ fonte de dados; Model Context Protocol, 2026).
+
+\begin{dtable}{L{2.6cm} Y L{4.2cm}}
+\headrow \hd{Dependência} & \hd{Situação no domínio} & \hd{Protocolo}\\ \midrule\endhead
+Tarefa & Orquestrador delega subtarefas do DAG (supervisor/especialistas) & \code{PROT-DEL} (FIPA-Request)\\ \rowsep
+Informação & Resultados obtém custos e orçamento sem acessar regras alheias & \code{PROT-QRY} (Query-Ref)\\ \rowsep
+Autoridade / norma & Publicação depende do parecer de Controles Internos, que pode \textbf{vetar} & \code{PROT-CMP} (verificação + veto)\\ \rowsep
+Recurso exclusivo & Um fechamento por (entidade, competência), com TTL & \code{PROT-LCK} (reserva)\\ \rowsep
+Autorização humana & Ajuste no ERP, alteração de orçamento, publicação & \code{PROT-APR} (Approval Gate)\\ \rowsep
+Fronteira & Pedido do usuário e resposta final explícita & \code{PROT-SOL} (FIPA-Request)\\
+\end{dtable}
+
+Contract Net não é o mecanismo principal (cada subtarefa tem um único papel competente); fica como evolução para
+várias instâncias do mesmo papel. Os \nProt{} protocolos são \textbf{máquinas de estados}
+(FIPA, 2002b): cada transição válida origina um teste nominal e cada \textbf{transição inválida}, um
+teste negativo (Figura~\ref{fig:fsm}; as demais estão em \code{modelos-editaveis/}, arquivos
+\code{protocols\_fsm\_PROT-*.mmd}).
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\sffamily\tiny, >={Stealth[length=1.6mm]},
+  st/.style={draw=navy, fill=white, rounded corners=5pt, minimum height=0.5cm, minimum width=1.6cm, font=\sffamily\bfseries\tiny, text=navy},
+  fin/.style={st, double, double distance=0.9pt},
+  bad/.style={draw=bad, fill=bad!8, text=bad, rounded corners=5pt, minimum height=0.45cm, font=\sffamily\bfseries\tiny},
+  tr/.style={->, navy, line width=0.5pt},
+  inv/.style={->, bad, dashed, line width=0.6pt},
+  l/.style={fill=white, inner sep=1pt, font=\sffamily\tiny},
+]
+\node[font=\sffamily\bfseries\scriptsize, text=accent, anchor=west] at (-0.8,2.05) {PROT-DEL · delegação de subtarefa};
+\node[st]  (c)  at (0,0)       {CRIADA};
+\node[st]  (ag) at (2.5,0)     {AGUARDANDO};
+\node[st]  (ex) at (5.2,0)     {EM\_EXECUCAO};
+\node[fin] (ok) at (7.7,0.65)  {CONCLUIDA};
+\node[fin] (fa) at (7.7,-0.65) {FALHOU};
+\node[fin] (re) at (2.5,-1.3)  {RECUSADA};
+\node[fin] (xp) at (5.2,-1.3)  {EXPIRADA};
+\node[bad] (v1) at (2.5,1.3)   {ProtocolViolation};
+\draw[tr] (c) -- node[l, above]{request} (ag);
+\draw[tr] (ag) -- node[l, above]{agree} (ex);
+\draw[tr] (ex) -- node[l, above, sloped]{inform} (ok);
+\draw[tr] (ex) -- node[l, below, sloped]{failure} (fa);
+\draw[tr] (ag) -- node[l, left]{refuse} (re);
+\draw[tr] (ag) -- node[l, below, sloped]{timeout} (xp);
+\draw[tr] (ex) -- node[l, right]{timeout} (xp);
+\draw[inv] (ag) -- node[l, left, text=bad]{inform antes de agree} (v1);
+
+\begin{scope}[xshift=10.0cm]
+\node[font=\sffamily\bfseries\scriptsize, text=accent, anchor=west] at (-0.8,2.05) {PROT-APR · Approval Gate (HITL)};
+\node[st]  (p)   at (0,0)       {PROPOSTA};
+\node[st]  (pe)  at (2.6,0)     {PENDENTE};
+\node[fin] (exe) at (5.5,0.65)  {EXECUTADA};
+\node[fin] (rj)  at (5.5,-0.65) {REJEITADA};
+\node[fin] (ng)  at (0,-1.3)    {NEGADA};
+\node[fin] (ep)  at (2.6,-1.3)  {EXPIRADA};
+\node[bad] (v2)  at (2.6,1.15)  {ApprovalRequired};
+\draw[tr] (p) -- node[l, above]{require\_approval} (pe);
+\draw[tr] (p.north) -- (0,1.65) -- node[l, above]{allow} (5.5,1.65) -- (exe.north);
+\draw[tr] (p) -- node[l, left]{deny} (ng);
+\draw[tr] (pe) -- node[l, above, sloped]{approve} (exe);
+\draw[tr] (pe) -- node[l, below, sloped]{reject} (rj);
+\draw[tr] (pe) -- node[l, right]{timeout} (ep);
+\draw[inv] (pe) -- node[l, left, text=bad]{execute sem approve} (v2);
+\end{scope}
+\end{tikzpicture}}
+  \caption{Máquinas de estados de \code{PROT-DEL} e \code{PROT-APR}. Borda dupla: estado final; em vermelho, transições inválidas (testes negativos).}
+  \label{fig:fsm}
+\end{figure}
+
+\textbf{Fechar o resultado do mês} (Figura~\ref{fig:seq}): o Orquestrador reserva o período, delega em paralelo a
+Custos e Orçamento, Resultados consulta ambos via A2A, Controles Internos verifica (e pode vetar) e o relatório só é
+publicado após aprovação humana; todas as mensagens têm o mesmo \code{conversation\_id}, o que permite reconstruir a
+cadeia causal. \textbf{Avaliar o orçamento do trimestre} só lê dados (sem reserva); uma correção proposta por desvio
+acima do limiar fica retida no Approval Gate (\code{protocols\_sequencia\_avaliar\_orcamento.mmd}). \textbf{Falhas:}
+sem resposta até \code{reply\_by} ou com \texttt{failure}, o Orquestrador reenvia a subtarefa uma vez; na segunda
+falha libera a reserva, não publica nada e responde \texttt{failure} (\code{REQ-F01}, \code{TEST-26}).
+
+\begin{figure}[H]
+  \centering
+  \resizebox{\linewidth}{!}{\begin{tikzpicture}[font=\sffamily\tiny, >={Stealth[length=1.6mm]},
+  part/.style={draw=navy, fill=navy, text=white, rounded corners=2pt, minimum width=1.38cm, minimum height=0.5cm, font=\sffamily\bfseries\tiny, align=center},
+  hpart/.style={part, fill=navy!8, text=navy},
+  spart/.style={part, draw=plat, fill=platlight, text=plat},
+  m/.style={->, navy, line width=0.5pt},
+  r/.style={->, navy, dashed, line width=0.5pt},
+  ml/.style={above, inner sep=1pt, fill=white, fill opacity=0.85, text opacity=1},
+]
+\def\H{8.3}
+\foreach \x/\n/\s in {0/Solicitante/hpart, 1.75/AG-ORQ/part, 3.5/SVC-LCK/spart, 5.25/AG-CUS/part, 7.0/AG-ORC/part,
+                      8.75/AG-RES/part, 10.5/AG-CIN/part, 12.25/AG-REL/part, 14.0/SVC-POL/spart, 15.75/Aprovador/hpart} {
+  \node[\s] at (\x,0.35) {\n};
+  \draw[muted!60, densely dashed] (\x,0.1) -- (\x,-\H);
+}
+\newcommand{\M}[5][m]{\draw[#1] (#2,-#5*0.36) -- node[ml]{#4} (#3,-#5*0.36);}
+\M{0}{1.75}{request(fechar\_mes)}{1}
+\M{1.75}{3.5}{reserve}{2}
+\M[r]{3.5}{1.75}{accept(ttl)}{3}
+\M[r]{1.75}{0}{agree}{4}
+\M{1.75}{5.25}{request(custos)}{5}
+\M{1.75}{7.0}{request(orçado$\times$real)}{6}
+\M[r]{5.25}{1.75}{inform(margens)}{7}
+\M[r]{7.0}{1.75}{inform(desvios)}{8}
+\M{1.75}{8.75}{request(consolidar)}{9}
+\M{8.75}{5.25}{query-ref}{10}
+\M[r]{5.25}{8.75}{inform}{11}
+\M{8.75}{7.0}{query-ref}{12}
+\M[r]{7.0}{8.75}{inform}{13}
+\M[r]{8.75}{1.75}{inform(DRE, EBITDA, KPIs)}{14}
+\M{1.75}{10.5}{request(conformidade)}{15}
+\M[r]{10.5}{1.75}{inform(conforme)}{16}
+\M{1.75}{12.25}{request(relatório)}{17}
+\M[r]{12.25}{1.75}{inform(template | LLM validado)}{18}
+\M{1.75}{14.0}{propose(publicar)}{19}
+\M{14.0}{15.75}{REQUIRE\_APPROVAL}{20}
+\M[r]{15.75}{14.0}{approve}{21}
+\M{1.75}{3.5}{release}{22}
+\M[r]{1.75}{0}{inform(resultado)}{22.6}
+\draw[accent, rounded corners=2pt] (1.55,-1.67) rectangle (7.35,-3.06);
+\node[anchor=north east, font=\sffamily\bfseries\tiny, text=accent] at (1.5,-1.67) {par};
+\draw[warn, rounded corners=2pt] (1.55,-5.27) rectangle (10.75,-5.94);
+\node[anchor=north west, font=\sffamily\bfseries\tiny, text=warn, fill=white, inner sep=1pt] at (10.8,-5.31) {alt: veto $\rightarrow$ sequência de veto e waiver};
+\node[anchor=east, font=\sffamily\tiny, text=muted] at (16.3,-\H-0.25) {toda mensagem é interceptada por SVC-AUD};
+\end{tikzpicture}}
+  \caption{Sequência “fechar o resultado do mês” (fluxo nominal). Veto e waiver: \texttt{protocols\_sequencia\_veto\_waiver.mmd}.}
+  \label{fig:seq}
+\end{figure}
+
+\textbf{Normas e human-in-the-loop (capacidade $\neq$ autorização).} Nenhuma proposta de agente ou LLM gera efeito
+externo sem passar pela \textbf{Política de Segurança} (\code{SVC-POL}) determinística: \decisao{ALLOW} (leitura e
+cálculo internos), \decisao{REQUIRE_APPROVAL} (ajuste no ERP, orçamento, publicação; retidos no Approval Gate) ou
+\decisao{DENY} (fora da allowlist do papel; fail-closed).
+
+\begin{dtable}{L{1.15cm} L{4.6cm} Y L{2.3cm} L{1.9cm}}
+\headrow \hd{Norma} & \hd{Regra} & \hd{Consequência} & \hd{Decisão} & \hd{Imposta por}\\ \midrule\endhead
+\textbf{NORM-01} & Efeito externo exige aprovação humana & Ação retida no Approval Gate até approve; timeout expira sem executar & \decisao{REQUIRE_APPROVAL} & SVC-POL \\ \rowsep
+\textbf{NORM-02} & Fora da allowlist do papel é negado & Bloqueio fail-closed, sem opção de aprovação, registrado em log & \decisao{DENY} & SVC-POL, SVC-MCP \\ \rowsep
+\textbf{NORM-03} & Período em fechamento é exclusivo & reserve-failure explicado; reserva expira por TTL & \decisao{DENY} & SVC-LCK \\ \rowsep
+\textbf{NORM-04} & Não conformidade crítica bloqueia publicação & Publicação vetada até correção reavaliada ou waiver humano justificado & \decisao{DENY} & SVC-POL \\ \rowsep
+\textbf{NORM-05} & LLM não calcula números nem autoriza ações & Texto descartado e substituído pelo template; proposta tratada como não autorizada & \decisao{DENY} & SVC-MOD, SVC-POL \\ \rowsep
+\textbf{NORM-06} & Logs e memória sem segredos nem dados pessoais desnecessários & Redaction; se a sanitização falhar, a gravação é recusada (fail-closed) & \decisao{OBRIGACAO} & SVC-AUD, SVC-MEM \\ \rowsep
+\textbf{NORM-07} & LLM só por flag, só em papéis permitidos, dentro da cota & Chamada LLM bloqueada e agente segue em modo determinístico (template) & \decisao{DENY} & SVC-MOD \\ \rowsep
+\textbf{NORM-08} & Somente saída aprovada vira memória & Não é indexada em embeddings nem no grafo & \decisao{DENY} & SVC-MEM \\
+\end{dtable}
+
+\section{Métricas de sucesso e rastreabilidade}\label{sec:trace}
+As métricas serão coletadas dos traces JSONL (\code{SVC-AUD}) em cenários sintéticos com gabarito e seeds
+controlados (a partir da DSM2), sempre contra a baseline em workflow.
+
+\begin{dtable}{L{0.95cm} L{3.4cm} Y L{3.1cm} L{2.3cm}}
+\headrow \hd{ID} & \hd{Métrica} & \hd{Fórmula} & \hd{Alvo} & \hd{Mede}\\ \midrule\endhead
+\textbf{MET-01} & Taxa de conclusão de solicitações & solicitações com resposta final explícita (inform ou failure justificado) / total & >= 95\% nos cenários controlados & \idref{REQ-F01} \\ \rowsep
+\textbf{MET-02} & Acurácia numérica contra gabarito & itens de DRE, margens e desvios com |valor - gabarito| <= R\$ 0,01 / total de itens & 100\% & \idref{REQ-F02}, \idref{REQ-F03}, \idref{REQ-F04} \\ \rowsep
+\textbf{MET-03} & Detecção de inconformidades (precisão e recall) & recall e precisão sobre inconformidades plantadas por severidade & recall 100\% em críticas; precisão >= 90\% & \idref{REQ-F05} \\ \rowsep
+\textbf{MET-04} & Overhead de comunicação & mensagens A2A por solicitação (comparado ao baseline workflow) & reportar e justificar; sem alvo fixo & \idref{REQ-F01}, \idref{REQ-F04} \\ \rowsep
+\textbf{MET-05} & Contenção por guardrail & ações restritas bloqueadas antes do efeito sem aprovação / ações restritas tentadas & 100\% & \idref{REQ-S01}, \idref{REQ-S02} \\ \rowsep
+\textbf{MET-06} & Consistência numérica do texto gerado & relatórios LLM com 100\% dos números iguais ao núcleo ou com fallback / relatórios LLM & 100\% & \idref{REQ-S03}, \idref{REQ-F06} \\ \rowsep
+\textbf{MET-07} & Completude de trace & solicitações cuja cadeia causal é reconstruível pelo conversation\_id / total & 100\% & \idref{REQ-O01}, \idref{REQ-O02}, \idref{REQ-O04} \\ \rowsep
+\textbf{MET-08} & Custo por solicitação & tokens de entrada/saída e custo estimado por solicitação, flag ligada vs desligada & custo zero com flag desligada; dentro da cota com flag ligada & \idref{REQ-O03}, \idref{REQ-C01} \\ \rowsep
+\textbf{MET-09} & Latência do fechamento & tempo (lógico e de parede) da solicitação até a resposta final vs baseline & reportar distribuição em 10 seeds & \idref{REQ-F01}, \idref{REQ-NF01} \\ \rowsep
+\textbf{MET-10} & Reaproveitamento de memória & análises que citam memória aprovada relevante / análises com memória disponível & >= 80\% no cenário de dois ciclos & \idref{REQ-F07} \\ \rowsep
+\textbf{MET-11} & Vazamento em logs & ocorrências de campos proibidos (segredos, dados pessoais) nos arquivos de log e memória & 0 & \idref{REQ-P01} \\ \rowsep
+\textbf{MET-12} & Reprodutibilidade & execuções com mesmo seed e mesmas versões que produzem o mesmo hash / execuções & 100\% & \idref{REQ-NF01}, \idref{REQ-NF02} \\
+\end{dtable}
+
+A cadeia \textbf{Problema $\rightarrow$ Requisito $\rightarrow$ Objetivo $\rightarrow$ Papel/Agente $\rightarrow$
+Protocolo/Norma $\rightarrow$ Componente $\rightarrow$ Teste $\rightarrow$ Métrica} vem de uma \textbf{fonte única}
+(\code{models/*.yaml}). O script \code{tools/trace.py} falha diante de ID órfão, link quebrado ou requisito sem
+objetivo, papel, protocolo/norma, teste ou métrica, e gera a documentação navegável, que publica esta mesma matriz:
+\textbf{\nReq/\nReq{} requisitos (100\%) com cadeia completa}. Os \nTest{} testes estão \textbf{especificados, não
+executados}; componentes e execuções são \nPend{} \emph{stubs} pendentes da DSM2.
+
+\begin{dtable}[\scriptsize]{L{1.3cm} L{1.4cm} L{1.0cm} L{2.4cm} Y L{3.4cm} L{2.4cm}}
+\headrow \hd{Problema} & \hd{Requisito} & \hd{Objetivo} & \hd{Agente} & \hd{Protocolo / Norma} & \hd{Teste (planejado)} & \hd{Métrica}\\ \midrule\endhead
+PROB-01 & \idref{REQ-F01} & G-01 & ORQ & SOL, DEL & TEST-01, TEST-02, TEST-03, TEST-26 & MET-01, MET-04, MET-09 \\ \rowsep
+PROB-02 & \idref{REQ-F02} & G-02 & CUS & DEL & TEST-04 & MET-02 \\ \rowsep
+PROB-03 & \idref{REQ-F03} & G-03 & ORC & DEL, QRY & TEST-05 & MET-02 \\ \rowsep
+PROB-01 & \idref{REQ-F04} & G-04 & CUS, ORC, RES & QRY, DEL & TEST-06, TEST-07 & MET-02, MET-04 \\ \rowsep
+PROB-04 & \idref{REQ-F05} & G-05 & CIN, ORQ & CMP, NORM-04 & TEST-08, TEST-09 & MET-03 \\ \rowsep
+PROB-05 & \idref{REQ-F06} & G-06 & REL & DEL, NORM-05, NORM-07 & TEST-10, TEST-15 & MET-06 \\ \rowsep
+PROB-07 & \idref{REQ-F07} & G-08 & CUS, ORC, REL, RES & APR, NORM-08 & TEST-11 & MET-10 \\ \rowsep
+PROB-08 & \idref{REQ-S01} & G-09 & ORC, ORQ, REL & APR, NORM-01, NORM-02 & TEST-12, TEST-13 & MET-05 \\ \rowsep
+PROB-01, PROB-04 & \idref{REQ-S02} & G-01, G-05 & ORQ & LCK, NORM-03 & TEST-14 & MET-05 \\ \rowsep
+PROB-05, PROB-06 & \idref{REQ-S03} & G-06, G-09 & ORC, REL, RES & APR, NORM-05 & TEST-15 & MET-06 \\ \rowsep
+PROB-06 & \idref{REQ-O01} & G-07 & CIN, CUS, ORC, ORQ, REL, RES & DEL, NORM-06 & TEST-16 & MET-07 \\ \rowsep
+PROB-06 & \idref{REQ-O02} & G-07 & ORC, REL, RES & NORM-06, NORM-07 & TEST-17 & MET-07 \\ \rowsep
+PROB-06 & \idref{REQ-O03} & G-07 & ORC, REL, RES & NORM-07 & TEST-18, TEST-22 & MET-08 \\ \rowsep
+PROB-06 & \idref{REQ-O04} & G-07 & APR, SOL & NORM-06 & TEST-19 & MET-07 \\ \rowsep
+PROB-06 & \idref{REQ-C01} & G-07, G-09 & ORC, REL, RES & NORM-07 & TEST-20, TEST-21, TEST-22 & MET-08 \\ \rowsep
+PROB-06 & \idref{REQ-P01} & G-07 & CIN, ORQ, REL & NORM-06 & TEST-23 & MET-11 \\ \rowsep
+PROB-06 & \idref{REQ-NF01} & G-07 & ORQ, REL & DEL, NORM-07 & TEST-10, TEST-24 & MET-09, MET-12 \\ \rowsep
+PROB-06 & \idref{REQ-NF02} & G-07 & CIN, REL & NORM-07 & TEST-25 & MET-12 \\
+\end{dtable}
+
+\clearpage
+\section*{Artefatos da entrega}
+Pasta \code{entregas/dsm1/} do repositório:
+\begin{itemize}
+  \item \code{documentacao/}: este documento (\code{main.tex}, arquivo único, e \code{main.pdf});
+  \item \code{modelos-editaveis/}: os 11 diagramas Mermaid editáveis (\code{.mmd});
+  \item \code{diagramas/}: as imagens desses diagramas (\code{.png}, uma por \code{.mmd});
+  \item \code{README.md} e \code{USO\_DE\_IA.md}.
+\end{itemize}
+Os modelos AOSE ficam em \code{models/*.yaml}, na raiz do repositório, e são validados por \code{tools/trace.py}.
+A DSM2 (arquitetura e protótipo) decidirá runtime, transporte A2A e execução dos testes.
+
+\section*{Referências}
+\begingroup\RaggedRight
+\begin{list}{}{\leftmargin=1.5em \itemindent=-1.5em \itemsep=0.6em \parsep=0pt \topsep=0pt}
+\item Bresciani, P. et al. (2004). “Tropos: an agent-oriented software development methodology”. \emph{Autonomous Agents and Multi-Agent Systems} 8.3, pp. 203–236.
+\item Cancian, R. L. (2026). \emph{Sistemas Multiagentes Inteligentes}. Material didático da disciplina INE5628, versão rascunho 0.26.09. Florianópolis: Universidade Federal de Santa Catarina.
+\item FIPA (2002a). \emph{FIPA ACL Message Structure Specification}. SC00061G. Foundation for Intelligent Physical Agents.
+\item FIPA (2002b). \emph{FIPA Request Interaction Protocol Specification}. SC00026H. Foundation for Intelligent Physical Agents.
+\item Linux Foundation (2025). \emph{Agent2Agent (A2A) Protocol Specification}. \url{https://a2a-protocol.org} (acesso em 06/10/2026).
+\item Model Context Protocol (2026). \emph{Model Context Protocol: Introduction}. Versão 2026-07-28. \url{https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro} (acesso em 06/10/2026).
+\item Padgham, L. e M. Winikoff (2004). \emph{Developing Intelligent Agent Systems: A Practical Guide}. Chichester: John Wiley \& Sons.
+\item Wooldridge, M., N. R. Jennings e D. Kinny (2000). “The Gaia methodology for agent-oriented analysis and design”. \emph{Autonomous Agents and Multi-Agent Systems} 3.3, pp. 285–312.
+\end{list}
+\endgroup
+
+\end{document}

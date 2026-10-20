@@ -10,9 +10,9 @@ Ficam no **ambiente**, mesmo quando representados por adapters, os usuários hum
 (solicitante, aprovador, auditor), ERP, planilhas de orçamento, base histórica, APIs de
 mercado, base normativa e o relógio/calendário de fechamento.
 
-**Diagrama: Fronteira do sistema** (`diagrams/dsm1/ambiente_fronteira.mmd`)
+**Diagrama: Fronteira do sistema** (`entregas/dsm1/modelos-editaveis/ambiente_fronteira.mmd`)
 
-```{mermaid} ../../diagrams/dsm1/ambiente_fronteira.mmd
+```{mermaid} ../../entregas/dsm1/modelos-editaveis/ambiente_fronteira.mmd
 ```
 
 ## Propriedades do ambiente

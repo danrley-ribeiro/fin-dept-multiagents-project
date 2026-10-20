@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{svc} Comunicação A2A
 :id: SVC-A2A
 :entrega: DSM1

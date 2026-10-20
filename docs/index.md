@@ -10,11 +10,11 @@ Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).
 
 ## Linha do tempo das entregas
 
-| Entrega | Conteúdo | Prazo | Situação |
-|---|---|---|---|
-| [DSM1](dsm1/index.md) | Cenário, requisitos e modelagem | 10/10/2026 | <span class="badge-ok">concluída</span> |
-| [DSM2](dsm2/index.md) | Arquitetura e protótipo inicial | 31/10/2026 | <span class="badge-pend">pendente</span> |
-| Próximas | Definidas pelo plano da disciplina | — | <span class="badge-pend">a anotar</span> |
+| Entrega | Conteúdo | Situação |
+|---|---|---|
+| [DSM1](dsm1/index.md) | Cenário, requisitos e modelagem | <span class="badge-ok">concluída</span> |
+| [DSM2](dsm2/index.md) | Arquitetura e protótipo inicial | <span class="badge-pend">pendente</span> |
+| Próximas | Definidas pelo plano da disciplina | <span class="badge-pend">a anotar</span> |
 
 A documentação cresce **uma entrega por vez**. O que pertence a entregas futuras aparece
 somente como *stub* rastreável (`entrega: DSM2`, `status: pendente`), para que a cadeia

@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{req} Decomposição e agregação de solicitações
 :id: REQ-F01
 :entrega: DSM1

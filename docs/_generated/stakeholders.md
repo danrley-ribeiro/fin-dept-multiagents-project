@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{stk} CFO / Diretoria contratante
 :id: STK-01
 :entrega: DSM1

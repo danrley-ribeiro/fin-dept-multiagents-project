@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{test} test_intent_decomposition_dag
 :id: TEST-01
 :entrega: DSM2

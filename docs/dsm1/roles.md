@@ -6,9 +6,9 @@ O modelo organizacional (Gaia) separa **papéis** (o que precisa ser feito, com 
 direitos e deveres) de **agentes** (entidades operacionais que os assumem) e de
 **serviços de plataforma** (capacidades transversais que não precisam de autonomia).
 
-**Diagrama: Organização do SMA** (`diagrams/dsm1/roles_organizacao.mmd`; Figura 1 do PDF)
+**Diagrama: Organização do SMA** (`entregas/dsm1/modelos-editaveis/roles_organizacao.mmd`; Figura 1 do PDF)
 
-```{mermaid} ../../diagrams/dsm1/roles_organizacao.mmd
+```{mermaid} ../../entregas/dsm1/modelos-editaveis/roles_organizacao.mmd
 ```
 
 Cada papel é a tupla didática **role = ⟨Resp, Perm, Obl, Prot⟩**

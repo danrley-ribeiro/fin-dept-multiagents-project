@@ -21,7 +21,7 @@ Registro por entrega.
   plataforma, 25 testes especificados e 12 métricas.
 - Validador e gerador de rastreabilidade (`tools/trace.py`): cobertura de 100% dos requisitos.
 - Documentação Sphinx + sphinx-needs (`docs/`), pronta para o Read the Docs.
-- PDF da entrega (`entregas/dsm1/main.pdf`) com figuras TikZ editáveis.
+- PDF da entrega (`entregas/dsm1/documentacao/main.pdf`) com figuras TikZ.
 - ADR-002 (LLM opcional por flag).
 
 ## DSM2 — pendente

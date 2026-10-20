@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{metric} Taxa de conclusão de solicitações
 :id: MET-01
 :entrega: DSM1

@@ -1,6 +1,6 @@
 # DSM2 — Arquitetura e protótipo inicial (pendente)
 
-**Peso:** 25% da MPDSM · **Prazo:** 31/10/2026 23:55 · Enunciado: [`../../DSM2`](../../DSM2)
+Enunciado: [`enunciados/DSM2.txt`](../../enunciados/DSM2.txt)
 
 Pasta reservada. Nenhuma decisão de arquitetura, runtime ou código foi tomada ainda.
 O planejamento detalhado está em [`docs/dsm2/`](../../docs/dsm2/index.md).
@@ -9,9 +9,9 @@ O planejamento detalhado está em [`docs/dsm2/`](../../docs/dsm2/index.md).
 
 - [ ] Código-fonte executável
 - [ ] Diagrama de arquitetura
-- [ ] README.md (atualizar o da raiz com instruções de execução)
+- [ ] README.md (nesta pasta, com instruções de execução)
 - [ ] Testes iniciais (executar `TEST-*` escolhidos e atualizar `status` em `models/tests.yaml`)
-- [ ] USO_DE_IA.md (seção DSM2)
+- [ ] USO_DE_IA.md (nesta pasta)
 
 ## Requisitos do enunciado
 

@@ -3,14 +3,12 @@
 Projeto da disciplina **INE5628 — Sistemas Multiagentes** (UFSC/CTC/INE, Prof. Rafael Luiz Cancian).
 
 O Orquestrador e cinco agentes especializados (Agente de Custos, Agente de Orçamento, Agente de
-Resultados, Agente de Controles Internos e Agente de Relatórios) executam as
-rotinas de controladoria de forma coordenada e auditável. Eles se apoiam em serviços de
-plataforma: comunicação A2A/MCP, auditoria, configuração de modelos, memória, política de
-segurança e reserva de período. A IA generativa é **opcional e desligada por padrão**, restrita à
-narrativa em três agentes.
+Resultados, Agente de Controles Internos e Agente de Relatórios) executam as rotinas de
+controladoria de forma coordenada e auditável, apoiados por serviços de plataforma (A2A/MCP,
+auditoria, registro de modelos, memória, política de segurança e reserva de período). A IA
+generativa é **opcional e desligada por padrão**, restrita à narrativa em três agentes.
 
-- 📘 **Documentação navegável e rastreável:** <https://fin-dept-multiagents-project.readthedocs.io>
-- 📄 **PDF da DSM1:** [`entregas/dsm1/main.pdf`](entregas/dsm1/main.pdf)
+📘 **Documentação navegável:** <https://fin-dept-multiagents-project.readthedocs.io>
 
 ## Autoria
 
@@ -19,54 +17,45 @@ narrativa em três agentes.
 | Danrley Moreira Ribeiro | 23102664 |
 | Jiliard Mai Peifer | 23103129 |
 
-Grupo: *Danrley e Jiliard* (Moodle INE5628).
-
 ## Entregas
 
-| Entrega | Conteúdo | Situação |
+Cada entrega tem uma pasta própria com tudo o que é submetido.
+
+| Entrega | Pasta | Situação |
 |---|---|---|
-| **DSM1** | Cenário, requisitos e modelagem (AOSE) | ✅ concluída |
-| **DSM2** | Arquitetura e protótipo inicial | ⏳ pendente (pré-estruturada em `docs/dsm2/` e `entregas/dsm2/`) |
+| **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
+| **DSM2** — Arquitetura e protótipo inicial | [`entregas/dsm2/`](entregas/dsm2/README.md) | ⏳ pendente |
 
-Enunciados: [`DSM1`](DSM1) · [`DSM2`](DSM2). Exemplo de formato usado como referência: [`DSM1.pdf`](DSM1.pdf).
-
-### Entregáveis da DSM1
-
-| Exigido | Onde |
-|---|---|
-| PDF (~4–6 páginas) | `entregas/dsm1/main.pdf` (fonte: `entregas/dsm1/main.tex`) |
-| Diagramas/modelos editáveis | `models/*.yaml` (modelos AOSE), `diagrams/dsm1/*.mmd` (Mermaid), `entregas/dsm1/figures/*.tex` (TikZ) |
-| README.md | este arquivo |
-| USO_DE_IA.md | [`USO_DE_IA.md`](USO_DE_IA.md) |
-
-## Rastreabilidade
-
-Todos os objetos (problemas, stakeholders, objetivos, requisitos, papéis, agentes, protocolos,
-normas, recursos, serviços, componentes, testes e métricas) têm **ID estável** em `models/*.yaml`,
-que é a **fonte única**. O script `tools/trace.py`:
-
-1. valida a cadeia **Problema → Requisito → Objetivo → Papel/Agente → Protocolo/Norma →
-   Componente → Teste → Métrica**: falha com ID órfão, link quebrado ou requisito sem objetivo,
-   papel, protocolo/norma, teste, métrica ou componente;
-2. gera os objetos **sphinx-needs** da documentação (`docs/_generated/`), as **tabelas do PDF**
-   (`entregas/dsm1/generated/`) e os **diagramas de estado** dos protocolos (`diagrams/dsm1/protocols_fsm_*.mmd`).
-
-Situação atual: **18/18 requisitos (100%) com cadeia completa**, 137 objetos rastreados,
-26 testes **especificados** (execução na DSM2) e 39 stubs pendentes da DSM2.
+Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
 ## Estrutura
 
 ```
-models/              Fonte única dos modelos (YAML editável)
-tools/trace.py       Validador + gerador de rastreabilidade
-docs/                Documentação Sphinx + sphinx-needs (MyST Markdown)
-  plataforma/        Rastreabilidade e fluxo de contribuição
-  dsm1/              Entrega 1 (completa)
-  dsm2/              Entrega 2 (esqueleto pendente)
-diagrams/dsm1/       Diagramas Mermaid editáveis
-entregas/dsm1/       main.tex, figuras TikZ, tabelas geradas e main.pdf
-entregas/dsm2/       Pasta reservada da DSM2
+entregas/
+  dsm1/
+    README.md            descrição da entrega
+    USO_DE_IA.md         uso de IA na entrega
+    documentacao/        main.tex (arquivo único) e main.pdf
+    modelos-editaveis/   diagramas Mermaid (.mmd)
+    diagramas/           imagens dos diagramas (.png)
+  dsm2/                  mesma organização (pendente)
+enunciados/              enunciados da disciplina e exemplo de formato
+models/                  modelos AOSE em YAML (fonte única da rastreabilidade)
+tools/trace.py           valida a cadeia de rastreabilidade e gera a documentação
+docs/                    site de documentação (Sphinx + sphinx-needs, Read the Docs)
 ```
+
+## Rastreabilidade
+
+Todos os objetos (problemas, stakeholders, objetivos, requisitos, papéis, agentes, protocolos,
+normas, recursos, serviços, componentes, testes e métricas) têm **ID estável** em `models/*.yaml`.
+O `tools/trace.py` valida a cadeia **Problema → Requisito → Objetivo → Papel/Agente →
+Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, link quebrado ou requisito
+incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
+protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
+
+Situação atual: **18/18 requisitos (100%) com cadeia completa**, 137 objetos rastreados,
+26 testes **especificados** (execução na DSM2) e 39 stubs pendentes da DSM2.
 
 ## Como compilar
 
@@ -74,23 +63,15 @@ Pré-requisitos: Python 3.11+, Graphviz e TeX Live (com `latexmk`).
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -r docs/requirements.txt
-make trace   # valida e regenera artefatos
-make docs    # documentação HTML em docs/_build/html (sphinx -W)
-make pdf     # entregas/dsm1/main.pdf
+make trace   # valida a cadeia e regenera os arquivos gerados
+make docs    # documentação HTML em docs/_build/html
+make pdf     # entregas/dsm1/documentacao/main.pdf
 ```
 
-O CI (`.github/workflows/docs.yml`) repete essas etapas a cada push e PR e falha se os arquivos
-gerados não estiverem atualizados no commit.
+O CI (`.github/workflows/docs.yml`) repete essas etapas a cada push e PR. Fluxo de trabalho em
+dupla e publicação no Read the Docs: [docs/plataforma/como-contribuir.md](docs/plataforma/como-contribuir.md).
 
-## Publicação no Read the Docs (feito uma vez)
+## Materiais da disciplina
 
-1. Em <https://readthedocs.org> → *Import a Project* → selecionar este repositório.
-2. A configuração já está em `.readthedocs.yaml` (Python 3.13, Graphviz, `fail_on_warning`).
-3. Em *Admin → Maintainers*, adicionar a segunda pessoa. No GitHub, adicioná-la como colaboradora.
-
-Fluxo de trabalho em dupla: [docs/plataforma/como-contribuir.md](docs/plataforma/como-contribuir.md).
-
-## Observação sobre materiais da disciplina
-
-A apostila da disciplina é de uso exclusivo em sala de aula e **não é versionada** (`.gitignore`).
-Ela é apenas citada (Cancian, 2026) e parafraseada nos artefatos.
+A apostila é de uso exclusivo em sala de aula e **não é versionada** (`.gitignore`); ela é apenas
+citada (Cancian, 2026) e parafraseada nos artefatos.

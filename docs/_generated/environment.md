@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{env} ERP — razão contábil, balancete e lançamentos
 :id: ENV-ERP
 :entrega: DSM1

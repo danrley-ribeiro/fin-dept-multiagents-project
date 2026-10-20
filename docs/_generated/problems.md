@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{prob} Fechamento mensal lento e manual
 :id: PROB-01
 :entrega: DSM1

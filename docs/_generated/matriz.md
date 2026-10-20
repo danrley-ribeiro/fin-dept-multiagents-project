@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 | Problema | Requisito | Objetivo | Papel / Agente | Protocolo / Norma | Componente (DSM2) | Teste (planejado) | Métrica |
 |---|---|---|---|---|---|---|---|
 | {need}`PROB-01` | {need}`REQ-F01` | {need}`G-01` | {need}`ROLE-ORQ`, {need}`ROLE-SOL`, {need}`AG-ORQ` | {need}`PROT-SOL`, {need}`PROT-DEL` | {need}`COMP-ORQ` | {need}`TEST-01`, {need}`TEST-02`, {need}`TEST-03`, {need}`TEST-26` | {need}`MET-01`, {need}`MET-04`, {need}`MET-09` |

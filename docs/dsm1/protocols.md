@@ -21,33 +21,33 @@ unidade de negócio).
 
 ### Sequência: fechar o resultado do mês
 
-Figura 3 do PDF (`diagrams/dsm1/protocols_sequencia_fechar_mes.mmd`). O Orquestrador
+Figura 3 do PDF (`entregas/dsm1/modelos-editaveis/protocols_sequencia_fechar_mes.mmd`). O Orquestrador
 reserva o período, delega em paralelo aos Agentes de Custos e de Orçamento, o Agente de
 Resultados consulta os dois, o Agente de Controles Internos verifica (e pode vetar) e o
 relatório só é publicado com aprovação humana.
 
-```{mermaid} ../../diagrams/dsm1/protocols_sequencia_fechar_mes.mmd
+```{mermaid} ../../entregas/dsm1/modelos-editaveis/protocols_sequencia_fechar_mes.mmd
 ```
 
 ### Sequência: veto e waiver
 
-Continuação do bloco de veto acima (`diagrams/dsm1/protocols_sequencia_veto_waiver.mmd`),
+Continuação do bloco de veto acima (`entregas/dsm1/modelos-editaveis/protocols_sequencia_veto_waiver.mmd`),
 seguindo a máquina de estados de {need}`PROT-CMP`. Com o resultado vetado, nada é publicado
 e a reserva de período continua ativa. Há três saídas: a contabilidade corrige o lançamento e
 o Agente de Controles Internos reavalia; o aprovador concede um waiver justificado e o
 relatório sai com ressalva; ou o prazo se esgota, a solicitação termina em `failure` e a
 reserva é liberada ({need}`REQ-F05`, {need}`NORM-04`, {need}`TEST-08`).
 
-```{mermaid} ../../diagrams/dsm1/protocols_sequencia_veto_waiver.mmd
+```{mermaid} ../../entregas/dsm1/modelos-editaveis/protocols_sequencia_veto_waiver.mmd
 ```
 
 ### Sequência: avaliar o orçamento do trimestre
 
-Figura 4 do PDF (`diagrams/dsm1/protocols_sequencia_avaliar_orcamento.mmd`). A avaliação
+Diagrama `entregas/dsm1/modelos-editaveis/protocols_sequencia_avaliar_orcamento.mmd` (citado no texto do PDF). A avaliação
 só lê dados, por isso dispensa a reserva de período. Se um desvio passar do limiar, o
 Agente de Orçamento pode propor uma correção, que fica retida até o aprovador decidir.
 
-```{mermaid} ../../diagrams/dsm1/protocols_sequencia_avaliar_orcamento.mmd
+```{mermaid} ../../entregas/dsm1/modelos-editaveis/protocols_sequencia_avaliar_orcamento.mmd
 ```
 
 ## Tratamento de falhas
@@ -62,7 +62,7 @@ interrompe a solicitação: libera a reserva de período, não publica nada e re
 Cada protocolo é especificado como máquina de estados. Transições válidas originam
 testes nominais; as **transições inválidas** originam testes negativos (DSM2). Os
 diagramas abaixo são gerados de `models/protocols.yaml` e também ficam salvos em
-`diagrams/dsm1/protocols_fsm_PROT-*.mmd`. A Figura 2 do PDF mostra `PROT-DEL` e `PROT-APR`.
+`entregas/dsm1/modelos-editaveis/protocols_fsm_PROT-*.mmd`. A Figura 2 do PDF mostra `PROT-DEL` e `PROT-APR`.
 
 ```{include} ../_generated/protocols.md
 ```

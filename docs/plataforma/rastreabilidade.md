@@ -21,8 +21,7 @@ flowchart LR
 | Modelos (fonte única) | `models/*.yaml` | edição humana revisada por PR |
 | Validação da cadeia | `tools/trace.py --check` | CI falha com ID órfão, link quebrado, requisito sem objetivo, papel, protocolo/norma, teste ou métrica |
 | Objetos da documentação | `docs/_generated/*.md` (gerado) | sphinx-needs + `needs_warnings` com build `-W` |
-| Tabelas do PDF | `entregas/dsm1/generated/*.tex` (gerado) | mesma fonte; o PDF nunca diverge do site |
-| Diagramas de estado | `diagrams/dsm1/protocols_fsm_*.mmd` (gerado) | derivados das transições de `models/protocols.yaml` |
+| Diagramas de estado | `entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd` (gerado) | derivados das transições de `models/protocols.yaml` |
 
 Regras verificadas pelo `trace.py` (resumo):
 

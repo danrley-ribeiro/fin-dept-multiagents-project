@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{norm} Efeito externo exige aprovação humana
 :id: NORM-01
 :entrega: DSM1

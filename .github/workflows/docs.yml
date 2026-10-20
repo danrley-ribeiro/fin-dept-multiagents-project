@@ -28,7 +28,7 @@ jobs:
       - name: Arquivos gerados estão atualizados no commit
         run: |
           python tools/trace.py
-          git diff --exit-code -- docs/_generated entregas/dsm1/generated diagrams/dsm1 \
+          git diff --exit-code -- docs/_generated entregas/dsm1/modelos-editaveis \
             || (echo "::error::Rode 'make trace' e faça commit dos arquivos gerados." && exit 1)
 
       - name: Documentação (sphinx -W)
@@ -48,8 +48,8 @@ jobs:
         uses: xu-cheng/latex-action@v3
         with:
           root_file: main.tex
-          working_directory: entregas/dsm1
+          working_directory: entregas/dsm1/documentacao
       - uses: actions/upload-artifact@v4
         with:
           name: dsm1-pdf
-          path: entregas/dsm1/main.pdf
+          path: entregas/dsm1/documentacao/main.pdf

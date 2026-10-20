@@ -1,6 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
-
 | Indicador | Valor |
 |---|---|
 | Requisitos DSM1 | 18 |

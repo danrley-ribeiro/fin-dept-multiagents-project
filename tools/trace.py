@@ -7,8 +7,7 @@ Fonte única: models/*.yaml. Este script:
    Protocolo/Norma → Componente → Teste → Métrica (IDs órfãos, links
    quebrados, requisitos sem evidência, papéis sem protocolo, etc.);
 2. gera os objetos sphinx-needs (docs/_generated/*.md) e os diagramas de
-   estado dos protocolos (Mermaid) a partir dos mesmos dados;
-3. gera as tabelas LaTeX incluídas por entregas/dsm1/main.tex.
+   estado dos protocolos (Mermaid) em entregas/dsm1/modelos-editaveis/.
 
 Uso:
     python tools/trace.py            # valida e gera
@@ -26,8 +25,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 MODELS = ROOT / "models"
 DOCS_GEN = ROOT / "docs" / "_generated"
-TEX_GEN = ROOT / "entregas" / "dsm1" / "generated"
-MMD_DIR = ROOT / "diagrams" / "dsm1"
+MMD_DIR = ROOT / "entregas" / "dsm1" / "modelos-editaveis"
 
 # arquivo -> (prefixo de ID, diretiva sphinx-needs)
 KINDS = {
@@ -300,7 +298,7 @@ def need_body(item: dict) -> str:
     elif k == "protocols":
         parts.append(f"**Propósito:** {text(item['proposito'])}  \n**Meio:** {item['meio']}  \n"
                      f"**Performativos:** {', '.join(item['performativos'])}")
-        parts.append(f"**Diagrama: Máquina de estados {item['id']}** (`diagrams/dsm1/protocols_fsm_{item['id']}.mmd`)")
+        parts.append(f"**Diagrama: Máquina de estados {item['id']}** (`entregas/dsm1/modelos-editaveis/protocols_fsm_{item['id']}.mmd`)")
         parts.append(mermaid_block(item))
         inval = "\n".join(f"- `{s}` + `{e}` → rejeitar ({text(why)})" for s, e, why in item["invalidas"])
         parts.append(f"**Transições inválidas (origem de testes negativos)**\n\n{inval}")
@@ -408,9 +406,8 @@ HEADERS = {
 
 def generate_docs(data: dict, index: dict, back: dict) -> None:
     DOCS_GEN.mkdir(parents=True, exist_ok=True)
-    banner = "<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->\n\n"
     for kind, items in data.items():
-        out = banner + "\n".join(need_directive(i) for i in items)
+        out = "\n".join(need_directive(i) for i in items)
         (DOCS_GEN / f"{kind}.md").write_text(out, encoding="utf-8")
 
     # matriz ponta a ponta (Markdown) — mesma fonte da tabela do PDF
@@ -424,7 +421,7 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
             cell(c["papeis"] + c["agentes"]), cell(c["protocolos"] + c["normas"]),
             cell(c["componentes"]), cell(c["testes"]), cell(c["metricas"]),
         ]) + " |")
-    (DOCS_GEN / "matriz.md").write_text(banner + "\n".join(rows) + "\n", encoding="utf-8")
+    (DOCS_GEN / "matriz.md").write_text("\n".join(rows) + "\n", encoding="utf-8")
 
     # cobertura
     reqs = data["requirements"]
@@ -432,7 +429,7 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
                    ("problemas", "objetivos", "papeis", "componentes", "testes", "metricas"))
                    and (r.get("protocolos") or r.get("normas")))
     pend = [i["id"] for kind in data for i in data[kind] if i.get("entrega") in ("DSM2", "FUTURA")]
-    cov = [banner, "| Indicador | Valor |", "|---|---|",
+    cov = ["| Indicador | Valor |", "|---|---|",
            f"| Requisitos DSM1 | {len(reqs)} |",
            f"| Requisitos com cadeia completa (até teste planejado e métrica) | {complete}/{len(reqs)} ({100 * complete // max(len(reqs), 1)}%) |",
            f"| Objetos rastreados (total) | {len(index)} |",
@@ -442,115 +439,13 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
 
     # grafos de rastreabilidade POR PARTE (nunca o grafo completo): requisitos agrupados por
     # tipo, no máximo GRAPH_CHUNK por grafo; tipos pequenos são reunidos em um grupo único.
-    (DOCS_GEN / "grafos_requisitos.md").write_text(banner + graphs_by_part(data, index), encoding="utf-8")
+    (DOCS_GEN / "grafos_requisitos.md").write_text(graphs_by_part(data, index), encoding="utf-8")
 
     # diagramas de estado editáveis
     MMD_DIR.mkdir(parents=True, exist_ok=True)
     for prot in data["protocols"]:
         (MMD_DIR / f"protocols_fsm_{prot['id']}.mmd").write_text(
-            "%% GERADO por tools/trace.py a partir de models/protocols.yaml\n" + mermaid_fsm(prot), encoding="utf-8")
-
-
-# ----------------------------------------------------------- geração LaTeX
-TEX_MAP = {
-    "\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
-    "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
-    "→": r"$\rightarrow$", "≥": r"$\geq$", "≤": r"$\leq$", "∥": r"$\parallel$", "×": r"$\times$",
-    "≠": r"$\neq$", "⟨": r"$\langle$", "⟩": r"$\rangle$",
-}
-
-
-def tex(value) -> str:
-    return "".join(TEX_MAP.get(ch, ch) for ch in text(value))
-
-
-def tid(i: str) -> str:
-    """ID clicável (alvo definido na tabela de requisitos)."""
-    return rf"\idref{{{i}}}"
-
-
-def generate_tex(data: dict, index: dict, back: dict) -> None:
-    TEX_GEN.mkdir(parents=True, exist_ok=True)
-    banner = "% ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão\n"
-
-    def write(name: str, lines: list[str]) -> None:
-        # filete fino (\rowsep, definido em main.tex) entre as linhas; a última recebe \bottomrule
-        rows = [i for i, ln in enumerate(lines) if ln.endswith("\\\\")]
-        for i in rows[:-1]:
-            lines[i] = lines[i] + r" \rowsep"
-        (TEX_GEN / name).write_text(banner + "\n".join(lines) + "\n", encoding="utf-8")
-
-    # requisitos
-    write("requisitos.tex", [
-        rf"\idtarget{{{r['id']}}} & {tex(r['tipo'])} & \textbf{{{tex(r['titulo'])}.}} {tex(r['descricao'])} & "
-        rf"{', '.join(p.removeprefix('ROLE-') for p in r['papeis'])} & {tex(r['evidencia'])} \\"
-        for r in data["requirements"]
-    ])
-
-    # papéis
-    def items_tex(xs):
-        return r"\newline ".join(r"\textbullet~" + tex(x) for x in xs)
-    write("papeis.tex", [
-        rf"\textbf{{{tex(ag['titulo'])}}}\newline{{\scriptsize\itshape {ag['id']} · {tex(ag['cognicao'])}}} & "
-        rf"{items_tex(index[ag['papeis'][0]]['resp'])} & {items_tex(index[ag['papeis'][0]]['perm'])} & "
-        rf"{items_tex(index[ag['papeis'][0]]['obl'])} & "
-        rf"{', '.join(p.removeprefix('PROT-') for p in index[ag['papeis'][0]]['protocolos'])} & "
-        + (r"\llmflag" if ag["llm"] == "flag" else r"\llmno") + r" \\"
-        for ag in data["agents"]
-    ])
-
-    # PEAS / BDI
-    write("peas.tex", [
-        rf"\textbf{{{tex(ag['titulo'].split(' (')[0])}}}\newline{{\scriptsize\itshape {ag['id']} $\rightarrow$ {', '.join(ag['objetivos'])}}} & {items_tex(ag['percepcoes'])} & {items_tex(ag['estado'])} & "
-        rf"{items_tex(ag['conhecimento'])} & {items_tex(ag['acoes'])} \\"
-        for ag in data["agents"]
-    ])
-
-    # ambiente
-    write("ambiente.tex", [
-        rf"\textbf{{{tex(e['titulo'])}}} & {tex(e['observabilidade'])} & "
-        rf"{tex(e['acionabilidade'])} & {tex(e['exclusividade'])} & {tex(e['autoridade'])} \\"
-        for e in data["environment"]
-    ])
-
-    # normas
-    write("normas.tex", [
-        rf"\textbf{{{n['id']}}} & {tex(n['titulo'])} & {tex(n['consequencia'])} & \decisao{{{n['decisao']}}} & "
-        rf"{', '.join(n['imposta_por'])} \\"
-        for n in data["norms"]
-    ])
-
-    # métricas
-    write("metricas.tex", [
-        rf"\textbf{{{m['id']}}} & {tex(m['titulo'])} & {tex(m['formula'])} & {tex(m['alvo'])} & "
-        rf"{', '.join(tid(x) for x in m['mede'])} \\"
-        for m in data["metrics"]
-    ])
-
-    # matriz de rastreabilidade
-    lines = []
-    for r in data["requirements"]:
-        c = chain_for(r, index, back)
-        lines.append(
-            rf"{', '.join(c['problemas'])} & {tid(r['id'])} & {', '.join(c['objetivos'])} & "
-            rf"{', '.join(a.removeprefix('AG-') for a in c['agentes']) or ', '.join(p.removeprefix('ROLE-') for p in c['papeis'])} & "
-            rf"{', '.join([p.removeprefix('PROT-') for p in c['protocolos']] + c['normas'])} & "
-            rf"{', '.join(c['testes'])} & {', '.join(c['metricas'])} \\"
-        )
-    write("matriz.tex", lines)
-
-    # números para o texto
-    reqs = data["requirements"]
-    pend = sum(1 for kind in data for i in data[kind] if i.get("entrega") in ("DSM2", "FUTURA"))
-    write("contagens.tex", [
-        rf"\newcommand{{\nReq}}{{{len(reqs)}}}",
-        rf"\newcommand{{\nObj}}{{{len(index)}}}",
-        rf"\newcommand{{\nTest}}{{{len(data['tests'])}}}",
-        rf"\newcommand{{\nMet}}{{{len(data['metrics'])}}}",
-        rf"\newcommand{{\nProt}}{{{len(data['protocols'])}}}",
-        rf"\newcommand{{\nNorm}}{{{len(data['norms'])}}}",
-        rf"\newcommand{{\nPend}}{{{pend}}}",
-    ])
+            mermaid_fsm(prot), encoding="utf-8")
 
 
 # --------------------------------------------------------------------- main
@@ -577,8 +472,7 @@ def main() -> int:
 
     if not args.check:
         generate_docs(data, index, back)
-        generate_tex(data, index, back)
-        print(f"✓ Gerados: {DOCS_GEN.relative_to(ROOT)}/, {TEX_GEN.relative_to(ROOT)}/, {MMD_DIR.relative_to(ROOT)}/protocols_fsm_*.mmd")
+        print(f"✓ Gerados: {DOCS_GEN.relative_to(ROOT)}/, {MMD_DIR.relative_to(ROOT)}/protocols_fsm_*.mmd")
     return 0
 
 

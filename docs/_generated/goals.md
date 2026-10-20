@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{goal} Controladoria coordenada e auditável
 :id: G-00
 :entrega: DSM1

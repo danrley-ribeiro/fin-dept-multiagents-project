@@ -1,5 +1,3 @@
-<!-- ARQUIVO GERADO por tools/trace.py a partir de models/*.yaml — não editar à mão -->
-
 ````{agent} Orquestrador
 :id: AG-ORQ
 :entrega: DSM1

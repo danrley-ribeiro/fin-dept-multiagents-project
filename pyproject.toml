@@ -14,7 +14,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "tests"]
 addopts = "-q"
 markers = [
     "e2e: cenário ponta a ponta dos agentes sobre o bus",

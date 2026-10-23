@@ -69,7 +69,7 @@ class Dataset:
                 "custo_variavel_unit": int(preco * rng.uniform(0.40, 0.65)),
             })
         for cc in ("CC-ADM", "CC-COM", "CC-OPS"):
-            self.custos_fixos.append({"centro": cc, "valor": rng.randint(20_000_00, 30_000_00)})
+            self.custos_fixos.append({"centro": cc, "valor": rng.randint(5_000_00, 15_000_00)})
         margens = {}
         for p in self.produtos:
             receita, cv = p["preco"] * p["qtd"], p["custo_variavel_unit"] * p["qtd"]

@@ -128,9 +128,14 @@ class Bus:
 
     def _timer(self, conversation_id: str) -> None:
         conv = self.conversations[conversation_id]
-        if not conv.can("timeout"):
+        if conv.can("timeout"):
+            antes, depois = conv.step("timeout")
+        elif len(conv.history) == 1 and not conv.is_final:
+            # protocolo sem transição de timeout (PROT-CMP) e contraparte ainda sem resposta:
+            # avisa o iniciador sem mexer na FSM
+            antes = depois = conv.state
+        else:
             return
-        antes, depois = conv.step("timeout")
         aviso = Message(
             SISTEMA, conv.initiator, "timeout", conversation_id, conv.protocol.id,
             {"contraparte": conv.counterpart},

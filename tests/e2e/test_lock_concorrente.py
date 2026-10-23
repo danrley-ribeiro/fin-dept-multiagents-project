@@ -62,3 +62,20 @@ def test_so_o_dono_libera(lck):
     with pytest.raises(ProtocolViolation, match="não é o dono"):
         locks.release("EMP-01", "2026-09", "SOL-002")
     assert locks.dono("EMP-01", "2026-09") == "SOL-001"
+
+
+def test_dois_fechamentos_concorrentes_do_mesmo_periodo_pelo_orquestrador():
+    from fin_mas.env.scenarios import build_system
+    s = build_system()
+    primeiro = s.usuario.solicitar("fechar_mes")
+    segundo = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert s.usuario.resposta(primeiro).performative == "inform"
+    recusa = s.usuario.resposta(segundo)
+    assert recusa.performative == "refuse"
+    assert recusa.content["dono_atual"] == primeiro
+    assert s.bus.conversations[segundo].state == "RECUSADA"
+    # depois que o primeiro termina, o período volta a ficar disponível
+    terceiro = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert s.usuario.resposta(terceiro).performative == "inform"

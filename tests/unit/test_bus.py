@@ -105,3 +105,19 @@ def test_mensagem_de_interface_nao_passa_pela_fsm():
     bus.send(Message("A", "B", "notify", "UI-001", None, {"x": 1}))
     bus.run()
     assert b.recebidas == [(1, "notify")]
+
+
+def test_protocolo_sem_timeout_avisa_o_iniciador_se_a_contraparte_nao_respondeu():
+    bus, a, b = sistema(faults=[Fault("B", "request", times=1)])
+    bus.send(msg("request", cid="CMP-001", proto="PROT-CMP", reply_by=6))
+    bus.run()
+    assert a.recebidas == [(6, "timeout")]
+    assert bus.conversations["CMP-001"].state == "EM_ANALISE"  # FSM intacta
+
+
+def test_protocolo_sem_timeout_nao_avisa_depois_que_a_contraparte_respondeu():
+    bus, a, b = sistema()
+    bus.send(msg("request", cid="CMP-001", proto="PROT-CMP", reply_by=6))
+    bus.send(msg("veto", cid="CMP-001", proto="PROT-CMP", origem="B", destino="A"))
+    bus.run()
+    assert [p for _, p in a.recebidas] == ["veto"]

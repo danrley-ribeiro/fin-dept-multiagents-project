@@ -15,3 +15,9 @@ class Cliente(Agent):
     def por_performativo(self, performativo, cid=None):
         return [m for m in self.recebidas
                 if m.performative == performativo and (cid is None or m.conversation_id == cid)]
+
+
+def seq(audit, cid, performativo, kinds=("open", "send")):
+    """seq do primeiro registro de envio do performativo na conversa (ordem causal no trace)."""
+    return next(r["seq"] for r in audit.by_conversation(cid)
+                if r["kind"] in kinds and r["performative"] == performativo)

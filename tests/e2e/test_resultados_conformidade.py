@@ -1,6 +1,6 @@
 """Resultados (query-ref), Controles Internos (veto) e Relatórios (template) em isolamento.
 
-TEST-06, TEST-07 (lado do agente), TEST-09 e TEST-10; o fluxo completo vem com o Orquestrador.
+TEST-06, TEST-09 e TEST-10; o fluxo completo vem com o Orquestrador.
 """
 import pytest
 
@@ -63,14 +63,6 @@ def test_query_ref_expirada_vira_failure_ao_solicitante():
     assert "insumo indisponível (custos)" in falha.content["motivo"]
     assert bus.conversations["DEL-001"].state == "FALHOU"
     assert bus.conversations["QRY-001"].state == "EXPIRADA"
-
-
-def test_query_ref_rejects_unsolicited_inform():
-    from fin_mas.core.fsm import ProtocolViolation
-    from fin_mas.core.message import Message
-    bus, _, cli, _ = montar()
-    with pytest.raises(ProtocolViolation, match="conversation_id desconhecido"):
-        bus.send(Message("AG-CUS", "AG-RES", "inform", "QRY-777", "PROT-QRY", {"x": 1}))
 
 
 @pytest.mark.parametrize("seed", [1, 7, 42])

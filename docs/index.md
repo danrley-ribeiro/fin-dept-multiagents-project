@@ -13,8 +13,9 @@ Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).
 | Entrega | Conteúdo | Situação |
 |---|---|---|
 | [DSM1](dsm1/index.md) | Cenário, requisitos e modelagem | <span class="badge-ok">concluída</span> |
-| [DSM2](dsm2/index.md) | Arquitetura e protótipo inicial | <span class="badge-pend">pendente</span> |
-| Próximas | Definidas pelo plano da disciplina | <span class="badge-pend">a anotar</span> |
+| [DSM2](dsm2/index.md) | Arquitetura e protótipo inicial | <span class="badge-ok">concluída</span> |
+| DSM3 | Comunicação, coordenação e protótipo funcional (até 18/11) | <span class="badge-pend">pendente</span> |
+| DSM4 | Experimentação, documentação e entrega final (até 02/12) | <span class="badge-pend">pendente</span> |
 
 A documentação cresce **uma entrega por vez**. O que pertence a entregas futuras aparece
 somente como *stub* rastreável (`entrega: DSM2`, `status: pendente`), para que a cadeia

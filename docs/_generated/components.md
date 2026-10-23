@@ -1,82 +1,82 @@
 ````{comp} Componente do Orquestrador
 :id: COMP-ORQ
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-ORQ
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/orq.py`.
 ````
 
 ````{comp} Componente do Agente de Custos
 :id: COMP-CUS
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-CUS
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/cus.py`.
 ````
 
 ````{comp} Componente do Agente de Orçamento
 :id: COMP-ORC
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-ORC
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/orc.py`.
 ````
 
 ````{comp} Componente do Agente de Resultados
 :id: COMP-RES
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-RES
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/res.py`.
 ````
 
 ````{comp} Componente do Agente de Controles Internos
 :id: COMP-CIN
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-CIN
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/cin.py`.
 ````
 
 ````{comp} Componente do Agente de Relatórios
 :id: COMP-REL
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: AG-REL
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/agents/rel.py`.
 ````
 
 ````{comp} Barramento/adaptador A2A
 :id: COMP-A2A
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: SVC-A2A
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/core/bus.py`.
 ````
 
 ````{comp} MCP servers mock (ERP
 :id: COMP-MCP
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: SVC-MCP
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/mcp/gateway.py`.
 ````
 
 ````{comp} Serviço de Auditoria (tracer JSONL)
 :id: COMP-AUD
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: SVC-AUD
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/services/audit.py`.
 ````
 
 ````{comp} Registro de Modelos e gateway LLM
@@ -109,8 +109,8 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 ````{comp} Reserva de Período
 :id: COMP-LCK
 :entrega: DSM2
-:status: pendente
+:status: implementado
 :realizes: SVC-LCK
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Componente implementado em `src/fin_mas/services/locks.py`.
 ````

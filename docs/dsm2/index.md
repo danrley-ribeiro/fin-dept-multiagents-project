@@ -1,13 +1,10 @@
 # DSM2 — Arquitetura e protótipo inicial
 
-<span class="badge-pend">pendente</span>
+<span class="badge-ok">em implementação</span>
 
-```{admonition} Entrega ainda não iniciada
-:class: warning
-Esta seção está **pré-estruturada**: contém o enunciado, os critérios, o checklist de
-entregáveis e o que a DSM1 deixou como ponto de partida. Nenhuma decisão de
-arquitetura, runtime ou código foi tomada ainda.
-```
+Protótipo executável em `src/fin_mas/` (Python), com documentação em [Protótipo](prototipo.md),
+[Testes](testes.md) e [Limitações](limitacoes.md). O que é de DSM3 e DSM4 (LLM, memória, Approval
+Gate, métricas, dashboard) ficou fora de propósito.
 
 ## Enunciado
 
@@ -31,32 +28,32 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 - [x] Diagrama de arquitetura (camadas → componentes `COMP-*`)
 - [x] ADR-003 de runtime e linguagem, justificada pelos requisitos (Cancian, 2026, §4.6)
 - [x] ADR-004 de transporte A2A concreto e MCP servers mock
-- [ ] Código executável: agentes principais + ambiente sintético
-- [ ] Estado/conhecimento separados (crenças × regras × memória)
-- [ ] Pelo menos uma interação demonstrada (sugestão: {need}`PROT-DEL` + {need}`PROT-QRY`)
-- [ ] Cenário controlado de depuração (seed fixo, dataset com gabarito)
-- [ ] Testes iniciais: mudar o `status` dos `TEST-*` escolhidos de `planejado` para `executado`, com resultado real
-- [ ] Limitações registradas
-- [ ] `entregas/dsm2/README.md` e `entregas/dsm2/USO_DE_IA.md`
-- [ ] Componentes `COMP-*` com `caminho` real e `entrega: DSM2`, `status: implementado`
+- [x] Código executável: agentes principais + ambiente sintético
+- [x] Estado/conhecimento separados (crenças × regras × memória)
+- [x] Pelo menos uma interação demonstrada (sugestão: {need}`PROT-DEL` + {need}`PROT-QRY`)
+- [x] Cenário controlado de depuração (seed fixo, dataset com gabarito)
+- [x] Testes iniciais: mudar o `status` dos `TEST-*` escolhidos de `planejado` para `executado`, com resultado real
+- [x] Limitações registradas
+- [x] `entregas/dsm2/README.md` e `entregas/dsm2/USO_DE_IA.md`
+- [x] Componentes `COMP-*` com `caminho` real e `entrega: DSM2`, `status: implementado`
 
-## Herdado da DSM1 → a fazer na DSM2
+## Herdado da DSM1 e o que foi feito
 
-| Da DSM1 | Ação na DSM2 |
+| Da DSM1 | Na DSM2 |
 |---|---|
-| 6 agentes e 7 serviços especificados | mapear para componentes ({doc}`arquitetura`) |
-| 6 protocolos com FSM e transições inválidas | implementar FSM e testes nominais/negativos |
-| 8 normas (`NORM-*`) | implementar a Política de Segurança (`SVC-POL`), o Registro de Modelos (`SVC-MOD`) e a redaction |
-| 26 testes planejados | escolher o subconjunto inicial e executar |
-| 12 métricas | instrumentar o tracer para coletá-las |
-| ADR-002 (LLM por flag) | implementar a flag com mock de LLM (offline) |
+| 6 agentes e 7 serviços especificados | 6 agentes e 4 serviços (A2A, MCP, auditoria, reserva de período) implementados ({doc}`arquitetura`); registro de modelos, memória e política ficam para a DSM3 |
+| 6 protocolos com FSM e transições inválidas | FSMs carregadas de `models/protocols.yaml`; testes nominais e negativos |
+| 8 normas (`NORM-*`) | NORM-02 (allowlist MCP), NORM-03 (período exclusivo) e NORM-04 (veto) em código; as demais ficam para a DSM3 |
+| 26 testes planejados | 14 executados (ver {doc}`testes`) |
+| 12 métricas | não instrumentadas; o trace JSONL guarda os dados |
+| ADR-002 (LLM por flag) | só o modo template; a flag e o mock de LLM ficam para a DSM3 |
 
-## Perguntas em aberto (decidir na DSM2)
+## Perguntas em aberto da DSM1, resolvidas
 
-1. Runtime: Python puro com scheduler determinístico, SPADE ou outro? Critérios: offline, testabilidade, semântica de mensagens.
-2. Transporte A2A: barramento local em processo (didático) com adaptador para o protocolo A2A real?
-3. Formato do dataset sintético e do gabarito (CSV, SQLite?).
-4. Quais `TEST-*` compõem a suíte inicial mínima?
+1. **Runtime:** Python puro com scheduler determinístico ({doc}`ADR-003-runtime-python-deterministico`).
+2. **Transporte A2A:** barramento local em processo com interface mínima para um adaptador futuro ({doc}`ADR-004-a2a-bus-e-mcp-mock`).
+3. **Dataset:** estruturas Python geradas por seed, com gabarito do que foi plantado.
+4. **Suíte inicial:** os 14 testes listados em {doc}`testes`.
 
 ```{toctree}
 :maxdepth: 1

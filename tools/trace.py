@@ -231,6 +231,12 @@ def validate(data: dict[str, list[dict]], index: dict[str, dict]) -> tuple[Repor
             rep.err(f"{t['id']}: teste não verifica requisito")
         if str(t.get("status", "")).upper() == "PASS" and t.get("entrega") == "DSM1":
             rep.err(f"{t['id']}: PASS sem execução real é proibido")
+        if t.get("status") == "executado" and f"def {t['nome']}(" not in codigo_dos_testes():
+            rep.err(f"{t['id']}: status executado, mas não há função {t['nome']}() em tests/")
+
+    for comp in data["components"]:
+        if comp.get("status") == "implementado" and not (ROOT / str(comp.get("caminho"))).exists():
+            rep.err(f"{comp['id']}: status implementado, mas o caminho {comp.get('caminho')} não existe")
 
     for m in data["metrics"]:
         if not as_list(m.get("mede")):
@@ -259,6 +265,18 @@ def chain_for(req: dict, index: dict, back: dict) -> dict:
         "testes": back.get((req["id"], "tests.verifica"), []),
         "metricas": back.get((req["id"], "metrics.mede"), []),
     }
+
+
+def codigo_dos_testes() -> str:
+    """Código-fonte de todos os arquivos tests/**/*.py (para ligar TEST-* às funções pytest)."""
+    arquivos = sorted((ROOT / "tests").rglob("*.py"))
+    return "\n".join(p.read_text(encoding="utf-8") for p in arquivos)
+
+
+def pendentes(data: dict) -> list[str]:
+    """Itens de entregas futuras que ainda não foram implementados ou executados."""
+    return [i["id"] for kind in data for i in data[kind]
+            if i.get("entrega") in ("DSM2", "FUTURA") and i.get("status") not in ("implementado", "executado")]
 
 
 def status_of(item: dict) -> str:
@@ -318,7 +336,10 @@ def need_body(item: dict) -> str:
     elif k == "metrics":
         parts.append(f"**Fórmula:** {text(item['formula'])}  \n**Alvo:** {text(item['alvo'])}")
     elif k == "components":
-        parts.append(f"Stub de rastreabilidade. Caminho: {item['caminho']}.")
+        if item.get("status") == "implementado":
+            parts.append(f"Componente implementado em `{item['caminho']}`.")
+        else:
+            parts.append(f"Stub de rastreabilidade. Caminho: {item['caminho']}.")
     return "\n\n".join(parts)
 
 
@@ -398,7 +419,7 @@ HEADERS = {
     "norms": "Normas",
     "environment": "Recursos do ambiente",
     "services": "Serviços de plataforma",
-    "components": "Componentes (stubs DSM2)",
+    "components": "Componentes",
     "tests": "Testes derivados",
     "metrics": "Métricas",
 }
@@ -428,13 +449,14 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
     complete = sum(1 for r in reqs if all(chain_for(r, index, back)[k] for k in
                    ("problemas", "objetivos", "papeis", "componentes", "testes", "metricas"))
                    and (r.get("protocolos") or r.get("normas")))
-    pend = [i["id"] for kind in data for i in data[kind] if i.get("entrega") in ("DSM2", "FUTURA")]
+    pend = pendentes(data)
+    executados = sum(1 for t in data["tests"] if t.get("status") == "executado")
     cov = ["| Indicador | Valor |", "|---|---|",
            f"| Requisitos DSM1 | {len(reqs)} |",
            f"| Requisitos com cadeia completa (até teste planejado e métrica) | {complete}/{len(reqs)} ({100 * complete // max(len(reqs), 1)}%) |",
            f"| Objetos rastreados (total) | {len(index)} |",
            f"| Stubs pendentes para DSM2/futuro | {len(pend)} |",
-           f"| Testes executados | 0 (execução na DSM2) |"]
+           f"| Testes executados | {executados} de {len(data['tests'])} |"]
     (DOCS_GEN / "cobertura.md").write_text("\n".join(cov) + "\n", encoding="utf-8")
 
     # grafos de rastreabilidade POR PARTE (nunca o grafo completo): requisitos agrupados por
@@ -459,8 +481,8 @@ def main() -> int:
 
     reqs = data["requirements"]
     print(f"Objetos rastreados: {len(index)} | requisitos: {len(reqs)} | "
-          f"testes planejados: {len(data['tests'])} | métricas: {len(data['metrics'])}")
-    pend = [i["id"] for kind in data for i in data[kind] if i.get("entrega") in ("DSM2", "FUTURA")]
+          f"testes: {len(data['tests'])} ({sum(1 for t in data['tests'] if t.get('status') == 'executado')} executados) | métricas: {len(data['metrics'])}")
+    pend = pendentes(data)
     print(f"Stubs pendentes (DSM2/futuro): {len(pend)} -> {', '.join(pend)}")
 
     if rep.errors:

@@ -24,7 +24,7 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | Entrega | Pasta | Situação |
 |---|---|---|
 | **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
-| **DSM2** — Arquitetura e protótipo inicial | [`entregas/dsm2/`](entregas/dsm2/README.md) | ⏳ pendente |
+| **DSM2** — Arquitetura e protótipo inicial | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ protótipo e testes (prazo 31/10) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
@@ -38,7 +38,9 @@ entregas/
     documentacao/        main.tex (arquivo único) e main.pdf
     modelos-editaveis/   diagramas Mermaid (.mmd)
     diagramas/           imagens dos diagramas (.png)
-  dsm2/                  mesma organização (pendente)
+  dsm2/                  README, USO_DE_IA, diagramas e modelos-editaveis do protótipo
+src/fin_mas/             protótipo em Python (agentes, bus A2A, MCP mock, cenários, CLI)
+tests/                   testes unitários e e2e (pytest)
 enunciados/              enunciados da disciplina e exemplo de formato
 models/                  modelos AOSE em YAML (fonte única da rastreabilidade)
 tools/trace.py           valida a cadeia de rastreabilidade e gera a documentação
@@ -55,7 +57,17 @@ incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máqui
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
 Situação atual: **18/18 requisitos (100%) com cadeia completa**, 137 objetos rastreados,
-26 testes **especificados** (execução na DSM2) e 39 stubs pendentes da DSM2.
+26 testes (14 **executados** na DSM2 e 12 planejados) e 15 stubs pendentes.
+
+## Como executar o protótipo (DSM2)
+
+```bash
+python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
+python -m fin_mas run --scenario fechar_mes --seed 42   # make demo
+python -m pytest                                        # make test
+```
+
+Detalhes, cenários e o cenário de depuração: [entregas/dsm2/README.md](entregas/dsm2/README.md).
 
 ## Como compilar
 

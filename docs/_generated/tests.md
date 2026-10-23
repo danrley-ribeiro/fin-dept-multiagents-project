@@ -1,121 +1,121 @@
 ````{test} test_intent_decomposition_dag
 :id: TEST-01
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F01
 :derived_from: PROT-DEL
 
 `test_intent_decomposition_dag()` — tipo *protocolo-nominal*.  
 **Resultado esperado:** 'fechar o mês' gera DAG AG-CUS∥AG-ORC → AG-RES → AG-CIN → AG-REL e resposta final inform  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_unknown_intent_not_understood
 :id: TEST-02
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F01
 :derived_from: PROT-SOL
 
 `test_unknown_intent_not_understood()` — tipo *protocolo-negativo*.  
 **Resultado esperado:** intenção fora do catálogo termina em RECUSADA com not-understood  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_delegation_rejects_inform_before_agree
 :id: TEST-03
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F01
 :derived_from: PROT-DEL
 
 `test_delegation_rejects_inform_before_agree()` — tipo *protocolo-negativo*.  
 **Resultado esperado:** inform em AGUARDANDO levanta ProtocolViolation  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_contribution_margin_matches_gold
 :id: TEST-04
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F02
 :derived_from: ROLE-CUS
 
 `test_contribution_margin_matches_gold()` — tipo *cenario*.  
 **Resultado esperado:** margens por produto/UN iguais ao gabarito com proveniência  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_budget_variance_flags_threshold
 :id: TEST-05
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F03
 :derived_from: ROLE-ORC
 
 `test_budget_variance_flags_threshold()` — tipo *cenario*.  
 **Resultado esperado:** somente desvios plantados acima do limiar são sinalizados  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_results_query_ref_to_costs
 :id: TEST-06
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F04
 :derived_from: PROT-QRY
 
 `test_results_query_ref_to_costs()` — tipo *protocolo-nominal*.  
 **Resultado esperado:** query-ref → inform antes do inform final de AG-RES; DRE igual ao gabarito  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_query_ref_rejects_unsolicited_inform
 :id: TEST-07
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F04
 :derived_from: PROT-QRY
 
 `test_query_ref_rejects_unsolicited_inform()` — tipo *protocolo-negativo*.  
 **Resultado esperado:** inform com conversation_id desconhecido é rejeitado  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_critical_nonconformity_vetoes_close
 :id: TEST-08
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F05
 :derived_from: PROT-CMP
 
 `test_critical_nonconformity_vetoes_close()` — tipo *protocolo-negativo*.  
 **Resultado esperado:** publicar em VETADO é rejeitado; waiver humano libera com ressalva  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_planted_nonconformities_detected
 :id: TEST-09
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F05
 :derived_from: NORM-04
 
 `test_planted_nonconformities_detected()` — tipo *cenario*.  
 **Resultado esperado:** recall 100% das críticas plantadas (alçada, SoD, duplicidade)  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_report_template_without_llm
 :id: TEST-10
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F06, REQ-NF01
 :derived_from: ROLE-REL
 
 `test_report_template_without_llm()` — tipo *cenario*.  
 **Resultado esperado:** relatório completo com flag desligada e rede bloqueada  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_memory_only_approved_with_provenance
@@ -157,13 +157,13 @@
 ````{test} test_period_lock_conflict_rejected
 :id: TEST-14
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-S02
 :derived_from: PROT-LCK
 
 `test_period_lock_conflict_rejected()` — tipo *concorrencia*.  
 **Resultado esperado:** segunda reserva sobreposta recebe reserve-failure; TTL libera  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_llm_numeric_mismatch_falls_back
@@ -181,13 +181,13 @@
 ````{test} test_trace_causal_reconstruction
 :id: TEST-16
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-O01
 :derived_from: SVC-AUD
 
 `test_trace_causal_reconstruction()` — tipo *observabilidade*.  
 **Resultado esperado:** sequência causal completa reconstruída pelo conversation_id  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_prompt_log_only_when_llm_enabled
@@ -277,13 +277,13 @@
 ````{test} test_offline_seeded_reproducibility
 :id: TEST-24
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-NF01
 :derived_from: SVC-MCP
 
 `test_offline_seeded_reproducibility()` — tipo *reprodutibilidade*.  
 **Resultado esperado:** mesmo seed → mesmo hash de saída, sem rede  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````
 
 ````{test} test_versions_recorded_in_logs
@@ -301,11 +301,11 @@
 ````{test} test_specialist_failure_retry_then_abort
 :id: TEST-26
 :entrega: DSM2
-:status: planejado
+:status: executado
 :verifies: REQ-F01
 :derived_from: PROT-DEL
 
 `test_specialist_failure_retry_then_abort()` — tipo *protocolo-negativo*.  
 **Resultado esperado:** especialista que expira duas vezes: um reenvio, depois failure ao solicitante, reserva liberada e nada publicado  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM2 (status atual: executado).
 ````

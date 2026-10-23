@@ -1,17 +1,17 @@
-# STUBS da DSM2 — componentes de implementação ainda NÃO projetados.
-# Existem apenas para fechar a cadeia de rastreabilidade (Agente/Serviço → Componente).
-# Runtime, linguagem, caminhos de arquivo e transporte A2A concreto serão decididos na DSM2.
+# Componentes de implementação (Agente/Serviço → Componente).
+# DSM2: dez componentes implementados em src/fin_mas (Python, ADR-003 e ADR-004).
+# COMP-MOD, COMP-MEM e COMP-POL seguem como stubs: pertencem às próximas entregas.
 items:
-  - {id: COMP-ORQ, titulo: Componente do Orquestrador,realiza: [AG-ORQ],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-CUS, titulo: Componente do Agente de Custos, realiza: [AG-CUS],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-ORC, titulo: Componente do Agente de Orçamento,realiza: [AG-ORC],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-RES, titulo: Componente do Agente de Resultados, realiza: [AG-RES], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-CIN, titulo: Componente do Agente de Controles Internos,realiza: [AG-CIN],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-REL, titulo: Componente do Agente de Relatórios, realiza: [AG-REL],  caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-A2A, titulo: Barramento/adaptador A2A,realiza: [SVC-A2A], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-MCP, titulo: MCP servers mock (ERP, planilhas, BD, mercado, normas), realiza: [SVC-MCP], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-AUD, titulo: Serviço de Auditoria (tracer JSONL), realiza: [SVC-AUD], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-ORQ, titulo: Componente do Orquestrador,realiza: [AG-ORQ],  caminho: src/fin_mas/agents/orq.py, entrega: DSM2, status: implementado}
+  - {id: COMP-CUS, titulo: Componente do Agente de Custos, realiza: [AG-CUS],  caminho: src/fin_mas/agents/cus.py, entrega: DSM2, status: implementado}
+  - {id: COMP-ORC, titulo: Componente do Agente de Orçamento,realiza: [AG-ORC],  caminho: src/fin_mas/agents/orc.py, entrega: DSM2, status: implementado}
+  - {id: COMP-RES, titulo: Componente do Agente de Resultados, realiza: [AG-RES], caminho: src/fin_mas/agents/res.py, entrega: DSM2, status: implementado}
+  - {id: COMP-CIN, titulo: Componente do Agente de Controles Internos,realiza: [AG-CIN],  caminho: src/fin_mas/agents/cin.py, entrega: DSM2, status: implementado}
+  - {id: COMP-REL, titulo: Componente do Agente de Relatórios, realiza: [AG-REL],  caminho: src/fin_mas/agents/rel.py, entrega: DSM2, status: implementado}
+  - {id: COMP-A2A, titulo: Barramento/adaptador A2A,realiza: [SVC-A2A], caminho: src/fin_mas/core/bus.py, entrega: DSM2, status: implementado}
+  - {id: COMP-MCP, titulo: MCP servers mock (ERP, planilhas, BD, mercado, normas), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/gateway.py, entrega: DSM2, status: implementado}
+  - {id: COMP-AUD, titulo: Serviço de Auditoria (tracer JSONL), realiza: [SVC-AUD], caminho: src/fin_mas/services/audit.py, entrega: DSM2, status: implementado}
   - {id: COMP-MOD, titulo: Registro de Modelos e gateway LLM, realiza: [SVC-MOD], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
   - {id: COMP-MEM, titulo: Serviço de Memória, realiza: [SVC-MEM], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
   - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}

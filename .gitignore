@@ -38,3 +38,7 @@ docs/_build/
 *.loq
 *-blx.bib
 *-SAVE-ERROR
+
+# --- Pacote Python ---
+*.egg-info/
+.pytest_cache/

@@ -22,7 +22,7 @@ publicado automaticamente no Read the Docs a cada push em `main`.
 
 - IDs são estáveis: **nunca reutilize** um ID removido; marque o objeto como obsoleto.
 - Cada novo requisito precisa nascer com evidência observável, teste derivado e métrica.
-- Itens de entregas futuras entram como stub (`entrega: DSM2`, `status: pendente`).
+- Itens de entregas futuras entram como stub (`status: pendente`).
 - Uso de IA em qualquer artefato é registrado no `USO_DE_IA.md` da pasta da entrega (`entregas/dsmN/`).
 
 ## Configuração única (feita uma vez)

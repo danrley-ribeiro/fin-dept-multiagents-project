@@ -85,7 +85,7 @@ Componente implementado em `src/fin_mas/services/audit.py`.
 :status: pendente
 :realizes: SVC-MOD
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Stub de rastreabilidade. Caminho: a definir (próxima entrega).
 ````
 
 ````{comp} Serviço de Memória
@@ -94,7 +94,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 :status: pendente
 :realizes: SVC-MEM
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Stub de rastreabilidade. Caminho: a definir (próxima entrega).
 ````
 
 ````{comp} Política de Segurança e Approval Gate
@@ -103,7 +103,7 @@ Stub de rastreabilidade. Caminho: a definir na DSM2.
 :status: pendente
 :realizes: SVC-POL
 
-Stub de rastreabilidade. Caminho: a definir na DSM2.
+Stub de rastreabilidade. Caminho: a definir (próxima entrega).
 ````
 
 ````{comp} Reserva de Período

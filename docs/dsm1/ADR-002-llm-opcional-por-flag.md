@@ -34,5 +34,5 @@ paga**.
 
 - (+) Reprodutibilidade e custo zero no modo padrão; avaliação independe de fornecedor.
 - (+) A IA fica onde agrega valor (comunicação) e longe de onde introduz risco (cálculo, conformidade, orquestração).
-- (−) A validação numérica do texto precisa de um extrator robusto (a especificar na DSM2).
+- (−) A validação numérica do texto precisa de um extrator robusto (a especificar na DSM3, quando o LLM entrar).
 - (−) A qualidade da narrativa com a flag ligada depende do modelo escolhido e será medida, não presumida.

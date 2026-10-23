@@ -18,8 +18,9 @@ Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).
 | DSM4 | Experimentação, documentação e entrega final (até 02/12) | <span class="badge-pend">pendente</span> |
 
 A documentação cresce **uma entrega por vez**. O que pertence a entregas futuras aparece
-somente como *stub* rastreável (`entrega: DSM2`, `status: pendente`), para que a cadeia
-fique fechada desde a DSM1 sem antecipar decisões de implementação.
+somente como *stub* rastreável (`status: pendente`), para que a cadeia fique fechada sem
+antecipar decisões de implementação; na DSM2 os itens implementados passam a
+`implementado` ou `executado`.
 
 ## Como a rastreabilidade funciona
 
@@ -47,7 +48,7 @@ dsm1/index
 ```
 
 ```{toctree}
-:caption: DSM2 — Arquitetura e protótipo (pendente)
+:caption: DSM2 — Arquitetura e protótipo (concluída)
 :maxdepth: 2
 
 dsm2/index

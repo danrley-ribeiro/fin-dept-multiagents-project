@@ -1,7 +1,7 @@
 # Matriz de rastreabilidade ponta a ponta
 
 Cada necessidade do negócio está ligada a requisito, objetivo, papel/agente,
-protocolo/norma, componente (stub DSM2), teste derivado e métrica. A matriz é gerada da
+protocolo/norma, componente, teste derivado e métrica. A matriz é gerada da
 mesma fonte das tabelas do PDF.
 
 ```{include} ../_generated/cobertura.md
@@ -28,10 +28,10 @@ Cada grafo mostra até 4 requisitos com seus papéis, protocolos e normas (gerad
 ```{include} ../_generated/grafos_requisitos.md
 ```
 
-## Itens pendentes (DSM2 e futuro)
+## Itens pendentes (próximas entregas)
 
 ```{needtable}
-:filter: entrega in ["DSM2", "FUTURA"]
+:filter: entrega in ["DSM2", "FUTURA"] and status not in ["implementado", "executado"]
 :columns: id, title, type_name as "Tipo", entrega, status
 :style: table
 ```

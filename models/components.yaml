@@ -11,7 +11,7 @@ items:
   - {id: COMP-A2A, titulo: Barramento/adaptador A2A,realiza: [SVC-A2A], caminho: src/fin_mas/core/bus.py, entrega: DSM2, status: implementado}
   - {id: COMP-MCP, titulo: MCP servers mock (ERP, planilhas, BD, mercado, normas), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/gateway.py, entrega: DSM2, status: implementado}
   - {id: COMP-AUD, titulo: Serviço de Auditoria (tracer JSONL), realiza: [SVC-AUD], caminho: src/fin_mas/services/audit.py, entrega: DSM2, status: implementado}
-  - {id: COMP-MOD, titulo: Registro de Modelos e gateway LLM, realiza: [SVC-MOD], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-MEM, titulo: Serviço de Memória, realiza: [SVC-MEM], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
-  - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: a definir na DSM2, entrega: DSM2, status: pendente}
+  - {id: COMP-MOD, titulo: Registro de Modelos e gateway LLM, realiza: [SVC-MOD], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
+  - {id: COMP-MEM, titulo: Serviço de Memória, realiza: [SVC-MEM], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
+  - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
   - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}

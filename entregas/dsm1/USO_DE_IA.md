@@ -33,7 +33,7 @@ artefatos da entrega.
 | Formatação da documentação navegável, dos diagramas Mermaid e das figuras TikZ | `docs/`, `entregas/dsm1/modelos-editaveis/`, `entregas/dsm1/documentacao/main.tex` |
 | Formatação do documento da entrega em LaTeX | `entregas/dsm1/documentacao/main.tex` |
 | README, Makefile, CI | raiz, `.github/` |
-| Revisão de 19/10/2026: nomes padronizados (português + ID), remoção de "terceirização", diagramas renomeados pela página da documentação, diagramas de sequência "avaliar o orçamento" e "veto e waiver", tratamento de falhas e linha de base do problema | `models/`, `docs/dsm1/`, `diagrams/dsm1/`, `entregas/dsm1/` |
+| Revisão de 19/10/2026: nomes padronizados (português + ID), remoção de "terceirização", diagramas renomeados pela página da documentação, diagramas de sequência "avaliar o orçamento" e "veto e waiver", tratamento de falhas e linha de base do problema | `models/`, `docs/dsm1/`, `entregas/dsm1/diagramas/`, `entregas/dsm1/modelos-editaveis/`, `entregas/dsm1/` |
 | Revisão de 20/10/2026: PDF reduzido de 15 para 6 páginas (sem capa e sumário, tabelas compactas, duas figuras substituídas por referência ao `.mmd`); imagens PNG dos diagramas Mermaid; remoção de comentários de instrução e de anotações de peso, prazo e versão; reorganização do repositório com uma pasta por entrega e `main.tex` em arquivo único | `entregas/dsm1/`, `enunciados/`, `tools/trace.py`, `README.md`, `docs/` |
 
 ### Decisões que permaneceram com os autores

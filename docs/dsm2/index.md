@@ -28,9 +28,9 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 
 ## Checklist de entregáveis
 
-- [ ] Diagrama de arquitetura (camadas → componentes `COMP-*`)
-- [ ] ADR-003 de runtime e linguagem, justificada pelos requisitos (Cancian, 2026, §4.6)
-- [ ] ADR-004 de transporte A2A concreto e MCP servers mock
+- [x] Diagrama de arquitetura (camadas → componentes `COMP-*`)
+- [x] ADR-003 de runtime e linguagem, justificada pelos requisitos (Cancian, 2026, §4.6)
+- [x] ADR-004 de transporte A2A concreto e MCP servers mock
 - [ ] Código executável: agentes principais + ambiente sintético
 - [ ] Estado/conhecimento separados (crenças × regras × memória)
 - [ ] Pelo menos uma interação demonstrada (sugestão: {need}`PROT-DEL` + {need}`PROT-QRY`)
@@ -63,6 +63,8 @@ uma interação; incluir cenário controlado para depuração; registrar limita�
 
 arquitetura
 runtime
+ADR-003-runtime-python-deterministico
+ADR-004-a2a-bus-e-mcp-mock
 prototipo
 testes
 limitacoes

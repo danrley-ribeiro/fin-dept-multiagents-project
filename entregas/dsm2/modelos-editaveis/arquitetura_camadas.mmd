@@ -1,0 +1,37 @@
+flowchart TB
+  subgraph UI["Fronteira com o usuário"]
+    CLI["CLI / cenário<br/>(ROLE-SOL simulado)"]
+  end
+  subgraph ORQ["Camada de orquestração"]
+    AORQ["COMP-ORQ<br/>Orquestrador<br/>catálogo de intenções → DAG"]
+  end
+  subgraph AG["Camada de agentes especialistas"]
+    ACUS["COMP-CUS<br/>Custos"]
+    AORC["COMP-ORC<br/>Orçamento"]
+    ARES["COMP-RES<br/>Resultados"]
+    ACIN["COMP-CIN<br/>Controles Internos"]
+    AREL["COMP-REL<br/>Relatórios (template)"]
+  end
+  subgraph COM["Camada de comunicação (social)"]
+    BUS["COMP-A2A<br/>Bus em processo + relógio lógico<br/>FSM dos protocolos"]
+  end
+  subgraph GOV["Governança e coordenação"]
+    AUD["COMP-AUD<br/>Auditoria JSONL"]
+    LCK["COMP-LCK<br/>Reserva de período"]
+  end
+  subgraph INS["Camada instrumental"]
+    MCP["COMP-MCP<br/>Servidores MCP mock (leitura)"]
+    DS[("Dataset sintético<br/>seed + gabarito")]
+  end
+  YAML[/"models/protocols.yaml"/]
+
+  CLI -- "PROT-SOL" --> AORQ
+  AORQ -- "PROT-DEL" --> BUS
+  BUS --> ACUS & AORC & ARES & ACIN & AREL
+  ARES -- "PROT-QRY" --> BUS
+  ACIN -- "PROT-CMP: parecer / veto" --> BUS
+  AORQ -- "PROT-LCK" --> LCK
+  ACUS & AORC & ACIN -- "tools MCP" --> MCP
+  MCP --> DS
+  BUS -. "toda mensagem" .-> AUD
+  YAML -. "carrega transições" .-> BUS

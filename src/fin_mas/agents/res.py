@@ -39,6 +39,8 @@ class AgenteResultados(Specialist):
             qid = self.bus.new_conversation_id("QRY")
             consolidacao["consultas"][qid] = chave
             self.estado["consulta_para_tarefa"][qid] = cid
+            self.bus.audit.record(self.bus.now, "link", conversation_id=cid, filha=qid,
+                                  subtarefa=f"consulta {chave}", agente=self.id)
             self.send(destino, "query-ref", "PROT-QRY", qid, {"assunto": assunto},
                       reply_by=self.bus.now + PRAZO_CONSULTA)
         self.estado["consolidacoes"][cid] = consolidacao

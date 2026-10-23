@@ -98,6 +98,8 @@ class Orquestrador(Agent):
         estado["status"], estado["tentativas"] = "enviado", estado["tentativas"] + 1
         estado["conversas"].append(cid)
         self.estado["conversa_para_solicitacao"][cid] = (sol["id"], nome)
+        self.bus.audit.record(self.bus.now, "link", conversation_id=sol["id"], filha=cid,
+                              subtarefa=nome, agente=self.id)
         conteudo = {"tarefa": no["tarefa"], "entidade": sol["entidade"], "competencia": sol["competencia"],
                     **self._insumos(sol, nome)}
         self.send(no["agente"], "request", no["protocolo"], cid, conteudo,

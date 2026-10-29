@@ -1,0 +1,153 @@
+/* Tokens da planta SVG, do feed e do gráfico. O restante da interface é Material (MUI).
+   Paleta categórica validada (skill dataviz, slots em ordem fixa); o tema segue data-theme no <html>. */
+:root {
+  --surface-1: #fcfcfb;
+  --surface-2: #f0efea;
+  --borda: #dcdad3;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-7: #6250d6;
+  --humano: #7b7a74;
+  --critico: #c62828;
+  --bom: #1d7a3a;
+  --alerta: #a86800;
+  --badge: #c2185b;
+  --piso: #efe9df;
+  --piso-linha: #e4ddd0;
+  --sala: rgba(255, 255, 255, 0.55);
+  --vidro: rgba(190, 220, 245, 0.35);
+  --parede: #9a948a;
+  --madeira: #b98a5b;
+  --cadeira: #4a4a4a;
+  --pele: #e9b48f;
+  --tela: #2d3440;
+  --tela-on: #6fb6ff;
+  --tela-off: #1c1c1c;
+  --papel: #fffdf6;
+  --arquivo: #8a6d4b;
+  --arquivo-corpo: #b4b8bd;
+  --arquivo-gaveta: #cfd3d8;
+  --cofre: #5d6670;
+}
+
+:root[data-theme="dark"] {
+  --surface-1: #1a1a19;
+  --surface-2: #232321;
+  --borda: #3a3936;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #9b9a92;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-7: #9085e9;
+  --humano: #a3a29a;
+  --critico: #ef6b6b;
+  --bom: #5cc27f;
+  --alerta: #e0a440;
+  --badge: #f06292;
+  --piso: #24221f;
+  --piso-linha: #2e2b27;
+  --sala: rgba(255, 255, 255, 0.04);
+  --vidro: rgba(120, 170, 220, 0.12);
+  --parede: #6d685f;
+  --madeira: #7d5b3b;
+  --cadeira: #111;
+  --pele: #c99475;
+  --tela: #0e1218;
+  --tela-on: #3d8fe0;
+  --tela-off: #050505;
+  --papel: #efe8d6;
+  --arquivo: #c2a27c;
+  --arquivo-corpo: #4f545a;
+  --arquivo-gaveta: #646a71;
+  --cofre: #3c444c;
+}
+
+code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12px; }
+
+/* ---------- planta do escritório */
+.escritorio { width: 100%; height: auto; display: block; border-radius: 8px; }
+.sala-titulo { font-size: 12px; font-weight: 700; fill: var(--text-secondary); letter-spacing: 0.02em; }
+.placa-titulo { font-size: 13px; font-weight: 700; fill: var(--text-primary); }
+.placa-sub, .rotulo-pequeno { font-size: 10px; fill: var(--text-secondary); }
+.rotulo-reserva { font-size: 9px; fill: var(--text-primary); }
+.mesa { cursor: pointer; outline: none; }
+.mesa-alvo { fill: transparent; stroke: transparent; stroke-width: 2; }
+.mesa:hover .mesa-alvo, .mesa:focus-visible .mesa-alvo { stroke: var(--borda); fill: rgba(127, 127, 127, 0.06); }
+.mesa.selecionada .mesa-alvo { stroke: var(--series-1); stroke-dasharray: 5 4; fill: rgba(42, 120, 214, 0.06); }
+.nome-agente { font-size: 12px; font-weight: 700; fill: var(--text-primary); }
+.depto-agente { font-size: 10.5px; fill: var(--text-secondary); }
+.status-agente { font-size: 10px; fill: var(--text-muted); }
+.status-trabalhando .status-agente { fill: var(--bom); font-weight: 600; }
+.status-vetando .status-agente { fill: var(--critico); font-weight: 700; }
+.status-fora .status-agente { fill: var(--critico); }
+.status-aguardando .status-agente { fill: var(--alerta); }
+.anel-trabalho { fill: none; stroke: var(--bom); stroke-width: 2; stroke-dasharray: 6 5;
+  animation: girar 2.4s linear infinite; transform-origin: 0 -34px; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.zz { font-size: 14px; font-weight: 700; fill: var(--text-muted); }
+.carimbo { fill: none; stroke: var(--critico); stroke-width: 2.5; }
+.carimbo-texto { font-size: 12px; font-weight: 800; fill: var(--critico); letter-spacing: 0.1em; }
+.badge-svg rect { fill: var(--badge); }
+.badge-svg text { font-size: 11px; font-weight: 700; fill: #fff; }
+.badge-urgente rect { fill: var(--critico); }
+.badge-urgente { animation: pulsar 1.2s ease-in-out infinite; }
+@keyframes pulsar { 50% { opacity: 0.55; } }
+.bolha rect, .bolha path { fill: var(--surface-1); stroke: var(--borda); }
+.bolha text { font-size: 10.5px; fill: var(--text-primary); }
+.bolha-pensamento rect, .bolha-pensamento path { fill: var(--surface-2); stroke: var(--series-7); stroke-dasharray: 3 2; }
+.bolha-pensamento text { font-style: italic; }
+.bolha-intencao rect, .bolha-intencao path { stroke: var(--series-1); }
+.bolha-alerta rect, .bolha-alerta path { stroke: var(--alerta); stroke-width: 2; }
+.bolha-veto rect, .bolha-veto path { stroke: var(--critico); stroke-width: 2; }
+.bolha-veto text { fill: var(--critico); font-weight: 700; }
+.rotulo-voo { font-size: 9px; fill: var(--text-secondary); paint-order: stroke; stroke: var(--piso); stroke-width: 3px; }
+.perdida { font-size: 14px; font-weight: 800; fill: var(--critico); }
+@media (prefers-reduced-motion: reduce) {
+  .anel-trabalho, .badge-urgente { animation: none; }
+}
+
+/* ---------- feed */
+.feed-linhas { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow: auto;
+  font: 12px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--text-primary); }
+.feed-linhas li { white-space: pre-wrap; padding: 0 6px; border-left: 3px solid transparent; }
+.feed-linhas li.cat-mente { border-left-color: var(--series-7); color: var(--text-secondary); }
+.feed-linhas li.cat-decisao { border-left-color: var(--series-3); font-weight: 600; }
+.feed-linhas li.cat-falha { border-left-color: var(--critico); color: var(--critico); }
+.feed-linhas li.cat-ambiente { color: var(--text-muted); }
+
+/* ---------- gráfico de comparação */
+.legenda { font-size: 13px; color: var(--text-secondary); }
+.legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+.grafico { position: relative; }
+.grafico svg { width: 100%; height: auto; max-width: 900px; display: block; }
+.eixo { stroke: var(--borda); }
+.rotulo-eixo { font-size: 11px; fill: var(--text-primary); }
+.valor-barra { font-size: 10px; fill: var(--text-secondary); }
+.dica { position: absolute; pointer-events: none; background: var(--surface-1); border: 1px solid var(--borda);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); white-space: nowrap;
+  color: var(--text-primary); }
+
+/* ---------- fontes de dados (MCP) e cofre de períodos: clicáveis, discretos */
+.fontes-zona { fill: var(--sala); stroke: var(--parede); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.fonte, .cofre-grupo { cursor: pointer; outline: none; }
+.fonte-cartao { fill: var(--surface-1); stroke: var(--borda); stroke-width: 1.5; transition: stroke 0.2s; }
+.fonte:hover .fonte-cartao, .fonte:focus-visible .fonte-cartao { stroke: var(--series-1); stroke-width: 2; }
+.fonte.ativa .fonte-cartao { stroke: var(--arquivo); stroke-width: 2.5; filter: drop-shadow(0 0 6px var(--arquivo)); }
+.fonte.inativa .fonte-cartao { fill: var(--surface-2); stroke-dasharray: 4 3; }
+.fonte-nome { font-size: 11px; font-weight: 700; fill: var(--text-primary); }
+.fonte-contador { font-size: 9.5px; fill: var(--text-muted); }
+.traco-mcp { stroke: var(--arquivo); stroke-width: 1.5; stroke-dasharray: 3 4; stroke-linecap: round; }
+.traco-mcp.negado { stroke: var(--critico); }
+.cofre-alvo { fill: transparent; stroke: transparent; stroke-width: 1.5; }
+.cofre-grupo:hover .cofre-alvo, .cofre-grupo:focus-visible .cofre-alvo { stroke: var(--series-1); fill: rgba(42, 120, 214, 0.06); }
+.rotulo-link { font-size: 10.5px; font-weight: 600; fill: var(--series-1); text-decoration: underline; }

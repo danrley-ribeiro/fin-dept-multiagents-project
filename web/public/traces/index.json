@@ -1,0 +1,192 @@
+{
+ "versao": "0.3.0",
+ "cenarios": [
+  {
+   "nome": "fechar_mes",
+   "descricao": "Fechamento do mês sem inconformidades: caminho feliz",
+   "registros": 120
+  },
+  {
+   "nome": "avaliar_orcamento",
+   "descricao": "Avaliação orçamentária com dois desvios plantados",
+   "registros": 131
+  },
+  {
+   "nome": "veto_waiver",
+   "descricao": "Alçada violada: veto do AG-CIN e waiver humano libera com ressalva",
+   "registros": 132
+  },
+  {
+   "nome": "veto_bloqueio",
+   "descricao": "Alçada violada sem waiver: publicação bloqueada",
+   "registros": 120
+  },
+  {
+   "nome": "falha_especialista",
+   "descricao": "AG-CUS expira duas vezes: um reenvio e depois failure",
+   "registros": 64
+  },
+  {
+   "nome": "depuracao",
+   "descricao": "Cenário controlado de depuração: seed 1337, SoD plantado e uma perda de mensagem",
+   "registros": 138
+  },
+  {
+   "nome": "veto_correcao",
+   "descricao": "Alçada violada: AG-CIN veta e sugere reaprovação; humano corrige e AG-CIN reavalia",
+   "registros": 143
+  },
+  {
+   "nome": "correcao_parcial",
+   "descricao": "Alçada e SoD: humano corrige só uma, AG-CIN mantém o veto e o prazo esgota",
+   "registros": 143
+  },
+  {
+   "nome": "divergencia_fonte",
+   "descricao": "Planilha diverge do ERP: AG-ORC revisa a crença e adota o ERP",
+   "registros": 68
+  },
+  {
+   "nome": "desvio_irregular",
+   "descricao": "Desvio inflado por NF duplicada: AG-ORC consulta o AG-CIN e reclassifica; estorno sugerido pelo AG-CIN destrava o fechamento",
+   "registros": 176
+  },
+  {
+   "nome": "orc_sem_cin",
+   "descricao": "Consulta do AG-ORC ao AG-CIN se perde: timeout e replanejamento",
+   "registros": 87
+  },
+  {
+   "nome": "expediente_sma",
+   "descricao": "Expediente da SMA: três competências, pedidos concorrentes, vetos, correções e divergências",
+   "registros": 535
+  },
+  {
+   "nome": "fechamento_micro",
+   "descricao": "Microempresa sem ERP: planilhas, SoD inevitável tratada por controle compensatório e alçada do assistente violada",
+   "registros": 140
+  },
+  {
+   "nome": "fechamento_pequena",
+   "descricao": "EPP com sistema simples: duplicidade de NF vetada e estornada",
+   "registros": 143
+  },
+  {
+   "nome": "fechamento_grande",
+   "descricao": "Grande empresa: materialidade menor, competência errada já é crítica (corte)",
+   "registros": 199
+  }
+ ],
+ "agentes": {
+  "AG-ORQ": {
+   "id": "AG-ORQ",
+   "titulo": "Orquestrador",
+   "cognicao": "Reativo a protocolos + biblioteca de planos (intenção → DAG)",
+   "papeis": [
+    "ROLE-ORQ"
+   ],
+   "departamento": "Coordenação da Controladoria"
+  },
+  "AG-CUS": {
+   "id": "AG-CUS",
+   "titulo": "Agente de Custos",
+   "cognicao": "Deliberativo determinístico (regras de rateio + cálculo)",
+   "papeis": [
+    "ROLE-CUS"
+   ],
+   "departamento": "Custos"
+  },
+  "AG-ORC": {
+   "id": "AG-ORC",
+   "titulo": "Agente de Orçamento",
+   "cognicao": "BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença; narrativa LLM opcional",
+   "papeis": [
+    "ROLE-ORC"
+   ],
+   "departamento": "Orçamento"
+  },
+  "AG-RES": {
+   "id": "AG-RES",
+   "titulo": "Agente de Resultados",
+   "cognicao": "Determinístico (DRE, EBITDA, DFC, KPIs) com comentário LLM opcional",
+   "papeis": [
+    "ROLE-RES"
+   ],
+   "departamento": "Resultados"
+  },
+  "AG-CIN": {
+   "id": "AG-CIN",
+   "titulo": "Agente de Controles Internos",
+   "cognicao": "BDI com regras simbólicas: crenças por lançamento, desejos permanentes concorrentes (conformidade x prazo), seleção explícita entre aprovar, apontar, vetar com correção e vetar por utilidade, e reconsideração após correção ou waiver",
+   "papeis": [
+    "ROLE-CIN"
+   ],
+   "departamento": "Controles Internos"
+  },
+  "AG-REL": {
+   "id": "AG-REL",
+   "titulo": "Agente de Relatórios",
+   "cognicao": "Template determinístico + LLM opcional (híbrido)",
+   "papeis": [
+    "ROLE-REL"
+   ],
+   "departamento": "Relatórios Gerenciais"
+  },
+  "SOL": {
+   "id": "SOL",
+   "titulo": "Solicitante (liderança)",
+   "cognicao": "humano simulado",
+   "papeis": [
+    "ROLE-SOL"
+   ],
+   "departamento": "Diretoria"
+  },
+  "APR": {
+   "id": "APR",
+   "titulo": "Aprovador humano",
+   "cognicao": "humano (interativo no dashboard)",
+   "papeis": [
+    "ROLE-APR"
+   ],
+   "departamento": "Aprovação"
+  }
+ },
+ "empresa": {
+  "sigla": "SMA",
+  "razao_social": "SMA S.A.",
+  "descricao": "Empresa fictícia de software e serviços usada nos cenários sintéticos",
+  "ficticia": true,
+  "unidades": {
+   "UN-A": "Software",
+   "UN-B": "Serviços"
+  },
+  "produtos": {
+   "P-1": "SMA Analytics (licença)",
+   "P-2": "SMA Ledger (licença)",
+   "P-3": "Implantação",
+   "P-4": "Suporte gerenciado"
+  },
+  "pessoas": {
+   "ana": {
+    "nome": "Ana Lima",
+    "cargo": "analista"
+   },
+   "bruno": {
+    "nome": "Bruno Souza",
+    "cargo": "analista"
+   },
+   "carla": {
+    "nome": "Carla Mendes",
+    "cargo": "gerente"
+   },
+   "diego": {
+    "nome": "Diego Rocha",
+    "cargo": "gerente"
+   },
+   "elisa": {
+    "nome": "Elisa Prado",
+    "cargo": "diretor"
+   }
+  }
+ }
+}

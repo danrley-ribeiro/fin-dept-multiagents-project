@@ -18,4 +18,5 @@ pythonpath = ["src", "tests"]
 addopts = "-q"
 markers = [
     "e2e: cenário ponta a ponta dos agentes sobre o bus",
+    "integracao: simulação ao vivo, servidor HTTP local e arquivos gerados",
 ]

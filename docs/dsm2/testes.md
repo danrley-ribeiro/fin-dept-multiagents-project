@@ -8,8 +8,8 @@ navegador). Não há chamadas à internet: o `tests/conftest.py` só libera o lo
 |---|---|---|---|
 | **e2e** (cenários) | `python -m pytest tests/e2e` | 90 | cenários completos sobre o bus, verificados pelo trace e pelo gabarito |
 | **integração** | `python -m pytest tests/integration` | 10 | simulação ao vivo + servidor HTTP em loopback, exportação, relatório HTML, planilhas reais, servidor MCP de Excel por stdio |
-| **uso real** (navegador) | `cd web && npm run test:e2e` | 14 | Playwright opera o Chrome instalado sobre o servidor Python verdadeiro |
-| reducer do dashboard | `cd web && npm test` | 3 | estado do escritório reconstruído de traces reais exportados |
+| **uso real** (navegador) | `cd web && bun run test:e2e` | 14 | Playwright opera o Chrome instalado sobre o servidor Python verdadeiro |
+| reducer do dashboard | `cd web && bun run test` | 3 | estado do escritório reconstruído de traces reais exportados |
 
 A pasta `tests/unit` guarda os 57 testes de FSM, bus, dataset e auditoria da primeira
 versão da DSM2. Os testes novos desta revisão são todos e2e, de integração ou de uso real.

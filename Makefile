@@ -1,7 +1,7 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DSM1_DOC = entregas/dsm1/documentacao
 
-.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos clean
+.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo clean
 
 all: trace docs pdf
 
@@ -30,13 +30,19 @@ modelos:
 	PYTHONPATH=src $(PYTHON) -m fin_mas modelos --out modelos
 
 web:
-	cd web && npm install && npm run build
+	cd web && bun install && bun run build
 
 serve:
 	PYTHONPATH=src $(PYTHON) -m fin_mas serve
 
+iniciar:
+	python3 tools/iniciar.py
+
+testes-tudo:
+	python3 tools/iniciar.py testes
+
 web-test:
-	cd web && npm test && npm run test:e2e
+	cd web && bun run test && bun run test:e2e
 
 pdf:
 	cd $(DSM1_DOC) && latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex && latexmk -c

@@ -14,8 +14,12 @@ Seguindo Cancian (2026), três camadas de informação são mantidas separadas:
 
 Para cada agente $i$: percepção $see_i: S \to P_i$, atualização de estado
 $upd_i: B_i \times P_i \to B_i$ e decisão $act_i: B_i \times K_i \to A_i$, em que $K_i$ é o
-conhecimento. Em `AG-CIN` o ciclo é BDI explícito: crenças sobre lançamentos →
-desejo de conformidade → intenção de **aprovar, apontar ou vetar**.
+conhecimento. Em **`AG-ORC` e `AG-CIN` o ciclo é BDI explícito** (revisão v2): crenças revisadas por
+percepção → desejos gerados das crenças → plano aplicável de maior utilidade → intenção, com
+reconsideração por eventos. No AG-CIN, as opções são **aprovar, apontar, vetar com correção ou vetar**;
+no AG-ORC, reconciliar fontes, explicar o desvio (consultando o AG-CIN), sinalizar ou encaminhar a
+controle. Detalhes em {doc}`../dsm2/cognicao`. Os demais agentes são reativos (Orquestrador) ou
+deliberativos determinísticos.
 
 | Agente | Objetivo | Percepções | Estado (B) | Conhecimento (K) | Ações (A) |
 |---|---|---|---|---|---|

@@ -15,6 +15,9 @@ Registro por entrega.
 - Execução ao vivo + servidor SSE + dashboard Vite/React/MUI (escritório, mente BDI, badges, decisão humana,
   desligar agentes, dados da empresa, replay offline, comparação).
 - Testes novos só e2e, de integração e de uso real (Playwright no Chrome); `tools/trace.py` liga também os testes do Playwright.
+- Comando único (`iniciar.ps1` / `iniciar.sh` / `tools/iniciar.py`): verifica ou instala Python e bun, cria o
+  `.venv`, instala dependências, builda o dashboard, exporta traces e roda os modos ao-vivo, replay, dev,
+  testes, docs e cli. Dashboard com bun (`web/bun.lock`).
 - Documentação: cognição, coordenação, comparação, portes, planilhas, dashboard, ADR-005, ADR-006,
   checkpoints CP1–CP13, revisão pós-feedback, DSM3. DSM1 v2 (`main-v2.pdf`).
 

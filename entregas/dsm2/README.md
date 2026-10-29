@@ -13,7 +13,17 @@ aparecem trabalhando num escritório. O que mudou depois do feedback está em
 
 ## Como executar
 
-Requer Python 3.12+ e, para o dashboard, Node 18+. Nada usa a internet em tempo de execução.
+**Um comando** (prepara Python, `.venv`, bun, dependências, build e traces; detalhes no
+[README da raiz](../../README.md#um-comando)):
+
+```bash
+.\iniciar.ps1              # Windows — escritório ao vivo em http://127.0.0.1:8765
+./iniciar.sh               # Linux/macOS
+.\iniciar.ps1 testes       # todos os testes; outros modos: replay, dev, docs, cli, instalar
+```
+
+Passo a passo manual (requer Python 3.12+ e [bun](https://bun.sh); npm também funciona). Nada usa a
+internet em tempo de execução.
 
 ```bash
 python -m venv .venv
@@ -24,9 +34,9 @@ python -m venv .venv
 .venv/bin/python -m fin_mas comparar --seeds 10              # SMA x workflow centralizado
 .venv/bin/python -m pytest                                   # testes e2e e de integração (offline)
 
-cd web && npm install && npm run build && cd ..
+cd web && bun install && bun run build && cd ..             # ou: npm install && npm run build
 .venv/bin/python -m fin_mas serve                            # http://127.0.0.1:8765 — escritório ao vivo
-cd web && npm run test:e2e                                   # testes de uso real (Chrome + servidor Python)
+cd web && bun run test:e2e                                   # testes de uso real (Chrome + servidor Python)
 ```
 
 Empresa sem ERP: `python -m fin_mas modelos --out modelos`, preencha a planilha e rode
@@ -65,7 +75,8 @@ ADR-006 (regras por porte e planilhas), em [`docs/dsm2/`](../../docs/dsm2/).
 
 - `python -m pytest`: e2e (cenários sobre o bus, verificados pelo trace e pelo gabarito) e integração
   (simulação ao vivo + servidor HTTP em loopback, planilhas reais, servidor MCP de Excel por stdio, exportação).
-- `cd web && npm run test:e2e`: 14 testes de uso real no Chrome sobre o servidor Python verdadeiro.
+- `cd web && bun run test:e2e`: 14 testes de uso real no Chrome sobre o servidor Python verdadeiro
+  (`bun run test` roda os testes do reducer).
 - `tools/trace.py --check` liga cada `TEST-*` executado ao teste homônimo (pytest ou Playwright).
 
 Detalhes em [`docs/dsm2/testes.md`](../../docs/dsm2/testes.md).

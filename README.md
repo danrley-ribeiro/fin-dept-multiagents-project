@@ -13,12 +13,55 @@ porte** (micro, pequena, média e grande), com ou sem ERP (modelos Excel e servi
 **opcional e desligada por padrão**, restrita à narrativa em três agentes.
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt   # Windows: .venv\Scripts\
-python -m fin_mas run --scenario desvio_irregular        # trilha causal com a mente dos agentes BDI
-cd web && npm install && npm run build && cd .. && python -m fin_mas serve   # escritório: http://127.0.0.1:8765
+.\iniciar.ps1          # Windows: prepara tudo (Python, .venv, bun, dashboard) e abre o escritório ao vivo
+./iniciar.sh           # Linux/macOS
 ```
 
+Modos e o que é preparado: veja [Um comando](#um-comando) abaixo.
+
 📘 **Documentação navegável:** <https://fin-dept-multiagents-project.readthedocs.io>
+
+## Um comando
+
+Na raiz do repositório:
+
+| Sistema | Comando |
+|---|---|
+| Windows (PowerShell) | `.\iniciar.ps1` |
+| Linux / macOS | `./iniciar.sh` |
+| Qualquer um, com Python 3.12+ já instalado | `python tools/iniciar.py` |
+
+Sem argumento, abre o **escritório ao vivo** no navegador (`http://127.0.0.1:8765`). Para outro modo,
+passe o nome dele: `.\iniciar.ps1 testes`, `./iniciar.sh replay` etc.
+
+| Modo | O que faz |
+|---|---|
+| `ao-vivo` (padrão) | servidor Python + dashboard: agentes executando agora; pausar, desligar agentes, decidir vetos, trocar porte, enviar planilha |
+| `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline), em `http://127.0.0.1:4173` |
+| `dev` | servidor Python (8765) + Vite com recarga automática (`http://127.0.0.1:5173`), para desenvolver o dashboard |
+| `testes` | pytest (e2e e integração), `tools/trace.py --check`, testes do reducer e os 14 testes de uso real no Chrome |
+| `docs` | gera a documentação Sphinx em `docs/_build/html` |
+| `cli` | roda um cenário no terminal: `--cenario veto_correcao --porte micro` |
+| `instalar` | só prepara o ambiente |
+
+Opções: `--porta N`, `--cenario NOME` (ao-vivo e cli), `--porte micro|pequena|media|grande` (cli) e
+`--sem-navegador`.
+
+**O que o comando prepara** (só o que falta ou mudou, então as próximas execuções são rápidas):
+
+1. **Python 3.12+**: o `iniciar.ps1` procura `py -3.13`, `py -3.12`, `python` e, se não houver, instala o
+   Python 3.12 pelo `winget`; o `iniciar.sh` procura `python3.13`/`python3.12`/`python3` e, se faltar,
+   mostra o comando de instalação (`apt` ou `brew`).
+2. **Ambiente virtual `.venv`** com o projeto e as dependências de testes e de documentação
+   (`pyproject.toml`, `requirements-dev.txt`, `docs/requirements.txt`); reinstala só se esses arquivos mudarem.
+3. **bun**: usa o que estiver no `PATH` ou em `~/.bun/bin`; se não houver, roda o instalador oficial
+   (`bun.sh/install`).
+4. **Dependências do dashboard** (`bun install`, conforme `web/bun.lock`) e **build** (`bun run build`) quando o
+   código em `web/src` for mais novo que o build.
+5. **Traces do replay e comparação com o baseline** (`fin_mas comparar` e `fin_mas export`), se ainda não existirem.
+
+Os testes de uso real usam o **Chrome instalado** (Playwright com `channel: chrome`, sem baixar navegador).
+Depois da preparação, nada usa a internet.
 
 ## Autoria
 

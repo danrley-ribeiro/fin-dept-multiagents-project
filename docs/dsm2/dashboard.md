@@ -7,11 +7,24 @@ agente ao lado. Fica em `web/` ({need}`COMP-OBS`).
 
 ## Como rodar
 
+O jeito mais simples é o comando único na raiz, que prepara tudo e abre o navegador:
+
 ```bash
-cd web && npm install && npm run build && cd ..
+.\iniciar.ps1            # Windows   (modos: ao-vivo [padrão], replay, dev, testes, docs, cli, instalar)
+./iniciar.sh             # Linux/macOS
+```
+
+Ele verifica (ou instala) o Python 3.12+, cria o `.venv` com as dependências, instala o bun se faltar,
+roda `bun install` e `bun run build` quando precisa e exporta os traces do replay. Passo a passo manual:
+
+O projeto usa [bun](https://bun.sh) como gerenciador de pacotes (`web/bun.lock`); npm também funciona
+(`web/package-lock.json`), trocando `bun install`/`bun run` por `npm install`/`npm run`.
+
+```bash
+cd web && bun install && bun run build && cd ..
 python -m fin_mas export                 # traces para o replay offline (web/public/traces)
 python -m fin_mas serve                  # http://127.0.0.1:8765 (API + dashboard), sem internet
-# desenvolvimento: python -m fin_mas serve  e, em outro terminal, cd web && npm run dev  (porta 5173)
+# desenvolvimento: python -m fin_mas serve  e, em outro terminal, cd web && bun run dev  (porta 5173)
 ```
 
 ## Dois modos
@@ -49,8 +62,9 @@ escritório **só a partir do trace**.
 
 ## Testes de uso real
 
-`cd web && npm run test:e2e` builda o dashboard, sobe o **servidor Python verdadeiro** e
+`cd web && bun run test:e2e` builda o dashboard, sobe o **servidor Python verdadeiro** e
 opera o **Chrome instalado** (Playwright, sem navegador baixado): guia da primeira visita,
 pausa e passo, veto com correção e com waiver, desligar agentes, badges, novo pedido, troca
 de porte, download do modelo e envio da planilha (válida e inválida), replay,
-comparação e tema. `npm test` roda os testes do reducer sobre traces reais exportados.
+comparação e tema. `bun run test` roda os testes do reducer sobre traces reais exportados. As planilhas
+enviadas nos testes vão para uma pasta temporária, nunca para o repositório.

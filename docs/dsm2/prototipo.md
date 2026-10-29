@@ -5,6 +5,9 @@ Protótipo executável em Python 3.12 (`src/fin_mas/`), offline e determinístic
 
 ## Como executar
 
+Comando único: `.\iniciar.ps1` (Windows) ou `./iniciar.sh` (Linux/macOS), com os modos `ao-vivo`, `replay`,
+`dev`, `testes`, `docs`, `cli` e `instalar` ({doc}`dashboard`). Equivalente manual:
+
 ```bash
 python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt   # Windows: .venv\Scripts\
 python -m fin_mas list                                        # cenários

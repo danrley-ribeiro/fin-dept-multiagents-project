@@ -2,8 +2,13 @@
 
 <span class="badge-ok">concluída</span>
 
-**PDF da entrega:** [`entregas/dsm1/documentacao/main.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/documentacao/main.pdf)
-(fonte LaTeX: `entregas/dsm1/documentacao/main.tex`).
+**PDF da entrega (v2, revisada após o feedback):** [`entregas/dsm1/documentacao/main-v2.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/documentacao/main-v2.pdf)
+(fonte: `main-v2.tex`). A v1 entregue segue em [`main.pdf`](https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/entregas/dsm1/documentacao/main.pdf).
+
+**O que mudou na v2:** AG-ORC e AG-CIN como agentes BDI ({doc}`../dsm2/cognicao`), decisões
+distribuídas ({doc}`../dsm2/coordenacao`), MET-01 corrigida e MET-13/MET-14 ({doc}`metrics`), regras por
+porte de empresa ({doc}`../dsm2/portes`) e checkpoints CP1–CP13 ({doc}`../checkpoints`). O detalhe ponto a
+ponto está em {doc}`../dsm2/revisao`.
 
 ## Entregáveis exigidos
 

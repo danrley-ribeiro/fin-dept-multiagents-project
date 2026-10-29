@@ -69,7 +69,7 @@ dados mock, regras por porte e planilhas (pedido explícito, adiantando a DSM3);
 integração e de uso real; regras sem LLM; commits locais sem coautoria.
 
 **Verificação:** `python -m pytest` (todos passam, offline); `tools/trace.py --check` (0 erros);
-`npm run build`, `npm test` e `npm run test:e2e` (Chrome real sobre o servidor Python); `sphinx -W`;
+`bun run build`, `bun run test` e `bun run test:e2e` (Chrome real sobre o servidor Python); `sphinx -W`;
 inspeção visual do dashboard no navegador e do PDF da DSM1 v2. **Revisão humana dos autores:** *a preencher*.
 
 **Limites:** os parâmetros por porte são referências coerentes com a legislação, não a política de uma

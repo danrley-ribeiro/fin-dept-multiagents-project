@@ -23,7 +23,7 @@ Legenda: <span class="badge-ok">feito</span> evidência executável no repositó
 | CP8 | Conhecimento externo com recuperação e proveniência | base normativa por porte (`models/portes.yaml`, tool `normas.perfil`); proveniência `mcp://…` em toda resposta | DSM2/DSM3 | <span class="badge-pend">parcial</span>: RAG sobre documentos planejado |
 | CP9 | Memória persistente com retenção e privacidade | `SVC-MEM` especificado; `COMP-MEM` pendente | DSM3 | <span class="badge-pend">planejado</span> |
 | CP10 | Segurança e observabilidade: allowlist, approval gate, trace estruturado | allowlist MCP, trace JSONL com crenças, intenções e decisões, replay pela CLI e dashboard ao vivo; {doc}`dsm2/dashboard` | DSM2 | <span class="badge-pend">parcial</span>: redaction e PROT-APR na DSM3 |
-| CP11 | Suíte única de testes com resultado real do runner | `python -m pytest` (e2e e integração) e `npm run test:e2e` (uso real no navegador); {doc}`dsm2/testes` | DSM2 | <span class="badge-ok">feito</span> |
+| CP11 | Suíte única de testes com resultado real do runner | `python -m pytest` (e2e e integração) e `bun run test:e2e` (uso real no navegador); {doc}`dsm2/testes` | DSM2 | <span class="badge-ok">feito</span> |
 | CP12 | Experimento com baseline, métricas, 10 seeds, dados brutos e ameaças à validade | `python -m fin_mas comparar` → `docs/dsm2/resultados/` (CSV, JSON, SVG); {doc}`dsm2/comparacao` | DSM2 (prévia) / DSM4 | <span class="badge-pend">parcial</span>: experimento completo na DSM4 |
 | CP13 | Integração, documentação reproduzível e demonstração | READMEs por entrega, este site, dashboard; roteiro de demonstração na DSM4 | DSM4 | <span class="badge-pend">planejado</span> |
 

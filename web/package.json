@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:e2e": "npm run build && playwright test"
+    "test:e2e": "tsc -b && vite build && playwright test"
   },
   "dependencies": {
     "@emotion/react": "11.13.3",

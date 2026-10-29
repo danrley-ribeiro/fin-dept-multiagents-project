@@ -43,6 +43,7 @@ class Bus:
         self._queue: list = []
         self._seq = 0
         self._ids: dict[str, int] = {}
+        self.offline: set[str] = set()  # agentes fora de operação: o que chega a eles se perde
 
     def register(self, agent) -> None:
         self.agents[agent.id] = agent
@@ -109,13 +110,32 @@ class Bus:
             passos += 1
             if passos > max_steps:
                 raise RuntimeError("limite de passos excedido (possível laço de mensagens)")
-            when, _, kind, payload = heapq.heappop(self._queue)
-            self.now = max(self.now, when)
-            if kind == "msg":
-                self._deliver(payload)
-            else:
-                self._timer(payload)
+            self.step()
         return passos
+
+    def proximo_tempo(self) -> int | None:
+        """Tempo lógico do próximo evento agendado (None com a fila vazia)."""
+        return self._queue[0][0] if self._queue else None
+
+    def step(self) -> bool:
+        """Processa um único evento (entrega ou temporizador); usado pela execução ao vivo."""
+        if not self._queue:
+            return False
+        when, _, kind, payload = heapq.heappop(self._queue)
+        self.now = max(self.now, when)
+        if kind == "msg":
+            self._deliver(payload)
+        else:
+            self._timer(payload)
+        return True
+
+    def set_online(self, agente: str, online: bool) -> None:
+        """Liga ou desliga um agente (injeção de falha do ambiente, comandada pelo operador)."""
+        if online:
+            self.offline.discard(agente)
+        else:
+            self.offline.add(agente)
+        self.audit.record(self.now, "agente", agente=agente, evento="ligado" if online else "desligado")
 
     def _deliver(self, msg: Message) -> None:
         for falha in self.faults:
@@ -123,6 +143,9 @@ class Bus:
                 falha.times -= 1
                 self.audit.record(self.now, "drop", motivo="falha injetada", **_campos(msg))
                 return
+        if msg.receiver in self.offline:
+            self.audit.record(self.now, "drop", motivo="agente fora de operação", **_campos(msg))
+            return
         self.audit.record(self.now, "deliver", **_campos(msg))
         self.agents[msg.receiver].on_message(msg)
 
@@ -141,7 +164,8 @@ class Bus:
             {"contraparte": conv.counterpart},
         )
         self.audit.record(self.now, "timeout", de=antes, para=depois, **_campos(aviso))
-        self.agents[conv.initiator].on_message(aviso)
+        if conv.initiator not in self.offline:
+            self.agents[conv.initiator].on_message(aviso)
 
 
 def _campos(msg: Message) -> dict:

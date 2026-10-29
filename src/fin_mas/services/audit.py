@@ -11,11 +11,18 @@ from pathlib import Path
 class AuditLog:
     def __init__(self):
         self.records: list[dict] = []
+        self._ouvintes: list = []
 
     def record(self, t: int, kind: str, **campos) -> dict:
         registro = {"seq": len(self.records) + 1, "t": t, "kind": kind, **campos}
         self.records.append(registro)
+        for ouvinte in self._ouvintes:
+            ouvinte(registro)
         return registro
+
+    def subscribe(self, ouvinte) -> None:
+        """Recebe cada registro novo (transmissão ao vivo para o dashboard)."""
+        self._ouvintes.append(ouvinte)
 
     def by_conversation(self, conversation_id: str) -> list[dict]:
         return [r for r in self.records if r.get("conversation_id") == conversation_id]
@@ -82,4 +89,22 @@ def formatar(r: dict) -> str:
         return f"{cab} MCP NEGADO {r['agente']} em {r['tool']}"
     if k == "link":
         return f"{cab} subconversa {r['filha']} ({r['subtarefa']})"
+    if k == "belief":
+        return f"{cab} CRENCA {r['agente']}: {r['chave']} = {_curto(r['depois'])} (fonte: {r['fonte']})"
+    if k == "desire":
+        return f"{cab} DESEJO {r['agente']}: {r['desejo']} {r['evento']} (p{r['prioridade']}; {r['motivo']})"
+    if k == "deliberation":
+        opcoes = "; ".join(f"{o['plano']}{'' if o['aplicavel'] else ' x'} u={o['utilidade']}" for o in r["opcoes"])
+        return f"{cab} DELIBERA {r['agente']}: {r['desejo']} -> {r['escolhido']} [{opcoes}]"
+    if k == "intention":
+        return f"{cab} INTENCAO {r['agente']}: {r['intencao']} {r['plano']} {r['evento']} ({r['motivo']})"
+    if k == "agente":
+        return f"{cab} OPERADOR {r['agente']} {r['evento']}"
+    if k == "meta":
+        return f"{cab} META {r.get('empresa', {}).get('razao_social', '')}"
     return f"{cab} {k}"
+
+
+def _curto(valor, limite=80) -> str:
+    texto = json.dumps(valor, sort_keys=True, ensure_ascii=False)
+    return texto if len(texto) <= limite else texto[: limite - 3] + "..."

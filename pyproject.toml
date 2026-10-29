@@ -1,7 +1,7 @@
 [project]
 name = "fin-mas"
-version = "0.2.0"
-description = "Protótipo (DSM2) do sistema multiagente de controladoria"
+version = "0.3.0"
+description = "Protótipo (DSM2 revisada) do sistema multiagente de controladoria"
 requires-python = ">=3.12"
 dependencies = ["pyyaml>=6.0"]
 

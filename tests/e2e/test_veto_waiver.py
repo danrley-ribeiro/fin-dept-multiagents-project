@@ -18,7 +18,7 @@ def test_critical_nonconformity_vetoes_close():
     assert not [c for c in e.system.bus.conversations.values() if c.counterpart == "AG-REL"]
     assert e.system.bus.conversations["CMP-001"].state == "BLOQUEADO"
     assert e.system.bus.conversations[e.sid].state == "FALHOU"
-    assert e.system.locks.dono("EMP-01", "2026-09") is None  # reserva liberada no bloqueio
+    assert e.system.locks.dono("SMA", "2026-09") is None  # reserva liberada no bloqueio
 
 
 def test_publicar_em_vetado_e_rejeitado_e_a_reserva_continua():
@@ -29,7 +29,7 @@ def test_publicar_em_vetado_e_rejeitado_e_a_reserva_continua():
     assert s.bus.conversations["CMP-001"].state == "VETADO"
     with pytest.raises(ProtocolViolation, match="publicar"):
         s.bus.send(Message("AG-ORQ", "AG-CIN", "publicar", "CMP-001", "PROT-CMP"))
-    assert s.locks.dono("EMP-01", "2026-09") == sid  # reserva segue ativa durante o veto
+    assert s.locks.dono("SMA", "2026-09") == sid  # reserva segue ativa durante o veto
     assert s.usuario.resposta(sid) is None
 
 
@@ -43,7 +43,7 @@ def test_waiver_humano_libera_com_ressalva():
     assert [h[1] for h in e.system.bus.conversations["CMP-001"].history] == [
         "request", "veto", "waiver_humano", "publicar"]
     assert len(e.system.aprovador.avisos) == 1
-    assert e.system.locks.dono("EMP-01", "2026-09") is None
+    assert e.system.locks.dono("SMA", "2026-09") is None
 
 
 def test_nao_conformidade_nao_critica_libera_com_ressalva_sem_humano():

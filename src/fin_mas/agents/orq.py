@@ -3,12 +3,17 @@
 Única fronteira com o usuário (PROT-SOL). Delega por PROT-DEL e PROT-CMP, reserva
 o período (PROT-LCK) e, na falha de um especialista, reenvia uma vez antes de
 abortar com failure explícito (REQ-F01). Não usa LLM (ADR-002).
+
+O Orquestrador não decide conformidade nem desvio: encaminha o veto e as correções
+sugeridas pelo AG-CIN ao aprovador humano e devolve ao AG-CIN a decisão (correção,
+waiver ou prazo esgotado); quem reavalia é o AG-CIN.
 """
 from fin_mas.core.agent import Agent
 from fin_mas.core.message import Message
 
 PRAZO_SUBTAREFA = 30  # ticks lógicos de reply_by por delegação
 MAX_TENTATIVAS = 2  # envio original + um reenvio
+MAX_CORRECOES = 1  # ciclos correção -> reavaliação por verificação de conformidade
 
 
 def _no(agente, tarefa, depende=(), protocolo="PROT-DEL"):
@@ -42,7 +47,7 @@ class Orquestrador(Agent):
         self.locks = locks
         self.aprovador = aprovador
         self.conhecimento = {"catalogo": CATALOGO, "prazo_subtarefa": PRAZO_SUBTAREFA,
-                             "max_tentativas": MAX_TENTATIVAS}
+                             "max_tentativas": MAX_TENTATIVAS, "max_correcoes": MAX_CORRECOES}
         self.estado = {"solicitacoes": {}, "conversa_para_solicitacao": {}}
 
     # ---- entrada ----------------------------------------------------------
@@ -65,7 +70,7 @@ class Orquestrador(Agent):
                "competencia": c["competencia"], "plano": plano, "status": "executando", "reserva": False,
                "nos": {n: {"status": "pendente", "tentativas": 0, "conversas": [], "resultado": None}
                        for n in plano["nos"]},
-               "ressalvas": [], "parecer": "conforme"}
+               "ressalvas": [], "notas": [], "correcoes": 0, "parecer": "conforme"}
         if plano["reservar_periodo"]:
             r = self.locks.reserve(sol["entidade"], sol["competencia"], sid)
             if r["performative"] == "reserve-failure":
@@ -110,10 +115,11 @@ class Orquestrador(Agent):
         if nome == "relatorio" and sol["intencao"] == "fechar_mes":
             return {"dre": r["resultados"]["dre"], "kpis": r["resultados"]["kpis"],
                     "resultado_un": r["resultados"]["resultado_un"], "parecer": sol["parecer"],
-                    "ressalvas": list(sol["ressalvas"])}
+                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"])}
         if nome == "relatorio":
             return {"totais": r["orcamento"]["totais"], "sinalizadas": r["orcamento"]["sinalizadas"],
-                    "ressalvas": []}
+                    "atribuidas_a_controle": r["orcamento"].get("atribuidas_a_controle", []),
+                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"])}
         return {}
 
     def _resposta_especialista(self, msg: Message) -> None:
@@ -143,24 +149,37 @@ class Orquestrador(Agent):
 
     def _concluir_no(self, sol, nome, resultado):
         sol["nos"][nome].update(status="concluido", resultado=resultado)
+        sol["ressalvas"] += resultado.get("ressalvas", []) if nome != "relatorio" else []
         self._avancar(sol)
 
     # ---- veto e waiver ----------------------------------------------------
     def _veto(self, sol, nome, msg):
         sol["nos"][nome].update(status="vetado", resultado=msg.content)
-        sol["veto"] = {"no": nome, "cid": msg.conversation_id, "achados": msg.content["achados"]}
+        opcoes = msg.content.get("opcoes", ["waiver", "bloquear"])
+        if sol["correcoes"] >= MAX_CORRECOES:
+            opcoes = [o for o in opcoes if o != "corrigir"]
+        sol["veto"] = {"no": nome, "cid": msg.conversation_id, "achados": msg.content["achados"], "opcoes": opcoes}
         self.decide(sol["id"], "NORM-04: não conformidade crítica bloqueia a publicação",
                     {"achados": [a["lancamento"] for a in msg.content["achados"]]}, "VETADO")
         self.send(self.aprovador, "veto_notice", None, msg.conversation_id,
-                  {"solicitacao": sol["id"], "achados": msg.content["achados"]})
+                  {"solicitacao": sol["id"], "competencia": sol["competencia"], "achados": msg.content["achados"],
+                   "correcoes_sugeridas": msg.content.get("correcoes_sugeridas", []), "opcoes": opcoes})
 
     def _decisao_humana(self, msg: Message) -> None:
         sol = self.estado["solicitacoes"].get(msg.content["solicitacao"])
         if sol is None or sol["status"] != "executando" or "veto" not in sol:
             return
         veto, cid = sol.pop("veto"), msg.conversation_id
-        if msg.content["decisao"] == "waiver":
-            self.bus.advance(cid, "waiver_humano", self.id)
+        decisao = msg.content["decisao"]
+        if decisao == "corrigir" and "corrigir" in veto["opcoes"] and msg.content.get("correcoes"):
+            sol["correcoes"] += 1
+            sol["notas"] += [f"correção humana: {c['detalhe']}" for c in msg.content["correcoes"]]
+            self.decide(sol["id"], "correção humana: AG-CIN reavalia o pacote", {"correcoes": msg.content["correcoes"]},
+                        "REAVALIAR")
+            sol["nos"][veto["no"]]["status"] = "enviado"
+            self.send("AG-CIN", "correcao", "PROT-CMP", cid, {"correcoes": msg.content["correcoes"]})
+        elif decisao == "waiver":
+            self.send("AG-CIN", "waiver_humano", "PROT-CMP", cid, {"justificativa": msg.content["justificativa"]})
             self.bus.advance(cid, "publicar", self.id)
             criticos = [f"waiver de {a['regra']} em {a['lancamento']}: {msg.content['justificativa']}"
                         for a in veto["achados"] if a["severidade"] == "critica"]
@@ -172,7 +191,7 @@ class Orquestrador(Agent):
                         "LIBERADO_COM_RESSALVA")
             self._concluir_no(sol, veto["no"], {"achados": veto["achados"], "waiver": True})
         else:
-            self.bus.advance(cid, "prazo_esgotado", self.id)
+            self.send("AG-CIN", "prazo_esgotado", "PROT-CMP", cid, {"decisao": decisao})
             self._abortar(sol, veto["no"], "publicação bloqueada por veto (NORM-04)",
                           {"achados": veto["achados"]})
 
@@ -205,13 +224,14 @@ class Orquestrador(Agent):
         r = {n: e["resultado"] for n, e in sol["nos"].items()}
         resposta = {"intencao": sol["intencao"], "entidade": sol["entidade"], "competencia": sol["competencia"],
                     "status": "publicado_com_ressalva" if sol["ressalvas"] else "publicado",
-                    "relatorio": r["relatorio"]["texto"], "ressalvas": sol["ressalvas"],
+                    "relatorio": r["relatorio"]["texto"], "ressalvas": sol["ressalvas"], "notas": sol["notas"],
                     "dag": {n: {"agente": sol["plano"]["nos"][n]["agente"], "tentativas": e["tentativas"],
                                 "conversas": e["conversas"]} for n, e in sol["nos"].items()}}
         if sol["intencao"] == "fechar_mes":
             resposta["resultado"] = {"dre": r["resultados"]["dre"], "kpis": r["resultados"]["kpis"]}
         else:
-            resposta["resultado"] = {"totais": r["orcamento"]["totais"], "sinalizadas": r["orcamento"]["sinalizadas"]}
+            resposta["resultado"] = {"totais": r["orcamento"]["totais"], "sinalizadas": r["orcamento"]["sinalizadas"],
+                                     "atribuidas_a_controle": r["orcamento"].get("atribuidas_a_controle", [])}
         self._liberar(sol)
         self.decide(sol["id"], "todas as subtarefas concluídas", {"parecer": sol["parecer"]}, resposta["status"])
         self.send(sol["solicitante"], "inform", "PROT-SOL", sol["id"], resposta)

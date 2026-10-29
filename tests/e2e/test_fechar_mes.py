@@ -52,7 +52,7 @@ def test_relatorio_traz_numeros_do_gabarito(e):
 
 
 def test_reserva_e_liberada_ao_final(e):
-    assert e.system.locks.dono("EMP-01", "2026-09") is None
+    assert e.system.locks.dono("SMA", "2026-09") is None
     eventos = [r["evento"] for r in e.audit.records if r["kind"] == "lock"]
     assert eventos == ["reserve", "release"]
 

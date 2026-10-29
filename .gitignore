@@ -1,6 +1,7 @@
 # --- Arquivos de insumo locais (NÃO versionar) ---
 # Apostila da disciplina: "Proibido compartilhar. Uso exclusivo em sala-de-aula."
 Sistemas Multiagentes Inteligentes.pdf
+enunciados/SistemasMultiAGentes_*.pdf
 # Rascunhos de ideia (conteúdo incorporado em docs/ e models/)
 arquitetura-sistema-multiagente-controladoria.md
 arquitetura-sistema-multiagente-controladoria.pdf
@@ -42,3 +43,8 @@ docs/_build/
 # --- Pacote Python ---
 *.egg-info/
 .pytest_cache/
+
+# --- Dashboard web e saídas geradas ---
+web/node_modules/
+web/dist/
+saidas/

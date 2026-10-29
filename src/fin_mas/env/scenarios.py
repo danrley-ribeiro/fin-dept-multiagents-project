@@ -5,15 +5,17 @@
 """
 from dataclasses import dataclass, field
 
+from fin_mas import __version__
 from fin_mas.agents.cin import AgenteControlesInternos
 from fin_mas.agents.cus import AgenteCustos
 from fin_mas.agents.orc import AgenteOrcamento
 from fin_mas.agents.orq import Orquestrador
-from fin_mas.agents.rel import AgenteRelatorios
+from fin_mas.agents.rel import VERSAO_TEMPLATE, AgenteRelatorios
 from fin_mas.agents.res import AgenteResultados
 from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus, Fault
-from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, Dataset
+from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
+from fin_mas.env.empresa import EMPRESA
 from fin_mas.mcp.gateway import MCPGateway
 from fin_mas.services.locks import LockService
 
@@ -25,10 +27,10 @@ class Solicitante(Agent):
         super().__init__(agent_id, bus)
         self.recebidas = []
 
-    def solicitar(self, intencao, entidade=ENTIDADE, competencia=COMPETENCIA):
+    def solicitar(self, intencao, entidade=ENTIDADE, competencia=COMPETENCIA, atraso=1):
         sid = self.bus.new_conversation_id("SOL")
         self.send("AG-ORQ", "request", "PROT-SOL", sid,
-                  {"intencao": intencao, "entidade": entidade, "competencia": competencia})
+                  {"intencao": intencao, "entidade": entidade, "competencia": competencia}, delay=atraso)
         return sid
 
     def on_message(self, msg):
@@ -42,44 +44,83 @@ class Solicitante(Agent):
 
 
 class Aprovador(Agent):
-    """ROLE-APR simulado: responde ao aviso de veto conforme o roteiro do cenário."""
+    """ROLE-APR simulado: responde ao aviso de veto conforme o roteiro do cenário.
 
-    def __init__(self, bus, decisao="nenhuma"):
+    Decisões: "waiver" libera com ressalva; "corrigir" aplica no ERP as correções
+    sugeridas pelo AG-CIN; "corrigir_parcial" aplica só a primeira; "nenhuma" deixa o
+    prazo esgotar. Uma sequência é consumida aviso a aviso (a última se repete). No modo
+    interativo a decisão vem de fora (dashboard), por `decidir`.
+    """
+
+    JUSTIFICATIVA = "aceito o risco: lançamento será corrigido no próximo ciclo"
+
+    def __init__(self, bus, decisao="nenhuma", ambiente: Ambiente | None = None, interativo=False):
         super().__init__("APR", bus)
-        self.decisao = decisao  # "waiver" libera com ressalva; "nenhuma" deixa o prazo esgotar
+        self.decisoes = [decisao] if isinstance(decisao, str) else list(decisao)
+        self.decisao = self.decisoes[0]
+        self.ambiente = ambiente
+        self.interativo = interativo
         self.avisos = []
+        self.pendentes: dict[str, object] = {}  # solicitação -> aviso aguardando decisão humana
 
     def on_message(self, msg):
         if msg.performative != "veto_notice":
             return
         self.avisos.append(msg)
+        if self.interativo:
+            self.pendentes[msg.content["solicitacao"]] = msg
+            return
+        decisao = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
+        self._responder(msg, decisao, self.JUSTIFICATIVA)
+
+    def decidir(self, solicitacao, decisao, justificativa=None) -> bool:
+        msg = self.pendentes.pop(solicitacao, None)
+        if msg is None:
+            return False
+        self._responder(msg, decisao, justificativa or self.JUSTIFICATIVA)
+        return True
+
+    def _responder(self, msg, decisao, justificativa):
+        correcoes = []
+        if decisao in ("corrigir", "corrigir_parcial") and "corrigir" in msg.content.get("opcoes", []):
+            sugeridas = msg.content.get("correcoes_sugeridas", [])
+            ds = self.ambiente.dataset(msg.content.get("competencia"))
+            for sug in sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas:
+                correcoes.append(ds.corrigir(sug["lancamento"], sug["acao"]))
+            decisao = "corrigir"
+        elif decisao in ("corrigir", "corrigir_parcial"):
+            decisao = "nenhuma"  # correção não oferecida pelo AG-CIN: o prazo esgota
         self.send("AG-ORQ", "decisao_humana", None, msg.conversation_id,
-                  {"solicitacao": msg.content["solicitacao"], "decisao": self.decisao,
-                   "justificativa": "aceito o risco: lançamento será corrigido no próximo ciclo"})
+                  {"solicitacao": msg.content["solicitacao"], "decisao": decisao,
+                   "justificativa": justificativa, "correcoes": correcoes})
 
 
 @dataclass
 class System:
     bus: Bus
-    dataset: Dataset
+    dataset: Dataset  # dataset da competência principal (gabarito dos testes)
     gateway: MCPGateway
     locks: LockService
     orq: Orquestrador
     usuario: Solicitante
     aprovador: Aprovador
     agentes: dict = field(default_factory=dict)
+    ambiente: Ambiente | None = None
 
 
-def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200) -> System:
+def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
+                 interativo=False) -> System:
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
-    ds = Dataset(seed=seed, plantar=tuple(plantar))
-    gw = MCPGateway(ds, bus.audit, bus)
+    amb = Ambiente(seed, plantar=plantar, agenda=agenda)
+    ds = amb.dataset()
+    gw = MCPGateway(amb, bus.audit, bus)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl)
     agentes = {"AG-CUS": AgenteCustos(bus, gw), "AG-ORC": AgenteOrcamento(bus, gw),
                "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": AgenteRelatorios(bus, gw)}
     orq = Orquestrador(bus, locks)
-    return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador), agentes)
+    return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador, amb, interativo),
+                  agentes, amb)
 
 
 @dataclass(frozen=True)
@@ -90,7 +131,9 @@ class Scenario:
     seed: int = 42
     plantar: tuple = ()
     faults: tuple = ()
-    decisao_aprovador: str = "nenhuma"
+    decisao_aprovador: str | tuple = "nenhuma"
+    agenda: tuple = ()  # ((competência, plantios), ...) para cenários com vários meses
+    pedidos: tuple = ()  # ((intenção, competência, atraso), ...); vazio = um pedido de `intencao`
 
 
 CENARIOS = {c.nome: c for c in [
@@ -106,6 +149,25 @@ CENARIOS = {c.nome: c for c in [
     Scenario("depuracao", "Cenário controlado de depuração: seed 1337, SoD plantado e uma perda de mensagem",
              "fechar_mes", seed=1337, plantar=("sod", "competencia"), decisao_aprovador="waiver",
              faults=({"receiver": "AG-ORC", "performative": "request", "times": 1},)),
+    Scenario("veto_correcao", "Alçada violada: AG-CIN veta e sugere reaprovação; humano corrige e AG-CIN reavalia",
+             "fechar_mes", plantar=("alcada",), decisao_aprovador="corrigir"),
+    Scenario("correcao_parcial", "Alçada e SoD: humano corrige só uma, AG-CIN mantém o veto e o prazo esgota",
+             "fechar_mes", plantar=("alcada", "sod"), decisao_aprovador=("corrigir_parcial", "nenhuma")),
+    Scenario("divergencia_fonte", "Planilha diverge do ERP: AG-ORC revisa a crença e adota o ERP", "avaliar_orcamento",
+             plantar=("divergencia_fonte",)),
+    Scenario("desvio_irregular", "Desvio inflado por NF duplicada: AG-ORC consulta o AG-CIN e reclassifica; "
+             "estorno sugerido pelo AG-CIN destrava o fechamento", "fechar_mes",
+             plantar=("desvio_irregular",), decisao_aprovador="corrigir"),
+    Scenario("orc_sem_cin", "Consulta do AG-ORC ao AG-CIN se perde: timeout e replanejamento", "avaliar_orcamento",
+             plantar=("desvio_irregular",),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},)),
+    Scenario("expediente_sma", "Expediente da SMA: três competências, pedidos concorrentes, vetos, correções e "
+             "divergências", "fechar_mes", decisao_aprovador=("corrigir", "waiver", "corrigir"),
+             agenda=(("2026-07", ("divergencia_fonte", "competencia")), ("2026-08", ("desvio_irregular",)),
+                     ("2026-09", ("alcada", "desvio_orcamentario"))),
+             pedidos=(("avaliar_orcamento", "2026-07", 1), ("fechar_mes", "2026-07", 4),
+                      ("fechar_mes", "2026-08", 30), ("fechar_mes", "2026-08", 34),
+                      ("avaliar_orcamento", "2026-09", 70), ("fechar_mes", "2026-09", 90))),
 ]}
 
 
@@ -115,6 +177,7 @@ class Execucao:
     system: System
     sid: str
     resposta: object  # última Message terminal para o solicitante
+    sids: list = field(default_factory=list)  # todas as solicitações do cenário, em ordem
 
     @property
     def audit(self):
@@ -125,9 +188,26 @@ class Execucao:
         return self.audit.digest()
 
 
+    @property
+    def respostas(self) -> dict:
+        return {sid: self.system.usuario.resposta(sid) for sid in self.sids}
+
+
+def montar(sc: Scenario, seed=None, interativo=False) -> tuple[System, list]:
+    """Monta o sistema do cenário e agenda os pedidos (sem executar)."""
+    sistema = build_system(seed if seed is not None else sc.seed, sc.plantar, sc.faults, sc.decisao_aprovador,
+                           agenda=dict(sc.agenda) or None, interativo=interativo)
+    sistema.bus.audit.record(0, "meta", empresa=EMPRESA, cenario=sc.nome, seed=sistema.ambiente.seed,
+                             versoes={"pacote": __version__, "normas": "normas-v1", "template": VERSAO_TEMPLATE,
+                                      "rateio": VERSAO_RATEIO})
+    pedidos = sc.pedidos or ((sc.intencao, None, 1),)
+    sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso)
+            for intencao, c, atraso in pedidos]
+    return sistema, sids
+
+
 def run_scenario(cenario, seed=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema = build_system(seed if seed is not None else sc.seed, sc.plantar, sc.faults, sc.decisao_aprovador)
-    sid = sistema.usuario.solicitar(sc.intencao)
+    sistema, sids = montar(sc, seed)
     sistema.bus.run()
-    return Execucao(sc, sistema, sid, sistema.usuario.resposta(sid))
+    return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

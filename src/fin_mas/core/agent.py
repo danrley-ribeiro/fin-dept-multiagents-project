@@ -23,6 +23,10 @@ class Agent:
             delay=delay,
         )
 
+    def mente(self) -> dict:
+        """Snapshot observável do agente (dashboard e depuração): estado e conhecimento."""
+        return {"id": self.id, "estado": self.estado, "conhecimento": self.conhecimento}
+
     def decide(self, conversation_id: str, regra: str, entradas: dict, resultado) -> None:
         """Registra uma decisão com a regra aplicada (REQ-O01)."""
         self.bus.audit.record(

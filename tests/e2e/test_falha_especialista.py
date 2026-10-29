@@ -21,7 +21,7 @@ def test_specialist_failure_retry_then_abort():
     # nada além de AG-ORC foi delegado depois; nada publicado
     assert not conversas_com(e, "AG-RES") and not conversas_com(e, "AG-REL") and not conversas_com(e, "AG-CIN")
     assert e.system.bus.conversations[e.sid].state == "FALHOU"
-    assert e.system.locks.dono("EMP-01", "2026-09") is None  # reserva liberada
+    assert e.system.locks.dono("SMA", "2026-09") is None  # reserva liberada
     regras = [r["regra"] for r in e.audit.records if r["kind"] == "decision" and r["agente"] == "AG-ORQ"]
     assert "um reenvio por subtarefa expirada ou falha" in regras
     assert "segunda falha (ou recusa) aborta a solicitação" in regras
@@ -34,7 +34,7 @@ def test_uma_falha_e_reenviada_e_a_solicitacao_conclui():
     custos = e.resposta.content["dag"]["custos"]
     assert custos["tentativas"] == 2
     assert [e.system.bus.conversations[c].state for c in custos["conversas"]] == ["EXPIRADA", "CONCLUIDA"]
-    assert e.system.locks.dono("EMP-01", "2026-09") is None
+    assert e.system.locks.dono("SMA", "2026-09") is None
 
 
 def test_controles_internos_silencioso_tambem_reenvia_uma_vez_e_aborta():

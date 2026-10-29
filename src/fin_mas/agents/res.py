@@ -31,7 +31,8 @@ class AgenteResultados(Specialist):
             self.send(msg.sender, "failure", "PROT-DEL", cid,
                       {"motivo": f"tarefa desconhecida: {msg.content.get('tarefa')}"})
             return
-        balancete = self.gw.call(self.id, "erp.balancete", cid)
+        c = msg.content.get("competencia")
+        balancete = self.gw.call(self.id, "erp.balancete", cid, competencia=c)
         receita = sum(p["preco"] * p["qtd"] for p in balancete["dados"]["produtos"])
         consolidacao = {"solicitante": msg.sender, "receita": receita, "respostas": {}, "consultas": {},
                         "falhou": False, "proveniencia": [balancete["proveniencia"]]}
@@ -41,7 +42,7 @@ class AgenteResultados(Specialist):
             self.estado["consulta_para_tarefa"][qid] = cid
             self.bus.audit.record(self.bus.now, "link", conversation_id=cid, filha=qid,
                                   subtarefa=f"consulta {chave}", agente=self.id)
-            self.send(destino, "query-ref", "PROT-QRY", qid, {"assunto": assunto},
+            self.send(destino, "query-ref", "PROT-QRY", qid, {"assunto": assunto, "competencia": c},
                       reply_by=self.bus.now + PRAZO_CONSULTA)
         self.estado["consolidacoes"][cid] = consolidacao
 

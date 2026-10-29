@@ -105,7 +105,7 @@ def test_report_template_without_llm():
     }, reply_by=bus.now + 20)
     bus.run()
     rel = cli.por_performativo("inform", "DEL-002")[0].content
-    assert rel["modo"] == "template" and rel["versao_template"] == "tpl-exec-v1"
+    assert rel["modo"] == "template" and rel["versao_template"] == "tpl-exec-v2"
     assert "EBITDA" in rel["texto"] and "Ressalva: lançamento L-013" in rel["texto"]
     from fin_mas.env.dataset import brl
     assert brl(ds.gold["dre"]["ebitda"]) in rel["texto"]  # número vem do núcleo, igual ao gabarito

@@ -7,22 +7,24 @@ class AgenteCustos(Specialist):
     def __init__(self, bus, gateway):
         super().__init__("AG-CUS", bus, gateway)
         self.conhecimento = {"rateio": dict(RATEIO), "versao_rateio": VERSAO_RATEIO}
-        self.estado = {"custos": None, "pendencias": []}
+        self.estado = {"custos": {}, "pendencias": []}  # custos apurados por competência
 
     def executar(self, tarefa, content, conversation_id):
         if tarefa != "apurar_custos":
             raise ValueError(f"tarefa desconhecida: {tarefa}")
-        return self._apurar(conversation_id)
+        return self._apurar(conversation_id, content.get("competencia"))
 
     def consultar(self, assunto, content, conversation_id):
         if assunto != "custos_por_UN":
             raise KeyError(assunto)
-        custos = self.estado["custos"] or self._apurar(conversation_id)
+        c = content.get("competencia") or self.gw.ambiente.principal
+        custos = self.estado["custos"].get(c) or self._apurar(conversation_id, c)
         return {"resultado_un": custos["resultado_un"], "totais": custos["totais"],
                 "proveniencia": custos["proveniencia"]}
 
-    def _apurar(self, conversation_id):
-        resposta = self.gw.call(self.id, "erp.balancete", conversation_id)
+    def _apurar(self, conversation_id, competencia=None):
+        c = competencia or self.gw.ambiente.principal
+        resposta = self.gw.call(self.id, "erp.balancete", conversation_id, competencia=c)
         dados = resposta["dados"]
         if not dados["produtos"]:
             self.estado["pendencias"].append("balancete sem produtos")
@@ -46,7 +48,7 @@ class AgenteCustos(Specialist):
                        "custos_fixos": fixo_total},
             "proveniencia": {**resposta["proveniencia"], "versao_rateio": self.conhecimento["versao_rateio"]},
         }
-        self.estado["custos"] = custos
+        self.estado["custos"][c] = custos
         self.decide(conversation_id, "margem = receita - custo variável; rateio fixo por UN",
                     {"produtos": len(margens), "versao_rateio": self.conhecimento["versao_rateio"]},
                     custos["totais"])

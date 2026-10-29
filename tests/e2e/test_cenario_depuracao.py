@@ -33,7 +33,7 @@ def test_trace_causal_reconstruction(trace):
         "um reenvio por subtarefa", "DEL-003  AG-ORQ -> AG-ORC request",
         "DEL-004  AG-ORQ -> AG-RES request", "QRY-001  AG-RES -> AG-CUS query-ref",
         "DEL-004  AG-RES -> AG-ORQ inform", "CMP-001  AG-CIN -> AG-ORQ veto",
-        "CMP-001  AG-ORQ -> APR veto_notice", "aplica 'waiver_humano'", "aplica 'publicar'",
+        "CMP-001  AG-ORQ -> APR veto_notice", "CMP-001  AG-ORQ -> AG-CIN waiver_humano", "aplica 'publicar'",
         "DEL-005  AG-ORQ -> AG-REL request", "SOL-001  AG-ORQ -> SOL inform",
     ]
     posicao = -1

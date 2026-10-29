@@ -7,18 +7,22 @@ reimplementação das regras dos agentes.
 import random
 from dataclasses import dataclass, field
 
-ENTIDADE = "EMP-01"
+from fin_mas.env.empresa import CONTAS, EMPRESA, PESSOAS
+
+ENTIDADE = EMPRESA["sigla"]
 COMPETENCIA = "2026-09"
 VERSAO_RATEIO = "rateio-v1"
 RATEIO = {"UN-A": 60, "UN-B": 40}  # percentual por unidade de negócio
 LIMIAR_PERCENTUAL = 10  # %
 LIMIAR_ABSOLUTO = 5_000_00  # R$ 5.000,00 em centavos
-USUARIOS = {  # cargo de cada usuário que cria ou aprova lançamentos
-    "ana": "analista", "bruno": "analista", "carla": "gerente", "diego": "gerente", "elisa": "diretor",
-}
+USUARIOS = {u: cargo for u, (_, cargo) in PESSOAS.items()}  # cargo de quem cria ou aprova lançamentos
 LIMITES_ALCADA = {"analista": 10_000_00, "gerente": 50_000_00, "diretor": 200_000_00}
 SEVERIDADE = {"alcada": "critica", "sod": "critica", "duplicidade": "critica", "competencia": "nao_critica"}
-PLANTIOS = {"alcada", "sod", "duplicidade", "competencia", "desvio_orcamentario"}
+PLANTIOS = {"alcada", "sod", "duplicidade", "competencia", "desvio_orcamentario",
+            "divergencia_fonte", "desvio_irregular"}
+CONTA_DIVERGENTE = "C-3003 Servicos"  # planilha diverge do ERP (divergencia_fonte)
+CONTA_IRREGULAR = "C-3002 Marketing"  # desvio inflado por lançamento duplicado (desvio_irregular)
+EFEITO_ORCAMENTARIO = {"duplicidade", "competencia"}  # violações que inflam o realizado da conta
 
 
 def brl(centavos: int) -> str:
@@ -49,6 +53,8 @@ class Dataset:
     custos_fixos: list = field(default_factory=list)
     orcamento: list = field(default_factory=list)
     lancamentos: list = field(default_factory=list)
+    realizado_erp: dict = field(default_factory=dict)  # realizado acumulado por conta segundo o ERP
+    correcoes: list = field(default_factory=list)  # correções feitas por humanos no ERP
     gold: dict = field(default_factory=dict)
 
     def __post_init__(self):
@@ -93,8 +99,7 @@ class Dataset:
     # ---- orçamento --------------------------------------------------------
     def _gerar_orcamento(self, rng):
         idx = mes_no_trimestre(self.competencia)
-        contas = ["C-3001 Pessoal", "C-3002 Marketing", "C-3003 Servicos", "C-3004 Logistica"]
-        for conta in contas:
+        for conta in CONTAS:
             orcado_tri = rng.randint(30_000_00, 90_000_00) // 3 * 3
             acum = orcado_tri * idx // 3
             self.orcamento.append({
@@ -114,6 +119,17 @@ class Dataset:
                 plantados.append(linha["conta"])
         self.gold["desvios"] = sorted(plantados)
         self.gold["meses_decorridos"] = idx
+        self.realizado_erp = {linha["conta"]: linha["realizado_acumulado"] for linha in self.orcamento}
+        self.gold["divergencias"] = []
+        if "divergencia_fonte" in self.plantar:
+            linha = self._linha(CONTA_DIVERGENTE)
+            # a planilha foi digitada com 20% a mais: pela planilha haveria desvio; pelo ERP, não
+            linha["realizado_acumulado"] += max(linha["orcado_acumulado"] * 20 // 100, 8_000_00)
+            self.gold["divergencias"] = [CONTA_DIVERGENTE]
+        self.gold["desvios_atribuidos"] = []
+
+    def _linha(self, conta):
+        return next(linha for linha in self.orcamento if linha["conta"] == conta)
 
     # ---- lançamentos e inconformidades -------------------------------------
     def _gerar_lancamentos(self, rng):
@@ -125,7 +141,7 @@ class Dataset:
             self.lancamentos.append({
                 "id": f"L-{n:03d}", "fornecedor": f"F-{rng.randint(10, 99)}", "documento": f"NF-{1000 + n}",
                 "valor": rng.randint(1_000_00, min(limite, 9_000_00)), "criador": criador,
-                "aprovador": aprovador, "competencia": self.competencia,
+                "aprovador": aprovador, "competencia": self.competencia, "conta": CONTAS[(n - 1) % len(CONTAS)],
             })
         nc = []
         proximo = len(self.lancamentos) + 1
@@ -150,4 +166,70 @@ class Dataset:
         if "competencia" in self.plantar:
             lanc = novo(base, documento="NF-2003", competencia="2026-08", valor=2_000_00)
             nc.append({"regra": "competencia", "lancamento": lanc["id"], "severidade": SEVERIDADE["competencia"]})
+        if "desvio_irregular" in self.plantar:
+            # uma NF lançada duas vezes infla o realizado da conta acima do limiar; sem a cópia, não há desvio
+            linha = self._linha(CONTA_IRREGULAR)
+            base_desvio = linha["realizado_acumulado"] - linha["orcado_acumulado"]
+            valor = max(linha["orcado_acumulado"] * 15 // 100, 6_000_00) - min(base_desvio, 0)
+            original = novo(base, documento="NF-3001", fornecedor="F-77", valor=valor, conta=CONTA_IRREGULAR,
+                            criador="carla", aprovador="elisa")
+            copia = novo(original)
+            linha["realizado_acumulado"] += valor
+            self.realizado_erp[CONTA_IRREGULAR] += valor
+            nc.append({"regra": "duplicidade", "lancamento": copia["id"], "severidade": SEVERIDADE["duplicidade"]})
+            self.gold["desvios_atribuidos"] = [CONTA_IRREGULAR]
         self.gold["nao_conformidades"] = sorted(nc, key=lambda x: (x["regra"], x["lancamento"]))
+
+    # ---- correções feitas por humanos no ERP (fora dos agentes) -----------------
+    def corrigir(self, lancamento: str, acao: str) -> dict:
+        """Aplica uma correção sugerida pelo AG-CIN: estornar, reaprovar ou reclassificar."""
+        lanc = next(x for x in self.lancamentos if x["id"] == lancamento)
+        if acao == "estornar":
+            self.lancamentos.remove(lanc)
+            if lanc.get("conta") in self.realizado_erp:
+                self._linha(lanc["conta"])["realizado_acumulado"] -= lanc["valor"]
+                self.realizado_erp[lanc["conta"]] -= lanc["valor"]
+            detalhe = f"{lancamento} estornado"
+        elif acao == "reaprovar":
+            novo = next(u for u, cargo in USUARIOS.items()
+                        if u != lanc["criador"] and cargo != "analista" and LIMITES_ALCADA[cargo] >= lanc["valor"])
+            detalhe = f"{lancamento} reaprovado por {novo} (antes {lanc['aprovador']})"
+            lanc["aprovador"] = novo
+        elif acao == "reclassificar":
+            detalhe = f"{lancamento} reclassificado de {lanc['competencia']} para {self.competencia}"
+            lanc["competencia"] = self.competencia
+        else:
+            raise ValueError(f"ação de correção desconhecida: {acao}")
+        registro = {"lancamento": lancamento, "acao": acao, "detalhe": detalhe}
+        self.correcoes.append(registro)
+        return registro
+
+
+def semente(seed: int, competencia: str) -> int:
+    """Seed de cada competência: a principal usa a própria seed (datasets da DSM2 preservados)."""
+    return seed if competencia == COMPETENCIA else seed * 100 + int(competencia[5:7])
+
+
+class Ambiente:
+    """Conjunto de datasets por competência da SMA (agenda de plantios por mês)."""
+
+    def __init__(self, seed: int = 42, plantar=(), agenda: dict | None = None):
+        self.seed = seed
+        self.agenda = dict(agenda) if agenda else {COMPETENCIA: tuple(plantar)}
+        self._ds: dict[str, Dataset] = {}
+
+    @classmethod
+    def de_dataset(cls, ds: Dataset) -> "Ambiente":
+        amb = cls(ds.seed, agenda={ds.competencia: ds.plantar})
+        amb._ds[ds.competencia] = ds
+        return amb
+
+    @property
+    def principal(self) -> str:
+        return COMPETENCIA if COMPETENCIA in self.agenda else next(iter(self.agenda))
+
+    def dataset(self, competencia: str | None = None) -> Dataset:
+        c = competencia or self.principal
+        if c not in self._ds:
+            self._ds[c] = Dataset(seed=semente(self.seed, c), competencia=c, plantar=tuple(self.agenda.get(c, ())))
+        return self._ds[c]

@@ -18,7 +18,13 @@ def test_avaliacao_sinaliza_so_os_desvios_plantados():
 def test_avaliacao_nao_reserva_o_periodo_e_nao_consulta_custos():
     e = run_scenario("avaliar_orcamento")
     assert not [r for r in e.audit.records if r["kind"] == "lock"]
-    assert not [r for r in e.audit.records if r["kind"] == "mcp_call" and r["agente"] in ("AG-CUS", "AG-CIN")]
+    assert not [r for r in e.audit.records if r["kind"] == "mcp_call" and r["agente"] == "AG-CUS"]
+    # o AG-CIN só é ouvido por decisão do AG-ORC (PROT-QRY direto), nunca por delegação do Orquestrador
+    consultas_cin = {r["conversation_id"] for r in e.audit.records
+                     if r["kind"] == "mcp_call" and r["agente"] == "AG-CIN"}
+    assert consultas_cin and all(e.system.bus.conversations[c].initiator == "AG-ORC" for c in consultas_cin)
+    assert not [c for c in e.system.bus.conversations.values()
+                if c.initiator == "AG-ORQ" and c.counterpart == "AG-CIN"]
 
 
 def test_avaliacao_sem_desvios_informa_que_nao_ha():

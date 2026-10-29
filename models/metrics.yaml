@@ -3,8 +3,10 @@
 items:
   - id: MET-01
     titulo: Taxa de conclusão de solicitações
-    formula: solicitações com resposta final explícita (inform ou failure justificado) / total
-    alvo: ">= 95% nos cenários controlados"
+    formula: >-
+      solicitações concluídas com inform / total (revisada após o feedback da DSM2: failure, refuse e
+      not-understood não contam como conclusão; vão para a MET-13)
+    alvo: ">= 95% nos cenários sem veto nem falha injetada; reportar por cenário"
     mede: [REQ-F01]
     entrega: DSM1
 
@@ -84,3 +86,21 @@ items:
     alvo: "100%"
     mede: [REQ-NF01, REQ-NF02]
     entrega: DSM1
+
+  - id: MET-13
+    titulo: Taxa de resposta explícita
+    formula: solicitações com resposta final explícita (inform, failure, refuse ou not-understood) / total
+    alvo: "100%"
+    mede: [REQ-F01]
+    entrega: DSM2
+    status: implementado
+
+  - id: MET-14
+    titulo: Distribuição decisória
+    formula: >-
+      registros de decisão e deliberação feitos por agentes que não o Orquestrador / total de registros de
+      decisão e deliberação da solicitação (evidência de decisão distribuída x workflow centralizado)
+    alvo: "reportar por cenário contra o baseline (0% por construção)"
+    mede: [REQ-F03, REQ-F05]
+    entrega: DSM2
+    status: implementado

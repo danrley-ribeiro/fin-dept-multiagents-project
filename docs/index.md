@@ -1,6 +1,7 @@
 # Sistema Multiagente de Controladoria — Documentação
 
-Sistema Multiagente para a **Controladoria** de uma empresa: o Orquestrador e cinco
+Sistema Multiagente para a **Controladoria** da **SMA S.A.** (empresa fictícia, de
+qualquer porte, com ou sem ERP): o Orquestrador e cinco
 agentes especializados (Agente de Custos, Agente de Orçamento, Agente de Resultados,
 Agente de Controles Internos e Agente de Relatórios) sobre camadas de comunicação
 (A2A/MCP), governança e auditoria, registro de modelos e memória.
@@ -13,8 +14,8 @@ Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).
 | Entrega | Conteúdo | Situação |
 |---|---|---|
 | [DSM1](dsm1/index.md) | Cenário, requisitos e modelagem | <span class="badge-ok">concluída</span> |
-| [DSM2](dsm2/index.md) | Arquitetura e protótipo inicial | <span class="badge-ok">concluída</span> |
-| DSM3 | Comunicação, coordenação e protótipo funcional (até 18/11) | <span class="badge-pend">pendente</span> |
+| [DSM2](dsm2/index.md) | Arquitetura e protótipo, revisados após o feedback ([o que mudou](dsm2/revisao.md)) | <span class="badge-ok">concluída</span> |
+| [DSM3](dsm3/index.md) | Comunicação, coordenação e protótipo funcional (até 18/11) | <span class="badge-pend">em andamento</span> |
 | DSM4 | Experimentação, documentação e entrega final (até 02/12) | <span class="badge-pend">pendente</span> |
 
 A documentação cresce **uma entrega por vez**. O que pertence a entregas futuras aparece
@@ -32,12 +33,15 @@ tabelas do PDF da entrega. Veja [Rastreabilidade](plataforma/rastreabilidade.md)
 ```{include} _generated/cobertura.md
 ```
 
+Os treze checkpoints do DSMA e onde está a evidência de cada um: [Checkpoints CP1–CP13](checkpoints.md).
+
 ```{toctree}
 :caption: Plataforma
 :maxdepth: 1
 
 plataforma/rastreabilidade
 plataforma/como-contribuir
+checkpoints
 ```
 
 ```{toctree}
@@ -48,8 +52,15 @@ dsm1/index
 ```
 
 ```{toctree}
-:caption: DSM2 — Arquitetura e protótipo (concluída)
+:caption: DSM2 — Arquitetura e protótipo (revisada)
 :maxdepth: 2
 
 dsm2/index
+```
+
+```{toctree}
+:caption: DSM3 — Comunicação e coordenação (em andamento)
+:maxdepth: 2
+
+dsm3/index
 ```

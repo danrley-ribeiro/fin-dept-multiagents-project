@@ -85,28 +85,34 @@
 :pursues: G-03
 :uses_resource: ENV-PLN, ENV-ERP, ENV-TOK
 
-**Cognição:** Determinístico (variância + forecast) com narrativa LLM opcional  
+**Cognição:** BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença; narrativa LLM opcional  
 **LLM:** flag — Narrativa explicativa dos desvios (sem gerar números)
 
 **Percepções**
 
 - Request de avaliação orçamentária
 - Query-ref do Agente de Resultados
-- Orçado e realizado via MCP
+- Orçado e realizado via MCP (planilha e ERP)
+- Inform do Agente de Controles Internos sobre lançamentos contestados
+- Timeout da própria consulta
 
 **Estado interno (crenças)**
 
-- Desvios por conta e centro de custo
+- Crenças por conta (orçado, realizado por fonte, desvio bruto e ajustado, classificação)
+- Desejos e intenções ativas, suspensas e abandonadas
 - Forecast do trimestre e premissas
 
 **Conhecimento**
 
-- Limiar de desvio (% e R$) e método de forecast
+- Limiar de desvio (% e R$), método de forecast e fonte primária do realizado
+- Biblioteca de planos e pesos dos desejos permanentes (precisão, tempestividade)
 - Memória aprovada de justificativas de desvio
 
 **Ações**
 
 - Sinalizar desvio acima do limiar
+- Consultar o Agente de Controles Internos (query-ref)
+- Reclassificar desvio como problema de controle
 - Projetar forecast
 - Propor alteração de orçamento (restrita)
 
@@ -158,7 +164,7 @@
 :pursues: G-05
 :uses_resource: ENV-ERP, ENV-NRM
 
-**Cognição:** BDI com regras simbólicas (crenças sobre lançamentos, intenção de vetar)  
+**Cognição:** BDI com regras simbólicas: crenças por lançamento, desejos permanentes concorrentes (conformidade x prazo), seleção explícita entre aprovar, apontar, vetar com correção e vetar por utilidade, e reconsideração após correção ou waiver  
 **LLM:** nao_permitido
 
 **Percepções**
@@ -169,8 +175,8 @@
 
 **Estado interno (crenças)**
 
-- Crenças sobre conformidade de cada lançamento
-- Intenções ativas (aprovar, apontar, vetar)
+- Crenças sobre conformidade de cada lançamento e correções percebidas
+- Intenções ativas e suspensas (aprovar, apontar, vetar com correção, vetar)
 
 **Conhecimento**
 
@@ -180,6 +186,8 @@
 
 - Emitir parecer conforme / não conforme
 - Vetar publicação por não conformidade crítica
+- Sugerir correções (reaprovar, estornar, reclassificar)
+- Responder query-ref sobre lançamentos irregulares por conta
 - Reavaliar após correção
 
 **Por que é agente:** Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e do Agente de Relatórios.

@@ -1,0 +1,13 @@
+flowchart LR
+  P["Percepção<br/>mensagem, MCP, timeout,<br/>normas.perfil (porte)"] --> B["Revisão de crenças<br/>(registro belief só se mudou)"]
+  B --> R{"Reconsiderar<br/>intenções?"}
+  R -- "desejo deixou de valer" --> AB["abandonada<br/>(motivo registrado)"]
+  R -- "contexto do plano falso<br/>ou falha/timeout" --> RP["falhou → replanejar<br/>(planos já tentados excluídos)"]
+  R -- "nada relevante mudou" --> O
+  AB --> O
+  RP --> D
+  O["Gerar opções<br/>(desejos a partir das crenças)"] --> D["Deliberar<br/>plano aplicável de maior utilidade<br/>utilidade = 10 × Σ pesos dos desejos atendidos + preferência"]
+  D --> I["Intenção adotada<br/>(executa o corpo do plano)"]
+  I -- "aguarda resposta<br/>ou outro desejo" --> S["suspensa"]
+  S -- "resposta / dependência resolvida" --> I
+  I -- "objetivo atingido" --> C["concluída<br/>desejo satisfeito"]

@@ -48,3 +48,29 @@ escopo restrito ao que o enunciado da DSM2 pede.
 - A IA não executou o protótipo em ambiente distribuído nem com agentes em processos separados.
 - Os valores do dataset são sintéticos; a linha de base da DSM1 continua sendo premissa.
 - O conteúdo da apostila foi apenas citado e parafraseado (material de uso restrito).
+
+## Revisão pós-feedback e início da DSM3 (29/10/2026)
+
+**Modelo:** Claude Opus 5.5, pelo Claude Code.
+
+| Atividade | Artefatos |
+|---|---|
+| Núcleo BDI e reescrita de AG-ORC (BDI) e AG-CIN (seleção e reconsideração explícitas) | `src/fin_mas/core/bdi.py`, `agents/orc.py`, `agents/cin.py` |
+| Decisões distribuídas: consulta ORC→CIN, veto com correção sugerida e reavaliação | `agents/orq.py`, `models/protocols.yaml` |
+| Baseline centralizado, métricas (MET-01 corrigida, MET-13, MET-14) e comparação em 10 seeds | `baseline.py`, `metricas.py`, `experimentos.py`, `docs/dsm2/resultados/` |
+| Regras por porte (base normativa) e empresa fictícia SMA com logo | `models/portes.yaml`, `env/portes.py`, `env/empresa.py`, `assets/sma-logo.svg` |
+| Modelos Excel, leitura validada, servidor MCP de Excel (stdio) | `fontes/planilha.py`, `mcp/excel_server.py` |
+| Execução ao vivo, servidor SSE e dashboard Vite + React + MUI | `live.py`, `server.py`, `web/` |
+| Testes e2e, de integração e de uso real no navegador (Playwright) | `tests/e2e/`, `tests/integration/`, `web/e2e/` |
+| Documentação (Read the Docs), ADR-005 e ADR-006, checkpoints, DSM1 v2 | `docs/`, `entregas/` |
+
+**Decisões que ficaram com os autores:** responder a cada ponto do feedback; incluir dashboard, empresa SMA,
+dados mock, regras por porte e planilhas (pedido explícito, adiantando a DSM3); testes novos só e2e, de
+integração e de uso real; regras sem LLM; commits locais sem coautoria.
+
+**Verificação:** `python -m pytest` (todos passam, offline); `tools/trace.py --check` (0 erros);
+`npm run build`, `npm test` e `npm run test:e2e` (Chrome real sobre o servidor Python); `sphinx -W`;
+inspeção visual do dashboard no navegador e do PDF da DSM1 v2. **Revisão humana dos autores:** *a preencher*.
+
+**Limites:** os parâmetros por porte são referências coerentes com a legislação, não a política de uma
+empresa real; dados sintéticos têm gabarito, planilhas reais não.

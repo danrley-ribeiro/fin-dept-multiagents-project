@@ -106,6 +106,33 @@ Stub de rastreabilidade. Caminho: a definir (próxima entrega).
 Stub de rastreabilidade. Caminho: a definir (próxima entrega).
 ````
 
+````{comp} Núcleo BDI (crenças
+:id: COMP-BDI
+:entrega: DSM2
+:status: implementado
+:realizes: AG-ORC, AG-CIN
+
+Componente implementado em `src/fin_mas/core/bdi.py`.
+````
+
+````{comp} Execução ao vivo
+:id: COMP-OBS
+:entrega: DSM2
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `web/src/App.tsx`.
+````
+
+````{comp} Modelos Excel e servidor MCP de Excel (empresa sem ERP)
+:id: COMP-XLS
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/mcp/excel_server.py`.
+````
+
 ````{comp} Reserva de Período
 :id: COMP-LCK
 :entrega: DSM2

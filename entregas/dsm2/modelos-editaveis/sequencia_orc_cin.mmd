@@ -1,0 +1,18 @@
+sequenceDiagram
+  autonumber
+  participant ORQ as AG-ORQ (Orquestrador)
+  participant ORC as AG-ORC (Orçamento, BDI)
+  participant MCP as MCP (planilhas, ERP, normas)
+  participant CIN as AG-CIN (Controles Internos, BDI)
+  ORQ->>ORC: request orcado_x_realizado (PROT-DEL)
+  ORC-->>ORQ: agree
+  ORC->>MCP: normas.perfil, planilhas.orcamento, erp.realizado_por_conta
+  Note over ORC: crença: desvio de C-3002 acima do limiar<br/>desejos: explicar_desvio (p2), alertar_desvio (p3)
+  Note over ORC: deliberação: P-CONSULTAR-CIN (u=30) vence P-SEM-EXPLICACAO (u=10)
+  ORC->>CIN: query-ref irregularidades(C-3002) (PROT-QRY, decisão do AG-ORC)
+  Note over ORC: intenção P-SINALIZAR suspensa até a explicação
+  CIN->>MCP: erp.lancamentos, normas.alcadas, normas.regras
+  CIN-->>ORC: inform valor_contestado (NF duplicada)
+  Note over ORC: revisão de crença: contestado = R$ X<br/>desvio ajustado abaixo do limiar
+  Note over ORC: reconsideração: P-SINALIZAR abandonada<br/>novo desejo encaminhar_controle → P-ENCAMINHAR-CONTROLE
+  ORC-->>ORQ: inform (classificação: atribuido_a_controle)

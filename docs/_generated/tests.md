@@ -309,3 +309,231 @@
 **Resultado esperado:** especialista que expira duas vezes: um reenvio, depois failure ao solicitante, reserva liberada e nada publicado  
 **Execução:** DSM2 (status atual: executado).
 ````
+
+````{test} test_budget_agent_queries_controls_and_reconsiders
+:id: TEST-27
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F03, REQ-F04
+:derived_from: ROLE-ORC
+
+`test_budget_agent_queries_controls_and_reconsiders()` — tipo *cenario*.  
+**Resultado esperado:** AG-ORC consulta o AG-CIN por PROT-QRY sem o Orquestrador, revisa a crença e abandona a intenção de sinalizar; classificação igual ao gabarito e o baseline erra  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_budget_plan_failure_replans_on_timeout
+:id: TEST-28
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F03, REQ-F01
+:derived_from: PROT-QRY
+
+`test_budget_plan_failure_replans_on_timeout()` — tipo *protocolo-negativo*.  
+**Resultado esperado:** query-ref perdida expira; o plano falha e o AG-ORC replaneja para o fallback com ressalva, sem deixar de responder  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_source_divergence_revises_belief
+:id: TEST-29
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F03
+:derived_from: ROLE-ORC
+
+`test_source_divergence_revises_belief()` — tipo *cenario*.  
+**Resultado esperado:** planilha diverge do ERP: crença revisada a partir do ERP, sem falso desvio, com ressalva no relatório  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_veto_correction_reconsidered_by_controls
+:id: TEST-30
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F05
+:derived_from: PROT-CMP
+
+`test_veto_correction_reconsidered_by_controls()` — tipo *protocolo-nominal*.  
+**Resultado esperado:** veto com correção sugerida vence por utilidade; correção humana percebida via MCP; intenção reconsiderada; publicado sem ressalva  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_partial_correction_keeps_veto_then_blocks
+:id: TEST-31
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F05
+:derived_from: NORM-04
+
+`test_partial_correction_keeps_veto_then_blocks()` — tipo *protocolo-negativo*.  
+**Resultado esperado:** correção parcial: AG-CIN mantém o veto sem novo ciclo e o prazo esgotado bloqueia a publicação  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_completion_metric_excludes_failures
+:id: TEST-32
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F01
+:derived_from: PROT-SOL
+
+`test_completion_metric_excludes_failures()` — tipo *cenario*.  
+**Resultado esperado:** MET-01 não conta failure como conclusão; MET-13 mede a resposta explícita  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_mas_vs_centralized_baseline
+:id: TEST-33
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F03, REQ-F05
+:derived_from: SVC-AUD
+
+`test_mas_vs_centralized_baseline()` — tipo *experimento*.  
+**Resultado esperado:** mesmas seeds: o SMA não publica crítica sem tratamento e acerta desvios atribuídos; custa mais mensagens; com perda de mensagens o workflow publica e o SMA falha  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_live_operator_controls_and_human_decision
+:id: TEST-34
+:entrega: DSM2
+:status: executado
+:verifies: REQ-O04, REQ-F05
+:derived_from: SVC-AUD
+
+`test_live_operator_controls_and_human_decision()` — tipo *integracao*.  
+**Resultado esperado:** execução ao vivo pausa, desliga agentes e aguarda a decisão humana do dashboard; o snapshot expõe crenças e intenções  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} test_sma_office_day_answers_every_request
+:id: TEST-35
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01, REQ-S02
+:derived_from: PROT-LCK
+
+`test_sma_office_day_answers_every_request()` — tipo *cenario*.  
+**Resultado esperado:** expediente da SMA com três competências: toda solicitação tem resposta explícita e só o fechamento concorrente do mesmo mês é recusado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_rules_and_bdi_follow_company_size
+:id: TEST-36
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F05, REQ-F03
+:derived_from: NORM-04
+
+`test_rules_and_bdi_follow_company_size()` — tipo *cenario*.  
+**Resultado esperado:** em micro, pequena, média e grande o porte vem da base normativa (normas.perfil): alçadas, severidades e pesos dos desejos mudam; todas as inconformidades do gabarito são detectadas  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_micro_company_has_no_erp_and_compensating_control
+:id: TEST-37
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F03, REQ-F05
+:derived_from: SVC-MCP
+
+`test_micro_company_has_no_erp_and_compensating_control()` — tipo *cenario*.  
+**Resultado esperado:** microempresa sem ERP: tool do ERP indisponível, realizado da planilha, SoD inevitável vira ressalva com controle compensatório  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_large_company_treats_cutoff_as_critical
+:id: TEST-38
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F05
+:derived_from: NORM-04
+
+`test_large_company_treats_cutoff_as_critical()` — tipo *cenario*.  
+**Resultado esperado:** grande empresa veta competência errada (corte material) e reavalia após reclassificação; na média é só ressalva  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_spreadsheet_templates_validate_and_report_errors
+:id: TEST-39
+:entrega: DSM3
+:status: executado
+:verifies: REQ-NF01, REQ-F02
+:derived_from: SVC-MCP
+
+`test_spreadsheet_templates_validate_and_report_errors()` — tipo *integracao*.  
+**Resultado esperado:** modelos Excel gerados; planilha com erro de digitação é recusada com aba, coluna e linha  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_agents_close_month_from_filled_spreadsheet_and_write_back_correction
+:id: TEST-40
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01, REQ-F05
+:derived_from: SVC-MCP
+
+`test_agents_close_month_from_filled_spreadsheet_and_write_back_correction()` — tipo *integracao*.  
+**Resultado esperado:** agentes fecham o mês sobre a planilha preenchida com proveniência arquivo#aba; a correção aprovada é gravada na planilha  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_excel_mcp_server_over_stdio
+:id: TEST-41
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01, REQ-NF01
+:derived_from: NORM-02
+
+`test_excel_mcp_server_over_stdio()` — tipo *integracao*.  
+**Resultado esperado:** servidor MCP de Excel por stdio: initialize, tools/list, leitura de aba, acesso fora da pasta negado e sem sobrescrita  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_dashboard_downloads_template_uploads_spreadsheet_and_runs
+:id: TEST-42
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04, REQ-F01
+:derived_from: SVC-AUD
+
+`test_dashboard_downloads_template_uploads_spreadsheet_and_runs()` — tipo *integracao*.  
+**Resultado esperado:** dashboard baixa modelo, recusa planilha inválida, aceita a válida e reinicia o escritório sobre ela  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera
+:id: TEST-43
+:entrega: DSM2
+:status: executado
+:verifies: REQ-O04, REQ-F05
+:derived_from: PROT-CMP
+
+`veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera()` — tipo *uso-real*.  
+**Resultado esperado:** no navegador, o sino mostra o veto, o humano corrige e a mente do AG-CIN mostra a reconsideração  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} desligar o AG-CIN gera perdas, timeout, replanejamento do AG-ORC e falha explícita
+:id: TEST-44
+:entrega: DSM2
+:status: executado
+:verifies: REQ-F01, REQ-O04
+:derived_from: PROT-QRY
+
+`desligar o AG-CIN gera perdas, timeout, replanejamento do AG-ORC e falha explícita()` — tipo *uso-real*.  
+**Resultado esperado:** operador desliga um agente pelo dashboard; perdas, timeout e replanejamento aparecem e o pedido falha explicitamente  
+**Execução:** DSM2 (status atual: executado).
+````
+
+````{test} empresa sem ERP: baixa o modelo, envia a planilha e o escritório roda sobre ela
+:id: TEST-45
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01, REQ-O04
+:derived_from: SVC-MCP
+
+`empresa sem ERP: baixa o modelo, envia a planilha e o escritório roda sobre ela()` — tipo *uso-real*.  
+**Resultado esperado:** usuário baixa o modelo, envia a planilha pelo navegador e os agentes leem mcp://excel/arquivo#aba  
+**Execução:** DSM3 (status atual: executado).
+````

@@ -1,26 +1,36 @@
-# DSM2 — Arquitetura e protótipo inicial
+# DSM2 — Arquitetura e protótipo inicial (revisada após o feedback)
 
-**Projeto:** Sistema Multiagente de Controladoria (INE5628 — Sistemas Multiagentes).
+**Projeto:** Sistema Multiagente de Controladoria da **SMA S.A.** (empresa fictícia) — INE5628 Sistemas Multiagentes.
 **Autores:** Danrley Moreira Ribeiro (23102664) e Jiliard Mai Peifer (23103129).
 Enunciado: [`enunciados/DSM2.txt`](../../enunciados/DSM2.txt).
 
-Protótipo executável do Orquestrador e dos cinco agentes especializados sobre um barramento A2A
-em processo, com dados sintéticos e MCP mock. O que pertence à DSM3 e à DSM4 (LLM, memória,
-Approval Gate, métricas, dashboard) **não** está nesta entrega; ver [Limitações](../../docs/dsm2/limitacoes.md).
+Protótipo executável do Orquestrador e de cinco especialistas sobre um barramento A2A em processo, com
+**dois agentes cognitivos BDI** (Orçamento e Controles Internos), **decisões distribuídas** entre eles,
+**comparação com o workflow centralizado** da DSM1, regras por **porte de empresa** (micro a grande),
+suporte a **empresas sem ERP** (modelos Excel e servidor MCP de Excel) e um **dashboard** em que os agentes
+aparecem trabalhando num escritório. O que mudou depois do feedback está em
+[`docs/dsm2/revisao.md`](../../docs/dsm2/revisao.md).
 
 ## Como executar
 
-Requer Python 3.12 ou superior. Não usa rede nem API paga.
+Requer Python 3.12+ e, para o dashboard, Node 18+. Nada usa a internet em tempo de execução.
 
 ```bash
 python -m venv .venv
-.venv/bin/pip install -e . -r requirements-dev.txt        # Windows: .venv\Scripts\pip
-.venv/bin/python -m fin_mas list                           # cenários disponíveis
-.venv/bin/python -m fin_mas run --scenario fechar_mes --seed 42
-.venv/bin/python -m pytest                                 # 118 testes, tudo offline
+.venv/bin/pip install -e . -r requirements-dev.txt          # Windows: .venv\Scripts\pip
+.venv/bin/python -m fin_mas list                             # cenários
+.venv/bin/python -m fin_mas run --scenario desvio_irregular  # trilha com crenças, desejos, deliberações e intenções
+.venv/bin/python -m fin_mas run --scenario fechar_mes --porte micro
+.venv/bin/python -m fin_mas comparar --seeds 10              # SMA x workflow centralizado
+.venv/bin/python -m pytest                                   # testes e2e e de integração (offline)
+
+cd web && npm install && npm run build && cd ..
+.venv/bin/python -m fin_mas serve                            # http://127.0.0.1:8765 — escritório ao vivo
+cd web && npm run test:e2e                                   # testes de uso real (Chrome + servidor Python)
 ```
 
-Sem instalar o pacote: `PYTHONPATH=src python -m fin_mas ...`.
+Empresa sem ERP: `python -m fin_mas modelos --out modelos`, preencha a planilha e rode
+`python -m fin_mas run --scenario fechar_mes --pasta <pasta>`, ou envie-a pelo dashboard (**Dados da empresa**).
 
 ### Cenário controlado de depuração
 
@@ -29,65 +39,55 @@ python -m fin_mas run --scenario depuracao --trace trace.jsonl   # seed 1337
 python -m fin_mas replay trace.jsonl SOL-001                     # reconstrói a causalidade pelo conversation_id
 ```
 
-O cenário planta uma violação de SoD (crítica), um lançamento de outra competência (não crítica) e a
-perda do primeiro `request` ao Agente de Orçamento. Na trilha aparecem, em ordem: a mensagem
-perdida (`DEL-002`), o `TIMEOUT` em `t=031`, o reenvio (`DEL-003`), o `veto` do Agente de Controles
-Internos, o aviso ao aprovador, o waiver, a publicação com duas ressalvas e o `inform` final.
-Duas execuções com a mesma seed geram o mesmo hash do trace.
+Perda do primeiro `request` ao AG-ORC (`DEL-002`), timeout em `t=031`, reenvio (`DEL-003`), veto do AG-CIN,
+aviso ao aprovador, waiver, publicação com duas ressalvas e `inform` final. Mesmo seed, mesmo hash.
 
 ## Arquitetura
 
-![Arquitetura em camadas](diagramas/arquitetura_camadas.png)
+Fonte editável: [`modelos-editaveis/arquitetura_camadas.mmd`](modelos-editaveis/arquitetura_camadas.mmd); também:
+[`ciclo_bdi.mmd`](modelos-editaveis/ciclo_bdi.mmd), [`sequencia_orc_cin.mmd`](modelos-editaveis/sequencia_orc_cin.mmd) e
+[`sequencia_veto_correcao.mmd`](modelos-editaveis/sequencia_veto_correcao.mmd) (renderizados na documentação).
+Decisões: ADR-003 (runtime), ADR-004 (A2A e MCP mock), ADR-005 (execução ao vivo e dashboard),
+ADR-006 (regras por porte e planilhas), em [`docs/dsm2/`](../../docs/dsm2/).
 
-Fonte editável: [`modelos-editaveis/arquitetura_camadas.mmd`](modelos-editaveis/arquitetura_camadas.mmd).
-Decisões e alternativas: [ADR-003 (runtime)](../../docs/dsm2/ADR-003-runtime-python-deterministico.md) e
-[ADR-004 (A2A e MCP mock)](../../docs/dsm2/ADR-004-a2a-bus-e-mcp-mock.md).
-
-| Camada | Código (`src/fin_mas/`) | Componente |
+| Camada | Código | Componente |
 |---|---|---|
-| Orquestração | `agents/orq.py` | `COMP-ORQ` |
-| Agentes especialistas | `agents/cus.py`, `orc.py`, `res.py`, `cin.py`, `rel.py` | `COMP-CUS`, `COMP-ORC`, `COMP-RES`, `COMP-CIN`, `COMP-REL` |
+| Orquestração | `src/fin_mas/agents/orq.py` | `COMP-ORQ` |
+| Especialistas (ORC e CIN são BDI) | `agents/cus.py`, `orc.py`, `res.py`, `cin.py`, `rel.py` | `COMP-CUS`, `COMP-ORC`, `COMP-RES`, `COMP-CIN`, `COMP-REL` |
+| Cognição | `core/bdi.py` | `COMP-BDI` |
 | Comunicação (A2A) | `core/bus.py`, `fsm.py`, `message.py`, `agent.py` | `COMP-A2A` |
-| Instrumental (MCP mock) | `mcp/gateway.py`, `env/dataset.py` | `COMP-MCP` |
+| Instrumental (MCP, Excel, normas por porte) | `mcp/gateway.py`, `mcp/excel_server.py`, `fontes/planilha.py`, `env/` | `COMP-MCP`, `COMP-XLS` |
 | Governança e coordenação | `services/audit.py`, `services/locks.py` | `COMP-AUD`, `COMP-LCK` |
-| Cenários e CLI | `env/scenarios.py`, `cli.py` | — |
-
-Estado, conhecimento e memória são atributos separados de cada agente ([tabela](../../docs/dsm2/prototipo.md)).
+| Observabilidade | `live.py`, `server.py`, `web/` | `COMP-OBS` |
+| Baseline, métricas, experimento | `baseline.py`, `metricas.py`, `experimentos.py` | — |
 
 ## Testes
 
-`python -m pytest` executa 118 testes (unitários e e2e). Catorze casos da DSM1 passaram a
-`executado` em `models/tests.yaml`: TEST-01 a 10, 14, 16, 24 e 26. O `tools/trace.py --check`
-garante que cada um tem uma função pytest com o mesmo nome. Tabela completa em
-[Testes iniciais](../../docs/dsm2/testes.md).
+- `python -m pytest`: e2e (cenários sobre o bus, verificados pelo trace e pelo gabarito) e integração
+  (simulação ao vivo + servidor HTTP em loopback, planilhas reais, servidor MCP de Excel por stdio, exportação).
+- `cd web && npm run test:e2e`: 14 testes de uso real no Chrome sobre o servidor Python verdadeiro.
+- `tools/trace.py --check` liga cada `TEST-*` executado ao teste homônimo (pytest ou Playwright).
+
+Detalhes em [`docs/dsm2/testes.md`](../../docs/dsm2/testes.md).
 
 ## Checklist do enunciado
 
 | Entregável | Onde |
 |---|---|
-| Código-fonte executável | `src/fin_mas/` |
-| Diagrama de arquitetura | `diagramas/arquitetura_camadas.png` |
+| Código-fonte executável | `src/fin_mas/`, `web/` |
+| Diagrama de arquitetura | `modelos-editaveis/arquitetura_camadas.mmd` (e a imagem da v1 em `diagramas/`) |
 | README.md | este arquivo |
-| Testes iniciais | `tests/` e `docs/dsm2/testes.md` |
+| Testes iniciais | `tests/`, `web/e2e/`, `docs/dsm2/testes.md` |
 | USO_DE_IA.md | [`USO_DE_IA.md`](USO_DE_IA.md) |
 
 | Requisito | Onde |
 |---|---|
-| Justificar arquitetura e runtime | ADR-003, ADR-004 e `docs/dsm2/arquitetura.md` |
-| Agentes principais e ambiente | seis agentes, bus, MCP mock e dataset sintético |
-| Estado/conhecimento e comportamento básico | `estado`, `conhecimento` e `memoria` por agente; DAG, reenvio, veto e waiver |
-| Ao menos uma interação | `fechar_mes` (PROT-SOL, LCK, DEL, QRY, CMP) |
+| Justificar arquitetura e runtime | ADR-003 a ADR-006, `docs/dsm2/arquitetura.md` |
+| Agentes principais e ambiente | seis agentes (dois BDI), bus, MCP, empresa SMA simulada por porte ou planilha real |
+| Estado/conhecimento e comportamento básico | estado, conhecimento e crenças por agente; `docs/dsm2/cognicao.md` |
+| Ao menos uma interação | `fechar_mes` (PROT-SOL, LCK, DEL, QRY, CMP); consulta ORC→CIN; veto com correção |
 | Cenário controlado para depuração | `depuracao` (seed 1337) |
 | Limitações | [`docs/dsm2/limitacoes.md`](../../docs/dsm2/limitacoes.md) |
 
-## Limitações principais
-
-Sem LLM (só template), sem memória de longo prazo, sem Approval Gate (a publicação não espera
-aprovação humana), bus em um único fio, MCP somente leitura, aprovador simulado e correção de
-lançamento não implementada. Detalhes em [`docs/dsm2/limitacoes.md`](../../docs/dsm2/limitacoes.md).
-
-## Documentação navegável
-
-`make docs` gera o site Sphinx; a versão publicada está em
-<https://fin-dept-multiagents-project.readthedocs.io>. O histórico da entrega está no
-[`CHANGELOG.md`](../../CHANGELOG.md).
+Checkpoints CP1–CP13: [`docs/checkpoints.md`](../../docs/checkpoints.md). Documentação navegável:
+<https://fin-dept-multiagents-project.readthedocs.io>.

@@ -18,7 +18,7 @@ project = "Sistema Multiagente de Controladoria"
 author = "Danrley Moreira Ribeiro, Jiliard Mai Peifer"
 copyright = "2026, " + author
 language = "pt_BR"
-release = "DSM1"
+release = "DSM2 revisada"
 
 extensions = [
     "myst_parser",
@@ -31,7 +31,9 @@ exclude_patterns = ["_build", "_generated/*.md"]  # gerados entram via {include}
 suppress_warnings = ["myst.header"]
 
 html_theme = "furo"
-html_title = "Sistema Multiagente de Controladoria — Documentação"
+html_title = "SMA S.A. · Sistema Multiagente de Controladoria"
+html_logo = "_static/sma-logo.svg"
+html_favicon = "_static/sma-logo.svg"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = {

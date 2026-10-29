@@ -1,37 +1,50 @@
 flowchart TB
   subgraph UI["Fronteira com o usuário"]
-    CLI["CLI / cenário<br/>(ROLE-SOL simulado)"]
+    WEB["COMP-OBS<br/>Dashboard Vite + React (Material)<br/>escritório ao vivo e replay"]
+    CLI["CLI / cenários<br/>(ROLE-SOL e ROLE-APR simulados)"]
+    SRV["Servidor local (SSE + comandos)<br/>execução ao vivo ritmada"]
   end
   subgraph ORQ["Camada de orquestração"]
-    AORQ["COMP-ORQ<br/>Orquestrador<br/>catálogo de intenções → DAG"]
+    AORQ["COMP-ORQ<br/>Orquestrador<br/>intenção → DAG, prazos, reenvio"]
   end
   subgraph AG["Camada de agentes especialistas"]
     ACUS["COMP-CUS<br/>Custos"]
-    AORC["COMP-ORC<br/>Orçamento"]
+    AORC["COMP-ORC<br/>Orçamento (BDI)"]
     ARES["COMP-RES<br/>Resultados"]
-    ACIN["COMP-CIN<br/>Controles Internos"]
+    ACIN["COMP-CIN<br/>Controles Internos (BDI, veto)"]
     AREL["COMP-REL<br/>Relatórios (template)"]
+    BDI["COMP-BDI<br/>núcleo BDI: crenças, desejos,<br/>planos, intenções"]
   end
   subgraph COM["Camada de comunicação (social)"]
     BUS["COMP-A2A<br/>Bus em processo + relógio lógico<br/>FSM dos protocolos"]
   end
   subgraph GOV["Governança e coordenação"]
-    AUD["COMP-AUD<br/>Auditoria JSONL"]
+    AUD["COMP-AUD<br/>Auditoria JSONL (belief, intention,<br/>deliberation, decision, mensagens)"]
     LCK["COMP-LCK<br/>Reserva de período"]
   end
-  subgraph INS["Camada instrumental"]
-    MCP["COMP-MCP<br/>Servidores MCP mock (leitura)"]
-    DS[("Dataset sintético<br/>seed + gabarito")]
+  subgraph INS["Camada instrumental (fontes de dados)"]
+    MCP["COMP-MCP<br/>Gateway MCP (allowlist)"]
+    XLS["COMP-XLS<br/>Modelos Excel + servidor MCP de Excel"]
+    DS[("Empresa simulada por porte<br/>(seed + gabarito)")]
+    PL[("Planilha da empresa sem ERP")]
+    NRM[/"models/portes.yaml<br/>normas por porte"/]
   end
   YAML[/"models/protocols.yaml"/]
+  BASE["Baseline: workflow centralizado<br/>(comparação, mesmas seeds)"]
 
+  WEB <--> SRV
+  SRV --> AORQ
   CLI -- "PROT-SOL" --> AORQ
-  AORQ -- "PROT-DEL" --> BUS
+  AORQ -- "PROT-DEL / PROT-CMP" --> BUS
   BUS --> ACUS & AORC & ARES & ACIN & AREL
+  AORC & ACIN -.-> BDI
   ARES -- "PROT-QRY" --> BUS
-  ACIN -- "PROT-CMP: parecer / veto" --> BUS
+  AORC -- "PROT-QRY (consulta direta)" --> BUS
   AORQ -- "PROT-LCK" --> LCK
-  ACUS & AORC & ACIN -- "tools MCP" --> MCP
-  MCP --> DS
-  BUS -. "toda mensagem" .-> AUD
+  ACUS & AORC & ACIN & ARES -- "tools MCP" --> MCP
+  MCP --> DS & XLS & NRM
+  XLS --> PL
+  BUS -. "toda mensagem e decisão" .-> AUD
+  AUD -. "SSE" .-> SRV
   YAML -. "carrega transições" .-> BUS
+  DS -.-> BASE

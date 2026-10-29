@@ -105,17 +105,20 @@
 
 - Comparar orçado x realizado por conta e centro de custo
 - Sinalizar desvios acima do limiar e projetar forecast
+- Reconciliar planilha e ERP e explicar desvios antes de sinalizá-los
 
 **Permissões (Perm)**
 
 - Ler planilhas de orçamento e ERP via MCP
 - Propor alteração de orçamento (restrita)
 - Responder query-ref
+- Iniciar query-ref para ROLE-CIN
 
 **Obrigações (Obl)**
 
 - Explicitar limiar e método de forecast usados
 - Não alterar orçamento sem aprovação
+- Registrar a fonte adotada e a atribuição de cada desvio
 ````
 
 ````{role} Analista de Resultados
@@ -146,17 +149,19 @@
 :entrega: DSM1
 :status: especificado
 :llm: nao_permitido
-:uses_protocol: PROT-DEL, PROT-CMP
+:uses_protocol: PROT-DEL, PROT-CMP, PROT-QRY
 
 **Responsabilidades (Resp)**
 
 - Verificar alçada, segregação de funções, duplicidade, conciliação e competência
 - Emitir parecer conforme / não conforme com regra e severidade
+- Sugerir correções e atestar lançamentos irregulares a outros papéis
 
 **Permissões (Perm)**
 
 - Ler ERP e base normativa via MCP
 - Vetar publicação por não conformidade crítica
+- Responder query-ref
 
 **Obrigações (Obl)**
 

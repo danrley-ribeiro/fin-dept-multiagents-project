@@ -64,3 +64,13 @@ artefatos da entrega.
 ### Limites conhecidos
 
 - O conteúdo da apostila foi apenas citado e parafraseado (material de uso restrito).
+## Revisão v2 (pós-feedback, 29/10/2026)
+
+**Modelo:** Claude Opus 5.5, pelo Claude Code.
+
+A IA gerou `documentacao/main-v2.tex` a partir da v1, com as mudanças pedidas no feedback: caracterização
+cognitiva (AG-ORC e AG-CIN como BDI), tabela de decisões distribuídas, MET-01 corrigida e MET-13/MET-14,
+regras por porte com base legal (LC 123/2006, BNDES, Lei 11.638/2007, normas do CFC, COSO) e mapa dos
+checkpoints CP1–CP13. A v1 entregue não foi alterada. Os números da v2 (objetos, testes, métricas) vêm de
+`tools/trace.py --check`. A seção 5.16 da apostila foi lida para mapear os checkpoints e está
+**parafraseada**, não transcrita. **Revisão humana dos autores:** *a preencher*.

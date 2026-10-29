@@ -56,8 +56,11 @@ items:
     resp:
       - Comparar orçado x realizado por conta e centro de custo
       - Sinalizar desvios acima do limiar e projetar forecast
-    perm: [Ler planilhas de orçamento e ERP via MCP, Propor alteração de orçamento (restrita), Responder query-ref]
-    obl: [Explicitar limiar e método de forecast usados, Não alterar orçamento sem aprovação]
+      - Reconciliar planilha e ERP e explicar desvios antes de sinalizá-los
+    perm: [Ler planilhas de orçamento e ERP via MCP, Propor alteração de orçamento (restrita), Responder query-ref,
+           Iniciar query-ref para ROLE-CIN]
+    obl: [Explicitar limiar e método de forecast usados, Não alterar orçamento sem aprovação,
+          Registrar a fonte adotada e a atribuição de cada desvio]
     protocolos: [PROT-DEL, PROT-QRY, PROT-APR]
     llm: flag
     entrega: DSM1
@@ -78,9 +81,10 @@ items:
     resp:
       - Verificar alçada, segregação de funções, duplicidade, conciliação e competência
       - Emitir parecer conforme / não conforme com regra e severidade
-    perm: [Ler ERP e base normativa via MCP, Vetar publicação por não conformidade crítica]
+      - Sugerir correções e atestar lançamentos irregulares a outros papéis
+    perm: [Ler ERP e base normativa via MCP, Vetar publicação por não conformidade crítica, Responder query-ref]
     obl: [Citar regra e evidência de cada apontamento, Reavaliar após waiver ou correção]
-    protocolos: [PROT-DEL, PROT-CMP]
+    protocolos: [PROT-DEL, PROT-CMP, PROT-QRY]
     llm: nao_permitido
     entrega: DSM1
 

@@ -54,3 +54,41 @@ items:
      esperado: "todo log contém versões de prompt, regras e configuração", entrega: DSM2, status: planejado}
   - {id: TEST-26, nome: test_specialist_failure_retry_then_abort, verifica: [REQ-F01], derivado_de: PROT-DEL, tipo: protocolo-negativo,
      esperado: "especialista que expira duas vezes: um reenvio, depois failure ao solicitante, reserva liberada e nada publicado", entrega: DSM2, status: executado}
+  - {id: TEST-27, nome: test_budget_agent_queries_controls_and_reconsiders, verifica: [REQ-F03, REQ-F04], derivado_de: ROLE-ORC, tipo: cenario,
+     esperado: "AG-ORC consulta o AG-CIN por PROT-QRY sem o Orquestrador, revisa a crença e abandona a intenção de sinalizar; classificação igual ao gabarito e o baseline erra", entrega: DSM2, status: executado}
+  - {id: TEST-28, nome: test_budget_plan_failure_replans_on_timeout, verifica: [REQ-F03, REQ-F01], derivado_de: PROT-QRY, tipo: protocolo-negativo,
+     esperado: "query-ref perdida expira; o plano falha e o AG-ORC replaneja para o fallback com ressalva, sem deixar de responder", entrega: DSM2, status: executado}
+  - {id: TEST-29, nome: test_source_divergence_revises_belief, verifica: [REQ-F03], derivado_de: ROLE-ORC, tipo: cenario,
+     esperado: "planilha diverge do ERP: crença revisada a partir do ERP, sem falso desvio, com ressalva no relatório", entrega: DSM2, status: executado}
+  - {id: TEST-30, nome: test_veto_correction_reconsidered_by_controls, verifica: [REQ-F05], derivado_de: PROT-CMP, tipo: protocolo-nominal,
+     esperado: "veto com correção sugerida vence por utilidade; correção humana percebida via MCP; intenção reconsiderada; publicado sem ressalva", entrega: DSM2, status: executado}
+  - {id: TEST-31, nome: test_partial_correction_keeps_veto_then_blocks, verifica: [REQ-F05], derivado_de: NORM-04, tipo: protocolo-negativo,
+     esperado: "correção parcial: AG-CIN mantém o veto sem novo ciclo e o prazo esgotado bloqueia a publicação", entrega: DSM2, status: executado}
+  - {id: TEST-32, nome: test_completion_metric_excludes_failures, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: cenario,
+     esperado: "MET-01 não conta failure como conclusão; MET-13 mede a resposta explícita", entrega: DSM2, status: executado}
+  - {id: TEST-33, nome: test_mas_vs_centralized_baseline, verifica: [REQ-F03, REQ-F05], derivado_de: SVC-AUD, tipo: experimento,
+     esperado: "mesmas seeds: o SMA não publica crítica sem tratamento e acerta desvios atribuídos; custa mais mensagens; com perda de mensagens o workflow publica e o SMA falha", entrega: DSM2, status: executado}
+  - {id: TEST-34, nome: test_live_operator_controls_and_human_decision, verifica: [REQ-O04, REQ-F05], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "execução ao vivo pausa, desliga agentes e aguarda a decisão humana do dashboard; o snapshot expõe crenças e intenções", entrega: DSM2, status: executado}
+  - {id: TEST-35, nome: test_sma_office_day_answers_every_request, verifica: [REQ-F01, REQ-S02], derivado_de: PROT-LCK, tipo: cenario,
+     esperado: "expediente da SMA com três competências: toda solicitação tem resposta explícita e só o fechamento concorrente do mesmo mês é recusado", entrega: DSM3, status: executado}
+  - {id: TEST-36, nome: test_rules_and_bdi_follow_company_size, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "em micro, pequena, média e grande o porte vem da base normativa (normas.perfil): alçadas, severidades e pesos dos desejos mudam; todas as inconformidades do gabarito são detectadas", entrega: DSM3, status: executado}
+  - {id: TEST-37, nome: test_micro_company_has_no_erp_and_compensating_control, verifica: [REQ-F03, REQ-F05], derivado_de: SVC-MCP, tipo: cenario,
+     esperado: "microempresa sem ERP: tool do ERP indisponível, realizado da planilha, SoD inevitável vira ressalva com controle compensatório", entrega: DSM3, status: executado}
+  - {id: TEST-38, nome: test_large_company_treats_cutoff_as_critical, verifica: [REQ-F05], derivado_de: NORM-04, tipo: cenario,
+     esperado: "grande empresa veta competência errada (corte material) e reavalia após reclassificação; na média é só ressalva", entrega: DSM3, status: executado}
+  - {id: TEST-39, nome: test_spreadsheet_templates_validate_and_report_errors, verifica: [REQ-NF01, REQ-F02], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "modelos Excel gerados; planilha com erro de digitação é recusada com aba, coluna e linha", entrega: DSM3, status: executado}
+  - {id: TEST-40, nome: test_agents_close_month_from_filled_spreadsheet_and_write_back_correction, verifica: [REQ-F01, REQ-F05], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "agentes fecham o mês sobre a planilha preenchida com proveniência arquivo#aba; a correção aprovada é gravada na planilha", entrega: DSM3, status: executado}
+  - {id: TEST-41, nome: test_excel_mcp_server_over_stdio, verifica: [REQ-S01, REQ-NF01], derivado_de: NORM-02, tipo: integracao,
+     esperado: "servidor MCP de Excel por stdio: initialize, tools/list, leitura de aba, acesso fora da pasta negado e sem sobrescrita", entrega: DSM3, status: executado}
+  - {id: TEST-42, nome: test_dashboard_downloads_template_uploads_spreadsheet_and_runs, verifica: [REQ-O04, REQ-F01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "dashboard baixa modelo, recusa planilha inválida, aceita a válida e reinicia o escritório sobre ela", entrega: DSM3, status: executado}
+  - {id: TEST-43, nome: "veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera", verifica: [REQ-O04, REQ-F05], derivado_de: PROT-CMP, tipo: uso-real,
+     esperado: "no navegador, o sino mostra o veto, o humano corrige e a mente do AG-CIN mostra a reconsideração", entrega: DSM2, status: executado}
+  - {id: TEST-44, nome: "desligar o AG-CIN gera perdas, timeout, replanejamento do AG-ORC e falha explícita", verifica: [REQ-F01, REQ-O04], derivado_de: PROT-QRY, tipo: uso-real,
+     esperado: "operador desliga um agente pelo dashboard; perdas, timeout e replanejamento aparecem e o pedido falha explicitamente", entrega: DSM2, status: executado}
+  - {id: TEST-45, nome: "empresa sem ERP: baixa o modelo, envia a planilha e o escritório roda sobre ela", verifica: [REQ-F01, REQ-O04], derivado_de: SVC-MCP, tipo: uso-real,
+     esperado: "usuário baixa o modelo, envia a planilha pelo navegador e os agentes leem mcp://excel/arquivo#aba", entrega: DSM3, status: executado}

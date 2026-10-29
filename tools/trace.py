@@ -43,7 +43,7 @@ KINDS = {
     "tests": ("TEST-", "test"),
     "metrics": ("MET-", "metric"),
 }
-ENTREGAS = {"DSM1", "DSM2", "FUTURA"}
+ENTREGAS = {"DSM1", "DSM2", "DSM3", "DSM4", "FUTURA"}
 LLM_PERMITIDO = {"AG-REL", "AG-RES", "AG-ORC"}
 
 # (arquivo, campo) -> (prefixos aceitos, nome do link sphinx-needs)
@@ -231,8 +231,9 @@ def validate(data: dict[str, list[dict]], index: dict[str, dict]) -> tuple[Repor
             rep.err(f"{t['id']}: teste não verifica requisito")
         if str(t.get("status", "")).upper() == "PASS" and t.get("entrega") == "DSM1":
             rep.err(f"{t['id']}: PASS sem execução real é proibido")
-        if t.get("status") == "executado" and f"def {t['nome']}(" not in codigo_dos_testes():
-            rep.err(f"{t['id']}: status executado, mas não há função {t['nome']}() em tests/")
+        codigo = codigo_dos_testes()
+        if t.get("status") == "executado" and f"def {t['nome']}(" not in codigo and f'test("{t["nome"]}"' not in codigo:
+            rep.err(f"{t['id']}: status executado, mas não há teste {t['nome']} em tests/ nem em web/e2e/")
 
     for comp in data["components"]:
         if comp.get("status") == "implementado" and not (ROOT / str(comp.get("caminho"))).exists():
@@ -268,8 +269,8 @@ def chain_for(req: dict, index: dict, back: dict) -> dict:
 
 
 def codigo_dos_testes() -> str:
-    """Código-fonte de todos os arquivos tests/**/*.py (para ligar TEST-* às funções pytest)."""
-    arquivos = sorted((ROOT / "tests").rglob("*.py"))
+    """Código dos testes pytest (tests/**/*.py) e de uso real no navegador (web/e2e/*.spec.ts)."""
+    arquivos = sorted((ROOT / "tests").rglob("*.py")) + sorted((ROOT / "web" / "e2e").glob("*.spec.ts"))
     return "\n".join(p.read_text(encoding="utf-8") for p in arquivos)
 
 

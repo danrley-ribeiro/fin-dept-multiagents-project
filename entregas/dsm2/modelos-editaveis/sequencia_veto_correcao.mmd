@@ -1,0 +1,21 @@
+sequenceDiagram
+  autonumber
+  participant ORQ as AG-ORQ
+  participant CIN as AG-CIN (BDI)
+  participant APR as Aprovador humano
+  participant ERP as ERP ou planilha
+  ORQ->>CIN: request (PROT-CMP)
+  Note over CIN: deliberação: P-VETAR-COM-CORRECAO (conformidade + prazo)<br/>vence P-VETAR (só conformidade)
+  CIN-->>ORQ: veto + correções sugeridas + opções
+  ORQ->>APR: veto_notice (corrigir | waiver | bloquear)
+  APR->>ERP: aplica a correção (reaprovar, estornar, reclassificar)
+  APR-->>ORQ: decisão humana: corrigir
+  ORQ->>CIN: correcao (VETADO → EM_ANALISE)
+  CIN->>ERP: nova percepção via MCP
+  Note over CIN: revisão de crenças, intenção de vetar reconsiderada
+  alt sem críticas restantes
+    CIN-->>ORQ: conforme → publicação
+  else críticas restantes (sem novo ciclo no porte)
+    CIN-->>ORQ: veto (P-VETAR mantém o compromisso)
+    ORQ->>APR: veto_notice (waiver | bloquear)
+  end

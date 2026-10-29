@@ -4,8 +4,8 @@
 :status: especificado
 :measures: REQ-F01
 
-**Fórmula:** solicitações com resposta final explícita (inform ou failure justificado) / total  
-**Alvo:** >= 95% nos cenários controlados
+**Fórmula:** solicitações concluídas com inform / total (revisada após o feedback da DSM2: failure, refuse e not-understood não contam como conclusão; vão para a MET-13)  
+**Alvo:** >= 95% nos cenários sem veto nem falha injetada; reportar por cenário
 ````
 
 ````{metric} Acurácia numérica contra gabarito
@@ -116,4 +116,24 @@
 
 **Fórmula:** execuções com mesmo seed e mesmas versões que produzem o mesmo hash / execuções  
 **Alvo:** 100%
+````
+
+````{metric} Taxa de resposta explícita
+:id: MET-13
+:entrega: DSM2
+:status: implementado
+:measures: REQ-F01
+
+**Fórmula:** solicitações com resposta final explícita (inform, failure, refuse ou not-understood) / total  
+**Alvo:** 100%
+````
+
+````{metric} Distribuição decisória
+:id: MET-14
+:entrega: DSM2
+:status: implementado
+:measures: REQ-F03, REQ-F05
+
+**Fórmula:** registros de decisão e deliberação feitos por agentes que não o Orquestrador / total de registros de decisão e deliberação da solicitação (evidência de decisão distribuída x workflow centralizado)  
+**Alvo:** reportar por cenário contra o baseline (0% por construção)
 ````

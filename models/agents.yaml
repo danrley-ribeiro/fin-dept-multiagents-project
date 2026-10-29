@@ -57,7 +57,10 @@ items:
   - id: AG-ORC
     titulo: Agente de Orçamento
     papeis: [ROLE-ORC]
-    cognicao: Determinístico (variância + forecast) com narrativa LLM opcional
+    cognicao: >-
+      BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável,
+      explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com
+      utilidade, replanejamento na falha e reconsideração por revisão de crença; narrativa LLM opcional
     llm: flag
     llm_uso: Narrativa explicativa dos desvios (sem gerar números)
     objetivos: [G-03]
@@ -65,15 +68,21 @@ items:
     percepcoes:
       - Request de avaliação orçamentária
       - Query-ref do Agente de Resultados
-      - Orçado e realizado via MCP
+      - Orçado e realizado via MCP (planilha e ERP)
+      - Inform do Agente de Controles Internos sobre lançamentos contestados
+      - Timeout da própria consulta
     estado:
-      - Desvios por conta e centro de custo
+      - Crenças por conta (orçado, realizado por fonte, desvio bruto e ajustado, classificação)
+      - Desejos e intenções ativas, suspensas e abandonadas
       - Forecast do trimestre e premissas
     conhecimento:
-      - Limiar de desvio (% e R$) e método de forecast
+      - Limiar de desvio (% e R$), método de forecast e fonte primária do realizado
+      - Biblioteca de planos e pesos dos desejos permanentes (precisão, tempestividade)
       - Memória aprovada de justificativas de desvio
     acoes:
       - Sinalizar desvio acima do limiar
+      - Consultar o Agente de Controles Internos (query-ref)
+      - Reclassificar desvio como problema de controle
       - Projetar forecast
       - Propor alteração de orçamento (restrita)
     justificativa: Decide autonomamente o que é desvio relevante sob limiares próprios e propõe correções.
@@ -106,7 +115,10 @@ items:
   - id: AG-CIN
     titulo: Agente de Controles Internos
     papeis: [ROLE-CIN]
-    cognicao: BDI com regras simbólicas (crenças sobre lançamentos, intenção de vetar)
+    cognicao: >-
+      BDI com regras simbólicas: crenças por lançamento, desejos permanentes concorrentes
+      (conformidade x prazo), seleção explícita entre aprovar, apontar, vetar com correção e vetar
+      por utilidade, e reconsideração após correção ou waiver
     llm: nao_permitido
     objetivos: [G-05]
     recursos: [ENV-ERP, ENV-NRM]
@@ -115,13 +127,15 @@ items:
       - Lançamentos, aprovadores e conciliações via MCP
       - Waiver ou correção informados pelo Orquestrador
     estado:
-      - Crenças sobre conformidade de cada lançamento
-      - Intenções ativas (aprovar, apontar, vetar)
+      - Crenças sobre conformidade de cada lançamento e correções percebidas
+      - Intenções ativas e suspensas (aprovar, apontar, vetar com correção, vetar)
     conhecimento:
       - Regras de alçada, SoD, duplicidade e competência (base normativa)
     acoes:
       - Emitir parecer conforme / não conforme
       - Vetar publicação por não conformidade crítica
+      - Sugerir correções (reaprovar, estornar, reclassificar)
+      - Responder query-ref sobre lançamentos irregulares por conta
       - Reavaliar após correção
     justificativa: Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e do Agente de Relatórios.
     entrega: DSM1

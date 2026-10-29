@@ -67,9 +67,9 @@ stateDiagram-v2
 :id: PROT-QRY
 :entrega: DSM1
 :status: especificado
-:participants: ROLE-RES, ROLE-CUS, ROLE-ORC
+:participants: ROLE-RES, ROLE-CUS, ROLE-ORC, ROLE-CIN
 
-**Propósito:** O Agente de Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.  
+**Propósito:** Um especialista obtém informação de outro sem acessar suas regras internas: o Agente de Resultados consulta Custos e Orçamento; o Agente de Orçamento consulta Controles Internos para explicar um desvio (decisão do próprio agente, sem o Orquestrador).  
 **Meio:** SVC-A2A  
 **Performativos:** query-ref, inform, refuse, failure
 
@@ -102,7 +102,7 @@ stateDiagram-v2
 
 **Propósito:** O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.  
 **Meio:** SVC-A2A  
-**Performativos:** request, inform(conforme), inform(nao_conforme), veto, waiver, request(reavaliar)
+**Performativos:** request, conforme, nao_conforme_nao_critico, veto, correcao, waiver_humano, prazo_esgotado, publicar
 
 **Diagrama: Máquina de estados PROT-CMP** (`entregas/dsm1/modelos-editaveis/protocols_fsm_PROT-CMP.mmd`)
 

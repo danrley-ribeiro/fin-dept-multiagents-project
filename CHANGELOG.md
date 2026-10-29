@@ -2,6 +2,22 @@
 
 Registro por entrega.
 
+## DSM2 revisada e início da DSM3 (29/10/2026)
+
+- Feedback da DSM2: núcleo BDI (`core/bdi.py`); AG-ORC reescrito como BDI (fonte confiável, explicação de
+  desvio por consulta direta ao AG-CIN, reconsideração e replanejamento); AG-CIN com seleção explícita entre
+  aprovar, apontar, vetar com correção e vetar, e reconsideração após correção, waiver ou prazo.
+- Decisões distribuídas: PROT-QRY ampliado (ORC↔CIN), ciclo `correcao` do PROT-CMP, Orquestrador só roteia.
+- Baseline centralizado, MET-01 corrigida, MET-13 e MET-14, `python -m fin_mas comparar` (10 seeds).
+- Empresa fictícia SMA S.A. com logo; dados mock de três competências (`expediente_sma`).
+- Regras base e pesos BDI por porte (`models/portes.yaml`, normas-v2): micro, pequena, média e grande.
+- Empresas sem ERP: modelos Excel, leitura validada, correções gravadas na planilha, servidor MCP de Excel.
+- Execução ao vivo + servidor SSE + dashboard Vite/React/MUI (escritório, mente BDI, badges, decisão humana,
+  desligar agentes, dados da empresa, replay offline, comparação).
+- Testes novos só e2e, de integração e de uso real (Playwright no Chrome); `tools/trace.py` liga também os testes do Playwright.
+- Documentação: cognição, coordenação, comparação, portes, planilhas, dashboard, ADR-005, ADR-006,
+  checkpoints CP1–CP13, revisão pós-feedback, DSM3. DSM1 v2 (`main-v2.pdf`).
+
 ## DSM1 — v1.1 (19/10/2026)
 
 - Nome do projeto: Sistema Multiagente de Controladoria (sem "terceirização").

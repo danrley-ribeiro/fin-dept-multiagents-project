@@ -14,4 +14,7 @@ items:
   - {id: COMP-MOD, titulo: Registro de Modelos e gateway LLM, realiza: [SVC-MOD], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
   - {id: COMP-MEM, titulo: Serviço de Memória, realiza: [SVC-MEM], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
   - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: a definir (próxima entrega), entrega: DSM2, status: pendente}
+  - {id: COMP-BDI, titulo: Núcleo BDI (crenças, desejos, planos, intenções), realiza: [AG-ORC, AG-CIN], caminho: src/fin_mas/core/bdi.py, entrega: DSM2, status: implementado}
+  - {id: COMP-OBS, titulo: Execução ao vivo, servidor e dashboard do escritório, realiza: [SVC-AUD], caminho: web/src/App.tsx, entrega: DSM2, status: implementado}
+  - {id: COMP-XLS, titulo: Modelos Excel e servidor MCP de Excel (empresa sem ERP), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/excel_server.py, entrega: DSM3, status: implementado}
   - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}

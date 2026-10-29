@@ -44,8 +44,11 @@ items:
 
   - id: PROT-QRY
     titulo: Consulta entre especialistas (FIPA-Query-Ref via A2A)
-    proposito: O Agente de Resultados obtém custos e orçamento consolidados sem acessar as regras internas de outro papel.
-    participantes: [ROLE-RES, ROLE-CUS, ROLE-ORC]
+    proposito: >-
+      Um especialista obtém informação de outro sem acessar suas regras internas: o Agente de Resultados
+      consulta Custos e Orçamento; o Agente de Orçamento consulta Controles Internos para explicar um
+      desvio (decisão do próprio agente, sem o Orquestrador).
+    participantes: [ROLE-RES, ROLE-CUS, ROLE-ORC, ROLE-CIN]
     meio: SVC-A2A
     performativos: [query-ref, inform, refuse, failure]
     estado_inicial: CRIADA
@@ -65,7 +68,7 @@ items:
     proposito: O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.
     participantes: [ROLE-ORQ, ROLE-CIN, ROLE-APR]
     meio: SVC-A2A
-    performativos: [request, inform(conforme), inform(nao_conforme), veto, waiver, request(reavaliar)]
+    performativos: [request, conforme, nao_conforme_nao_critico, veto, correcao, waiver_humano, prazo_esgotado, publicar]
     estado_inicial: CRIADA
     estados_finais: [LIBERADO, BLOQUEADO]
     transicoes:

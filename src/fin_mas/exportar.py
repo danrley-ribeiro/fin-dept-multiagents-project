@@ -12,7 +12,7 @@ import yaml
 
 from fin_mas import __version__
 from fin_mas.core.fsm import models_dir
-from fin_mas.env.empresa import EMPRESA, LOGO_SVG, PESSOAS, PRODUTOS, UNIDADES
+from fin_mas.env.empresa import DEPARTAMENTOS, EMPRESA, LOGO_SVG, PESSOAS, PRODUTOS, UNIDADES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
 
 
@@ -24,6 +24,8 @@ def agentes_info() -> dict:
     info["SOL"] = {"id": "SOL", "titulo": "Solicitante (liderança)", "cognicao": "humano simulado", "papeis": ["ROLE-SOL"]}
     info["APR"] = {"id": "APR", "titulo": "Aprovador humano", "cognicao": "humano (interativo no dashboard)",
                    "papeis": ["ROLE-APR"]}
+    for aid, ficha in info.items():
+        ficha["departamento"] = DEPARTAMENTOS[aid]
     return info
 
 
@@ -51,6 +53,9 @@ def exportar_traces(out) -> list[str]:
         }
         (out / f"{nome}.json").write_text(json.dumps(dados, ensure_ascii=False, default=str), encoding="utf-8")
         indice.append({"nome": nome, "descricao": sc.descricao, "registros": len(e.audit.records)})
+    comparacao = Path(__file__).resolve().parents[2] / "docs" / "dsm2" / "resultados" / "comparacao.json"
+    if comparacao.exists():  # resumo SMA x workflow para a aba de comparação do dashboard
+        (out / "comparacao.json").write_text(comparacao.read_text(encoding="utf-8"), encoding="utf-8")
     (out / "index.json").write_text(json.dumps({"versao": __version__, "cenarios": indice, "agentes": agentes_info(),
                                                 "empresa": empresa_info()}, ensure_ascii=False, indent=1),
                                     encoding="utf-8")

@@ -16,6 +16,7 @@ from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus, Fault
 from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
 from fin_mas.env.empresa import EMPRESA
+from fin_mas.env.portes import PORTE_PADRAO
 from fin_mas.mcp.gateway import MCPGateway
 from fin_mas.services.locks import LockService
 
@@ -109,9 +110,10 @@ class System:
 
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
-                 interativo=False) -> System:
+                 interativo=False, porte=PORTE_PADRAO, pasta=None) -> System:
+    """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos)."""
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
-    amb = Ambiente(seed, plantar=plantar, agenda=agenda)
+    amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
     gw = MCPGateway(amb, bus.audit, bus)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl)
@@ -134,6 +136,7 @@ class Scenario:
     decisao_aprovador: str | tuple = "nenhuma"
     agenda: tuple = ()  # ((competência, plantios), ...) para cenários com vários meses
     pedidos: tuple = ()  # ((intenção, competência, atraso), ...); vazio = um pedido de `intencao`
+    porte: str = PORTE_PADRAO
 
 
 CENARIOS = {c.nome: c for c in [
@@ -168,7 +171,16 @@ CENARIOS = {c.nome: c for c in [
              pedidos=(("avaliar_orcamento", "2026-07", 1), ("fechar_mes", "2026-07", 4),
                       ("fechar_mes", "2026-08", 30), ("fechar_mes", "2026-08", 34),
                       ("avaliar_orcamento", "2026-09", 70), ("fechar_mes", "2026-09", 90))),
+    Scenario("fechamento_micro", "Microempresa sem ERP: planilhas, SoD inevitável tratada por controle compensatório "
+             "e alçada do assistente violada", "fechar_mes", porte="micro", plantar=("alcada", "competencia"),
+             decisao_aprovador="corrigir"),
+    Scenario("fechamento_pequena", "EPP com sistema simples: duplicidade de NF vetada e estornada", "fechar_mes",
+             porte="pequena", plantar=("duplicidade",), decisao_aprovador="corrigir"),
+    Scenario("fechamento_grande", "Grande empresa: materialidade menor, competência errada já é crítica (corte)",
+             "fechar_mes", porte="grande", plantar=("competencia", "desvio_orcamentario"), decisao_aprovador="corrigir"),
 ]}
+
+PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
 
 
 @dataclass
@@ -187,27 +199,37 @@ class Execucao:
     def hash(self) -> str:
         return self.audit.digest()
 
-
     @property
     def respostas(self) -> dict:
         return {sid: self.system.usuario.resposta(sid) for sid in self.sids}
 
 
-def montar(sc: Scenario, seed=None, interativo=False) -> tuple[System, list]:
-    """Monta o sistema do cenário e agenda os pedidos (sem executar)."""
-    sistema = build_system(seed if seed is not None else sc.seed, sc.plantar, sc.faults, sc.decisao_aprovador,
-                           agenda=dict(sc.agenda) or None, interativo=interativo)
-    sistema.bus.audit.record(0, "meta", empresa=EMPRESA, cenario=sc.nome, seed=sistema.ambiente.seed,
-                             versoes={"pacote": __version__, "normas": "normas-v1", "template": VERSAO_TEMPLATE,
+def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None) -> tuple[System, list]:
+    """Monta o sistema do cenário e agenda os pedidos (sem executar).
+
+    `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
+    avaliar orçamento + fechar o mês da competência da planilha).
+    """
+    sistema = build_system(seed if seed is not None else sc.seed, () if pasta else sc.plantar, sc.faults,
+                           sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
+                           interativo=interativo, porte=porte or sc.porte, pasta=pasta)
+    ds = sistema.dataset
+    sistema.bus.audit.record(0, "meta", empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
+                                                 or EMPRESA["razao_social"], "sigla": ds.entidade},
+                             cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
+                             porte_titulo=ds.perfil["titulo"], tem_erp=ds.perfil["tem_erp"],
+                             fonte="planilha" if pasta else "sintetico",
+                             arquivo=str(getattr(ds, "arquivo", "")) or None,
+                             versoes={"pacote": __version__, "normas": ds.perfil["versao"], "template": VERSAO_TEMPLATE,
                                       "rateio": VERSAO_RATEIO})
-    pedidos = sc.pedidos or ((sc.intencao, None, 1),)
+    pedidos = PEDIDOS_PLANILHA if pasta else (sc.pedidos or ((sc.intencao, None, 1),))
     sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso)
             for intencao, c, atraso in pedidos]
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

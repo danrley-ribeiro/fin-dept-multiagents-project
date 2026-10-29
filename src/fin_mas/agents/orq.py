@@ -13,7 +13,7 @@ from fin_mas.core.message import Message
 
 PRAZO_SUBTAREFA = 30  # ticks lógicos de reply_by por delegação
 MAX_TENTATIVAS = 2  # envio original + um reenvio
-MAX_CORRECOES = 1  # ciclos correção -> reavaliação por verificação de conformidade
+MAX_CORRECOES = 2  # teto de segurança; quem oferece (ou não) a correção é o AG-CIN, conforme o porte
 
 
 def _no(agente, tarefa, depende=(), protocolo="PROT-DEL"):
@@ -39,6 +39,22 @@ CATALOGO = {
         },
     },
 }
+
+
+def ressalvas(achados, agrupar_acima=3) -> list[str]:
+    """Uma linha por achado; a mesma regra repetida em muitos lançamentos vira uma linha só."""
+    por_regra: dict[str, list] = {}
+    for a in achados:
+        por_regra.setdefault(a["regra"], []).append(a)
+    linhas = []
+    for regra, grupo in por_regra.items():
+        if len(grupo) > agrupar_acima:
+            ids = ", ".join(a["lancamento"] for a in grupo)
+            comum = grupo[0]["evidencia"].split("; ", 1)[-1] if "; " in grupo[0]["evidencia"] else grupo[0]["evidencia"]
+            linhas.append(f"{regra} em {len(grupo)} lançamentos ({ids}): {comum}")
+        else:
+            linhas += [f"{a['regra']} em {a['lancamento']}: {a['evidencia']}" for a in grupo]
+    return linhas
 
 
 class Orquestrador(Agent):
@@ -143,7 +159,7 @@ class Orquestrador(Agent):
     def _parecer_ou_resultado(self, sol, nome, msg):
         if msg.performative == "nao_conforme_nao_critico":
             sol["parecer"] = "conforme com ressalvas"
-            sol["ressalvas"] += [f"{a['regra']} em {a['lancamento']}: {a['evidencia']}" for a in msg.content["achados"]]
+            sol["ressalvas"] += ressalvas(msg.content["achados"])
             self.bus.advance(msg.conversation_id, "publicar", self.id)
         self._concluir_no(sol, nome, msg.content)
 
@@ -183,8 +199,7 @@ class Orquestrador(Agent):
             self.bus.advance(cid, "publicar", self.id)
             criticos = [f"waiver de {a['regra']} em {a['lancamento']}: {msg.content['justificativa']}"
                         for a in veto["achados"] if a["severidade"] == "critica"]
-            outros = [f"{a['regra']} em {a['lancamento']}: {a['evidencia']}"
-                      for a in veto["achados"] if a["severidade"] != "critica"]
+            outros = ressalvas([a for a in veto["achados"] if a["severidade"] != "critica"])
             sol["ressalvas"] += criticos + outros
             sol["parecer"] = "liberado por waiver humano"
             self.decide(sol["id"], "waiver humano com justificativa", {"justificativa": msg.content["justificativa"]},

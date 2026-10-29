@@ -86,6 +86,8 @@ def formatar(r: dict) -> str:
     if k == "mcp_call":
         return f"{cab} MCP {r['agente']} chama {r['tool']}"
     if k == "mcp_denied":
+        if r.get("motivo"):
+            return f"{cab} MCP INDISPONIVEL {r['agente']} em {r['tool']} ({r['motivo']})"
         return f"{cab} MCP NEGADO {r['agente']} em {r['tool']}"
     if k == "link":
         return f"{cab} subconversa {r['filha']} ({r['subtarefa']})"

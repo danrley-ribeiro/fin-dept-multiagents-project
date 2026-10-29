@@ -17,6 +17,7 @@ pode tornar a intenção de alertar sem sentido, que é então reconsiderada.
 """
 from fin_mas.core.bdi import AgenteBDI, Plano
 from fin_mas.env.dataset import LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, brl
+from fin_mas.mcp.gateway import ToolIndisponivel
 
 PRAZO_CONSULTA = 10  # ticks lógicos até a expiração da query-ref ao AG-CIN
 TOLERANCIA_FONTE = 1_00  # R$ 1,00: abaixo disso planilha e ERP são considerados iguais
@@ -96,7 +97,9 @@ def _corpo_alertar(a, i):
         return
     desvio = a.desvio_ajustado(c, conta)
     a.crencas.revisar(_k("classificacao", c, conta), "desvio_orcamentario", "plano " + i.plano.id, i.desejo.cid)
-    a.decide(i.desejo.cid, f"desvio >= {LIMIAR_PERCENTUAL}% e >= {LIMIAR_ABSOLUTO} centavos após atribuição",
+    lim = a.conhecimento
+    a.decide(i.desejo.cid, f"desvio >= {lim['limiar_percentual']}% e >= {lim['limiar_absoluto']} centavos "
+             f"após atribuição (porte {lim.get('porte', 'media')})",
              {"conta": conta, "desvio_ajustado": desvio}, "sinalizado")
     a.concluir(i, desvio, f"{conta} sinalizada como desvio orçamentário")
 
@@ -210,8 +213,12 @@ class AgenteOrcamento(AgenteBDI):
             t["solicitantes"].append(solicitante)
             return
         cid = solicitante[1]
+        self._perceber_perfil(cid, c)
         planilha = self.gw.call(self.id, "planilhas.orcamento", cid, competencia=c)
-        erp = self.gw.call(self.id, "erp.realizado_por_conta", cid, competencia=c)
+        try:
+            erp = self.gw.call(self.id, "erp.realizado_por_conta", cid, competencia=c)["dados"]["realizado"]
+        except ToolIndisponivel:  # empresa sem ERP: a planilha é a única fonte, sem reconciliação possível
+            erp = None
         contas = [linha["conta"] for linha in planilha["dados"]["contas"]]
         self.estado["tarefas"][c] = {"cid": cid, "contas": contas, "meses": planilha["dados"]["meses_decorridos"],
                                      "solicitantes": [solicitante], "avaliacao": None, "ressalvas": [],
@@ -221,12 +228,25 @@ class AgenteOrcamento(AgenteBDI):
             self.crencas.revisar(_k("orcado", c, conta), linha["orcado_acumulado"], "mcp://planilhas/orcamento", cid)
             self.crencas.revisar(_k("realizado_planilha", c, conta), linha["realizado_acumulado"],
                                  "mcp://planilhas/orcamento", cid)
-            self.crencas.revisar(_k("realizado_erp", c, conta), erp["dados"]["realizado"][conta],
-                                 "mcp://erp/realizado_por_conta", cid)
-            if abs(linha["realizado_acumulado"] - erp["dados"]["realizado"][conta]) <= TOLERANCIA_FONTE:
+            if erp is None:
+                self.crencas.revisar(_k("realizado", c, conta), linha["realizado_acumulado"],
+                                     "planilha (empresa sem ERP)", cid)
+                continue
+            self.crencas.revisar(_k("realizado_erp", c, conta), erp[conta], "mcp://erp/realizado_por_conta", cid)
+            if abs(linha["realizado_acumulado"] - erp[conta]) <= TOLERANCIA_FONTE:
                 self.crencas.revisar(_k("realizado", c, conta), linha["realizado_acumulado"],
                                      "planilha = ERP", cid)
         self.ciclo()
+
+    def _perceber_perfil(self, cid, c) -> None:
+        """Regras do porte da empresa (base normativa): limiares, fonte primária e pesos dos desejos."""
+        p = self.gw.call(self.id, "normas.perfil", cid, competencia=c)["dados"]
+        self.crencas.revisar("porte", p["porte"], "mcp://normas/perfil", cid)
+        self.crencas.revisar("tem_erp", p["tem_erp"], "mcp://normas/perfil", cid)
+        self.conhecimento.update(porte=p["porte"], limiar_percentual=p["limiar_desvio"]["percentual"],
+                                 limiar_absoluto=p["limiar_desvio"]["absoluto"], fonte_primaria=p["fonte_primaria"],
+                                 norma_contabil=p["norma_contabil"], versao_normas=p["versao"])
+        self.DESEJOS_PERMANENTES = dict(p["pesos_orc"])  # a utilidade dos planos muda com o porte
 
     # ---- geração de opções e reconsideração ----------------------------------
     def tarefa(self, c) -> dict:
@@ -302,7 +322,8 @@ class AgenteOrcamento(AgenteBDI):
                      "realizado_acumulado": self.crencas.get(_k("realizado", c, conta)),
                      "desvio": self.desvio_bruto(c, conta), "desvio_ajustado": self.desvio_ajustado(c, conta),
                      "sinalizado": classe == "desvio_orcamentario", "classificacao": classe,
-                     "fonte": self.crencas.get(_k("fonte", c, conta), "planilha = ERP"),
+                     "fonte": self.crencas.get(_k("fonte", c, conta),
+                                               "planilha = ERP" if self.crencas.get("tem_erp", True) else "planilha"),
                      "forecast_trimestre": forecast[conta]}
             contas.append(linha)
             if classe == "desvio_orcamentario":
@@ -311,7 +332,7 @@ class AgenteOrcamento(AgenteBDI):
                 atribuidas.append(conta)
         avaliacao = {
             "desvios": contas, "sinalizadas": sorted(sinalizadas), "atribuidas_a_controle": sorted(atribuidas),
-            "divergencias": sorted(x["conta"] for x in contas if x["fonte"] not in ("planilha = ERP",)),
+            "divergencias": sorted(x["conta"] for x in contas if x["fonte"] not in ("planilha = ERP", "planilha")),
             "ressalvas": list(t["ressalvas"]),
             "totais": {"orcado_acumulado": sum(x["orcado_acumulado"] for x in contas),
                        "realizado_acumulado": sum(x["realizado_acumulado"] for x in contas),

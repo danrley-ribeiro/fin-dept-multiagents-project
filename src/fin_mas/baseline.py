@@ -13,7 +13,7 @@ etapa do bus (1 tick de entrega + 2 de processamento), sem paralelismo.
 """
 from dataclasses import dataclass, field
 
-from fin_mas.env.dataset import LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, LIMITES_ALCADA, SEVERIDADE, USUARIOS, Dataset
+from fin_mas.env.dataset import Dataset
 
 TICKS_POR_ETAPA = 3
 ETAPAS = {"fechar_mes": ["custos", "orcamento", "resultados", "conformidade", "relatorio"],
@@ -37,9 +37,11 @@ class ResultadoBaseline:
 def executar(ds: Dataset, intencao: str = "fechar_mes") -> ResultadoBaseline:
     decisoes = []
     sinalizadas = []
+    limiar = ds.perfil["limiar_desvio"]
     for linha in ds.orcamento:  # só a planilha: é a fonte que a etapa de orçamento conhece
         desvio = linha["realizado_acumulado"] - linha["orcado_acumulado"]
-        if abs(desvio) * 100 >= linha["orcado_acumulado"] * LIMIAR_PERCENTUAL and abs(desvio) >= LIMIAR_ABSOLUTO:
+        if (abs(desvio) * 100 >= linha["orcado_acumulado"] * limiar["percentual"]
+                and abs(desvio) >= limiar["absoluto"]):
             sinalizadas.append(linha["conta"])
             decisoes.append(("orcamento", "desvio acima do limiar", linha["conta"]))
     dre, achados = None, []
@@ -62,7 +64,8 @@ def _verificar(ds: Dataset) -> list:
     achados, vistos = [], set()
     for lanc in ds.lancamentos:
         regras = []
-        if lanc["valor"] > LIMITES_ALCADA[USUARIOS[lanc["aprovador"]]]:
+        teto = ds.perfil["limites_alcada"][ds.perfil["pessoas"][lanc["aprovador"]]]
+        if teto is not None and lanc["valor"] > teto:
             regras.append("alcada")
         if lanc["criador"] == lanc["aprovador"]:
             regras.append("sod")
@@ -72,5 +75,5 @@ def _verificar(ds: Dataset) -> list:
         vistos.add(chave)
         if lanc["competencia"] != ds.competencia:
             regras.append("competencia")
-        achados += [{"regra": r, "lancamento": lanc["id"], "severidade": SEVERIDADE[r]} for r in regras]
+        achados += [{"regra": r, "lancamento": lanc["id"], "severidade": ds.perfil["severidade"][r]} for r in regras]
     return sorted(achados, key=lambda a: (a["regra"], a["lancamento"]))

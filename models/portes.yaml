@@ -1,0 +1,92 @@
+# Base normativa por porte de empresa (versão normas-v2). Fonte única das regras usadas pelos agentes:
+# os limites, severidades, materialidade, fonte primária do realizado e pesos dos desejos BDI de
+# AG-ORC e AG-CIN vêm daqui, lidos pela tool MCP `normas.perfil` (não ficam no código dos agentes).
+#
+# Valores monetários em centavos. "null" em alçada = sem limite (sócio ou diretor estatutário).
+#
+# Referências (resumo; ver docs/dsm2/portes.md):
+#   - LC 123/2006, art. 3º: ME com receita bruta anual até R$ 360 mil; EPP até R$ 4,8 milhões.
+#   - BNDES (classificação de porte por receita operacional bruta): média até R$ 300 milhões; grande acima.
+#   - Lei 11.638/2007, art. 3º: sociedade de grande porte (ativo > R$ 240 mi ou receita > R$ 300 mi)
+#     tem escrituração pela Lei 6.404/76 e auditoria independente obrigatória.
+#   - CFC: ITG 1000 (modelo contábil simplificado para ME/EPP), NBC TG 1000 (PMEs), CPCs completos.
+#   - NBC TA 320: materialidade proporcional ao porte; usada para os limiares absolutos de desvio.
+#   - COSO 2013: sem pessoas para segregar funções, aceita-se controle compensatório (revisão do sócio).
+versao: normas-v2
+portes:
+  micro:
+    titulo: Microempresa (ME)
+    receita_bruta_anual_max: 36000000          # R$ 360 mil (LC 123/2006, art. 3º, I)
+    norma_contabil: ITG 1000 (modelo contábil simplificado)
+    tem_erp: false                              # controle em planilhas: usa os modelos Excel
+    fonte_primaria: planilha
+    escala: 0.09                                # receita e custos fixos sobre a base sintética (pior caso na faixa)
+    escala_orcamento: 0.09                      # linhas de despesa orçadas por conta
+    escala_lancamentos: 0.2
+    pessoas: {ana: assistente, elisa: socio}
+    aprovadores: [socio]
+    limites_alcada: {assistente: 200000, socio: null}   # assistente até R$ 2 mil; sócio sem limite
+    severidade: {alcada: critica, sod: nao_critica, duplicidade: critica, competencia: nao_critica}
+    controle_compensatorio:
+      sod: revisão mensal dos lançamentos pelo sócio (controle compensatório, COSO 2013)
+    limiar_desvio: {percentual: 15, absoluto: 50000}    # R$ 500
+    pesos_cin: {conformidade: 10, prazo: 8}             # dono pequeno: travar o mês custa caro
+    pesos_orc: {precisao: 2, tempestividade: 2}
+    max_ciclos_correcao: 2
+
+  pequena:
+    titulo: Empresa de Pequeno Porte (EPP)
+    receita_bruta_anual_max: 480000000         # R$ 4,8 milhões (LC 123/2006, art. 3º, II)
+    norma_contabil: NBC TG 1000 (contabilidade para PMEs)
+    tem_erp: true                               # sistema de gestão simples
+    fonte_primaria: ERP
+    escala: 1.0
+    escala_orcamento: 1.0
+    escala_lancamentos: 0.3
+    pessoas: {ana: analista, bruno: analista, carla: gerente, elisa: diretor}
+    aprovadores: [gerente, diretor]
+    limites_alcada: {analista: 300000, gerente: 1500000, diretor: null}
+    severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: nao_critica}
+    controle_compensatorio: {}
+    limiar_desvio: {percentual: 12, absoluto: 200000}   # R$ 2 mil
+    pesos_cin: {conformidade: 10, prazo: 6}
+    pesos_orc: {precisao: 3, tempestividade: 2}
+    max_ciclos_correcao: 1
+
+  media:
+    titulo: Média empresa
+    receita_bruta_anual_max: 30000000000       # R$ 300 milhões (BNDES)
+    norma_contabil: NBC TG 1000 ou CPCs completos
+    tem_erp: true
+    fonte_primaria: ERP
+    escala: 12.5
+    escala_orcamento: 3.0
+    escala_lancamentos: 1.0
+    pessoas: {ana: analista, bruno: analista, carla: gerente, diego: gerente, elisa: diretor}
+    aprovadores: [gerente, diretor]
+    limites_alcada: {analista: 1000000, gerente: 5000000, diretor: 20000000}
+    severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: nao_critica}
+    controle_compensatorio: {}
+    limiar_desvio: {percentual: 10, absoluto: 500000}   # R$ 5 mil
+    pesos_cin: {conformidade: 10, prazo: 5}
+    pesos_orc: {precisao: 3, tempestividade: 1}
+    max_ciclos_correcao: 1
+
+  grande:
+    titulo: Grande empresa (sociedade de grande porte)
+    receita_bruta_anual_max: null              # acima de R$ 300 milhões
+    norma_contabil: CPCs completos (Lei 6.404/76) e auditoria independente (Lei 11.638/2007)
+    tem_erp: true
+    fonte_primaria: ERP
+    escala: 800.0
+    escala_orcamento: 20.0
+    escala_lancamentos: 2.0
+    pessoas: {ana: analista, bruno: analista, carla: gerente, diego: gerente, elisa: diretor}
+    aprovadores: [gerente, diretor]
+    limites_alcada: {analista: 2000000, gerente: 10000000, diretor: 50000000}
+    severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: critica}  # corte material
+    controle_compensatorio: {}
+    limiar_desvio: {percentual: 5, absoluto: 5000000}   # R$ 50 mil
+    pesos_cin: {conformidade: 10, prazo: 3}
+    pesos_orc: {precisao: 4, tempestividade: 1}
+    max_ciclos_correcao: 1

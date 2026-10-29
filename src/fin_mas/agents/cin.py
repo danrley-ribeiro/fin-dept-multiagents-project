@@ -45,11 +45,12 @@ def _ctx_vetar_com_correcao(a, d):
     if not criticos:
         return False, "sem violação crítica"
     ciclos = a.crencas.get(f"ciclos_correcao[{d.params['cmp']}]", 0)
-    if ciclos >= MAX_CICLOS_CORRECAO:
-        return False, f"ciclo de correção já usado ({ciclos}/{MAX_CICLOS_CORRECAO})"
-    nao_corrigiveis = [x for x in criticos if x["regra"] not in CORRECAO_POR_REGRA]
+    maximo = a.conhecimento["max_ciclos_correcao"]
+    if ciclos >= maximo:
+        return False, f"ciclo de correção já usado ({ciclos}/{maximo})"
+    nao_corrigiveis = [x["lancamento"] for x in criticos if a.acao_corretiva(x, a.competencia_de(d)) is None]
     if nao_corrigiveis:
-        return False, "há crítica sem correção conhecida"
+        return False, f"sem correção possível para {', '.join(nao_corrigiveis)} (ninguém mais com alçada)"
     return True, f"{len(criticos)} crítica(s), todas corrigíveis"
 
 
@@ -67,7 +68,7 @@ def _corpo_parecer(evento, intencao_legado):
         conteudo = {"achados": achados, "versao_normas": a.crencas.get("versao_normas"),
                     "proveniencia": a.estado["pareceres"][cmp_id]["proveniencia"]}
         if evento == "veto":
-            sugeridas = a.correcoes_sugeridas(criticos) if i.plano.id == "P-VETAR-COM-CORRECAO" else []
+            sugeridas = a.correcoes_sugeridas(criticos, a.competencia_de(d)) if i.plano.id == "P-VETAR-COM-CORRECAO" else []
             conteudo["correcoes_sugeridas"] = sugeridas
             conteudo["opcoes"] = (["corrigir"] if sugeridas else []) + ["waiver", "bloquear"]
         a.estado["intencao"] = intencao_legado
@@ -103,7 +104,7 @@ class AgenteControlesInternos(AgenteBDI):
 
     def __init__(self, bus, gateway):
         super().__init__("AG-CIN", bus, gateway)
-        self.conhecimento = {"regras": ["alcada", "sod", "duplicidade", "competencia"],
+        self.conhecimento = {"regras": ["alcada", "sod", "duplicidade", "competencia"], "porte": None,
                              "correcao_por_regra": dict(CORRECAO_POR_REGRA),
                              "efeito_orcamentario": sorted(EFEITO_ORCAMENTARIO),
                              "max_ciclos_correcao": MAX_CICLOS_CORRECAO}
@@ -173,18 +174,27 @@ class AgenteControlesInternos(AgenteBDI):
 
     # ---- percepção e revisão de crenças ------------------------------------------
     def perceber(self, cid, c) -> dict:
+        perfil = self.gw.call(self.id, "normas.perfil", cid, competencia=c)["dados"]
         lancamentos = self.gw.call(self.id, "erp.lancamentos", cid, competencia=c)
         alcadas = self.gw.call(self.id, "normas.alcadas", cid, competencia=c)["dados"]
         regras = self.gw.call(self.id, "normas.regras", cid, competencia=c)["dados"]
         self.crencas.revisar("versao_normas", regras["versao"], "mcp://normas/regras", cid)
+        self.crencas.revisar("porte", perfil["porte"], "mcp://normas/perfil", cid)
+        self.conhecimento.update(porte=perfil["porte"], max_ciclos_correcao=perfil["max_ciclos_correcao"],
+                                 norma_contabil=perfil["norma_contabil"])
+        self.DESEJOS_PERMANENTES = dict(perfil["pesos_cin"])  # micro pesa mais o prazo; grande, a conformidade
         self.estado["severidade"] = regras["severidade"]
+        self.estado["alcadas"] = alcadas
+        compensatorio = regras.get("controle_compensatorio", {})
         vistos, atuais = set(), []
         for lanc in lancamentos["dados"]:
             violacoes = []
-            if lanc["valor"] > alcadas["limites"][alcadas["cargos"][lanc["aprovador"]]]:
+            teto = alcadas["limites"][alcadas["cargos"][lanc["aprovador"]]]
+            if teto is not None and lanc["valor"] > teto:
                 violacoes.append(("alcada", f"valor acima da alçada de {lanc['aprovador']}"))
             if lanc["criador"] == lanc["aprovador"]:
-                violacoes.append(("sod", f"{lanc['criador']} criou e aprovou"))
+                extra = f"; {compensatorio['sod']}" if "sod" in compensatorio else ""
+                violacoes.append(("sod", f"{lanc['criador']} criou e aprovou{extra}"))
             chave = (lanc["fornecedor"], lanc["documento"], lanc["valor"])
             if chave in vistos:
                 violacoes.append(("duplicidade", "fornecedor, documento e valor já lançados"))
@@ -192,7 +202,7 @@ class AgenteControlesInternos(AgenteBDI):
             if lanc["competencia"] != c:
                 violacoes.append(("competencia", f"competência {lanc['competencia']} fora de {c}"))
             self.crencas.revisar(f"lanc[{lanc['id']}]@{c}",
-                                 {"conta": lanc.get("conta"), "valor": lanc["valor"],
+                                 {"conta": lanc.get("conta"), "valor": lanc["valor"], "criador": lanc["criador"],
                                   "violacoes": [r for r, _ in violacoes],
                                   "evidencias": {r: e for r, e in violacoes}},
                                  "mcp://erp/lancamentos", cid)
@@ -221,12 +231,33 @@ class AgenteControlesInternos(AgenteBDI):
     def criticos(self, d) -> list[dict]:
         return [a for a in self.achados(d) if a["severidade"] == "critica"]
 
-    def correcoes_sugeridas(self, criticos) -> list[dict]:
-        por_lanc: dict[str, set] = {}
+    def competencia_de(self, d) -> str:
+        return self.estado["pareceres"][d.params["cmp"]]["competencia"]
+
+    def acao_corretiva(self, achado, competencia) -> str | None:
+        """Correção possível para o achado, ou None (ex.: reaprovar sem ninguém mais com alçada)."""
+        b = self.crencas.get(f"lanc[{achado['lancamento']}]@{competencia}")
+        regras = set(b["violacoes"]) if b else {achado["regra"]}
+        if "duplicidade" in regras:
+            return "estornar"
+        acao = CORRECAO_POR_REGRA.get(achado["regra"])
+        if acao == "reaprovar" and b is not None:
+            alc = self.estado["alcadas"]
+            # com SoD não crítica (micro, controle compensatório), o próprio sócio pode reaprovar
+            pode_criador = self.estado["severidade"].get("sod") != "critica"
+            alternativas = [u for u, cargo in alc["cargos"].items()
+                            if (u != b["criador"] or pode_criador) and cargo in alc["aprovadores"]
+                            and (alc["limites"][cargo] is None or alc["limites"][cargo] >= b["valor"])]
+            return "reaprovar" if alternativas else None
+        return acao
+
+    def correcoes_sugeridas(self, criticos, competencia) -> list[dict]:
+        por_lanc: dict[str, list] = {}
         for a in criticos:
-            por_lanc.setdefault(a["lancamento"], set()).add(a["regra"])
+            por_lanc.setdefault(a["lancamento"], []).append(a)
         sugeridas = []
-        for lid, regras in sorted(por_lanc.items()):
-            acao = "estornar" if "duplicidade" in regras else CORRECAO_POR_REGRA[sorted(regras)[0]]
-            sugeridas.append({"lancamento": lid, "regras": sorted(regras), "acao": acao})
+        for lid, achados in sorted(por_lanc.items()):
+            acoes = {self.acao_corretiva(a, competencia) for a in achados}
+            acao = "estornar" if "estornar" in acoes else sorted(x for x in acoes if x)[0]
+            sugeridas.append({"lancamento": lid, "regras": sorted(a["regra"] for a in achados), "acao": acao})
         return sugeridas

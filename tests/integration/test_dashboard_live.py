@@ -112,3 +112,17 @@ def test_export_and_branded_report_files(tmp_path):
     assert 'aria-label="SMA"' in html and "SMA S.A." in html
     ebitda = resultado["resposta"]["content"]["resultado"]["dre"]["ebitda"]
     assert brl(ebitda) in html and resultado["hash_trace"][:16] in html
+
+
+def test_restart_replays_initial_records_to_live_clients():
+    sim = Simulacao("fechar_mes", pausado=True)
+    eventos = []
+    sim.ouvintes.append(eventos.append)
+    sim.comando({"tipo": "reiniciar", "cenario": "fechar_mes", "porte": "micro"})
+    sim.processar_comandos()
+    tipos = [e["tipo"] for e in eventos]
+    assert tipos[0] == "reset"
+    registros = [e["registro"] for e in eventos if e["tipo"] == "registro"]
+    # quem já estava conectado recebe o meta (porte) e o pedido inicial do novo cenário
+    assert registros[0]["kind"] == "meta" and registros[0]["porte"] == "micro"
+    assert any(r["kind"] == "open" and r["protocol"] == "PROT-SOL" for r in registros)

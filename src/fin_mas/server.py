@@ -4,18 +4,32 @@
     GET  /api/estado     snapshot: controle, mente BDI de cada agente, conversas, pendências humanas
     GET  /api/eventos    Server-Sent Events: histórico do trace e cada registro novo, ao vivo
     POST /api/comando    {"tipo": "pausar" | "retomar" | "passo" | "velocidade" | "agente" | ...}
+    GET  /api/modelos            modelos Excel disponíveis (empresa sem ERP)
+    GET  /api/modelos/<arquivo>  baixa o modelo (.xlsx gerado na hora)
+    GET  /api/dados              planilha atual da pasta de dados e validação
+    POST /api/dados/planilha     {"nome", "conteudo_base64"}: valida e grava a planilha preenchida
 
 Também serve o build do dashboard (`web/dist`) quando ele existe.
 """
+import base64
 import json
 import mimetypes
 import queue
+import sys
+import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from fin_mas.env.dataset import Dataset
+from fin_mas.env.portes import PORTES, perfil
 from fin_mas.env.scenarios import CENARIOS
 from fin_mas.exportar import agentes_info, empresa_info
+from fin_mas.fontes import planilha
 from fin_mas.live import ComandoInvalido, Simulacao
+
+MODELOS = {"modelo_controladoria_em_branco.xlsx": None, **{f"exemplo_{p}.xlsx": p for p in PORTES}}
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+LIMITE_UPLOAD = 5 * 1024 * 1024
 
 WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"
 
@@ -30,7 +44,18 @@ def tratar(sim: Simulacao, metodo: str, caminho: str, corpo: bytes = b"") -> tup
     rota = caminho.split("?", 1)[0]
     if metodo == "GET" and rota == "/api/cenarios":
         return _json(200, {"cenarios": [{"nome": n, "descricao": s.descricao} for n, s in CENARIOS.items()],
-                           "agentes": agentes_info(), "empresa": empresa_info()})
+                           "agentes": agentes_info(), "empresa": empresa_info(),
+                           "portes": [{"porte": p, "titulo": perfil(p)["titulo"], "tem_erp": perfil(p)["tem_erp"],
+                                       "norma_contabil": perfil(p)["norma_contabil"]} for p in PORTES]})
+    if metodo == "GET" and rota == "/api/modelos":
+        return _json(200, {"modelos": [{"arquivo": a, "porte": p, "descricao": "modelo em branco" if p is None
+                                        else f"exemplo preenchido ({perfil(p)['titulo']})"} for a, p in MODELOS.items()]})
+    if metodo == "GET" and rota.startswith("/api/modelos/"):
+        return _modelo(rota.rsplit("/", 1)[-1])
+    if metodo == "GET" and rota == "/api/dados":
+        return _json(200, _situacao_dados(sim.pasta_dados))
+    if metodo == "POST" and rota == "/api/dados/planilha":
+        return _receber_planilha(sim.pasta_dados, corpo)
     if metodo == "GET" and rota == "/api/estado":
         return _json(200, sim.snapshot())
     if metodo == "POST" and rota == "/api/comando":
@@ -43,6 +68,59 @@ def tratar(sim: Simulacao, metodo: str, caminho: str, corpo: bytes = b"") -> tup
     if metodo == "GET" and not rota.startswith("/api/"):
         return _estatico(rota)
     return _json(404, {"erro": f"rota desconhecida: {metodo} {rota}"})
+
+
+def _modelo(arquivo) -> tuple[int, dict, bytes]:
+    if arquivo not in MODELOS:
+        return _json(404, {"erro": f"modelo desconhecido: {arquivo}"})
+    porte = MODELOS[arquivo]
+    with tempfile.TemporaryDirectory() as tmp:
+        caminho = planilha.gerar_modelo(f"{tmp}/{arquivo}",
+                                        exemplo=Dataset(seed=42, porte=porte, plantar=("competencia",)) if porte else None)
+        conteudo = caminho.read_bytes()
+    return 200, {"Content-Type": XLSX, "Content-Disposition": f'attachment; filename="{arquivo}"'}, conteudo
+
+
+def _situacao_dados(pasta) -> dict:
+    if pasta is None:
+        return {"pasta": None, "planilha": None}
+    try:
+        ds = planilha.ler(pasta)
+    except planilha.ModeloInvalido as e:
+        return {"pasta": str(pasta), "planilha": None, "erros": e.erros}
+    return {"pasta": str(pasta), "planilha": ds.arquivo.name, "erros": [], "porte": ds.porte,
+            "competencia": ds.competencia, "razao_social": ds.razao_social, "tem_erp": ds.tem_erp,
+            "lancamentos": len(ds.lancamentos)}
+
+
+def _receber_planilha(pasta, corpo) -> tuple[int, dict, bytes]:
+    """Valida a planilha enviada pelo dashboard antes de gravá-la como a planilha da pasta."""
+    if pasta is None:
+        return _json(400, {"erro": "servidor sem pasta de dados (--pasta-dados)"})
+    try:
+        pedido = json.loads(corpo or b"{}")
+        conteudo = base64.b64decode(pedido["conteudo_base64"], validate=True)
+        nome = Path(str(pedido.get("nome") or "planilha.xlsx")).name
+    except (ValueError, KeyError) as erro:
+        return _json(400, {"erro": f"pedido inválido: {erro}"})
+    if not nome.lower().endswith(".xlsx") or len(conteudo) > LIMITE_UPLOAD:
+        return _json(400, {"erro": "envie um .xlsx de até 5 MB"})
+    with tempfile.TemporaryDirectory() as tmp:
+        alvo = Path(tmp) / nome
+        alvo.write_bytes(conteudo)
+        try:
+            ds = planilha.ler(alvo)
+        except planilha.ModeloInvalido as e:
+            return _json(422, {"ok": False, "erros": e.erros})
+        except Exception as erro:  # arquivo que nem abre como xlsx
+            return _json(422, {"ok": False, "erros": [f"não foi possível ler a planilha: {erro}"]})
+    pasta = Path(pasta)
+    pasta.mkdir(parents=True, exist_ok=True)
+    for antigo in pasta.glob("*.xlsx"):  # uma planilha por vez: a pasta é a fonte da competência
+        antigo.unlink()
+    (pasta / nome).write_bytes(conteudo)
+    return _json(200, {"ok": True, "erros": [], "planilha": nome, "porte": ds.porte, "competencia": ds.competencia,
+                       "razao_social": ds.razao_social, "lancamentos": len(ds.lancamentos)})
 
 
 def _estatico(rota) -> tuple[int, dict, bytes]:
@@ -79,6 +157,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765) -> ThreadingHTT
 
         def do_POST(self):
             tamanho = int(self.headers.get("Content-Length", 0))
+            if tamanho > LIMITE_UPLOAD * 2:
+                self._responder(*_json(413, {"erro": "corpo grande demais"}))
+                return
             self._responder(*tratar(sim, "POST", self.path, self.rfile.read(tamanho)))
 
         def _eventos(self):
@@ -114,13 +195,21 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765) -> ThreadingHTT
             self.wfile.write(f"data: {dados}\n\n".encode("utf-8"))
             self.wfile.flush()
 
-    servidor = ThreadingHTTPServer((host, porta), Handler)
+    servidor = _Servidor((host, porta), Handler)
     servidor.daemon_threads = True
     return servidor
 
 
-def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350) -> None:
-    sim = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick)
+class _Servidor(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        """Navegador que fecha a aba ou cancela um fetch não é erro do servidor: ignora em silêncio."""
+        if isinstance(sys.exc_info()[1], (ConnectionAbortedError, ConnectionResetError, BrokenPipeError)):
+            return
+        super().handle_error(request, client_address)
+
+
+def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pasta_dados="dados/empresa") -> None:
+    sim = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick, pasta_dados=pasta_dados)
     sim.iniciar()
     servidor = criar_servidor(sim, porta=porta)
     print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)")

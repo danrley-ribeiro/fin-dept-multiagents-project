@@ -15,7 +15,8 @@ from fin_mas.env.scenarios import CENARIOS, run_scenario
 
 CENARIOS_COMPARADOS = ["fechar_mes", "avaliar_orcamento", "veto_waiver", "veto_bloqueio", "veto_correcao",
                        "correcao_parcial", "divergencia_fonte", "desvio_irregular", "orc_sem_cin",
-                       "falha_especialista", "depuracao"]
+                       "falha_especialista", "depuracao", "fechamento_micro", "fechamento_pequena",
+                       "fechamento_grande"]
 CAMPOS = ["cenario", "seed", "estrategia", "status", "concluida", "resposta_explicita", "dre_correta",
           "desvios_corretos", "falsos_desvios", "criticas_publicadas_sem_tratamento", "criticas_corrigidas",
           "mensagens_a2a", "latencia_ticks", "decisoes", "distribuicao_decisoria", "reconsideracoes",
@@ -31,7 +32,7 @@ def executar(seeds=range(1, 11), cenarios=None) -> list[dict]:
             linhas.append({"cenario": nome, "seed": seed, "estrategia": "SMA", **metricas.medir(e), "hash": e.hash})
             ds = e.system.ambiente.dataset()
             # o baseline lê o dataset como o ERP o entregou, antes das correções humanas
-            original = type(ds)(seed=ds.seed, competencia=ds.competencia, plantar=ds.plantar)
+            original = type(ds)(seed=ds.seed, competencia=ds.competencia, plantar=ds.plantar, porte=ds.porte)
             res = baseline.executar(original, CENARIOS[nome].intencao)
             linhas.append({"cenario": nome, "seed": seed, "estrategia": "workflow",
                            **metricas.medir_baseline(res, original), "hash": ""})

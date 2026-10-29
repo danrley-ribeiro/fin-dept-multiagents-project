@@ -13,13 +13,16 @@ import queue
 import threading
 import time
 
+from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, montar
 
 AGENTES_HUMANOS = ("SOL", "APR")
 
 
 class Simulacao:
-    def __init__(self, cenario="expediente_sma", seed=None, interativo=True, ms_por_tick=350, pausado=False):
+    def __init__(self, cenario="expediente_sma", seed=None, interativo=True, ms_por_tick=350, pausado=False,
+                 pasta_dados=None):
+        self.pasta_dados = pasta_dados  # onde o dashboard grava as planilhas enviadas
         self.lock = threading.RLock()
         self.comandos: queue.Queue = queue.Queue()
         self.ouvintes: list = []  # callbacks(evento: dict) para os clientes SSE
@@ -32,14 +35,20 @@ class Simulacao:
         self._montar(cenario, seed, interativo)
 
     # ---- montagem ---------------------------------------------------------
-    def _montar(self, cenario, seed, interativo) -> None:
+    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico") -> None:
         sc = CENARIOS[cenario]
+        pasta = self.pasta_dados if fonte == "planilha" else None
+        sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
+                               pasta=pasta)  # se a planilha for inválida, levanta antes de trocar o estado
         self.cenario, self.interativo = sc, interativo
         self.seed = seed if seed is not None else sc.seed
-        self.sistema, self.sids = montar(sc, self.seed, interativo=interativo)
+        self.sistema, self.sids = sistema, sids
+        self.porte, self.fonte = sistema.dataset.porte, fonte
         self.geracao += 1
-        self.sistema.bus.audit.subscribe(self._emitir_registro)
         self._emitir({"tipo": "reset", "geracao": self.geracao, "cenario": sc.nome, "seed": self.seed})
+        for registro in self.sistema.bus.audit.records:  # meta e pedidos iniciais, gravados antes da assinatura
+            self._emitir_registro(registro)
+        self.sistema.bus.audit.subscribe(self._emitir_registro)
 
     def _emitir_registro(self, registro) -> None:
         self._emitir({"tipo": "registro", "geracao": self.geracao, "registro": registro})
@@ -77,8 +86,13 @@ class Simulacao:
         elif tipo == "decidir":
             self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"], cmd.get("justificativa"))
         elif tipo == "reiniciar":
-            self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
-                         cmd.get("interativo", self.interativo))
+            try:
+                self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
+                             cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"))
+            except (ValueError, LookupError) as erro:  # planilha inválida: mantém a simulação atual
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": f"não foi possível carregar os dados: {erro}"})
+                return
         self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle()})
 
     def processar_comandos(self) -> None:
@@ -113,8 +127,13 @@ class Simulacao:
             espera = (proximo - bus.now) * self.ms_por_tick / 1000
             if espera > 0 and self._passos_pendentes == 0 and not self._dormir(espera):
                 continue  # um comando chegou durante a espera: reavaliar
-            with self.lock:
-                self.sistema.bus.step()
+            try:
+                with self.lock:
+                    self.sistema.bus.step()
+            except Exception as erro:  # erro de agente não derruba o servidor: pausa e avisa o operador
+                self.pausado = True
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": f"{type(erro).__name__}: {erro}"})
             if self._passos_pendentes:
                 self._passos_pendentes -= 1
 
@@ -123,7 +142,7 @@ class Simulacao:
         while time.monotonic() < fim:
             if not self.comandos.empty() or self._parar.is_set():
                 return False
-            time.sleep(min(0.03, fim - time.monotonic()))
+            time.sleep(max(0.0, min(0.03, fim - time.monotonic())))
         return True
 
     def iniciar(self) -> None:
@@ -140,7 +159,7 @@ class Simulacao:
         bus = self.sistema.bus
         return {"cenario": self.cenario.nome, "seed": self.seed, "t": bus.now, "pausado": self.pausado,
                 "ms_por_tick": self.ms_por_tick, "offline": sorted(bus.offline), "interativo": self.interativo,
-                "fila": len(bus._queue), "geracao": self.geracao}
+                "fila": len(bus._queue), "geracao": self.geracao, "porte": self.porte, "fonte": self.fonte}
 
     def snapshot(self) -> dict:
         with self.lock:
@@ -177,5 +196,9 @@ def validar(cmd) -> None:
         raise ComandoInvalido(f"{cmd['agente']} não pode ser desligado (fronteira com o usuário)")
     if cmd["tipo"] == "reiniciar" and cmd.get("cenario", "expediente_sma") not in CENARIOS:
         raise ComandoInvalido(f"cenário desconhecido: {cmd.get('cenario')}")
+    if cmd["tipo"] == "reiniciar" and cmd.get("porte") not in (None, *PORTES):
+        raise ComandoInvalido(f"porte desconhecido: {cmd.get('porte')}")
+    if cmd["tipo"] == "reiniciar" and cmd.get("fonte", "sintetico") not in ("sintetico", "planilha"):
+        raise ComandoInvalido(f"fonte desconhecida: {cmd.get('fonte')}")
     if cmd["tipo"] == "decidir" and cmd["decisao"] not in ("waiver", "corrigir", "corrigir_parcial", "nenhuma"):
         raise ComandoInvalido(f"decisão desconhecida: {cmd['decisao']}")

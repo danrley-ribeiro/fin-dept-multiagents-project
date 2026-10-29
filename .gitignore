@@ -48,3 +48,10 @@ docs/_build/
 web/node_modules/
 web/dist/
 saidas/
+
+# --- Planilhas reais enviadas e modelos gerados (dados de empresa, não versionar) ---
+dados/
+modelos/
+web/test-results/
+web/playwright-report/
+web/tsconfig.tsbuildinfo

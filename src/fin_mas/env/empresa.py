@@ -22,6 +22,17 @@ PRODUTOS = {
 
 CENTROS_CUSTO = {"CC-ADM": "Administrativo", "CC-COM": "Comercial", "CC-OPS": "Operações"}
 
+DEPARTAMENTOS = {  # agente/papel -> departamento da SMA em que trabalha
+    "AG-ORQ": "Coordenação da Controladoria",
+    "AG-CUS": "Custos",
+    "AG-ORC": "Orçamento",
+    "AG-RES": "Resultados",
+    "AG-CIN": "Controles Internos",
+    "AG-REL": "Relatórios Gerenciais",
+    "SOL": "Diretoria",
+    "APR": "Aprovação",
+}
+
 CONTAS = ["C-3001 Pessoal", "C-3002 Marketing", "C-3003 Servicos", "C-3004 Logistica"]
 
 PESSOAS = {  # usuário -> (nome fictício, cargo)

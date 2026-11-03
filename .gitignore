@@ -55,3 +55,6 @@ modelos/
 web/test-results/
 web/playwright-report/
 web/tsconfig.tsbuildinfo
+
+# --- Pacote de entrega gerado por tools/empacotar_dsm2.py ---
+entregas/dsm2/DSM2-entrega.zip

@@ -1,6 +1,6 @@
 # DSM2 — Arquitetura e protótipo inicial (revisada após o feedback)
 
-**Projeto:** Sistema Multiagente de Controladoria da **SMA S.A.** (empresa fictícia) — INE5628 Sistemas Multiagentes.
+**Projeto:** Sistema Multiagente de Controladoria da **SMA** (empresa fictícia) — INE5628 Sistemas Multiagentes.
 **Autores:** Danrley Moreira Ribeiro (23102664) e Jiliard Mai Peifer (23103129).
 Enunciado: [`enunciados/DSM2.txt`](../../enunciados/DSM2.txt).
 
@@ -10,6 +10,32 @@ Protótipo executável do Orquestrador e de cinco especialistas sobre um barrame
 suporte a **empresas sem ERP** (modelos Excel e servidor MCP de Excel) e um **dashboard** em que os agentes
 aparecem trabalhando num escritório. O que mudou depois do feedback está em
 [`docs/dsm2/revisao.md`](../../docs/dsm2/revisao.md).
+
+## Conteúdo da entrega
+
+| Exigido pelo enunciado | Arquivo |
+|---|---|
+| Código-fonte executável | `codigo/` no pacote: `src/fin_mas/`, `web/`, `models/`, `tools/` (no repositório, na raiz) |
+| Diagrama de arquitetura | [`diagramas/arquitetura_camadas.png`](diagramas/arquitetura_camadas.png) (fonte em [`modelos-editaveis/`](modelos-editaveis/)) |
+| `README.md` | este arquivo |
+| Testes iniciais | `codigo/tests/` (pytest) e `codigo/web/e2e/` (Chrome) |
+| `USO_DE_IA.md` | [`USO_DE_IA.md`](USO_DE_IA.md) |
+
+**Pacote para envio:** `python tools/empacotar_dsm2.py` (ou `make entrega-dsm2`) gera `entregas/dsm2/DSM2-entrega.zip`.
+O pacote reúne esta pasta e uma cópia do código em `codigo/`, sem `.venv`, `node_modules` nem builds. O zip é
+gerado e não é versionado. Dentro de `codigo/`, os comandos abaixo funcionam do mesmo jeito.
+
+## Estrutura da pasta
+
+```
+entregas/dsm2/
+  README.md            este arquivo
+  USO_DE_IA.md         uso de IA no desenvolvimento da entrega
+  apresentacao/        slides e roteiro da apresentação (só no repositório, fora do pacote)
+  modelos-editaveis/   4 diagramas Mermaid (.mmd): arquitetura, ciclo BDI, ORC↔CIN, veto→correção
+  diagramas/           4 imagens (.png), uma por .mmd
+  DSM2-entrega.zip     pacote para envio (gerado por tools/empacotar_dsm2.py)
+```
 
 ## Como executar
 

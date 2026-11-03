@@ -1,7 +1,7 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DSM1_DOC = entregas/dsm1/documentacao
 
-.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo clean
+.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 clean
 
 all: trace docs pdf
 
@@ -40,6 +40,9 @@ iniciar:
 
 testes-tudo:
 	python3 tools/iniciar.py testes
+
+entrega-dsm2:
+	$(PYTHON) tools/empacotar_dsm2.py
 
 web-test:
 	cd web && bun run test && bun run test:e2e

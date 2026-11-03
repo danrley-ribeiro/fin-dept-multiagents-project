@@ -1,4 +1,4 @@
-"""Empresa fictícia SMA S.A.: perfil fixo usado pelo dataset, relatórios e dashboard.
+"""Empresa fictícia SMA: perfil fixo usado pelo dataset, relatórios e dashboard.
 
 Todos os nomes são inventados; nenhum dado pertence a empresa real. O perfil não
 consome o gerador aleatório, então valores gerados por seed não mudam com ele.
@@ -6,7 +6,7 @@ consome o gerador aleatório, então valores gerados por seed não mudam com ele
 
 EMPRESA = {
     "sigla": "SMA",
-    "razao_social": "SMA S.A.",
+    "razao_social": "SMA",
     "descricao": "Empresa fictícia de software e serviços usada nos cenários sintéticos",
     "ficticia": True,
 }

@@ -13,7 +13,7 @@ coletivo.
 
 | Item | Onde |
 |---|---|
-| Empresa fictícia **SMA S.A.**, logo em relatórios, dashboard e documentação | `src/fin_mas/env/empresa.py`, `assets/sma-logo.svg`, `python -m fin_mas relatorio` |
+| Empresa fictícia **SMA**, logo em relatórios, dashboard e documentação | `src/fin_mas/env/empresa.py`, `assets/sma-logo.svg`, `python -m fin_mas relatorio` |
 | Dados mock de três competências com anomalias variadas (`expediente_sma`) | {doc}`../dsm2/prototipo` |
 | Regras e BDI por porte (micro, pequena, média, grande) | {doc}`../dsm2/portes` |
 | Empresas sem ERP: modelos Excel, modo manual, servidor MCP de Excel | {doc}`../dsm2/planilhas` |

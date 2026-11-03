@@ -1,4 +1,4 @@
-# Sistema Multiagente de Controladoria · SMA S.A.
+# Sistema Multiagente de Controladoria · SMA
 
 <img src="assets/sma-logo.svg" alt="SMA" width="56">
 
@@ -6,7 +6,7 @@ Projeto da disciplina **INE5628 — Sistemas Multiagentes** (UFSC/CTC/INE, Prof.
 
 O Orquestrador e cinco agentes especializados (Agente de Custos, Agente de Orçamento, Agente de
 Resultados, Agente de Controles Internos e Agente de Relatórios) executam as rotinas de
-controladoria da **SMA S.A.** (empresa fictícia) de forma coordenada e auditável. Orçamento e
+controladoria da **SMA** (empresa fictícia) de forma coordenada e auditável. Orçamento e
 Controles Internos são **agentes cognitivos BDI**; as regras valem para empresas de **qualquer
 porte** (micro, pequena, média e grande), com ou sem ERP (modelos Excel e servidor MCP de Excel). Um
 **dashboard** mostra os agentes trabalhando num escritório, ao vivo ou em replay. A IA generativa é

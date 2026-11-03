@@ -49,7 +49,7 @@ def _run(args) -> int:
     sc = execucao.scenario
     ds = execucao.system.dataset
     print(f"cenário: {sc.nome} | seed: {args.seed if args.seed is not None else sc.seed} | {sc.descricao}")
-    print(f"empresa: {getattr(ds, 'razao_social', '') or 'SMA S.A.'} | porte: {ds.perfil['titulo']} | "
+    print(f"empresa: {getattr(ds, 'razao_social', '') or 'SMA'} | porte: {ds.perfil['titulo']} | "
           f"{'ERP' if ds.perfil['tem_erp'] else 'sem ERP (planilhas)'}"
           f"{' | planilha: ' + str(ds.arquivo) if hasattr(ds, 'arquivo') else ''}")
     print("-- trilha causal --")
@@ -123,7 +123,7 @@ def _mcp_excel(args) -> int:
 def main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(prog="fin_mas", description="SMA de controladoria da SMA S.A. (fictícia)")
+    parser = argparse.ArgumentParser(prog="fin_mas", description="Sistema multiagente de controladoria da SMA (fictícia)")
     sub = parser.add_subparsers(dest="comando", required=True)
     sub.add_parser("list", help="lista os cenários")
     run = sub.add_parser("run", help="executa um cenário")

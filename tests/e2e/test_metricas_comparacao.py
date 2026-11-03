@@ -64,5 +64,5 @@ def test_sma_office_day_answers_every_request():
     competencias = {r.content["competencia"] for r in respostas.values() if r.performative == "inform"}
     assert competencias == {"2026-07", "2026-08", "2026-09"}
     assert all(e.system.locks.dono("SMA", c) is None for c in competencias)
-    assert all(m["relatorio"].startswith("SMA S.A.")
+    assert all(m["relatorio"].startswith("SMA")
                for m in (r.content for r in respostas.values() if r.performative == "inform"))

@@ -28,7 +28,7 @@ test("primeira visita mostra o guia e o escritório com códigos e departamentos
   await expect(guia).toBeVisible();
   await guia.getByRole("button", { name: "Entendi" }).click();
   await expect(guia).toBeHidden();
-  await expect(page.getByRole("heading", { name: /SMA S\.A\. · Escritório de controladoria/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /SMA · Escritório de controladoria/ })).toBeVisible();
   for (const [id, depto] of [["AG-ORC", "Orçamento"], ["AG-CIN", "Controles Internos"], ["AG-CUS", "Custos"]]) {
     await expect(chipAgente(page, id)).toContainText(depto);
     await expect(page.getByRole("button", { name: new RegExp(`^${id} · ${depto}`) }).first()).toBeVisible();

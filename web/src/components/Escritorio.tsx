@@ -76,7 +76,7 @@ export function Escritorio({ estado, fichas, selecionado, aoSelecionar, duracaoV
       <Sala x={668} y={30} w={320} h={218} titulo="Controles Internos (sala de vidro)" vidro />
       <Sala x={12} y={270} w={300} h={358} titulo="Custos e Orçamento" />
       <Sala x={688} y={270} w={300} h={358} titulo="Resultados e Relatórios" />
-      <Placa razao={empresa?.razao_social || "SMA S.A."} porte={String(estado.meta?.porte_titulo ?? "")} />
+      <Placa razao={empresa?.razao_social || "SMA"} porte={String(estado.meta?.porte_titulo ?? "")} />
       <Voos voos={estado.voos} duracao={duracaoVoo} camada="mcp" />
       <FontesDados estado={estado} temErp={temErp} planilhaReal={planilhaReal} aoAbrir={aoAbrirFonte} />
       <Cofre reservas={estado.reservas} aoAbrir={aoAbrirPeriodos} />

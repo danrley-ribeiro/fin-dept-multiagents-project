@@ -153,7 +153,7 @@
  },
  "empresa": {
   "sigla": "SMA",
-  "razao_social": "SMA S.A.",
+  "razao_social": "SMA",
   "descricao": "Empresa fictícia de software e serviços usada nos cenários sintéticos",
   "ficticia": true,
   "unidades": {

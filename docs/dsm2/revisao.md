@@ -16,7 +16,7 @@ Cada ponto do feedback do professor sobre a DSM2, o que mudou e onde está a evi
 
 ## Além do feedback (pedidos do grupo, adiantando a DSM3)
 
-- Empresa fictícia **SMA S.A.** com logo nos relatórios, no dashboard e na documentação; dados
+- Empresa fictícia **SMA** com logo nos relatórios, no dashboard e na documentação; dados
   mock de três competências (`expediente_sma`).
 - **Regras por porte** (micro, pequena, média, grande) com base legal: {doc}`portes`.
 - **Empresas sem ERP**: modelos Excel, modo manual e servidor MCP de Excel: {doc}`planilhas`.

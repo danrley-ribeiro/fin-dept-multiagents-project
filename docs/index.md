@@ -1,6 +1,6 @@
 # Sistema Multiagente de Controladoria — Documentação
 
-Sistema Multiagente para a **Controladoria** da **SMA S.A.** (empresa fictícia, de
+Sistema Multiagente para a **Controladoria** da **SMA** (empresa fictícia, de
 qualquer porte, com ou sem ERP): o Orquestrador e cinco
 agentes especializados (Agente de Custos, Agente de Orçamento, Agente de Resultados,
 Agente de Controles Internos e Agente de Relatórios) sobre camadas de comunicação

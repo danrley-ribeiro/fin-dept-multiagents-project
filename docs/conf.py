@@ -31,7 +31,7 @@ exclude_patterns = ["_build", "_generated/*.md"]  # gerados entram via {include}
 suppress_warnings = ["myst.header"]
 
 html_theme = "furo"
-html_title = "SMA S.A. · Sistema Multiagente de Controladoria"
+html_title = "SMA · Sistema Multiagente de Controladoria"
 html_logo = "_static/sma-logo.svg"
 html_favicon = "_static/sma-logo.svg"
 html_static_path = ["_static"]

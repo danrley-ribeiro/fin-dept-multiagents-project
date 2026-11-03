@@ -9,7 +9,7 @@ Registro por entrega.
   aprovar, apontar, vetar com correção e vetar, e reconsideração após correção, waiver ou prazo.
 - Decisões distribuídas: PROT-QRY ampliado (ORC↔CIN), ciclo `correcao` do PROT-CMP, Orquestrador só roteia.
 - Baseline centralizado, MET-01 corrigida, MET-13 e MET-14, `python -m fin_mas comparar` (10 seeds).
-- Empresa fictícia SMA S.A. com logo; dados mock de três competências (`expediente_sma`).
+- Empresa fictícia SMA com logo; dados mock de três competências (`expediente_sma`).
 - Regras base e pesos BDI por porte (`models/portes.yaml`, normas-v2): micro, pequena, média e grande.
 - Empresas sem ERP: modelos Excel, leitura validada, correções gravadas na planilha, servidor MCP de Excel.
 - Execução ao vivo + servidor SSE + dashboard Vite/React/MUI (escritório, mente BDI, badges, decisão humana,

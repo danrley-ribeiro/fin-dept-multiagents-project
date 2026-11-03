@@ -109,7 +109,7 @@ def test_export_and_branded_report_files(tmp_path):
     html_path, json_path = gravar_relatorio("fechar_mes", tmp_path / "saidas")
     html = html_path.read_text(encoding="utf-8")
     resultado = json.loads(json_path.read_text(encoding="utf-8"))
-    assert 'aria-label="SMA"' in html and "SMA S.A." in html
+    assert 'aria-label="SMA"' in html and "SMA" in html
     ebitda = resultado["resposta"]["content"]["resultado"]["dre"]["ebitda"]
     assert brl(ebitda) in html and resultado["hash_trace"][:16] in html
 

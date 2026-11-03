@@ -2,7 +2,7 @@
   "name": "sma-escritorio",
   "private": true,
   "version": "0.3.0",
-  "description": "Dashboard do sistema multiagente de controladoria da SMA S.A. (fictícia): escritório ao vivo e replay offline",
+  "description": "Dashboard do sistema multiagente de controladoria da SMA (fictícia): escritório ao vivo e replay offline",
   "type": "module",
   "scripts": {
     "dev": "vite",

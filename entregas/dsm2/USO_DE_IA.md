@@ -37,7 +37,7 @@ Nenhum commit tem coautoria da ferramenta; o histórico está no repositório co
 | Decisões distribuídas | consulta direta ORC→CIN, veto com correção sugerida e reavaliação | `agents/orq.py`, `models/protocols.yaml` |
 | MET-01 e comparação com o baseline | baseline centralizado, MET-01 corrigida, MET-13 e MET-14, experimento em 10 seeds | `baseline.py`, `metricas.py`, `experimentos.py`, `docs/dsm2/resultados/` |
 | Checkpoints CP1–CP13 | mapa a partir da seção 5.16 da apostila (parafraseado) | `docs/checkpoints.md` |
-| Empresa fictícia e dados mock (DSM3) | SMA S.A. com logo, três competências de dados | `env/empresa.py`, `assets/sma-logo.svg`, cenário `expediente_sma` |
+| Empresa fictícia e dados mock (DSM3) | SMA com logo, três competências de dados | `env/empresa.py`, `assets/sma-logo.svg`, cenário `expediente_sma` |
 | Regras para qualquer porte | base normativa por porte com referências legais | `models/portes.yaml`, `env/portes.py` |
 | Empresas sem ERP | modelos Excel, leitura validada, servidor MCP de Excel | `fontes/planilha.py`, `mcp/excel_server.py` |
 | Dashboard do escritório | execução ao vivo, servidor SSE, interface Vite + React + MUI com badges | `live.py`, `server.py`, `web/` |

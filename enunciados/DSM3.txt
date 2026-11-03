@@ -1,0 +1,20 @@
+DSM3 — Comunicação, coordenação e protótipo funcional (ENTREGA ATÉ 18/11, QUARTA-FEIRA, ÀS 18:30)
+Condições de conclusão
+Abre: segunda-feira, 2 nov. 2026, 00:00
+Vencimento: quarta-feira, 18 nov. 2026, 18:30
+DSM3 — Comunicação, coordenação e protótipo funcional
+Peso: 25% da MPDSM. Prazo inicial: 21/11/2026 23:55.
+
+Requisitos
+comunicação com conteúdo e finalidade claros;
+protocolo de interação documentado;
+coordenação, negociação, cooperação ou planejamento;
+tratamento de conflito/falha/alternativa pertinente;
+testes integrados ou cenários automatizados quando aplicável;
+evidências de comportamento coletivo.
+Critério	Peso
+Comunicação e protocolos	25%
+Coordenação coletiva	25%
+Corretude e robustez	25%
+Testes e evidências	15%
+Documentação e autoria	10%

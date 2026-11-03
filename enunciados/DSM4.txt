@@ -1,0 +1,28 @@
+DSM4 (FINAL)— Experimentação, documentação e ENTREGA FINAL (ENTREGA ATÉ 02/12, QUARTA-FEIRA, ÀS 18:30)
+Condições de conclusão
+Abre: segunda-feira, 23 nov. 2026, 00:00
+Vencimento: quarta-feira, 2 dez. 2026, 18:30
+DSM4 — Experimentação, documentação e entrega final
+Peso: 30% da MPDSM. Prazo inicial: 05/12/2026 23:55.
+
+Pacote final
+código-fonte e configurações;
+README.md
+reproduzível;
+relatório técnico;
+diagramas;
+testes e cenários experimentais;
+dados/resultados;
+material de apresentação;
+USO_DE_IA.md
+.
+Experimentação
+Defina perguntas, cenários e métricas. Repita execuções quando aleatoriedade ou concorrência forem relevantes. Compare resultados, explique comportamento coletivo e registre limitações.
+
+Critério	Peso
+Sistema final e corretude	25%
+Arquitetura e SMA	20%
+Experimentação e análise	20%
+Testes e reprodutibilidade	15%
+Documentação	10%
+Demonstração e autoria	10%

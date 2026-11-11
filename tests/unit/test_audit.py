@@ -19,7 +19,8 @@ def test_jsonl_ida_e_volta(tmp_path):
     log = preenchido()
     arquivo = tmp_path / "trace.jsonl"
     log.write_jsonl(arquivo)
-    assert len(arquivo.read_text(encoding="utf-8").splitlines()) == 3
+    linhas = arquivo.read_text(encoding="utf-8").splitlines()
+    assert len(linhas) == 4 and "_selo" in linhas[-1]  # 3 registros + selo HMAC
     assert AuditLog.read_jsonl(arquivo).records == log.records
 
 

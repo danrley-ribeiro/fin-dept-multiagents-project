@@ -39,6 +39,10 @@ def test_carrega_os_seis_protocolos():
     ("PROT-CMP", ["request", "veto", "correcao", "conforme"], "LIBERADO"),
     ("PROT-LCK", ["reserve", "release"], "LIVRE"),
     ("PROT-LCK", ["reserve", "ttl_expirado"], "LIVRE"),
+    ("PROT-APR", ["propose-action", "require_approval", "approve", "execute"], "EXECUTADA"),
+    ("PROT-APR", ["propose-action", "require_approval", "reject"], "REJEITADA"),
+    ("PROT-APR", ["propose-action", "require_approval", "timeout"], "EXPIRADA"),
+    ("PROT-APR", ["propose-action", "deny"], "NEGADA"),
 ])
 def test_transicoes_nominais(pid, eventos, final):
     assert percorre(pid, eventos).state == final
@@ -52,8 +56,11 @@ def test_transicoes_nominais(pid, eventos, final):
     ("PROT-QRY", [], "inform"),
     ("PROT-CMP", ["request", "veto"], "publicar"),
     ("PROT-LCK", [], "release"),
-    ("PROT-APR", ["require_approval"], "execute"),
-    ("PROT-APR", ["deny"], "approve"),
+    ("PROT-APR", ["propose-action", "require_approval"], "execute"),
+    ("PROT-APR", ["propose-action", "deny"], "approve"),
+    ("PROT-APR", ["propose-action", "require_approval", "approve"], "approve"),
+    ("PROT-APR", ["propose-action", "require_approval", "approve", "execute"], "approve"),
+    ("PROT-APR", ["propose-action", "require_approval", "timeout"], "approve"),
 ])
 def test_transicoes_invalidas_levantam_violacao(pid, eventos, evento_invalido):
     c = percorre(pid, eventos)

@@ -93,3 +93,27 @@
 **Consequência:** Não é indexada em embeddings nem no grafo  
 **Decisão:** `DENY`
 ````
+
+````{norm} Só mensagem autêntica, do papel certo e bem formada muda o estado de uma conversa
+:id: NORM-09
+:entrega: DSM3
+:status: pendente
+:enforced_by: SVC-A2A
+
+**Escopo:** Toda mensagem A2A e toda transição local de FSM (SVC-A2A)  
+**Condição:** Remetente não registrado ou sem credencial, papel sem permissão para o performativo ou evento, destinatário fora da conversa, esquema inválido ou transição fora da FSM  
+**Consequência:** Mensagem ou transição rejeitada e registrada (`rejected`); nenhum estado muda; a simulação segue  
+**Decisão:** `DENY`
+````
+
+````{norm} Decisão humana vinculada, com política explícita e de uso único
+:id: NORM-10
+:entrega: DSM3
+:status: pendente
+:enforced_by: SVC-POL
+
+**Escopo:** Liberação de veto (waiver) e correção no ERP (Approval Gate, SVC-POL)  
+**Condição:** Decisão sem ticket do SVC-POL, de outro aprovador, com hash de veto diferente, fora do prazo, fora das opções abertas, sem justificativa, por pessoa envolvida no lançamento, reutilizada ou repetida após waiver anterior do mesmo padrão  
+**Consequência:** Decisão rejeitada no barramento; o veto continua valendo; sem decisão válida no prazo, bloqueio  
+**Decisão:** `DENY`
+````

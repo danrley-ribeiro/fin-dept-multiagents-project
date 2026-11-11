@@ -1,0 +1,18 @@
+sequenceDiagram
+  participant CIN as AG-CIN
+  participant ORQ as AG-ORQ
+  participant POL as SVC-POL
+  participant APR as Aprovador (humano)
+  participant MCP as Gateway MCP
+  CIN->>ORQ: veto (achados, opções, correções sugeridas, envolvidos) [PROT-CMP]
+  ORQ->>POL: emitir ticket (hash do veto, aprovador, prazo, opções pela política)
+  ORQ->>APR: propose-action APR-001 [PROT-APR]
+  POL-->>POL: require_approval (evento local)
+  APR->>ORQ: approve {aprovacao, solicitacao, veto(hash), decisao=corrigir, correcoes}
+  Note over POL: validado no barramento: POL-02..05, uso único
+  ORQ->>MCP: erp.corrigir (aprovacao=APR-001, lançamento, ação)
+  MCP->>POL: autorizar_efeito → registrar_execucao
+  ORQ-->>ORQ: execute (evento local)
+  ORQ->>CIN: correcao {aprovacao=APR-001, correcoes} [PROT-CMP]
+  Note over POL,CIN: SVC-POL consome o ticket, e o AG-CIN percebe o ERP de novo e reconsidera
+  CIN->>ORQ: conforme

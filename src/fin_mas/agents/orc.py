@@ -170,6 +170,7 @@ PLANOS = [
 
 
 class AgenteOrcamento(AgenteBDI):
+    PAPEL = "ROLE-ORC"
     PLANOS = PLANOS
     DESEJOS_PERMANENTES = {"precisao": 3, "tempestividade": 1}
 
@@ -214,9 +215,9 @@ class AgenteOrcamento(AgenteBDI):
             return
         cid = solicitante[1]
         self._perceber_perfil(cid, c)
-        planilha = self.gw.call(self.id, "planilhas.orcamento", cid, competencia=c)
+        planilha = self.ferramenta("planilhas.orcamento", cid, competencia=c)
         try:
-            erp = self.gw.call(self.id, "erp.realizado_por_conta", cid, competencia=c)["dados"]["realizado"]
+            erp = self.ferramenta("erp.realizado_por_conta", cid, competencia=c)["dados"]["realizado"]
         except ToolIndisponivel:  # empresa sem ERP: a planilha é a única fonte, sem reconciliação possível
             erp = None
         contas = [linha["conta"] for linha in planilha["dados"]["contas"]]
@@ -240,7 +241,7 @@ class AgenteOrcamento(AgenteBDI):
 
     def _perceber_perfil(self, cid, c) -> None:
         """Regras do porte da empresa (base normativa): limiares, fonte primária e pesos dos desejos."""
-        p = self.gw.call(self.id, "normas.perfil", cid, competencia=c)["dados"]
+        p = self.ferramenta("normas.perfil", cid, competencia=c)["dados"]
         self.crencas.revisar("porte", p["porte"], "mcp://normas/perfil", cid)
         self.crencas.revisar("tem_erp", p["tem_erp"], "mcp://normas/perfil", cid)
         self.conhecimento.update(porte=p["porte"], limiar_percentual=p["limiar_desvio"]["percentual"],

@@ -1,29 +1,54 @@
 # DSM3 — Comunicação, coordenação e protótipo funcional
 
-<span class="badge-pend">em andamento</span> · prazo: 18/11/2026
+<span class="badge-ok">concluída</span> · prazo: 18/11/2026
 
-## Enunciado
+A DSM3 consolida a **segurança e a robustez das interações** apontadas no feedback da DSM2 e
+conclui as funcionalidades que estavam previstas: barramento que valida remetente,
+destinatário, papel, conversa, performativo e esquema; **Approval Gate** formal (PROT-APR) com
+política de aprovação explícita; **memória persistente** aprovada (SVC-MEM); **proteção de
+informações** (redaction fail-closed, pseudônimos, trace com hash encadeado); **LLM opcional**
+do AG-REL com validação numérica, sempre offline nos testes. O que mudou em resposta ao
+feedback, ponto a ponto, está em {doc}`revisao`.
 
-Comunicação com conteúdo e finalidade claros; protocolo de interação documentado;
-coordenação, negociação, cooperação ou planejamento; tratamento de conflito, falha ou
-alternativa; testes integrados ou cenários automatizados; evidências de comportamento
-coletivo.
+## Enunciado e onde está cada critério
 
-## Já disponível (adiantado na revisão da DSM2)
+| Critério | Peso | Página |
+|---|---|---|
+| Comunicação e protocolos | 25% | {doc}`protocolos` (envelope, validação, papéis, esquemas, PROT-APR) · ADR-007 |
+| Coordenação coletiva | 25% | {doc}`coordenacao` (delegação, consulta direta, veto→aprovação→correção, reserva, memória entre ciclos) |
+| Corretude e robustez | 25% | {doc}`seguranca` (14 ataques rejeitados, política POL-01..08, isolamento de erros) |
+| Testes e evidências | 15% | {doc}`testes` · `docs/dsm3/resultados/` · cenário `ataque_decisao_forjada` |
+| Documentação e autoria | 10% | `entregas/dsm3/README.md` · `entregas/dsm3/USO_DE_IA.md` · {doc}`limitacoes` |
 
-| Item | Onde |
+| Requisito do enunciado | Evidência |
 |---|---|
-| Empresa fictícia **SMA**, logo em relatórios, dashboard e documentação | `src/fin_mas/env/empresa.py`, `assets/sma-logo.svg`, `python -m fin_mas relatorio` |
-| Dados mock de três competências com anomalias variadas (`expediente_sma`) | {doc}`../dsm2/prototipo` |
-| Regras e BDI por porte (micro, pequena, média, grande) | {doc}`../dsm2/portes` |
-| Empresas sem ERP: modelos Excel, modo manual, servidor MCP de Excel | {doc}`../dsm2/planilhas` |
-| Escritório ao vivo com decisão humana, desligamento de agentes e badges | {doc}`../dsm2/dashboard` |
-| Coordenação: consulta direta ORC↔CIN, veto com correção, reserva de período | {doc}`../dsm2/coordenacao` |
+| Comunicação com conteúdo e finalidade claros | performativos FIPA por protocolo com esquema de conteúdo validado (`models/protocols.yaml`, `core/schema.py`) |
+| Protocolo de interação documentado | seis FSMs com transições válidas e inválidas, emissores e eventos locais; diagramas em `entregas/dsm3/modelos-editaveis/` |
+| Coordenação, negociação, cooperação ou planejamento | DAG do Orquestrador, consulta ORC↔CIN, ciclo veto→aprovação→correção→reavaliação, exclusão mútua de período |
+| Tratamento de conflito, falha ou alternativa | reenvio e falha explícita, replanejamento BDI, prazo do ticket, decisão negada pela política, reincidência |
+| Testes integrados ou cenários automatizados | 232 testes pytest (75 novos) + Playwright; 17 cenários nomeados |
+| Evidências de comportamento coletivo | traces JSONL com crenças, intenções, decisões, rejeições e tickets; comparação em 10 seeds |
 
-## Planejado para a entrega
+## Como reproduzir em dois minutos
 
-- Avaliar **Contract Net** para alocar verificações entre mais de um verificador (CP6).
-- **Approval Gate** formal (PROT-APR) para efeitos externos, como a correção no ERP (CP7).
-- **Memória** aprovada com proveniência (CP9) e **redaction** (CP10).
-- RAG sobre documentos normativos da empresa, além do YAML por porte (CP8).
-- Ampliar os testes integrados de comportamento coletivo (TEST-11 a TEST-13, TEST-23).
+```bash
+python -m fin_mas run --scenario ataque_decisao_forjada     # 14 ataques, 0 aceitos, nada publicado
+python -m fin_mas run --scenario reincidencia_waiver         # memória entre meses + POL-06
+python -m fin_mas run --scenario veto_correcao --trace t.jsonl && python -m fin_mas verificar t.jsonl
+python -m fin_mas run --scenario fechar_mes --llm mock-narrador   # síntese por LLM validada (offline)
+python -m pytest                                              # 232 testes
+```
+
+```{toctree}
+:maxdepth: 1
+
+revisao
+protocolos
+coordenacao
+seguranca
+memoria
+llm
+testes
+limitacoes
+ADR-007-autenticidade-e-approval-gate
+```

@@ -2,7 +2,7 @@
 import pytest
 
 from fin_mas.core.fsm import ProtocolViolation
-from fin_mas.core.message import Message
+from helpers import rodar_ate_humano
 from fin_mas.env.scenarios import Scenario, build_system, run_scenario
 
 pytestmark = pytest.mark.e2e
@@ -23,12 +23,14 @@ def test_critical_nonconformity_vetoes_close():
 
 def test_publicar_em_vetado_e_rejeitado_e_a_reserva_continua():
     s = build_system(plantar=("alcada",))
-    s.aprovador.on_message = lambda m: None  # ninguém decide: a conversa fica em VETADO
+    s.aprovador.on_message = lambda m: None  # ninguém decide: a conversa fica em VETADO até o prazo
     sid = s.usuario.solicitar("fechar_mes")
-    s.bus.run()
+    rodar_ate_humano(s.bus)
     assert s.bus.conversations["CMP-001"].state == "VETADO"
     with pytest.raises(ProtocolViolation, match="publicar"):
-        s.bus.send(Message("AG-ORQ", "AG-CIN", "publicar", "CMP-001", "PROT-CMP"))
+        s.orq.send("AG-CIN", "publicar", "PROT-CMP", "CMP-001", {})
+    with pytest.raises(ProtocolViolation, match="publicar"):
+        s.orq.avancar("CMP-001", "publicar")
     assert s.locks.dono("SMA", "2026-09") == sid  # reserva segue ativa durante o veto
     assert s.usuario.resposta(sid) is None
 

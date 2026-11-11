@@ -60,6 +60,18 @@ class LockService:
         reserva["dono"] = None
         self.audit.record(self.clock(), "lock", chave=list(chave), evento="release", dono=dono)
 
+    def renovar(self, entidade: str, competencia: str, dono: str, ate: int) -> bool:
+        """Estende o TTL da reserva do próprio dono (ex.: enquanto espera o aprovador). False se já a perdeu."""
+        chave = (entidade, competencia)
+        self._expirar(chave)
+        reserva = self._reservas.get(chave)
+        if reserva is None or reserva["fsm"].state != "RESERVADO" or reserva["dono"] != dono:
+            return False
+        if ate > reserva["expira_em"]:
+            reserva["expira_em"] = ate
+            self.audit.record(self.clock(), "lock", chave=list(chave), evento="renovar", dono=dono, expira_em=ate)
+        return True
+
     def dono(self, entidade: str, competencia: str):
         chave = (entidade, competencia)
         self._expirar(chave)

@@ -27,7 +27,7 @@
 :status: especificado
 :llm: nao_aplicavel
 :played_by: STK-02
-:uses_protocol: PROT-APR, PROT-CMP
+:uses_protocol: PROT-APR
 
 **Responsabilidades (Resp)**
 
@@ -99,7 +99,7 @@
 :entrega: DSM1
 :status: especificado
 :llm: flag
-:uses_protocol: PROT-DEL, PROT-QRY, PROT-APR
+:uses_protocol: PROT-DEL, PROT-QRY
 
 **Responsabilidades (Resp)**
 
@@ -174,7 +174,7 @@
 :entrega: DSM1
 :status: especificado
 :llm: flag
-:uses_protocol: PROT-DEL, PROT-APR
+:uses_protocol: PROT-DEL
 
 **Responsabilidades (Resp)**
 

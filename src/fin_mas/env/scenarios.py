@@ -19,10 +19,15 @@ from fin_mas.env.empresa import EMPRESA
 from fin_mas.env.portes import PORTE_PADRAO
 from fin_mas.mcp.gateway import MCPGateway
 from fin_mas.services.locks import LockService
+from fin_mas.services.memoria import Memoria
+from fin_mas.services.modelos import VERSAO_PROMPT, RegistroModelos
+from fin_mas.services.politica import PRAZO_APROVACAO, PoliticaAprovacao
 
 
 class Solicitante(Agent):
     """ROLE-SOL simulado: pede e guarda o que o Orquestrador responde."""
+
+    PAPEL = "ROLE-SOL"
 
     def __init__(self, bus, agent_id="SOL"):
         super().__init__(agent_id, bus)
@@ -45,29 +50,36 @@ class Solicitante(Agent):
 
 
 class Aprovador(Agent):
-    """ROLE-APR simulado: responde ao aviso de veto conforme o roteiro do cenário.
+    """ROLE-APR simulado: decide no Approval Gate (PROT-APR) conforme o roteiro do cenário.
 
-    Decisões: "waiver" libera com ressalva; "corrigir" aplica no ERP as correções
-    sugeridas pelo AG-CIN; "corrigir_parcial" aplica só a primeira; "nenhuma" deixa o
-    prazo esgotar. Uma sequência é consumida aviso a aviso (a última se repete). No modo
-    interativo a decisão vem de fora (dashboard), por `decidir`.
+    Recebe `propose-action` do Orquestrador com o ticket do SVC-POL e responde `approve`
+    ou `reject` citando o ticket, a solicitação e o hash do veto que viu. Decisões:
+    "waiver" libera com ressalva; "corrigir" aprova as correções sugeridas pelo AG-CIN
+    (o gateway as executa no ERP); "corrigir_parcial" aprova só a primeira; "bloquear"
+    rejeita; "nenhuma" não responde e o prazo do ticket esgota. Opção que a política não
+    abriu vira silêncio (corrigir) ou rejeição (waiver). Uma sequência é consumida aviso a
+    aviso (a última se repete). No modo interativo a decisão vem do dashboard (`decidir`).
     """
 
+    PAPEL = "ROLE-APR"
     JUSTIFICATIVA = "aceito o risco: lançamento será corrigido no próximo ciclo"
 
-    def __init__(self, bus, decisao="nenhuma", ambiente: Ambiente | None = None, interativo=False):
-        super().__init__("APR", bus)
+    def __init__(self, bus, decisao="nenhuma", ambiente: Ambiente | None = None, interativo=False,
+                 agent_id="APR"):
+        super().__init__(agent_id, bus)
         self.decisoes = [decisao] if isinstance(decisao, str) else list(decisao)
         self.decisao = self.decisoes[0]
         self.ambiente = ambiente
         self.interativo = interativo
         self.avisos = []
-        self.pendentes: dict[str, object] = {}  # solicitação -> aviso aguardando decisão humana
+        self.pendentes: dict[str, object] = {}  # solicitação -> proposta aguardando decisão humana
 
     def on_message(self, msg):
-        if msg.performative != "veto_notice":
+        if msg.protocol != "PROT-APR" or msg.performative != "propose-action":
             return
         self.avisos.append(msg)
+        if self.bus.conversations[msg.conversation_id].is_final:
+            return  # negada pela política (POL-07): só ciência, não há o que decidir
         if self.interativo:
             self.pendentes[msg.content["solicitacao"]] = msg
             return
@@ -78,22 +90,29 @@ class Aprovador(Agent):
         msg = self.pendentes.pop(solicitacao, None)
         if msg is None:
             return False
-        self._responder(msg, decisao, justificativa or self.JUSTIFICATIVA)
+        if decisao == "nenhuma":
+            decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
+        self._responder(msg, decisao, (justificativa or "").strip() or self.JUSTIFICATIVA)
         return True
 
     def _responder(self, msg, decisao, justificativa):
-        correcoes = []
-        if decisao in ("corrigir", "corrigir_parcial") and "corrigir" in msg.content.get("opcoes", []):
-            sugeridas = msg.content.get("correcoes_sugeridas", [])
-            ds = self.ambiente.dataset(msg.content.get("competencia"))
-            for sug in sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas:
-                correcoes.append(ds.corrigir(sug["lancamento"], sug["acao"]))
-            decisao = "corrigir"
-        elif decisao in ("corrigir", "corrigir_parcial"):
-            decisao = "nenhuma"  # correção não oferecida pelo AG-CIN: o prazo esgota
-        self.send("AG-ORQ", "decisao_humana", None, msg.conversation_id,
-                  {"solicitacao": msg.content["solicitacao"], "decisao": decisao,
-                   "justificativa": justificativa, "correcoes": correcoes})
+        c = msg.content
+        base = {"aprovacao": msg.conversation_id, "solicitacao": c["solicitacao"], "veto": c["veto"],
+                "justificativa": justificativa}
+        if decisao in ("corrigir", "corrigir_parcial"):
+            if "corrigir" not in c["opcoes"]:
+                return  # correção não oferecida: o prazo do ticket esgota
+            sugeridas = c["correcoes_sugeridas"]
+            escolhidas = sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas
+            self.send("AG-ORQ", "approve", "PROT-APR", msg.conversation_id,
+                      {**base, "decisao": "corrigir", "correcoes": escolhidas})
+        elif decisao == "waiver" and "waiver" in c["opcoes"]:
+            self.send("AG-ORQ", "approve", "PROT-APR", msg.conversation_id, {**base, "decisao": "waiver"})
+        elif decisao in ("waiver", "bloquear"):
+            if decisao == "waiver":
+                base["justificativa"] = "waiver não admitido pela política; publicação permanece bloqueada"
+            self.send("AG-ORQ", "reject", "PROT-APR", msg.conversation_id, base)
+        # "nenhuma": silêncio deliberado; o reply_by do ticket expira a conversa
 
 
 @dataclass
@@ -107,22 +126,41 @@ class System:
     aprovador: Aprovador
     agentes: dict = field(default_factory=dict)
     ambiente: Ambiente | None = None
+    politica: PoliticaAprovacao | None = None
+    memoria: Memoria | None = None
+    modelos: RegistroModelos | None = None
+
+
+PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão do dashboard
 
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
-                 interativo=False, porte=PORTE_PADRAO, pasta=None) -> System:
-    """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos)."""
+                 interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
+                 prazo_aprovacao=None, llm=None) -> System:
+    """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
+
+    `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
+    `aprovadores`: cadastro do SVC-POL (quem decide o quê); None = controller com todas as decisões.
+    """
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
     amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
-    gw = MCPGateway(amb, bus.audit, bus)
+    prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
+    politica = PoliticaAprovacao(bus, aprovadores=aprovadores, prazo=prazo)
+    mem = Memoria(bus.audit, lambda: bus.now, politica=politica, caminho=memoria)
+    gw = MCPGateway(amb, bus.audit, bus, politica=politica)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl)
     agentes = {"AG-CUS": AgenteCustos(bus, gw), "AG-ORC": AgenteOrcamento(bus, gw),
                "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": AgenteRelatorios(bus, gw)}
-    orq = Orquestrador(bus, locks)
+    agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
+    modelos = RegistroModelos(bus.audit, lambda: bus.now)
+    agentes["AG-REL"].modelos = modelos
+    if llm:  # flag do LLM opcional no AG-REL (ADR-002); desligada por padrão
+        modelos.configurar("AG-REL", llm=True, modelo=llm)
+    orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
     return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador, amb, interativo),
-                  agentes, amb)
+                  agentes, amb, politica, mem, modelos)
 
 
 @dataclass(frozen=True)
@@ -137,6 +175,8 @@ class Scenario:
     agenda: tuple = ()  # ((competência, plantios), ...) para cenários com vários meses
     pedidos: tuple = ()  # ((intenção, competência, atraso), ...); vazio = um pedido de `intencao`
     porte: str = PORTE_PADRAO
+    aprovadores: dict | None = None  # cadastro do SVC-POL; None = padrão (controller)
+    ataques: bool = False  # dispara env/ataques.py enquanto o veto aguarda o aprovador
 
 
 CENARIOS = {c.nome: c for c in [
@@ -178,6 +218,14 @@ CENARIOS = {c.nome: c for c in [
              porte="pequena", plantar=("duplicidade",), decisao_aprovador="corrigir"),
     Scenario("fechamento_grande", "Grande empresa: materialidade menor, competência errada já é crítica (corte)",
              "fechar_mes", porte="grande", plantar=("competencia", "desvio_orcamentario"), decisao_aprovador="corrigir"),
+    Scenario("ataque_decisao_forjada", "Veto pendente sob ataque: decisão forjada, identidade falsa, transição local "
+             "não autorizada, destinatário fora da conversa e pedido malformado são rejeitados; o prazo esgota e "
+             "nada é publicado", "fechar_mes", plantar=("alcada",), decisao_aprovador="nenhuma", ataques=True),
+    Scenario("reincidencia_waiver", "Mesma violação de alçada em dois meses: o waiver de agosto vira memória; em "
+             "setembro o AG-CIN cita a memória, a política nega novo waiver e o humano corrige", "fechar_mes",
+             decisao_aprovador=("waiver", "corrigir"),
+             agenda=(("2026-08", ("alcada",)), ("2026-09", ("alcada",))),
+             pedidos=(("fechar_mes", "2026-08", 1), ("fechar_mes", "2026-09", 60))),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -204,7 +252,8 @@ class Execucao:
         return {sid: self.system.usuario.resposta(sid) for sid in self.sids}
 
 
-def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None) -> tuple[System, list]:
+def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
+           llm=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -212,7 +261,8 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None) ->
     """
     sistema = build_system(seed if seed is not None else sc.seed, () if pasta else sc.plantar, sc.faults,
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
-                           interativo=interativo, porte=porte or sc.porte, pasta=pasta)
+                           interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
+                           aprovadores=sc.aprovadores, llm=llm)
     ds = sistema.dataset
     sistema.bus.audit.record(0, "meta", empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
@@ -221,15 +271,23 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None) ->
                              fonte="planilha" if pasta else "sintetico",
                              arquivo=str(getattr(ds, "arquivo", "")) or None,
                              versoes={"pacote": __version__, "normas": ds.perfil["versao"], "template": VERSAO_TEMPLATE,
-                                      "rateio": VERSAO_RATEIO})
+                                      "rateio": VERSAO_RATEIO, "prompt": VERSAO_PROMPT},
+                             llm=dict(sistema.modelos.config("AG-REL"), agente="AG-REL"),
+                             identidades=dict(sistema.bus.papeis),
+                             aprovadores={k: {"titulo": v["titulo"], "decisoes": v["decisoes"]}
+                                          for k, v in sistema.politica.aprovadores.items()},
+                             prazo_aprovacao=sistema.politica.prazo)
+    if sc.ataques:
+        from fin_mas.env import ataques
+        ataques.preparar(sistema)
     pedidos = PEDIDOS_PLANILHA if pasta else (sc.pedidos or ((sc.intencao, None, 1),))
     sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso)
             for intencao, c, atraso in pedidos]
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None, porte=None, pasta=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

@@ -1,11 +1,14 @@
 stateDiagram-v2
-    [*] --> PROPOSTA
+    [*] --> CRIADA
+    CRIADA --> PROPOSTA: propose-action
     PROPOSTA --> EXECUTADA: allow
     PROPOSTA --> NEGADA: deny
     PROPOSTA --> PENDENTE: require_approval
-    PENDENTE --> EXECUTADA: approve
+    PENDENTE --> APROVADA: approve
     PENDENTE --> REJEITADA: reject
     PENDENTE --> EXPIRADA: timeout
+    APROVADA --> EXECUTADA: execute
+    APROVADA --> EXPIRADA: timeout
     EXECUTADA --> [*]
     NEGADA --> [*]
     REJEITADA --> [*]

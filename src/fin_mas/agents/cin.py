@@ -16,14 +16,24 @@ Com críticas corrigíveis os dois vetos são aplicáveis e vence o que preserva
 (sugere correção). Após uma correção, as crenças são revisadas por nova percepção e a
 intenção é reconsiderada: sem críticas, troca o veto por aprovar/apontar; com críticas
 restantes, mantém o compromisso de vetar, agora sem novo ciclo de correção.
+
+DSM3 — memória e Approval Gate. Antes de vetar, o AG-CIN consulta o SVC-MEM: um achado
+crítico com o mesmo padrão (regra + aprovador, criador ou fornecedor) que já recebeu
+waiver numa competência anterior é marcado como reincidente, com o id da memória e a
+aprovação de origem; a política (POL-06) não admite novo waiver para ele. Waiver,
+correção e bloqueio decididos por humano no PROT-APR são gravados na memória com a
+proveniência da aprovação. O veto informa os envolvidos nos lançamentos críticos, para a
+política impedir que um deles aprove a liberação (POL-03).
 """
 from fin_mas.core.bdi import AgenteBDI, Plano
-from fin_mas.env.dataset import EFEITO_ORCAMENTARIO
 from fin_mas.core.message import Message
+from fin_mas.env.dataset import EFEITO_ORCAMENTARIO
+from fin_mas.services.memoria import MemoriaRecusada, pseudonimo
 
 MAX_CICLOS_CORRECAO = 1
 CORRECAO_POR_REGRA = {"alcada": "reaprovar", "sod": "reaprovar", "duplicidade": "estornar",
                       "competencia": "reclassificar"}
+REINCIDENCIA_POR = {"alcada": "aprovador", "sod": "criador", "duplicidade": "fornecedor", "competencia": "criador"}
 
 
 def _ctx_aprovar(a, d):
@@ -71,6 +81,9 @@ def _corpo_parecer(evento, intencao_legado):
             sugeridas = a.correcoes_sugeridas(criticos, a.competencia_de(d)) if i.plano.id == "P-VETAR-COM-CORRECAO" else []
             conteudo["correcoes_sugeridas"] = sugeridas
             conteudo["opcoes"] = (["corrigir"] if sugeridas else []) + ["waiver", "bloquear"]
+            a.marcar_reincidencias(achados, a.competencia_de(d), cmp_id)
+            conteudo["envolvidos"] = a.envolvidos(criticos, a.competencia_de(d))
+            a.estado["pareceres"][cmp_id]["ultimo_veto"] = achados
         a.estado["intencao"] = intencao_legado
         regra = {"veto": "NORM-04: não conformidade crítica veta a publicação",
                  "conforme": "nenhuma violação nas regras de alçada, SoD, duplicidade e competência",
@@ -99,6 +112,7 @@ PLANOS = [
 
 
 class AgenteControlesInternos(AgenteBDI):
+    PAPEL = "ROLE-CIN"
     PLANOS = PLANOS
     DESEJOS_PERMANENTES = {"conformidade": 10, "prazo": 5}
 
@@ -134,6 +148,13 @@ class AgenteControlesInternos(AgenteBDI):
         cmp_id = msg.conversation_id
         ciclos = self.crencas.get(f"ciclos_correcao[{cmp_id}]", 0) + 1
         self.crencas.revisar(f"ciclos_correcao[{cmp_id}]", ciclos, "correção informada pelo AG-ORQ", cmp_id)
+        self.crencas.revisar(f"aprovacao[{cmp_id}]", msg.content["aprovacao"], "PROT-APR (validada pelo SVC-POL)",
+                             cmp_id)
+        competencia = self.estado["pareceres"][cmp_id]["competencia"]
+        for c in msg.content["correcoes"]:
+            self._lembrar("correcao", f"{c['acao']}|lanc={c['lancamento']}",
+                          {"lancamento": c["lancamento"], "acao": c["acao"]},  # sem texto livre com nomes
+                          competencia, msg.content["aprovacao"], cmp_id)
         self.perceber(cmp_id, self.estado["pareceres"][cmp_id]["competencia"])  # nova percepção, não confiança cega
         i = self.intencao_aguardando("cmp:" + cmp_id)
         if i is None:
@@ -147,13 +168,77 @@ class AgenteControlesInternos(AgenteBDI):
     def _decisao_humana(self, msg: Message) -> None:
         cmp_id = msg.conversation_id
         i = self.intencao_aguardando("cmp:" + cmp_id)
+        parecer = self.estado["pareceres"][cmp_id]
+        aprovacao = msg.content.get("aprovacao")
         if msg.performative == "waiver_humano":
-            self.crencas.revisar(f"waiver[{cmp_id}]", msg.content.get("justificativa"), "decisão humana (APR)", cmp_id)
+            self.crencas.revisar(f"waiver[{cmp_id}]", {"justificativa": msg.content.get("justificativa"),
+                                                       "aprovacao": aprovacao},
+                                 "decisão humana (PROT-APR validada pelo SVC-POL)", cmp_id)
+            for a in parecer.get("ultimo_veto", []):
+                chave = self.chave_reincidencia(a, parecer["competencia"])
+                if a["severidade"] == "critica" and chave:
+                    self._lembrar("waiver", chave, {"regra": a["regra"], "lancamento": a["lancamento"]},
+                                  parecer["competencia"], aprovacao, cmp_id)
             if i is not None:
                 self._encerrar_intencao(i, "abandonada", "waiver humano: autoridade superior assume o risco")
                 self._encerrar_desejo(i.desejo, "descartado", "decisão humana prevalece; violações seguem nas crenças")
         elif i is not None:
-            self.concluir(i, "BLOQUEADO", "veto mantido: publicação bloqueada")
+            if msg.content.get("decisao") == "bloquear":  # só a rejeição humana vira memória (NORM-08)
+                for a in parecer.get("ultimo_veto", []):
+                    if a["severidade"] == "critica":
+                        self._lembrar("bloqueio", f"{a['regra']}|lanc={a['lancamento']}",
+                                      {"regra": a["regra"], "lancamento": a["lancamento"]},
+                                      parecer["competencia"], aprovacao, cmp_id)
+            self.concluir(i, "BLOQUEADO", f"veto mantido: publicação bloqueada ({msg.content.get('decisao')})")
+
+    # ---- memória (SVC-MEM) ----------------------------------------------------------
+    def chave_reincidencia(self, achado, competencia) -> str | None:
+        """Padrão que identifica reincidência: regra + pessoa (pseudônimo) ou fornecedor."""
+        b = self.crencas.get(f"lanc[{achado['lancamento']}]@{competencia}") or {}
+        campo = REINCIDENCIA_POR.get(achado["regra"])
+        valor = b.get(campo)
+        if not valor:
+            return None
+        return f"{achado['regra']}|{campo}={pseudonimo(valor) if campo != 'fornecedor' else valor}"
+
+    def marcar_reincidencias(self, achados, competencia, cid) -> None:
+        if self.memoria is None:
+            return
+        if not self.memoria.integra:  # falha fechada: sem o histórico confiável, nenhum waiver é reaberto
+            for a in achados:
+                if a["severidade"] == "critica":
+                    a["reincidencia"] = {"memoria": "SVC-MEM comprometida", "competencia": None, "aprovacao": None}
+                    a["evidencia"] += "; histórico de decisões indisponível (memória comprometida): waiver suspenso"
+            self.crencas.revisar("memoria_integra", False, f"SVC-MEM: {self.memoria.motivo_comprometida}", cid)
+            return
+        for a in achados:
+            chave = self.chave_reincidencia(a, competencia) if a["severidade"] == "critica" else None
+            anteriores = self.memoria.consultar("waiver", chave, competencia_atual=competencia, cid=cid) if chave else []
+            if not anteriores:
+                continue
+            m = anteriores[-1]
+            a["reincidencia"] = {"memoria": m["id"], "competencia": m["competencia"],
+                                 "aprovacao": m["proveniencia"]["aprovacao"]}
+            a["evidencia"] += (f"; reincidente: waiver anterior {m['id']} em {m['competencia']} "
+                               f"({m['proveniencia']['aprovacao']})")
+            self.crencas.revisar(f"reincidencia[{a['lancamento']}]@{competencia}", a["reincidencia"],
+                                 f"SVC-MEM {m['id']}", cid)
+
+    def envolvidos(self, criticos, competencia) -> list[str]:
+        pessoas = set()
+        for a in criticos:
+            b = self.crencas.get(f"lanc[{a['lancamento']}]@{competencia}") or {}
+            pessoas |= {p for p in (b.get("criador"), b.get("aprovador")) if p}
+        return sorted(pessoas)
+
+    def _lembrar(self, tipo, chave, valor, competencia, aprovacao, cid) -> None:
+        if self.memoria is None or not aprovacao:
+            return
+        try:
+            self.memoria.gravar(tipo, chave, valor, competencia=competencia, aprovacao=aprovacao,
+                                fonte=f"PROT-APR {aprovacao}", cid=cid)
+        except MemoriaRecusada:
+            pass  # a recusa já foi auditada pelo SVC-MEM; a decisão segue sem virar memória
 
     # ---- consulta de outros especialistas (PROT-QRY) ------------------------------
     def consultar(self, assunto, content, conversation_id):
@@ -174,10 +259,10 @@ class AgenteControlesInternos(AgenteBDI):
 
     # ---- percepção e revisão de crenças ------------------------------------------
     def perceber(self, cid, c) -> dict:
-        perfil = self.gw.call(self.id, "normas.perfil", cid, competencia=c)["dados"]
-        lancamentos = self.gw.call(self.id, "erp.lancamentos", cid, competencia=c)
-        alcadas = self.gw.call(self.id, "normas.alcadas", cid, competencia=c)["dados"]
-        regras = self.gw.call(self.id, "normas.regras", cid, competencia=c)["dados"]
+        perfil = self.ferramenta("normas.perfil", cid, competencia=c)["dados"]
+        lancamentos = self.ferramenta("erp.lancamentos", cid, competencia=c)
+        alcadas = self.ferramenta("normas.alcadas", cid, competencia=c)["dados"]
+        regras = self.ferramenta("normas.regras", cid, competencia=c)["dados"]
         self.crencas.revisar("versao_normas", regras["versao"], "mcp://normas/regras", cid)
         self.crencas.revisar("porte", perfil["porte"], "mcp://normas/perfil", cid)
         self.conhecimento.update(porte=perfil["porte"], max_ciclos_correcao=perfil["max_ciclos_correcao"],
@@ -203,6 +288,7 @@ class AgenteControlesInternos(AgenteBDI):
                 violacoes.append(("competencia", f"competência {lanc['competencia']} fora de {c}"))
             self.crencas.revisar(f"lanc[{lanc['id']}]@{c}",
                                  {"conta": lanc.get("conta"), "valor": lanc["valor"], "criador": lanc["criador"],
+                                  "aprovador": lanc["aprovador"], "fornecedor": lanc.get("fornecedor"),
                                   "violacoes": [r for r, _ in violacoes],
                                   "evidencias": {r: e for r, e in violacoes}},
                                  "mcp://erp/lancamentos", cid)

@@ -22,7 +22,8 @@ def montar(seed=42, plantar=()):
 
 
 def delegar(bus, cliente, receptor, tarefa, cid="DEL-001"):
-    cliente.send(receptor, "request", "PROT-DEL", cid, {"tarefa": tarefa}, reply_by=bus.now + 20)
+    cliente.send(receptor, "request", "PROT-DEL", cid, {"tarefa": tarefa, "entidade": "SMA", "competencia": "2026-09"},
+                 reply_by=bus.now + 20)
     bus.run()
     return cliente.por_performativo("inform", cid)[0].content
 
@@ -48,7 +49,8 @@ def test_custos_responde_agree_antes_do_inform():
 
 def test_tarefa_desconhecida_vira_failure_explicito():
     bus, _, cli, *_ = montar()
-    cli.send("AG-CUS", "request", "PROT-DEL", "DEL-001", {"tarefa": "voar"}, reply_by=bus.now + 20)
+    cli.send("AG-CUS", "request", "PROT-DEL", "DEL-001", {"tarefa": "voar", "entidade": "SMA", "competencia": "2026-09"},
+             reply_by=bus.now + 20)
     bus.run()
     assert cli.por_performativo("failure")[0].content["motivo"].startswith("tarefa desconhecida")
     assert bus.conversations["DEL-001"].state == "FALHOU"
@@ -81,7 +83,8 @@ def test_forecast_run_rate_e_reproduzivel():
 
 
 def test_query_ref_entre_pares_responde_do_estado():
-    bus, ds, cli, cus, orc = montar()
+    bus, ds, _, cus, orc = montar()
+    cli = Cliente("CLI-RES", bus, papel="ROLE-RES")  # consulta entre especialistas: papel de quem consulta
     cli.send("AG-CUS", "query-ref", "PROT-QRY", "QRY-001", {"assunto": "custos_por_UN"}, reply_by=bus.now + 10)
     cli.send("AG-ORC", "query-ref", "PROT-QRY", "QRY-002", {"assunto": "desvios"}, reply_by=bus.now + 10)
     bus.run()
@@ -91,7 +94,8 @@ def test_query_ref_entre_pares_responde_do_estado():
 
 
 def test_query_ref_de_assunto_desconhecido_e_recusado():
-    bus, _, cli, *_ = montar()
+    bus, *_ = montar()
+    cli = Cliente("CLI-RES", bus, papel="ROLE-RES")
     cli.send("AG-CUS", "query-ref", "PROT-QRY", "QRY-001", {"assunto": "folha"}, reply_by=bus.now + 10)
     bus.run()
     assert bus.conversations["QRY-001"].state == "RECUSADA"

@@ -27,7 +27,7 @@ extensions = [
 ]
 myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "attrs_inline", "dollarmath", "tasklist"]
 source_suffix = {".md": "markdown"}
-exclude_patterns = ["_build", "_generated/*.md"]  # gerados entram via {include}
+exclude_patterns = ["_build", "_generated/*.md", "*/resultados/*.md"]  # gerados entram via {include}
 suppress_warnings = ["myst.header"]
 
 html_theme = "furo"

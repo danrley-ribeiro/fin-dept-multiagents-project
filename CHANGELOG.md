@@ -2,6 +2,34 @@
 
 Registro por entrega.
 
+## DSM3 — Comunicação, coordenação e protótipo funcional (10/11/2026)
+
+- Feedback da DSM2 (segurança das interações): o barramento autentica o remetente (credencial por
+  identidade), confere papel por performativo, destinatário como contraparte, esquema do conteúdo e
+  transição da FSM antes de mudar estado; `advance` só por participante autenticado com papel autorizado;
+  conteúdo copiado e conferido por hash; erro de agente isolado (`erro_agente` + resposta explícita).
+  Fim do canal livre `protocol=None`. Campos `emissores`, `eventos_locais` e `esquemas` em `models/protocols.yaml`.
+- Approval Gate (PROT-APR) e SVC-POL: ticket vinculado a solicitação, veto (hash), aprovador e prazo;
+  política POL-01 a POL-08; `erp.corrigir` como único efeito externo, só com aprovação.
+- SVC-MEM: memória persistente só de decisões humanas, com proveniência, retenção e pseudônimos; reincidência
+  após waiver nega novo waiver (POL-06).
+- Proteção de informações: redaction fail-closed em todo registro; JSONL com hash encadeado e `fin_mas verificar`.
+- LLM opcional do AG-REL (SVC-MOD) com mocks offline, validação numérica, logs de prompt e custo, cota.
+- Cenários `ataque_decisao_forjada` (14 ataques, 0 aceitos) e `reincidencia_waiver`; 75 testes novos (232 no total).
+- Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
+  COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
+- Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita
+  `Host`/`Origin` de loopback e exige token de sessão nos POST.
+- Revisão interna: competência validada como `AAAA-MM`, entidade desconhecida recusada, scripts aceitam Python 3.11.
+- Correção simulada por avaliador independente: gateway MCP e memória autenticados; barramento guarda só hashes de
+  credenciais; envio atômico e prazo em `APROVADA`; reserva do período renovada durante a aprovação; memória assinada
+  (HMAC) e sem nomes; selo HMAC no fim do trace; comandos do dashboard validados; redaction ampliada; POL-04 mais forte.
+- Recorreção (nota simulada 7,3 → 8,1): memória com selo do arquivo inteiro, contador e chave fora da pasta de dados e
+  falha fechada; ids únicos; decisão no último tick recusada; servidor autentica antes de ler o corpo; CPF/CNPJ sem
+  máscara; âncora pública para verificar o trace sem a chave (`verificar --ancora`).
+- Documentação `docs/dsm3/` (revisão pós-feedback, protocolos, coordenação, segurança, memória, LLM, testes,
+  limitações, ADR-007) e pacote `entregas/dsm3/` (`make entrega-dsm3`).
+
 ## DSM2 revisada e início da DSM3 (29/10/2026)
 
 - Feedback da DSM2: núcleo BDI (`core/bdi.py`); AG-ORC reescrito como BDI (fonte confiável, explicação de

@@ -56,9 +56,24 @@ export function conectarAoVivo(aoEvento: (e: EventoAoVivo) => void, aoErro: () =
   return () => fonte.close();
 }
 
+let sessao: Promise<string> | null = null;
+
+/** Token da sessão do servidor local, exigido em todo POST (cabeçalho X-SMA-Token). */
+export function tokenSessao(): Promise<string> {
+  sessao ??= fetch("/api/sessao").then((r) => r.json()).then((d: { token: string }) => d.token)
+    .catch((e) => { sessao = null; throw e; });
+  return sessao;
+}
+
+/** POST JSON autenticado para a API do servidor local. */
+export async function postar(rota: string, corpo: unknown): Promise<Response> {
+  const token = await tokenSessao();
+  return fetch(rota, { method: "POST", headers: { "Content-Type": "application/json", "X-SMA-Token": token },
+    body: JSON.stringify(corpo) });
+}
+
 export async function enviarComando(cmd: Record<string, unknown>): Promise<string | null> {
-  const r = await fetch("/api/comando", { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cmd) });
+  const r = await postar("/api/comando", cmd);
   if (r.ok) return null;
   const corpo = (await r.json().catch(() => ({}))) as { erro?: string };
   return corpo.erro ?? `erro ${r.status}`;

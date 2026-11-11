@@ -19,6 +19,20 @@ items:
     invalidas:
       - [RECEBIDA, inform, "resultado antes de aceitar a solicitação"]
       - [CONCLUIDA, inform, "segundo resultado para a mesma conversa"]
+    # DSM3: quem pode emitir cada performativo (papel do remetente) e o esquema do conteúdo.
+    emissores:
+      request: [ROLE-SOL]
+      agree: [ROLE-ORQ]
+      not-understood: [ROLE-ORQ]
+      refuse: [ROLE-ORQ]
+      inform: [ROLE-ORQ]
+      failure: [ROLE-ORQ]
+    esquemas:
+      request: {intencao: str, entidade: str, competencia: aaaa-mm}
+      not-understood: {motivo: str}
+      refuse: {motivo: str}
+      inform: {intencao: str, status: str, relatorio: str, ressalvas: list, resultado: dict}
+      failure: {motivo: str, publicado: bool}
     entrega: DSM1
 
   - id: PROT-DEL
@@ -40,6 +54,17 @@ items:
     invalidas:
       - [AGUARDANDO, inform, "resultado antes de agree"]
       - [EXPIRADA, inform, "resposta após reply_by é descartada"]
+    emissores:
+      request: [ROLE-ORQ]
+      agree: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      refuse: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      inform: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      failure: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+    esquemas:
+      request: {tarefa: str, entidade: str, competencia: aaaa-mm}
+      refuse: {motivo: str}
+      inform: {}
+      failure: {motivo: str}
     entrega: DSM1
 
   - id: PROT-QRY
@@ -61,12 +86,22 @@ items:
       - [AGUARDANDO, timeout, EXPIRADA]
     invalidas:
       - [CRIADA, inform, "inform não solicitado (conversation_id desconhecido)"]
+    emissores:
+      query-ref: [ROLE-RES, ROLE-ORC]
+      inform: [ROLE-CUS, ROLE-ORC, ROLE-CIN]
+      refuse: [ROLE-CUS, ROLE-ORC, ROLE-CIN]
+      failure: [ROLE-CUS, ROLE-ORC, ROLE-CIN]
+    esquemas:
+      query-ref: {assunto: str}
+      inform: {proveniencia: dict}
+      refuse: {motivo: str}
+      failure: {motivo: str}
     entrega: DSM1
 
   - id: PROT-CMP
     titulo: Verificação de conformidade com veto
     proposito: O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.
-    participantes: [ROLE-ORQ, ROLE-CIN, ROLE-APR]
+    participantes: [ROLE-ORQ, ROLE-CIN]
     meio: SVC-A2A
     performativos: [request, conforme, nao_conforme_nao_critico, veto, correcao, waiver_humano, prazo_esgotado, publicar]
     estado_inicial: CRIADA
@@ -82,6 +117,24 @@ items:
       - [VETADO, prazo_esgotado, BLOQUEADO]
     invalidas:
       - [VETADO, publicar, "publicar resultado vetado sem waiver ou correção"]
+    emissores:
+      request: [ROLE-ORQ]
+      conforme: [ROLE-CIN]
+      nao_conforme_nao_critico: [ROLE-CIN]
+      veto: [ROLE-CIN]
+      correcao: [ROLE-ORQ]
+      waiver_humano: [ROLE-ORQ]
+      prazo_esgotado: [ROLE-ORQ]
+    eventos_locais:
+      publicar: [ROLE-ORQ]
+    esquemas:
+      request: {tarefa: str, entidade: str, competencia: aaaa-mm}
+      conforme: {achados: list}
+      nao_conforme_nao_critico: {achados: list}
+      veto: {achados: list, opcoes: list, correcoes_sugeridas: list}
+      correcao: {aprovacao: str, correcoes: list}
+      waiver_humano: {aprovacao: str, justificativa: str}
+      prazo_esgotado: {decisao: str}
     entrega: DSM1
 
   - id: PROT-LCK
@@ -104,20 +157,42 @@ items:
 
   - id: PROT-APR
     titulo: Approval Gate (human-in-the-loop)
-    proposito: Reter ações com efeito externo até decisão humana explícita.
-    participantes: [ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR, SVC-POL]
-    meio: SVC-POL + ENV-UI
-    performativos: [propose-action, classify, approve, reject, execute, expire]
-    estado_inicial: PROPOSTA
+    proposito: >-
+      Reter ações restritas (waiver de veto, correção no ERP) até decisão humana explícita, vinculada à
+      solicitação, ao veto (hash dos achados), à identidade do aprovador e a um prazo; cada aprovação é de uso único.
+    participantes: [ROLE-ORQ, ROLE-APR, SVC-POL]
+    meio: SVC-A2A + SVC-POL
+    performativos: [propose-action, approve, reject]
+    estado_inicial: CRIADA
     estados_finais: [EXECUTADA, NEGADA, REJEITADA, EXPIRADA]
     transicoes:
+      - [CRIADA, propose-action, PROPOSTA]
       - [PROPOSTA, allow, EXECUTADA]
       - [PROPOSTA, deny, NEGADA]
       - [PROPOSTA, require_approval, PENDENTE]
-      - [PENDENTE, approve, EXECUTADA]
+      - [PENDENTE, approve, APROVADA]
       - [PENDENTE, reject, REJEITADA]
       - [PENDENTE, timeout, EXPIRADA]
+      - [APROVADA, execute, EXECUTADA]
+      - [APROVADA, timeout, EXPIRADA]  # aprovada mas não executada no prazo (ex.: approve perdido em trânsito)
     invalidas:
       - [PENDENTE, execute, "execução sem aprovação humana"]
       - [NEGADA, approve, "ação DENY não admite aprovação"]
-    entrega: DSM1
+      - [APROVADA, approve, "aprovação duplicada"]
+      - [EXECUTADA, approve, "aprovação reutilizada após a execução"]
+      - [EXPIRADA, approve, "aprovação após o prazo é descartada"]
+    emissores:
+      propose-action: [ROLE-ORQ]
+      approve: [ROLE-APR]
+      reject: [ROLE-APR]
+    eventos_locais:
+      allow: [SVC-POL]
+      deny: [SVC-POL]
+      require_approval: [SVC-POL]
+      execute: [ROLE-ORQ]
+    esquemas:
+      propose-action: {solicitacao: str, competencia: aaaa-mm, acao: str, veto: str, achados: list, opcoes: list,
+                       correcoes_sugeridas: list, prazo: int}
+      approve: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?"}
+      reject: {aprovacao: str, solicitacao: str, veto: str, justificativa: str}
+    entrega: DSM3

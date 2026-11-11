@@ -120,38 +120,38 @@
 
 ````{test} test_memory_only_approved_with_provenance
 :id: TEST-11
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-F07
 :derived_from: NORM-08
 
 `test_memory_only_approved_with_provenance()` — tipo *seguranca*.  
 **Resultado esperado:** saída não aprovada não é indexada; aprovada é recuperada com fonte  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_external_action_requires_approval
 :id: TEST-12
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-S01
 :derived_from: PROT-APR
 
 `test_external_action_requires_approval()` — tipo *seguranca*.  
 **Resultado esperado:** ajuste no ERP fica PENDENTE; execute sem approve levanta ApprovalRequired  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_denied_action_never_executes
 :id: TEST-13
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-S01
 :derived_from: NORM-02
 
 `test_denied_action_never_executes()` — tipo *seguranca*.  
 **Resultado esperado:** ação fora da allowlist nunca chega ao conector MCP  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_period_lock_conflict_rejected
@@ -168,14 +168,14 @@
 
 ````{test} test_llm_numeric_mismatch_falls_back
 :id: TEST-15
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-S03, REQ-F06
 :derived_from: NORM-05
 
 `test_llm_numeric_mismatch_falls_back()` — tipo *seguranca*.  
 **Resultado esperado:** mock LLM com número alterado aciona template e log de fallback  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_trace_causal_reconstruction
@@ -192,26 +192,26 @@
 
 ````{test} test_prompt_log_only_when_llm_enabled
 :id: TEST-17
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-O02
 :derived_from: NORM-07
 
 `test_prompt_log_only_when_llm_enabled()` — tipo *observabilidade*.  
 **Resultado esperado:** registro de prompt existe sse flag ligada  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_cost_log_per_call_and_task
 :id: TEST-18
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-O03
 :derived_from: SVC-AUD
 
 `test_cost_log_per_call_and_task()` — tipo *observabilidade*.  
 **Resultado esperado:** soma por chamada = total da tarefa; zero com flag desligada  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_dashboard_filters_and_auth
@@ -228,50 +228,50 @@
 
 ````{test} test_model_swap_without_redeploy
 :id: TEST-20
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-C01
 :derived_from: SVC-MOD
 
 `test_model_swap_without_redeploy()` — tipo *configuracao*.  
 **Resultado esperado:** troca de modelo vale na próxima tarefa sem reiniciar agentes  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_llm_not_allowed_roles_rejected
 :id: TEST-21
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-C01
 :derived_from: NORM-07
 
 `test_llm_not_allowed_roles_rejected()` — tipo *configuracao*.  
 **Resultado esperado:** habilitar LLM em AG-ORQ, AG-CUS ou AG-CIN é rejeitado na validação  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_token_limit_exceeded_fallback
 :id: TEST-22
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-C01, REQ-O03
 :derived_from: NORM-07
 
 `test_token_limit_exceeded_fallback()` — tipo *configuracao*.  
 **Resultado esperado:** cota esgotada bloqueia chamada e usa template  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_redaction_fail_closed
 :id: TEST-23
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-P01
 :derived_from: NORM-06
 
 `test_redaction_fail_closed()` — tipo *seguranca*.  
 **Resultado esperado:** segredo/CPF sintético sanitizado; falha de sanitização recusa gravação  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_offline_seeded_reproducibility
@@ -288,14 +288,14 @@
 
 ````{test} test_versions_recorded_in_logs
 :id: TEST-25
-:entrega: DSM2
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-NF02
 :derived_from: SVC-AUD
 
 `test_versions_recorded_in_logs()` — tipo *observabilidade*.  
 **Resultado esperado:** todo log contém versões de prompt, regras e configuração  
-**Execução:** DSM2 (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_specialist_failure_retry_then_abort
@@ -535,5 +535,545 @@
 
 `empresa sem ERP: baixa o modelo, envia a planilha e o escritório roda sobre ela()` — tipo *uso-real*.  
 **Resultado esperado:** usuário baixa o modelo, envia a planilha pelo navegador e os agentes leem mcp://excel/arquivo#aba  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_forged_human_decision_from_unknown_sender_is_rejected
+:id: TEST-46
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-F05
+:derived_from: PROT-APR
+
+`test_forged_human_decision_from_unknown_sender_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** decisao_humana de remetente inexistente é rejeitada; o fechamento vetado termina bloqueado e nada é publicado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_spoofed_approver_identity_without_credential_is_rejected
+:id: TEST-47
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-APR
+
+`test_spoofed_approver_identity_without_credential_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** approve em nome do APR sem a credencial dele, ou com a de outro agente, é rejeitado; o ticket segue pendente  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_registered_agent_without_role_cannot_approve
+:id: TEST-48
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: NORM-09
+
+`test_registered_agent_without_role_cannot_approve()` — tipo *seguranca*.  
+**Resultado esperado:** AG-REL e AG-ORQ não podem emitir approve: papel sem permissão  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_local_transition_by_unauthorized_identity_is_rejected
+:id: TEST-49
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-CMP
+
+`test_local_transition_by_unauthorized_identity_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** advance por identificador desconhecido, sem credencial, por papel sem permissão ou fora da FSM é rejeitado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_reply_to_non_participant_receiver_is_rejected
+:id: TEST-50
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-DEL
+
+`test_reply_to_non_participant_receiver_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** resposta endereçada a quem não é a contraparte da conversa é rejeitada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_malformed_request_does_not_crash_simulation
+:id: TEST-51
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-F01
+:derived_from: PROT-SOL
+
+`test_malformed_request_does_not_crash_simulation()` — tipo *seguranca*.  
+**Resultado esperado:** pedido sem campos, com tipo errado, prazo no passado ou outra ontologia é rejeitado sem KeyError; a simulação segue  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_agent_exception_is_isolated_and_answered
+:id: TEST-52
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-F01
+:derived_from: PROT-DEL
+
+`test_agent_exception_is_isolated_and_answered()` — tipo *robustez*.  
+**Resultado esperado:** exceção de um agente vira erro_agente e resposta explícita (refuse); o solicitante recebe failure  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_content_tampering_after_send_is_detected
+:id: TEST-53
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_content_tampering_after_send_is_detected()` — tipo *seguranca*.  
+**Resultado esperado:** conteúdo copiado no envio; alteração da mensagem enfileirada é detectada pelo hash e descartada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_identity_impersonation_on_register_is_rejected
+:id: TEST-54
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_identity_impersonation_on_register_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** registrar identidade já existente, papel fora do diretório ou papel desconhecido é recusado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_adversarial_scenario_rejects_every_attack
+:id: TEST-55
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-S01
+:derived_from: PROT-APR
+
+`test_adversarial_scenario_rejects_every_attack()` — tipo *seguranca*.  
+**Resultado esperado:** cenário ataque_decisao_forjada: 13 ataques, 0 aceitos, todos auditados; publicação bloqueada no prazo  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_nominal_scenarios_have_no_rejection_or_agent_error
+:id: TEST-56
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-NF01
+:derived_from: NORM-09
+
+`test_nominal_scenarios_have_no_rejection_or_agent_error()` — tipo *regressao*.  
+**Resultado esperado:** nos cenários nominais os agentes cumprem esquema, papel e FSM: nenhuma rejeição nem erro  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_approval_bound_to_request_veto_and_ticket
+:id: TEST-57
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01, REQ-S04
+:derived_from: PROT-APR
+
+`test_approval_bound_to_request_veto_and_ticket()` — tipo *seguranca*.  
+**Resultado esperado:** approve com hash de veto, solicitação ou ticket diferentes, ou sem o hash, é rejeitado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_duplicate_approval_is_rejected
+:id: TEST-58
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01, REQ-S04
+:derived_from: PROT-APR
+
+`test_duplicate_approval_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** segunda decisão para o mesmo ticket é rejeitada; o waiver vale uma vez  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_late_approval_after_deadline_is_discarded
+:id: TEST-59
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: PROT-APR
+
+`test_late_approval_after_deadline_is_discarded()` — tipo *seguranca*.  
+**Resultado esperado:** decisão após o prazo do ticket é descartada; bloqueio por expiração  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_approval_reuse_across_veto_cycles_is_rejected
+:id: TEST-60
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01, REQ-S04
+:derived_from: NORM-10
+
+`test_approval_reuse_across_veto_cycles_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** aprovação do 1º ciclo de veto não serve para o 2º (correção nem waiver)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_approver_role_limits_decisions
+:id: TEST-61
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: NORM-10
+
+`test_approver_role_limits_decisions()` — tipo *seguranca*.  
+**Resultado esperado:** aprovador cadastrado como analista não concede waiver, mas pode aprovar correção  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_approver_involved_in_vetoed_entry_cannot_decide
+:id: TEST-62
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: NORM-10
+
+`test_approver_involved_in_vetoed_entry_cannot_decide()` — tipo *seguranca*.  
+**Resultado esperado:** pessoa que criou ou aprovou o lançamento vetado não decide sobre ele (SoD da aprovação)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_waiver_requires_justification_and_correction_must_be_suggested
+:id: TEST-63
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: NORM-10
+
+`test_waiver_requires_justification_and_correction_must_be_suggested()` — tipo *seguranca*.  
+**Resultado esperado:** waiver sem justificativa mínima e correção fora das sugeridas pelo AG-CIN são rejeitados  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_reject_blocks_publication_and_is_audited
+:id: TEST-64
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01, REQ-F05
+:derived_from: PROT-APR
+
+`test_reject_blocks_publication_and_is_audited()` — tipo *protocolo-nominal*.  
+**Resultado esperado:** reject bloqueia a publicação; ticket guarda aprovador, justificativa e decisão  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_recurring_violation_after_waiver_denies_new_waiver
+:id: TEST-65
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-S01
+:derived_from: SVC-MEM
+
+`test_recurring_violation_after_waiver_denies_new_waiver()` — tipo *cenario*.  
+**Resultado esperado:** reincidência do padrão após waiver: AG-CIN cita MEM-0001, a política nega novo waiver e o humano corrige  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_retention_expires_old_entries
+:id: TEST-66
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-P01
+:derived_from: SVC-MEM
+
+`test_memory_retention_expires_old_entries()` — tipo *seguranca*.  
+**Resultado esperado:** entradas mais antigas que a retenção expiram na consulta  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_persists_across_runs_and_flags_recidivism
+:id: TEST-67
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_memory_persists_across_runs_and_flags_recidivism()` — tipo *integracao*.  
+**Resultado esperado:** memória gravada num processo é carregada no seguinte e muda a decisão (POL-06)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_file_has_no_personal_names
+:id: TEST-68
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01
+:derived_from: NORM-06
+
+`test_memory_file_has_no_personal_names()` — tipo *seguranca*.  
+**Resultado esperado:** arquivo de memória usa pseudônimos; nomes de pessoas não aparecem  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_trace_tampering_is_detected
+:id: TEST-69
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O01, REQ-P01
+:derived_from: SVC-AUD
+
+`test_trace_tampering_is_detected()` — tipo *seguranca*.  
+**Resultado esperado:** linha alterada ou removida do JSONL quebra a cadeia de hashes (TraceAdulterado)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_credentials_never_appear_in_the_trace
+:id: TEST-70
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01, REQ-S04
+:derived_from: NORM-06
+
+`test_credentials_never_appear_in_the_trace()` — tipo *seguranca*.  
+**Resultado esperado:** credenciais do barramento nunca aparecem no trace gravado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_real_provider_unavailable_falls_back_offline
+:id: TEST-71
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F06, REQ-NF01
+:derived_from: SVC-MOD
+
+`test_real_provider_unavailable_falls_back_offline()` — tipo *configuracao*.  
+**Resultado esperado:** provedor real sem SDK ou rede registra fallback e entrega o template; a suíte segue offline  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_invalid_period_or_unknown_entity_is_refused
+:id: TEST-72
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-F01
+:derived_from: PROT-SOL
+
+`test_invalid_period_or_unknown_entity_is_refused()` — tipo *seguranca*.  
+**Resultado esperado:** competência fora de AAAA-MM barrada na entrada; entidade desconhecida recebe refuse sem delegar nem erro de agente  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_dashboard_mutations_require_session_token
+:id: TEST-73
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04, REQ-S04
+:derived_from: SVC-AUD
+
+`test_dashboard_mutations_require_session_token()` — tipo *seguranca*.  
+**Resultado esperado:** POST sem token, com token errado, Origin de outro site ou Host estranho recebe 403 e não chega à simulação  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_gateway_rejects_declared_identity_without_credential
+:id: TEST-74
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-S01
+:derived_from: SVC-MCP
+
+`test_gateway_rejects_declared_identity_without_credential()` — tipo *seguranca*.  
+**Resultado esperado:** gateway MCP recusa identidade declarada sem credencial (ou com a de outro agente); barramento guarda só hashes de credenciais  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_rejects_forged_identity_and_mismatched_ticket
+:id: TEST-75
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-S04
+:derived_from: SVC-MEM
+
+`test_memory_rejects_forged_identity_and_mismatched_ticket()` — tipo *seguranca*.  
+**Resultado esperado:** memória recusa identidade declarada, ticket rejeitado como waiver, outra competência ou lançamento fora da decisão  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_tampered_memory_file_is_discarded_on_load
+:id: TEST-76
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-P01
+:derived_from: SVC-MEM
+
+`test_tampered_memory_file_is_discarded_on_load()` — tipo *seguranca*.  
+**Resultado esperado:** entrada inventada (assinatura HMAC) ou malformada no arquivo é descartada e o AG-CIN segue funcionando  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_trace_truncation_and_recomputed_chain_are_detected
+:id: TEST-77
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O01, REQ-P01
+:derived_from: SVC-AUD
+
+`test_trace_truncation_and_recomputed_chain_are_detected()` — tipo *seguranca*.  
+**Resultado esperado:** corte do fim, cadeia recalculada sem a chave e trace sem hashes são acusados; replay exige --sem-verificar  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_lost_approval_never_leaves_request_without_answer
+:id: TEST-78
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01, REQ-S01
+:derived_from: PROT-APR
+
+`test_lost_approval_never_leaves_request_without_answer()` — tipo *seguranca*.  
+**Resultado esperado:** approve perdido em trânsito: ticket expira em APROVADA, failure explícito e reserva liberada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_non_serializable_content_is_rejected_before_any_side_effect
+:id: TEST-79
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-APR
+
+`test_non_serializable_content_is_rejected_before_any_side_effect()` — tipo *seguranca*.  
+**Resultado esperado:** conteúdo não JSON é rejeitado antes de a política ou a FSM mudarem; waiver fecha o ticket em EXECUTADA  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_period_lock_is_renewed_while_waiting_for_approver
+:id: TEST-80
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02
+:derived_from: PROT-LCK
+
+`test_period_lock_is_renewed_while_waiting_for_approver()` — tipo *seguranca*.  
+**Resultado esperado:** reserva renovada enquanto o aprovador decide: outro fechamento do mesmo mês é recusado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_waiver_justification_must_have_content
+:id: TEST-81
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: NORM-10
+
+`test_waiver_justification_must_have_content()` — tipo *seguranca*.  
+**Resultado esperado:** justificativa sem conteúdo (repetição de letras ou palavras) é recusada pela POL-04  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_malformed_dashboard_commands_do_not_kill_the_simulation
+:id: TEST-82
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04, REQ-S04
+:derived_from: SVC-AUD
+
+`test_malformed_dashboard_commands_do_not_kill_the_simulation()` — tipo *seguranca*.  
+**Resultado esperado:** comandos com tipo errado recebem 400 e nenhum erro derruba a thread da simulação  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_redaction_covers_non_text_secrets_and_brazilian_ids
+:id: TEST-83
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01
+:derived_from: NORM-06
+
+`test_redaction_covers_non_text_secrets_and_brazilian_ids()` — tipo *seguranca*.  
+**Resultado esperado:** segredo numérico, em lista ou objeto, CPF por campo, CNPJ e telefone são redigidos  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_removal_corruption_or_rollback_fails_closed
+:id: TEST-84
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-S01
+:derived_from: SVC-MEM
+
+`test_memory_removal_corruption_or_rollback_fails_closed()` — tipo *seguranca*.  
+**Resultado esperado:** entrada removida, arquivo corrompido, apagado ou versão antiga: memória comprometida e waiver não reaberto (falha fechada)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_key_and_counter_live_outside_the_data_folder
+:id: TEST-85
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-P01
+:derived_from: SVC-MEM
+
+`test_memory_key_and_counter_live_outside_the_data_folder()` — tipo *seguranca*.  
+**Resultado esperado:** chave HMAC e contador de versão da memória ficam fora da pasta de dados  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_ids_stay_unique
+:id: TEST-86
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_memory_ids_stay_unique()` — tipo *seguranca*.  
+**Resultado esperado:** ids de memória não se repetem quando entradas saem da lista  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_redaction_catches_unmasked_documents_in_free_text
+:id: TEST-87
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01
+:derived_from: NORM-06
+
+`test_redaction_catches_unmasked_documents_in_free_text()` — tipo *seguranca*.  
+**Resultado esperado:** CPF e CNPJ sem máscara em texto livre são redigidos; valores monetários e contas seguem visíveis  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_trace_anchor_verifies_without_the_authors_key
+:id: TEST-88
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O01, REQ-NF01
+:derived_from: SVC-AUD
+
+`test_trace_anchor_verifies_without_the_authors_key()` — tipo *seguranca*.  
+**Resultado esperado:** âncora pública (hash final reproduzível) verifica o trace em outra máquina; outra chave não é acusada como adulteração  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_decision_that_cannot_be_delivered_in_time_is_rejected
+:id: TEST-89
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S01
+:derived_from: PROT-APR
+
+`test_decision_that_cannot_be_delivered_in_time_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** decisão no último tick é recusada explicitamente (POL-08) em vez de aceita e expirada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_dashboard_authenticates_before_reading_the_body
+:id: TEST-90
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04, REQ-S04
+:derived_from: SVC-AUD
+
+`test_dashboard_authenticates_before_reading_the_body()` — tipo *seguranca*.  
+**Resultado esperado:** POST sem token com corpo enorme declarado ou token não-ASCII recebe 403 sem ler o corpo nem gerar exceção  
 **Execução:** DSM3 (status atual: executado).
 ````

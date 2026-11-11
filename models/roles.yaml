@@ -17,7 +17,7 @@ items:
     resp: [Decidir sobre ações restritas, Conceder waiver a não conformidades]
     perm: [Aprovar ou rejeitar ActionRequest, Ajustar configuração de modelos e cotas]
     obl: [Registrar justificativa da decisão]
-    protocolos: [PROT-APR, PROT-CMP]
+    protocolos: [PROT-APR]
     llm: nao_aplicavel
     entrega: DSM1
 
@@ -61,7 +61,7 @@ items:
            Iniciar query-ref para ROLE-CIN]
     obl: [Explicitar limiar e método de forecast usados, Não alterar orçamento sem aprovação,
           Registrar a fonte adotada e a atribuição de cada desvio]
-    protocolos: [PROT-DEL, PROT-QRY, PROT-APR]
+    protocolos: [PROT-DEL, PROT-QRY]
     llm: flag
     entrega: DSM1
 
@@ -95,6 +95,6 @@ items:
       - Acrescentar narrativa e insights quando a flag LLM estiver ativa
     perm: [Consultar memória aprovada, Propor publicação do relatório (restrita)]
     obl: [Preservar números do núcleo determinístico, Usar template se o texto LLM divergir]
-    protocolos: [PROT-DEL, PROT-APR]
+    protocolos: [PROT-DEL]
     llm: flag
     entrega: DSM1

@@ -137,3 +137,23 @@
 **Fórmula:** registros de decisão e deliberação feitos por agentes que não o Orquestrador / total de registros de decisão e deliberação da solicitação (evidência de decisão distribuída x workflow centralizado)  
 **Alvo:** reportar por cenário contra o baseline (0% por construção)
 ````
+
+````{metric} Interações forjadas ou malformadas aceitas
+:id: MET-15
+:entrega: DSM3
+:status: implementado
+:measures: REQ-S04
+
+**Fórmula:** ataques aceitos / ataques tentados (cenário ataque_decisao_forjada e testes adversariais); toda rejeição precisa aparecer no trace como `rejected` ou `mcp_denied`  
+**Alvo:** 0 aceitos; 100% das rejeições auditadas
+````
+
+````{metric} Custo de coordenação do Approval Gate
+:id: MET-16
+:entrega: DSM3
+:status: implementado
+:measures: REQ-S01
+
+**Fórmula:** mensagens A2A e latência (ticks) da solicitação com e sem a decisão humana pelo PROT-APR, por cenário com veto; aprovações expiradas por solicitação  
+**Alvo:** reportar por cenário (DSM3 x DSM2); +2 mensagens por decisão humana
+````

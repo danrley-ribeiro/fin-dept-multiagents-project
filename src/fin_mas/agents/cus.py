@@ -4,6 +4,7 @@ from fin_mas.env.dataset import RATEIO, VERSAO_RATEIO, ratear
 
 
 class AgenteCustos(Specialist):
+    PAPEL = "ROLE-CUS"
     def __init__(self, bus, gateway):
         super().__init__("AG-CUS", bus, gateway)
         self.conhecimento = {"rateio": dict(RATEIO), "versao_rateio": VERSAO_RATEIO}
@@ -24,7 +25,7 @@ class AgenteCustos(Specialist):
 
     def _apurar(self, conversation_id, competencia=None):
         c = competencia or self.gw.ambiente.principal
-        resposta = self.gw.call(self.id, "erp.balancete", conversation_id, competencia=c)
+        resposta = self.ferramenta("erp.balancete", conversation_id, competencia=c)
         dados = resposta["dados"]
         if not dados["produtos"]:
             self.estado["pendencias"].append("balancete sem produtos")

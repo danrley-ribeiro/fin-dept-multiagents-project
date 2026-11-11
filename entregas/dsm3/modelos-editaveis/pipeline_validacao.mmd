@@ -1,0 +1,16 @@
+flowchart LR
+  A[send] --> B{remetente registrado<br/>e credencial?}
+  B -- não --> R[rejected: autenticacao]
+  B -- sim --> C{envelope válido?<br/>ontologia, reply_by}
+  C -- não --> R2[rejected: esquema]
+  C -- sim --> D{destinatário<br/>registrado?}
+  D -- não --> R3[rejected: destinatario]
+  D -- sim --> E{papel pode emitir?<br/>destinatário participa?}
+  E -- não --> R4[rejected: papel]
+  E -- sim --> F{esquema do<br/>performativo?}
+  F -- não --> R5[rejected: esquema]
+  F -- sim --> G{conversa: abertura,<br/>contraparte, FSM}
+  G -- não --> R6[rejected: conversa / fsm]
+  G -- sim --> H{validadores<br/>do domínio SVC-POL}
+  H -- não --> R7[rejected: politica]
+  H -- sim --> I[FSM avança · send/open auditado · entrega agendada com hash]

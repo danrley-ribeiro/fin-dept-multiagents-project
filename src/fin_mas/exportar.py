@@ -53,7 +53,7 @@ def exportar_traces(out) -> list[str]:
         }
         (out / f"{nome}.json").write_text(json.dumps(dados, ensure_ascii=False, default=str), encoding="utf-8")
         indice.append({"nome": nome, "descricao": sc.descricao, "registros": len(e.audit.records)})
-    comparacao = Path(__file__).resolve().parents[2] / "docs" / "dsm2" / "resultados" / "comparacao.json"
+    comparacao = Path(__file__).resolve().parents[2] / "docs" / "dsm3" / "resultados" / "comparacao.json"
     if comparacao.exists():  # resumo SMA x workflow para a aba de comparação do dashboard
         (out / "comparacao.json").write_text(comparacao.read_text(encoding="utf-8"), encoding="utf-8")
     (out / "index.json").write_text(json.dumps({"versao": __version__, "cenarios": indice, "agentes": agentes_info(),

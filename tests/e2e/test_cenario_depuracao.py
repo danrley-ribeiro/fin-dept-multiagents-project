@@ -25,7 +25,7 @@ def test_trace_causal_reconstruction(trace):
     e, caminho = trace
     log = AuditLog.read_jsonl(caminho)  # só o arquivo, sem inspecionar código ou objetos vivos
     assert log.familia(e.sid) == [e.sid, "DEL-001", "DEL-002", "DEL-003", "DEL-004", "CMP-001",
-                                  "DEL-005", "QRY-001", "QRY-002"]
+                                  "APR-001", "DEL-005", "QRY-001", "QRY-002"]
     linhas = log.trilha(e.sid)
     marcos = [  # (trecho da linha) na ordem em que devem ocorrer
         "SOL-001  SOL -> AG-ORQ request", "DEL-001  AG-ORQ -> AG-CUS request",
@@ -33,8 +33,10 @@ def test_trace_causal_reconstruction(trace):
         "um reenvio por subtarefa", "DEL-003  AG-ORQ -> AG-ORC request",
         "DEL-004  AG-ORQ -> AG-RES request", "QRY-001  AG-RES -> AG-CUS query-ref",
         "DEL-004  AG-RES -> AG-ORQ inform", "CMP-001  AG-CIN -> AG-ORQ veto",
-        "CMP-001  AG-ORQ -> APR veto_notice", "CMP-001  AG-ORQ -> AG-CIN waiver_humano", "aplica 'publicar'",
-        "DEL-005  AG-ORQ -> AG-REL request", "SOL-001  AG-ORQ -> SOL inform",
+        "APR-001  POLITICA POL-01 ticket emitido require_approval", "APR-001  AG-ORQ -> APR propose-action",
+        "APR-001  SVC-POL aplica 'require_approval'", "APR-001  APR -> AG-ORQ approve",
+        "APR-001  POLITICA POL-08 ticket consumido", "CMP-001  AG-ORQ -> AG-CIN waiver_humano", "aplica 'publicar'",
+        "DEL-005  AG-ORQ -> AG-REL request", "CMP-001  MEMORIA gravada waiver", "SOL-001  AG-ORQ -> SOL inform",
     ]
     posicao = -1
     for marco in marcos:

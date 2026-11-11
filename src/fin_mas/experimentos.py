@@ -1,6 +1,6 @@
 """Comparação SMA x workflow centralizado (baseline) sob as mesmas seeds (CP4 e CP12).
 
-    python -m fin_mas comparar --seeds 10 --out docs/dsm2/resultados
+    python -m fin_mas comparar --seeds 10 --out docs/dsm3/resultados
 
 Grava os dados brutos (`comparacao.csv`) antes de qualquer agregação, o resumo
 (`comparacao.json` e `comparacao.md`) e a figura (`comparacao.svg`).
@@ -20,7 +20,7 @@ CENARIOS_COMPARADOS = ["fechar_mes", "avaliar_orcamento", "veto_waiver", "veto_b
 CAMPOS = ["cenario", "seed", "estrategia", "status", "concluida", "resposta_explicita", "dre_correta",
           "desvios_corretos", "falsos_desvios", "criticas_publicadas_sem_tratamento", "criticas_corrigidas",
           "mensagens_a2a", "latencia_ticks", "decisoes", "distribuicao_decisoria", "reconsideracoes",
-          "intervencoes_humanas", "trace_completo", "hash"]
+          "intervencoes_humanas", "aprovacoes_expiradas", "mensagens_rejeitadas", "trace_completo", "hash"]
 SERIES = {"SMA": "#2a78d6", "workflow": "#eb6834"}  # slots 1 e 2 da paleta validada (skill dataviz)
 
 

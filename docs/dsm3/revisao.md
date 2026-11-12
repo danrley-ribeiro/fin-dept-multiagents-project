@@ -91,9 +91,15 @@ de regressão em `tests/e2e/test_revisao_pr.py`:
 | pseudônimo da memória reversível por dicionário (SHA-256 sem chave) | HMAC com a chave da memória, que fica fora da pasta de dados; no trace o pseudônimo aparece como `pessoa#…`, para o hash continuar igual em qualquer máquina | `test_pseudonym_is_keyed_and_not_reversible_by_dictionary` |
 | regra de competência duplicada e divergente (`1999-12` válido só na memória) | memória e dashboard usam a regra de `core/schema.py` | `test_competence_rule_is_shared` |
 
-Arquivos de memória gravados antes desta correção têm pseudônimos no formato antigo (versão 3
-do arquivo): continuam íntegros, mas não casam com os novos, então uma reincidência anterior a
-esta versão não é reconhecida. Como a memória da entrega começa vazia, isso não afeta os cenários.
+Na conferência dessas correções, o Danrley encontrou uma regressão do item do pseudônimo
+(issue #2): um arquivo de memória gravado na versão 3 do formato, com pseudônimos sem chave,
+carregava normalmente, mas as chaves de reincidência não casavam com as novas. Com isso, a POL-06
+deixava de negar um novo waiver para a mesma violação, ou seja, a regra falhava aberta. Ele
+corrigiu no PR #3: arquivo em outra versão do formato deixa a memória **comprometida** (falha
+fechada), e o waiver de achados críticos fica suspenso, como no caso de arquivo adulterado. Não há
+migração, porque os nomes não ficam guardados; quem tiver um arquivo antigo começa outro em
+`--memoria`. Teste: casos `formato_anterior` e `formato_ausente` em
+`test_memory_removal_corruption_or_rollback_fails_closed`.
 
 ## Ressalva sobre a comparação experimental
 

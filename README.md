@@ -125,7 +125,7 @@ python -m fin_mas run --scenario fechar_mes --seed 42             # make demo
 python -m fin_mas run --scenario ataque_decisao_forjada           # 14 ataques rejeitados (make ataque)
 python -m fin_mas run --scenario reincidencia_waiver --memoria m.json
 python -m fin_mas verificar trace.jsonl                           # trace com cadeia de hashes e selo HMAC
-python -m pytest                                                  # 247 testes (make test)
+python -m pytest                                                  # 249 testes (make test)
 ```
 
 Roteiro de demonstração e mapa feedback → correção: [entregas/dsm3/README.md](entregas/dsm3/README.md);

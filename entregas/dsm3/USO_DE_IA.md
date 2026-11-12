@@ -43,7 +43,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 
 ## Verificação
 
-- `python -m pytest`: 247 testes passam, offline (157 na DSM2).
+- `python -m pytest`: 249 testes passam, offline (157 na DSM2).
 - `python tools/trace.py --check`: 0 erros; 89 de 90 testes modelados executados (TEST-19 é de
   entrega futura).
 - `python -m fin_mas run --scenario ataque_decisao_forjada`: 14 ataques, nenhum aceito.
@@ -126,3 +126,13 @@ mesma regra da POL-04 (10 caracteres e duas palavras diferentes): `aaaaaaaaaa` n
 botão. Desta vez o ambiente tinha Node e bun, e a IA rodou os testes do dashboard: `bun run test`
 com 12 de 12 (3 do reducer e 9 da regra da justificativa) e `bun run test:e2e` com 14 de 14 testes
 de uso real no Chromium, incluindo o caso `aaaaaaaaaa`.
+
+### Segunda revisão: regressão encontrada e corrigida pelo Danrley
+
+Ao conferir as correções, o Danrley encontrou uma regressão causada pela troca do pseudônimo
+(issue #2): um arquivo de memória gravado na versão anterior do formato carregava sem aviso, e a
+POL-06 deixava de negar um novo waiver para a mesma violação. Ele reproduziu o caso (agosto
+gravado com o código antigo, setembro com o novo), escreveu a correção e os testes no PR #3: um
+arquivo em outra versão do formato deixa a memória comprometida e o waiver fica suspenso. Essa
+correção é dele; a IA só atualizou depois a contagem de testes (249) e o texto de
+[`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md), que ainda descrevia o comportamento antigo.

@@ -74,7 +74,10 @@ def medir(execucao, sid=None) -> dict:
         "decisoes": len(decisoes),
         "distribuicao_decisoria": round(fora_orq / len(decisoes), 3) if decisoes else 0.0,
         "reconsideracoes": reconsideracoes,
-        "intervencoes_humanas": sum(1 for r in registros if r["kind"] == "ui" and r["performative"] == "decisao_humana"),
+        "intervencoes_humanas": sum(1 for r in registros if r["kind"] == "send" and r.get("protocol") == "PROT-APR"
+                                    and r["performative"] in ("approve", "reject")),
+        "aprovacoes_expiradas": sum(1 for r in registros if r["kind"] == "timeout" and r.get("protocol") == "PROT-APR"),
+        "mensagens_rejeitadas": sum(1 for r in registros if r["kind"] == "rejected"),
         "trace_completo": int(any(f"AG-ORQ -> SOL {resposta.performative}" in linha for linha in linhas_trilha))
         if resposta is not None else 0,
     }
@@ -105,5 +108,7 @@ def medir_baseline(res: ResultadoBaseline, ds) -> dict:
         "distribuicao_decisoria": 0.0,
         "reconsideracoes": 0,
         "intervencoes_humanas": 0,
+        "aprovacoes_expiradas": 0,
+        "mensagens_rejeitadas": 0,
         "trace_completo": 0,
     }

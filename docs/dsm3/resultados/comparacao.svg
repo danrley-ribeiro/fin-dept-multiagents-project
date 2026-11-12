@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 458" width="940" height="458" font-family="Arial, Helvetica, sans-serif" font-size="11">
+<rect width="940" height="458" fill="#fcfcfb"/>
+<text x="10" y="20" font-size="14" font-weight="700" fill="#0b0b0b">SMA (agentes) x workflow centralizado, médias em 10 seeds</text>
+<rect x="10" y="32" width="10" height="10" rx="2" fill="#2a78d6"/><text x="24" y="41" fill="#52514e">SMA (agentes)</text>
+<rect x="170" y="32" width="10" height="10" rx="2" fill="#eb6834"/><text x="184" y="41" fill="#52514e">workflow centralizado</text>
+<text x="142" y="75" text-anchor="end" fill="#0b0b0b">fechar_mes</text>
+<text x="142" y="101" text-anchor="end" fill="#0b0b0b">avaliar_orcamento</text>
+<text x="142" y="127" text-anchor="end" fill="#0b0b0b">veto_waiver</text>
+<text x="142" y="153" text-anchor="end" fill="#0b0b0b">veto_bloqueio</text>
+<text x="142" y="179" text-anchor="end" fill="#0b0b0b">veto_correcao</text>
+<text x="142" y="205" text-anchor="end" fill="#0b0b0b">correcao_parcial</text>
+<text x="142" y="231" text-anchor="end" fill="#0b0b0b">divergencia_fonte</text>
+<text x="142" y="257" text-anchor="end" fill="#0b0b0b">desvio_irregular</text>
+<text x="142" y="283" text-anchor="end" fill="#0b0b0b">orc_sem_cin</text>
+<text x="142" y="309" text-anchor="end" fill="#0b0b0b">falha_especialista</text>
+<text x="142" y="335" text-anchor="end" fill="#0b0b0b">depuracao</text>
+<text x="142" y="361" text-anchor="end" fill="#0b0b0b">fechamento_micro</text>
+<text x="142" y="387" text-anchor="end" fill="#0b0b0b">fechamento_pequena</text>
+<text x="142" y="413" text-anchor="end" fill="#0b0b0b">fechamento_grande</text>
+<text x="150" y="56" font-weight="700" fill="#52514e">Desvios classificados como no gabarito (%)</text>
+<line x1="150" y1="62" x2="150" y2="422" stroke="#d6d5d0"/>
+<rect x="150" y="64" width="190.0" height="7" rx="2" fill="#2a78d6"><title>fechar_mes · SMA: 100%</title></rect>
+<text x="344.0" y="71" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="73" width="190.0" height="7" rx="2" fill="#eb6834"><title>fechar_mes · workflow: 100%</title></rect>
+<text x="344.0" y="80" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="90" width="190.0" height="7" rx="2" fill="#2a78d6"><title>avaliar_orcamento · SMA: 100%</title></rect>
+<text x="344.0" y="97" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="99" width="190.0" height="7" rx="2" fill="#eb6834"><title>avaliar_orcamento · workflow: 100%</title></rect>
+<text x="344.0" y="106" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="116" width="190.0" height="7" rx="2" fill="#2a78d6"><title>veto_waiver · SMA: 100%</title></rect>
+<text x="344.0" y="123" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="125" width="190.0" height="7" rx="2" fill="#eb6834"><title>veto_waiver · workflow: 100%</title></rect>
+<text x="344.0" y="132" font-size="9" fill="#52514e">100%</text>
+<text x="154" y="149" font-size="9" fill="#8a8984">n/a</text>
+<rect x="150" y="151" width="190.0" height="7" rx="2" fill="#eb6834"><title>veto_bloqueio · workflow: 100%</title></rect>
+<text x="344.0" y="158" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="168" width="190.0" height="7" rx="2" fill="#2a78d6"><title>veto_correcao · SMA: 100%</title></rect>
+<text x="344.0" y="175" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="177" width="190.0" height="7" rx="2" fill="#eb6834"><title>veto_correcao · workflow: 100%</title></rect>
+<text x="344.0" y="184" font-size="9" fill="#52514e">100%</text>
+<text x="154" y="201" font-size="9" fill="#8a8984">n/a</text>
+<rect x="150" y="203" width="190.0" height="7" rx="2" fill="#eb6834"><title>correcao_parcial · workflow: 100%</title></rect>
+<text x="344.0" y="210" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="220" width="190.0" height="7" rx="2" fill="#2a78d6"><title>divergencia_fonte · SMA: 100%</title></rect>
+<text x="344.0" y="227" font-size="9" fill="#52514e">100%</text>
+<text x="154.0" y="236" font-size="9" fill="#52514e">0%</text>
+<rect x="150" y="246" width="190.0" height="7" rx="2" fill="#2a78d6"><title>desvio_irregular · SMA: 100%</title></rect>
+<text x="344.0" y="253" font-size="9" fill="#52514e">100%</text>
+<text x="154.0" y="262" font-size="9" fill="#52514e">0%</text>
+<text x="154.0" y="279" font-size="9" fill="#52514e">0%</text>
+<text x="154.0" y="288" font-size="9" fill="#52514e">0%</text>
+<text x="154" y="305" font-size="9" fill="#8a8984">n/a</text>
+<rect x="150" y="307" width="190.0" height="7" rx="2" fill="#eb6834"><title>falha_especialista · workflow: 100%</title></rect>
+<text x="344.0" y="314" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="324" width="190.0" height="7" rx="2" fill="#2a78d6"><title>depuracao · SMA: 100%</title></rect>
+<text x="344.0" y="331" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="333" width="190.0" height="7" rx="2" fill="#eb6834"><title>depuracao · workflow: 100%</title></rect>
+<text x="344.0" y="340" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="350" width="190.0" height="7" rx="2" fill="#2a78d6"><title>fechamento_micro · SMA: 100%</title></rect>
+<text x="344.0" y="357" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="359" width="190.0" height="7" rx="2" fill="#eb6834"><title>fechamento_micro · workflow: 100%</title></rect>
+<text x="344.0" y="366" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="376" width="190.0" height="7" rx="2" fill="#2a78d6"><title>fechamento_pequena · SMA: 100%</title></rect>
+<text x="344.0" y="383" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="385" width="190.0" height="7" rx="2" fill="#eb6834"><title>fechamento_pequena · workflow: 100%</title></rect>
+<text x="344.0" y="392" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="402" width="190.0" height="7" rx="2" fill="#2a78d6"><title>fechamento_grande · SMA: 100%</title></rect>
+<text x="344.0" y="409" font-size="9" fill="#52514e">100%</text>
+<rect x="150" y="411" width="190.0" height="7" rx="2" fill="#eb6834"><title>fechamento_grande · workflow: 100%</title></rect>
+<text x="344.0" y="418" font-size="9" fill="#52514e">100%</text>
+<text x="410" y="56" font-weight="700" fill="#52514e">Críticas publicadas sem tratamento (média)</text>
+<line x1="410" y1="62" x2="410" y2="422" stroke="#d6d5d0"/>
+<text x="414.0" y="71" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="80" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="97" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="106" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="123" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="125" width="95.0" height="7" rx="2" fill="#eb6834"><title>veto_waiver · workflow: 1</title></rect>
+<text x="509.0" y="132" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="149" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="151" width="95.0" height="7" rx="2" fill="#eb6834"><title>veto_bloqueio · workflow: 1</title></rect>
+<text x="509.0" y="158" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="175" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="177" width="95.0" height="7" rx="2" fill="#eb6834"><title>veto_correcao · workflow: 1</title></rect>
+<text x="509.0" y="184" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="201" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="203" width="190.0" height="7" rx="2" fill="#eb6834"><title>correcao_parcial · workflow: 2</title></rect>
+<text x="604.0" y="210" font-size="9" fill="#52514e">2</text>
+<text x="414.0" y="227" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="236" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="253" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="255" width="95.0" height="7" rx="2" fill="#eb6834"><title>desvio_irregular · workflow: 1</title></rect>
+<text x="509.0" y="262" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="279" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="288" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="305" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="314" font-size="9" fill="#52514e">0</text>
+<text x="414.0" y="331" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="333" width="95.0" height="7" rx="2" fill="#eb6834"><title>depuracao · workflow: 1</title></rect>
+<text x="509.0" y="340" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="357" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="359" width="95.0" height="7" rx="2" fill="#eb6834"><title>fechamento_micro · workflow: 1</title></rect>
+<text x="509.0" y="366" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="383" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="385" width="95.0" height="7" rx="2" fill="#eb6834"><title>fechamento_pequena · workflow: 1</title></rect>
+<text x="509.0" y="392" font-size="9" fill="#52514e">1</text>
+<text x="414.0" y="409" font-size="9" fill="#52514e">0</text>
+<rect x="410" y="411" width="95.0" height="7" rx="2" fill="#eb6834"><title>fechamento_grande · workflow: 1</title></rect>
+<text x="509.0" y="418" font-size="9" fill="#52514e">1</text>
+<text x="670" y="56" font-weight="700" fill="#52514e">Mensagens A2A por solicitação (média)</text>
+<line x1="670" y1="62" x2="670" y2="422" stroke="#d6d5d0"/>
+<rect x="670" y="64" width="137.6" height="7" rx="2" fill="#2a78d6"><title>fechar_mes · SMA: 21</title></rect>
+<text x="811.6" y="71" font-size="9" fill="#52514e">21</text>
+<text x="674.0" y="80" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="90" width="85.2" height="7" rx="2" fill="#2a78d6"><title>avaliar_orcamento · SMA: 13</title></rect>
+<text x="759.2" y="97" font-size="9" fill="#52514e">13</text>
+<text x="674.0" y="106" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="116" width="157.2" height="7" rx="2" fill="#2a78d6"><title>veto_waiver · SMA: 24</title></rect>
+<text x="831.2" y="123" font-size="9" fill="#52514e">24</text>
+<text x="674.0" y="132" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="142" width="131.0" height="7" rx="2" fill="#2a78d6"><title>veto_bloqueio · SMA: 20</title></rect>
+<text x="805.0" y="149" font-size="9" fill="#52514e">20</text>
+<text x="674.0" y="158" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="168" width="163.8" height="7" rx="2" fill="#2a78d6"><title>veto_correcao · SMA: 25</title></rect>
+<text x="837.8" y="175" font-size="9" fill="#52514e">25</text>
+<text x="674.0" y="184" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="194" width="157.2" height="7" rx="2" fill="#2a78d6"><title>correcao_parcial · SMA: 24</title></rect>
+<text x="831.2" y="201" font-size="9" fill="#52514e">24</text>
+<text x="674.0" y="210" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="220" width="59.0" height="7" rx="2" fill="#2a78d6"><title>divergencia_fonte · SMA: 9</title></rect>
+<text x="733.0" y="227" font-size="9" fill="#52514e">9</text>
+<text x="674.0" y="236" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="246" width="176.9" height="7" rx="2" fill="#2a78d6"><title>desvio_irregular · SMA: 27</title></rect>
+<text x="850.9" y="253" font-size="9" fill="#52514e">27</text>
+<text x="674.0" y="262" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="272" width="65.5" height="7" rx="2" fill="#2a78d6"><title>orc_sem_cin · SMA: 10</title></rect>
+<text x="739.5" y="279" font-size="9" fill="#52514e">10</text>
+<text x="674.0" y="288" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="298" width="52.4" height="7" rx="2" fill="#2a78d6"><title>falha_especialista · SMA: 8</title></rect>
+<text x="726.4" y="305" font-size="9" fill="#52514e">8</text>
+<text x="674.0" y="314" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="324" width="163.8" height="7" rx="2" fill="#2a78d6"><title>depuracao · SMA: 25</title></rect>
+<text x="837.8" y="331" font-size="9" fill="#52514e">25</text>
+<text x="674.0" y="340" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="350" width="163.8" height="7" rx="2" fill="#2a78d6"><title>fechamento_micro · SMA: 25</title></rect>
+<text x="837.8" y="357" font-size="9" fill="#52514e">25</text>
+<text x="674.0" y="366" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="376" width="163.8" height="7" rx="2" fill="#2a78d6"><title>fechamento_pequena · SMA: 25</title></rect>
+<text x="837.8" y="383" font-size="9" fill="#52514e">25</text>
+<text x="674.0" y="392" font-size="9" fill="#52514e">0</text>
+<rect x="670" y="402" width="190.0" height="7" rx="2" fill="#2a78d6"><title>fechamento_grande · SMA: 29</title></rect>
+<text x="864.0" y="409" font-size="9" fill="#52514e">29</text>
+<text x="674.0" y="418" font-size="9" fill="#52514e">0</text>
+</svg>

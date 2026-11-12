@@ -1,7 +1,7 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DSM1_DOC = entregas/dsm1/documentacao
 
-.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 clean
+.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 entrega-dsm3 ataque clean
 
 all: trace docs pdf
 
@@ -21,7 +21,7 @@ demo:
 	PYTHONPATH=src $(PYTHON) -m fin_mas run --scenario fechar_mes --seed 42
 
 comparar:
-	PYTHONPATH=src $(PYTHON) -m fin_mas comparar --seeds 10 --out docs/dsm2/resultados
+	PYTHONPATH=src $(PYTHON) -m fin_mas comparar --seeds 10 --out docs/dsm3/resultados
 
 export: comparar
 	PYTHONPATH=src $(PYTHON) -m fin_mas export --out web/public/traces
@@ -40,6 +40,14 @@ iniciar:
 
 testes-tudo:
 	python3 tools/iniciar.py testes
+
+entrega-dsm3:
+	$(PYTHON) tools/empacotar_dsm3.py
+
+ataque:
+	mkdir -p saidas
+	PYTHONPATH=src $(PYTHON) -m fin_mas run --scenario ataque_decisao_forjada --trace saidas/ataque.jsonl
+	PYTHONPATH=src $(PYTHON) -m fin_mas verificar saidas/ataque.jsonl
 
 entrega-dsm2:
 	$(PYTHON) tools/empacotar_dsm2.py

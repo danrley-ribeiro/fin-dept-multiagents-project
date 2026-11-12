@@ -6,10 +6,17 @@ abortar com failure explícito (REQ-F01). Não usa LLM (ADR-002).
 
 O Orquestrador não decide conformidade nem desvio: encaminha o veto e as correções
 sugeridas pelo AG-CIN ao aprovador humano e devolve ao AG-CIN a decisão (correção,
-waiver ou prazo esgotado); quem reavalia é o AG-CIN.
+waiver ou bloqueio); quem reavalia é o AG-CIN.
+
+DSM3 — Approval Gate. O veto vira um ticket do SVC-POL e uma conversa PROT-APR com o
+aprovador designado (propose-action -> approve | reject | timeout). O Orquestrador só
+age sobre uma decisão que a política validou no barramento; a correção no ERP é um
+efeito externo executado pelo gateway MCP com o id da aprovação, e o AG-CIN recebe o
+mesmo id, que a política aceita uma única vez.
 """
 from fin_mas.core.agent import Agent
 from fin_mas.core.message import Message
+from fin_mas.services.politica import PoliticaAprovacao
 
 PRAZO_SUBTAREFA = 30  # ticks lógicos de reply_by por delegação
 MAX_TENTATIVAS = 2  # envio original + um reenvio
@@ -58,20 +65,24 @@ def ressalvas(achados, agrupar_acima=3) -> list[str]:
 
 
 class Orquestrador(Agent):
-    def __init__(self, bus, locks, aprovador="APR"):
+    PAPEL = "ROLE-ORQ"
+    def __init__(self, bus, locks, aprovador="APR", politica: PoliticaAprovacao | None = None, gateway=None):
         super().__init__("AG-ORQ", bus)
         self.locks = locks
         self.aprovador = aprovador
+        self.politica = politica if politica is not None else PoliticaAprovacao(bus)
+        self.gw = gateway
         self.conhecimento = {"catalogo": CATALOGO, "prazo_subtarefa": PRAZO_SUBTAREFA,
-                             "max_tentativas": MAX_TENTATIVAS, "max_correcoes": MAX_CORRECOES}
-        self.estado = {"solicitacoes": {}, "conversa_para_solicitacao": {}}
+                             "max_tentativas": MAX_TENTATIVAS, "max_correcoes": MAX_CORRECOES,
+                             "prazo_aprovacao": self.politica.prazo}
+        self.estado = {"solicitacoes": {}, "conversa_para_solicitacao": {}, "aprovacao_para_solicitacao": {}}
 
     # ---- entrada ----------------------------------------------------------
     def on_message(self, msg: Message) -> None:
         if msg.protocol == "PROT-SOL" and msg.performative == "request":
             self._nova_solicitacao(msg)
-        elif msg.protocol is None and msg.performative == "decisao_humana":
-            self._decisao_humana(msg)
+        elif msg.protocol == "PROT-APR":
+            self._resposta_aprovador(msg)
         elif msg.protocol in ("PROT-DEL", "PROT-CMP"):
             self._resposta_especialista(msg)
 
@@ -82,11 +93,18 @@ class Orquestrador(Agent):
             self.decide(sid, "intenção fora do catálogo", {"intencao": c.get("intencao")}, "not-understood")
             self.send(msg.sender, "not-understood", "PROT-SOL", sid, {"motivo": "intenção fora do catálogo"})
             return
+        motivo = self._fora_do_escopo(c["entidade"], c["competencia"])
+        if motivo:
+            self.decide(sid, "pedido fora do escopo da controladoria", {"entidade": c["entidade"],
+                                                                       "competencia": c["competencia"]}, "refuse")
+            self.send(msg.sender, "refuse", "PROT-SOL", sid, {"motivo": motivo})
+            return
         sol = {"id": sid, "solicitante": msg.sender, "intencao": c["intencao"], "entidade": c["entidade"],
                "competencia": c["competencia"], "plano": plano, "status": "executando", "reserva": False,
                "nos": {n: {"status": "pendente", "tentativas": 0, "conversas": [], "resultado": None}
                        for n in plano["nos"]},
-               "ressalvas": [], "notas": [], "correcoes": 0, "parecer": "conforme"}
+               "ressalvas": [], "notas": [], "correcoes": 0, "ciclos_veto": 0, "aprovacoes": [],
+               "parecer": "conforme"}
         if plano["reservar_periodo"]:
             r = self.locks.reserve(sol["entidade"], sol["competencia"], sid)
             if r["performative"] == "reserve-failure":
@@ -100,6 +118,17 @@ class Orquestrador(Agent):
                     {n: d["depende"] for n, d in plano["nos"].items()})
         self.send(msg.sender, "agree", "PROT-SOL", sid)
         self._avancar(sol)
+
+    def _fora_do_escopo(self, entidade: str, competencia: str) -> str | None:
+        """Entidade que não é a empresa atendida ou competência sem dados: recusa antes de delegar."""
+        if self.gw is None:
+            return None
+        ambiente = self.gw.ambiente
+        if entidade != ambiente.dataset().entidade:
+            return f"entidade desconhecida: {entidade} (esta controladoria atende {ambiente.dataset().entidade})"
+        if ambiente.pasta is not None and competencia != ambiente.principal:
+            return f"sem dados da competência {competencia}: a planilha da empresa é de {ambiente.principal}"
+        return None
 
     # ---- execução do DAG --------------------------------------------------
     def _avancar(self, sol: dict) -> None:
@@ -160,7 +189,7 @@ class Orquestrador(Agent):
         if msg.performative == "nao_conforme_nao_critico":
             sol["parecer"] = "conforme com ressalvas"
             sol["ressalvas"] += ressalvas(msg.content["achados"])
-            self.bus.advance(msg.conversation_id, "publicar", self.id)
+            self.avancar(msg.conversation_id, "publicar")
         self._concluir_no(sol, nome, msg.content)
 
     def _concluir_no(self, sol, nome, resultado):
@@ -168,47 +197,107 @@ class Orquestrador(Agent):
         sol["ressalvas"] += resultado.get("ressalvas", []) if nome != "relatorio" else []
         self._avancar(sol)
 
-    # ---- veto e waiver ----------------------------------------------------
+    # ---- veto e Approval Gate (PROT-APR) -------------------------------------
     def _veto(self, sol, nome, msg):
         sol["nos"][nome].update(status="vetado", resultado=msg.content)
-        opcoes = msg.content.get("opcoes", ["waiver", "bloquear"])
+        opcoes = list(msg.content.get("opcoes", ["waiver", "bloquear"]))
         if sol["correcoes"] >= MAX_CORRECOES:
             opcoes = [o for o in opcoes if o != "corrigir"]
-        sol["veto"] = {"no": nome, "cid": msg.conversation_id, "achados": msg.content["achados"], "opcoes": opcoes}
+        sol["ciclos_veto"] += 1
         self.decide(sol["id"], "NORM-04: não conformidade crítica bloqueia a publicação",
                     {"achados": [a["lancamento"] for a in msg.content["achados"]]}, "VETADO")
-        self.send(self.aprovador, "veto_notice", None, msg.conversation_id,
-                  {"solicitacao": sol["id"], "competencia": sol["competencia"], "achados": msg.content["achados"],
-                   "correcoes_sugeridas": msg.content.get("correcoes_sugeridas", []), "opcoes": opcoes})
-
-    def _decisao_humana(self, msg: Message) -> None:
-        sol = self.estado["solicitacoes"].get(msg.content["solicitacao"])
-        if sol is None or sol["status"] != "executando" or "veto" not in sol:
+        ticket = self.politica.emitir(solicitacao=sol["id"], competencia=sol["competencia"], cmp=msg.conversation_id,
+                                      ciclo=sol["ciclos_veto"], veto={**msg.content, "opcoes": opcoes},
+                                      aprovador=self.aprovador)
+        tid = ticket["id"]
+        sol["veto"] = {"no": nome, "cid": msg.conversation_id, "achados": msg.content["achados"], "aprovacao": tid}
+        sol["aprovacoes"].append(tid)
+        self.estado["aprovacao_para_solicitacao"][tid] = sol["id"]
+        self.bus.audit.record(self.bus.now, "link", conversation_id=sol["id"], filha=tid,
+                              subtarefa="aprovação humana", agente=self.id)
+        if sol["reserva"] and not self.locks.renovar(sol["entidade"], sol["competencia"], sol["id"],
+                                                     ticket["expira_em"] + 2 * PRAZO_SUBTAREFA):
+            sol.pop("veto")  # a reserva do período expirou antes do veto: não há como esperar o aprovador
+            self.politica.expirar(tid)
+            self.decide(sol["id"], "PROT-LCK: reserva do período perdida durante o fechamento", {}, "abortar")
+            self._abortar(sol, nome, "reserva do período perdida (TTL)")
             return
-        veto, cid = sol.pop("veto"), msg.conversation_id
-        decisao = msg.content["decisao"]
-        if decisao == "corrigir" and "corrigir" in veto["opcoes"] and msg.content.get("correcoes"):
-            sol["correcoes"] += 1
-            sol["notas"] += [f"correção humana: {c['detalhe']}" for c in msg.content["correcoes"]]
-            self.decide(sol["id"], "correção humana: AG-CIN reavalia o pacote", {"correcoes": msg.content["correcoes"]},
-                        "REAVALIAR")
-            sol["nos"][veto["no"]]["status"] = "enviado"
-            self.send("AG-CIN", "correcao", "PROT-CMP", cid, {"correcoes": msg.content["correcoes"]})
-        elif decisao == "waiver":
-            self.send("AG-CIN", "waiver_humano", "PROT-CMP", cid, {"justificativa": msg.content["justificativa"]})
-            self.bus.advance(cid, "publicar", self.id)
-            criticos = [f"waiver de {a['regra']} em {a['lancamento']}: {msg.content['justificativa']}"
-                        for a in veto["achados"] if a["severidade"] == "critica"]
-            outros = ressalvas([a for a in veto["achados"] if a["severidade"] != "critica"])
-            sol["ressalvas"] += criticos + outros
-            sol["parecer"] = "liberado por waiver humano"
-            self.decide(sol["id"], "waiver humano com justificativa", {"justificativa": msg.content["justificativa"]},
-                        "LIBERADO_COM_RESSALVA")
-            self._concluir_no(sol, veto["no"], {"achados": veto["achados"], "waiver": True})
-        else:
-            self.send("AG-CIN", "prazo_esgotado", "PROT-CMP", cid, {"decisao": decisao})
-            self._abortar(sol, veto["no"], "publicação bloqueada por veto (NORM-04)",
-                          {"achados": veto["achados"]})
+        self.send(self.aprovador, "propose-action", "PROT-APR", tid, self.politica.conteudo_proposta(tid),
+                  reply_by=ticket["expira_em"])
+        if self.politica.classificar(tid) == "deny":
+            self.decide(sol["id"], "POL-07: a política não deixou opção de liberação", {"negadas": ticket["negadas"]},
+                        "NEGADO")
+            self._bloquear(sol, sol.pop("veto"), "negada")
+
+    def _resposta_aprovador(self, msg: Message) -> None:
+        tid = msg.conversation_id
+        sol = self.estado["solicitacoes"].get(self.estado["aprovacao_para_solicitacao"].get(tid))
+        if sol is None or sol["status"] != "executando" or sol.get("veto", {}).get("aprovacao") != tid:
+            return  # decisão de um ticket encerrado ou de outro ciclo de veto
+        ticket = self.politica.ticket(tid)
+        veto = sol.pop("veto")
+        if msg.performative == "timeout":
+            self.politica.expirar(tid)
+            self.decide(sol["id"], "POL-08: prazo da aprovação esgotado sem decisão", {"aprovacao": tid}, "BLOQUEADO")
+            self._bloquear(sol, veto, "expirada")
+        elif msg.performative == "reject" and ticket["estado"] == "rejeitado":
+            self.decide(sol["id"], "aprovador rejeitou a liberação",
+                        {"aprovacao": tid, "aprovado_por": ticket["aprovado_por"]}, "BLOQUEADO")
+            self._bloquear(sol, veto, "bloquear")
+        elif msg.performative == "approve" and ticket["estado"] == "aprovado" and ticket["decisao"] == "corrigir":
+            self._corrigir(sol, veto, ticket)
+        elif msg.performative == "approve" and ticket["estado"] == "aprovado" and ticket["decisao"] == "waiver":
+            self._waiver(sol, veto, ticket)
+        else:  # ticket em estado inesperado (ex.: alterado fora do fluxo): bloqueia, nunca fica sem resposta
+            self.politica.expirar(tid)
+            self.decide(sol["id"], "ticket em estado inesperado: bloqueio por segurança (fail-closed)",
+                        {"aprovacao": tid, "estado": ticket["estado"], "performativo": msg.performative},
+                        "BLOQUEADO")
+            self._bloquear(sol, veto, "inconsistente")
+
+    def _corrigir(self, sol, veto, ticket):
+        sol["correcoes"] += 1
+        tid, executadas = ticket["id"], []
+        for pedido in ticket["correcoes_aprovadas"]:
+            try:
+                r = self.ferramenta("erp.corrigir", tid, competencia=sol["competencia"], aprovacao=tid,
+                                 lancamento=pedido["lancamento"], acao=pedido["acao"])["dados"]
+                executadas.append(r)
+            except Exception as erro:  # correção inviável: o AG-CIN reavalia e mantém o veto
+                motivo = str(erro) or type(erro).__name__
+                self.politica.registrar_falha(tid, pedido, motivo)
+                self.decide(sol["id"], "correção aprovada não pôde ser executada", {**pedido, "erro": motivo},
+                            "NAO_EXECUTADA")
+        self.avancar(tid, "execute")
+        quem = ticket["aprovado_por"]["titulo"]
+        sol["notas"] += [f"correção aprovada por {quem} ({tid}): {c['detalhe']}" for c in executadas]
+        self.decide(sol["id"], "correção aprovada no Approval Gate: AG-CIN reavalia o pacote",
+                    {"aprovacao": tid, "correcoes": executadas}, "REAVALIAR")
+        sol["nos"][veto["no"]]["status"] = "enviado"
+        self.send("AG-CIN", "correcao", "PROT-CMP", veto["cid"], {"aprovacao": tid, "correcoes": executadas})
+
+    def _waiver(self, sol, veto, ticket):
+        tid, justificativa = ticket["id"], ticket["justificativa"]
+        self.send("AG-CIN", "waiver_humano", "PROT-CMP", veto["cid"],
+                  {"aprovacao": tid, "justificativa": justificativa, "aprovado_por": ticket["aprovado_por"]["pessoa"]})
+        self.avancar(veto["cid"], "publicar")
+        self.avancar(tid, "execute")  # a liberação (efeito do waiver) foi executada: o ticket fecha em EXECUTADA
+        quem = ticket["aprovado_por"]["titulo"]
+        criticos = [f"waiver de {a['regra']} em {a['lancamento']} por {quem} ({tid}): {justificativa}"
+                    for a in veto["achados"] if a["severidade"] == "critica"]
+        outros = ressalvas([a for a in veto["achados"] if a["severidade"] != "critica"])
+        sol["ressalvas"] += criticos + outros
+        sol["parecer"] = "liberado por waiver humano"
+        self.decide(sol["id"], "waiver humano com justificativa (Approval Gate)",
+                    {"aprovacao": tid, "justificativa": justificativa, "aprovado_por": ticket["aprovado_por"]},
+                    "LIBERADO_COM_RESSALVA")
+        self._concluir_no(sol, veto["no"], {"achados": veto["achados"], "waiver": True, "aprovacao": tid})
+
+    def _bloquear(self, sol, veto, decisao):
+        self.send("AG-CIN", "prazo_esgotado", "PROT-CMP", veto["cid"],
+                  {"decisao": decisao, "aprovacao": veto["aprovacao"]})
+        self._abortar(sol, veto["no"], "publicação bloqueada por veto (NORM-04)",
+                      {"achados": veto["achados"], "aprovacao": veto["aprovacao"], "decisao": decisao})
 
     # ---- falha, reenvio e abort -------------------------------------------
     def _falha(self, sol, nome, performativo, motivo):
@@ -230,11 +319,21 @@ class Orquestrador(Agent):
 
     def _liberar(self, sol):
         if sol["reserva"]:
-            self.locks.release(sol["entidade"], sol["competencia"], sol["id"])
+            if self.locks.dono(sol["entidade"], sol["competencia"]) == sol["id"]:
+                self.locks.release(sol["entidade"], sol["competencia"], sol["id"])
+            else:  # a reserva já expirou por TTL (ex.: espera longa por decisão humana)
+                self.decide(sol["id"], "reserva do período já expirada por TTL", {"competencia": sol["competencia"]},
+                            "sem liberação")
             sol["reserva"] = False
 
     # ---- resposta final ---------------------------------------------------
     def _concluir(self, sol):
+        if sol["reserva"] and self.locks.dono(sol["entidade"], sol["competencia"]) != sol["id"]:
+            # PROT-LCK: sem a reserva, outro fechamento pode estar no mesmo mês; publicar violaria a exclusão mútua
+            self.decide(sol["id"], "PROT-LCK: não publica sem a reserva do período", {"competencia": sol["competencia"]},
+                        "abortar")
+            self._abortar(sol, "relatorio", "reserva do período perdida (TTL): publicação cancelada")
+            return
         sol["status"] = "concluida"
         r = {n: e["resultado"] for n, e in sol["nos"].items()}
         resposta = {"intencao": sol["intencao"], "entidade": sol["entidade"], "competencia": sol["competencia"],

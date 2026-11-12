@@ -24,7 +24,8 @@ class Specialist(Agent):
         try:
             resultado = self.executar(tarefa, msg.content, cid)
         except Exception as erro:  # falha explícita ao solicitante, nunca silêncio
-            self.send(msg.sender, "failure", "PROT-DEL", cid, {"motivo": str(erro)}, delay=1 + self.latencia)
+            self.send(msg.sender, "failure", "PROT-DEL", cid, {"motivo": str(erro) or type(erro).__name__},
+                      delay=1 + self.latencia)
             return
         self.send(msg.sender, "inform", "PROT-DEL", cid, resultado, delay=1 + self.latencia)
 
@@ -36,7 +37,7 @@ class Specialist(Agent):
             self.send(msg.sender, "refuse", "PROT-QRY", cid, {"motivo": f"assunto desconhecido: {assunto}"})
             return
         except Exception as erro:
-            self.send(msg.sender, "failure", "PROT-QRY", cid, {"motivo": str(erro)})
+            self.send(msg.sender, "failure", "PROT-QRY", cid, {"motivo": str(erro) or type(erro).__name__})
             return
         self.send(msg.sender, "inform", "PROT-QRY", cid, resposta)
 

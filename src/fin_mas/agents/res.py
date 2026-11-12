@@ -10,6 +10,7 @@ PRAZO_CONSULTA = 10  # ticks lógicos até a expiração de uma query-ref
 
 
 class AgenteResultados(Specialist):
+    PAPEL = "ROLE-RES"
     def __init__(self, bus, gateway):
         super().__init__("AG-RES", bus, gateway)
         self.conhecimento = {"estrutura_dre": ["receita", "custos_variaveis", "margem_contribuicao",
@@ -32,7 +33,7 @@ class AgenteResultados(Specialist):
                       {"motivo": f"tarefa desconhecida: {msg.content.get('tarefa')}"})
             return
         c = msg.content.get("competencia")
-        balancete = self.gw.call(self.id, "erp.balancete", cid, competencia=c)
+        balancete = self.ferramenta("erp.balancete", cid, competencia=c)
         receita = sum(p["preco"] * p["qtd"] for p in balancete["dados"]["produtos"])
         consolidacao = {"solicitante": msg.sender, "receita": receita, "respostas": {}, "consultas": {},
                         "falhou": False, "proveniencia": [balancete["proveniencia"]]}

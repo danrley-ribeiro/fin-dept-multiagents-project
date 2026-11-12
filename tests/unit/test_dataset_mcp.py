@@ -1,5 +1,6 @@
 import pytest
 
+from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus
 from fin_mas.env.dataset import (
     LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, Dataset, brl, mes_no_trimestre, ratear,
@@ -64,12 +65,20 @@ def test_brl_e_mes_no_trimestre():
 
 def gateway(**kw):
     bus = Bus()
-    return MCPGateway(Dataset(seed=1, **kw), bus.audit, bus), bus
+    gw = MCPGateway(Dataset(seed=1, **kw), bus.audit, bus)
+    for ident, papel in (("AG-CUS", "ROLE-CUS"), ("AG-REL", "ROLE-REL")):
+        a = Agent(ident, bus, papel)
+        a.gw = gw
+    return gw, bus
+
+
+def chamar(bus, agente, tool, cid="DEL-001"):
+    return bus.agents[agente].ferramenta(tool, cid)
 
 
 def test_chamada_devolve_dados_com_proveniencia_e_audita():
     gw, bus = gateway()
-    r = gw.call("AG-CUS", "erp.balancete", "DEL-001")
+    r = chamar(bus, "AG-CUS", "erp.balancete")
     assert r["proveniencia"]["fonte"] == "mcp://erp/balancete"
     assert r["proveniencia"]["seed"] == 1
     assert [x["kind"] for x in bus.audit.records] == ["mcp_call"]
@@ -78,11 +87,24 @@ def test_chamada_devolve_dados_com_proveniencia_e_audita():
 def test_tool_fora_da_allowlist_e_negada_e_auditada():
     gw, bus = gateway()
     with pytest.raises(ToolDenied):
-        gw.call("AG-CUS", "erp.lancamentos", "DEL-001")
+        chamar(bus, "AG-CUS", "erp.lancamentos")
     assert bus.audit.records[-1]["kind"] == "mcp_denied"
 
 
 def test_agente_sem_allowlist_nao_acessa_nada():
-    gw, _ = gateway()
+    gw, bus = gateway()
     with pytest.raises(ToolDenied):
-        gw.call("AG-REL", "erp.balancete", "DEL-001")
+        chamar(bus, "AG-REL", "erp.balancete")
+
+
+def test_gateway_rejects_declared_identity_without_credential():
+    """Revisão da DSM3 (G1): declarar o nome de outro agente não dá acesso às tools dele."""
+    gw, bus = gateway()
+    with pytest.raises(ToolDenied, match="não autenticada"):
+        gw.call("AG-CUS", "erp.balancete", "DEL-001")  # sem credencial
+    with pytest.raises(ToolDenied, match="não autenticada"):
+        gw.call("AG-CUS", "erp.balancete", "DEL-001", credencial="chute")
+    with pytest.raises(ToolDenied, match="não autenticada"):  # AG-REL usando a própria credencial em nome do AG-CUS
+        gw.call("AG-CUS", "erp.balancete", "DEL-001", credencial=bus.agents["AG-REL"]._Agent__credencial)
+    assert [r["kind"] for r in bus.audit.records] == ["mcp_denied"] * 3
+    assert all(c != bus.agents["AG-CUS"]._Agent__credencial for c in bus._credenciais.values())  # só hashes

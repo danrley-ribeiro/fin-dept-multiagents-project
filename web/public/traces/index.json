@@ -1,5 +1,5 @@
 {
- "versao": "0.3.0",
+ "versao": "0.4.0",
  "cenarios": [
   {
    "nome": "fechar_mes",
@@ -14,12 +14,12 @@
   {
    "nome": "veto_waiver",
    "descricao": "Alçada violada: veto do AG-CIN e waiver humano libera com ressalva",
-   "registros": 132
+   "registros": 139
   },
   {
    "nome": "veto_bloqueio",
    "descricao": "Alçada violada sem waiver: publicação bloqueada",
-   "registros": 120
+   "registros": 124
   },
   {
    "nome": "falha_especialista",
@@ -29,17 +29,17 @@
   {
    "nome": "depuracao",
    "descricao": "Cenário controlado de depuração: seed 1337, SoD plantado e uma perda de mensagem",
-   "registros": 138
+   "registros": 145
   },
   {
    "nome": "veto_correcao",
    "descricao": "Alçada violada: AG-CIN veta e sugere reaprovação; humano corrige e AG-CIN reavalia",
-   "registros": 143
+   "registros": 153
   },
   {
    "nome": "correcao_parcial",
    "descricao": "Alçada e SoD: humano corrige só uma, AG-CIN mantém o veto e o prazo esgota",
-   "registros": 143
+   "registros": 157
   },
   {
    "nome": "divergencia_fonte",
@@ -49,7 +49,7 @@
   {
    "nome": "desvio_irregular",
    "descricao": "Desvio inflado por NF duplicada: AG-ORC consulta o AG-CIN e reclassifica; estorno sugerido pelo AG-CIN destrava o fechamento",
-   "registros": 176
+   "registros": 186
   },
   {
    "nome": "orc_sem_cin",
@@ -59,22 +59,32 @@
   {
    "nome": "expediente_sma",
    "descricao": "Expediente da SMA: três competências, pedidos concorrentes, vetos, correções e divergências",
-   "registros": 535
+   "registros": 552
   },
   {
    "nome": "fechamento_micro",
    "descricao": "Microempresa sem ERP: planilhas, SoD inevitável tratada por controle compensatório e alçada do assistente violada",
-   "registros": 140
+   "registros": 150
   },
   {
    "nome": "fechamento_pequena",
    "descricao": "EPP com sistema simples: duplicidade de NF vetada e estornada",
-   "registros": 143
+   "registros": 153
   },
   {
    "nome": "fechamento_grande",
    "descricao": "Grande empresa: materialidade menor, competência errada já é crítica (corte)",
-   "registros": 199
+   "registros": 209
+  },
+  {
+   "nome": "ataque_decisao_forjada",
+   "descricao": "Veto pendente sob ataque: decisão forjada, identidade falsa, transição local não autorizada, destinatário fora da conversa e pedido malformado são rejeitados; o prazo esgota e nada é publicado",
+   "registros": 140
+  },
+  {
+   "nome": "reincidencia_waiver",
+   "descricao": "Mesma violação de alçada em dois meses: o waiver de agosto vira memória; em setembro o AG-CIN cita a memória, a política nega novo waiver e o humano corrige",
+   "registros": 289
   }
  ],
  "agentes": {

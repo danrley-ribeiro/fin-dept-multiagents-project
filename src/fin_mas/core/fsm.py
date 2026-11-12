@@ -2,6 +2,11 @@
 
 `transicoes` viram a tabela de transição; qualquer par (estado, evento) fora dela
 levanta ProtocolViolation. `invalidas` só enriquecem a mensagem de erro.
+
+DSM3: cada protocolo também declara os papéis participantes, quem pode emitir cada
+performativo (`emissores`), quem pode aplicar cada transição local (`eventos_locais`) e o
+esquema do conteúdo de cada performativo (`esquemas`). O barramento usa esses campos
+para validar remetente, destinatário, papel e conteúdo antes de mudar o estado.
 """
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -25,6 +30,11 @@ class Protocol:
     transitions: dict  # (estado, evento) -> estado
     invalid: dict  # (estado, evento) -> motivo
     opening: str  # primeiro performativo: abre a conversa
+    performatives: tuple = ()
+    participants: frozenset = frozenset()  # papéis (ROLE-*, SVC-*) que podem participar
+    emitters: dict = field(default_factory=dict)  # performativo -> papéis que podem emitir
+    local_events: dict = field(default_factory=dict)  # evento local -> papéis que podem aplicar
+    schemas: dict = field(default_factory=dict)  # performativo -> {campo: tipo}
 
     def next_state(self, state: str, event: str) -> str:
         key = (state, event)
@@ -46,6 +56,11 @@ def load_protocols(path: Path | None = None) -> dict[str, Protocol]:
             transitions={(a, e): b for a, e, b in p["transicoes"]},
             invalid={(a, e): motivo for a, e, motivo in p.get("invalidas", [])},
             opening=p["performativos"][0],
+            performatives=tuple(p["performativos"]),
+            participants=frozenset(p.get("participantes", [])),
+            emitters={k: frozenset(v) for k, v in (p.get("emissores") or {}).items()},
+            local_events={k: frozenset(v) for k, v in (p.get("eventos_locais") or {}).items()},
+            schemas=dict(p.get("esquemas") or {}),
         )
     return protocolos
 

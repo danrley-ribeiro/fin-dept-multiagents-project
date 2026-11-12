@@ -15,7 +15,7 @@
 ### Segurança: REQ-S01 a REQ-S03
 
 ```{needflow}
-:filter: id in ["NORM-01", "NORM-02", "NORM-03", "NORM-05", "PROT-APR", "PROT-LCK", "REQ-S01", "REQ-S02", "REQ-S03", "ROLE-APR", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES"]
+:filter: id in ["NORM-01", "NORM-02", "NORM-03", "NORM-05", "NORM-09", "NORM-10", "PROT-APR", "PROT-CMP", "PROT-DEL", "PROT-LCK", "PROT-QRY", "PROT-SOL", "REQ-S01", "REQ-S02", "REQ-S03", "REQ-S04", "ROLE-APR", "ROLE-CIN", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES", "ROLE-SOL"]
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 

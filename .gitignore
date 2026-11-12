@@ -58,3 +58,8 @@ web/tsconfig.tsbuildinfo
 
 # --- Pacote de entrega gerado por tools/empacotar_dsm2.py ---
 entregas/dsm2/DSM2-entrega.zip
+
+# --- Pacote de entrega gerado por tools/empacotar_dsm3.py ---
+entregas/dsm3/DSM3-entrega.zip
+# --- Memória persistente local do SVC-MEM (--memoria) ---
+.fin_mas/

@@ -72,3 +72,26 @@ items:
     decisao: DENY
     imposta_por: [SVC-MEM]
     entrega: DSM1
+
+  - id: NORM-09
+    titulo: Só mensagem autêntica, do papel certo e bem formada muda o estado de uma conversa
+    escopo: Toda mensagem A2A e toda transição local de FSM (SVC-A2A)
+    condicao: >-
+      Remetente não registrado ou sem credencial, papel sem permissão para o performativo ou evento,
+      destinatário fora da conversa, esquema inválido ou transição fora da FSM
+    consequencia: Mensagem ou transição rejeitada e registrada (`rejected`); nenhum estado muda; a simulação segue
+    decisao: DENY
+    imposta_por: [SVC-A2A]
+    entrega: DSM3
+
+  - id: NORM-10
+    titulo: Decisão humana vinculada, com política explícita e de uso único
+    escopo: Liberação de veto (waiver) e correção no ERP (Approval Gate, SVC-POL)
+    condicao: >-
+      Decisão sem ticket do SVC-POL, de outro aprovador, com hash de veto diferente, fora do prazo, fora das
+      opções abertas, sem justificativa, por pessoa envolvida no lançamento, reutilizada ou repetida após waiver
+      anterior do mesmo padrão
+    consequencia: Decisão rejeitada no barramento; o veto continua valendo; sem decisão válida no prazo, bloqueio
+    decisao: DENY
+    imposta_por: [SVC-POL]
+    entrega: DSM3

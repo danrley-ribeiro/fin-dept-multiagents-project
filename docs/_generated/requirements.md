@@ -123,11 +123,28 @@ Toda saída aprovada pelo controller vira memória (embedding + nós e arestas d
 :addresses: PROB-08
 :assigned_to: ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR
 :uses_protocol: PROT-APR
-:constrained_by: NORM-01, NORM-02
+:constrained_by: NORM-01, NORM-02, NORM-10
 
 Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é executado autonomamente: a Política de Segurança classifica em ALLOW, REQUIRE_APPROVAL ou DENY e retém a ação no Approval Gate.
 
 **Evidência observável de aceite:** ActionRequest em PENDENTE até approve humano; ação DENY nunca executa efeito colateral, mesmo com aprovação.
+````
+
+````{req} Autenticidade e integridade das interações (feedback da DSM2)
+:id: REQ-S04
+:entrega: DSM3
+:status: pendente
+:categoria: Segurança
+:prioridade: Must
+:satisfies: G-09, G-05
+:addresses: PROB-08, PROB-04
+:assigned_to: ROLE-ORQ, ROLE-APR, ROLE-CIN, ROLE-SOL
+:uses_protocol: PROT-SOL, PROT-DEL, PROT-QRY, PROT-CMP, PROT-APR
+:constrained_by: NORM-09, NORM-10
+
+O barramento valida remetente (identidade registrada e credencial), destinatário (contraparte da conversa), papel (quem pode emitir cada performativo e aplicar cada transição local), conversação, performativo e esquema do conteúdo antes de mudar qualquer estado; o conteúdo é protegido contra alteração após o envio; erros de um agente não interrompem a simulação; decisões humanas só valem vinculadas ao ticket, ao veto e ao aprovador.
+
+**Evidência observável de aceite:** Decisão forjada de remetente inexistente, aprovação sem credencial, transição local por identificador não autorizado, resposta a quem não participa da conversa, pedido sem campos obrigatórios e reutilização de aprovação são rejeitados e auditados; o cenário ataque_decisao_forjada termina bloqueado, sem publicar.
 ````
 
 ````{req} Exclusão mútua do período em fechamento

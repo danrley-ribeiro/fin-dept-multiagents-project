@@ -10,9 +10,12 @@ Desligar um agente não é simulado à parte: o bus perde o que chega a ele, e o
 prazos (`reply_by`) disparam timeouts, reenvios e replanejamentos dos agentes BDI.
 """
 import queue
+import re
 import threading
 import time
 
+from fin_mas.core.fsm import ProtocolViolation
+from fin_mas.core.schema import FORMATOS, _tipo_ok
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, montar
 
@@ -84,7 +87,18 @@ class Simulacao:
                                                  competencia=cmd.get("competencia") or self.sistema.ambiente.principal)
             self.sids.append(sid)
         elif tipo == "decidir":
-            self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"], cmd.get("justificativa"))
+            try:
+                enviada = self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"],
+                                                         cmd.get("justificativa"))
+            except ProtocolViolation as erro:  # a política ou o barramento recusou: avisa, não derruba
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": f"decisão recusada: {erro} (a pendência continua aberta)"})
+                return
+            if not enviada:
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": "decisão não enviada: não há pendência para essa solicitação "
+                                      "ou a opção não foi oferecida pela política"})
+                return
         elif tipo == "reiniciar":
             try:
                 self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
@@ -102,7 +116,11 @@ class Simulacao:
             except queue.Empty:
                 return
             with self.lock:
-                self._aplicar(cmd)
+                try:
+                    self._aplicar(cmd)
+                except Exception as erro:  # nenhum comando derruba a thread da simulação
+                    self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                                  "erro": f"comando {cmd.get('tipo')} recusado: {type(erro).__name__}: {erro}"})
 
     # ---- avanço ---------------------------------------------------------------
     def passo(self) -> bool:
@@ -186,12 +204,39 @@ class ComandoInvalido(ValueError):
     pass
 
 
+CAMPOS = {  # campo -> (validador, descrição) para os comandos que vêm do navegador
+    "n": (lambda v: _inteiro(v) and 1 <= v <= 1000, "inteiro entre 1 e 1000"),
+    "ms_por_tick": (lambda v: _inteiro(v) and 0 <= v <= 10_000, "inteiro entre 0 e 10000"),
+    "agente": (lambda v: isinstance(v, str) and v.startswith("AG-"), "id de agente (AG-...)"),
+    "online": (lambda v: isinstance(v, bool), "booleano"),
+    "intencao": (lambda v: isinstance(v, str) and 0 < len(v) <= 64, "texto"),
+    "competencia": (lambda v: v is None or (isinstance(v, str) and COMPETENCIA.fullmatch(v) is not None),
+                    "competência AAAA-MM"),
+    "solicitacao": (lambda v: isinstance(v, str) and 0 < len(v) <= 64, "texto"),
+    "justificativa": (lambda v: v is None or (isinstance(v, str) and len(v) <= 2000), "texto de até 2000 caracteres"),
+    "seed": (lambda v: v is None or (_inteiro(v) and 0 <= v <= 2**31), "inteiro não negativo"),
+    "interativo": (lambda v: isinstance(v, bool), "booleano"),
+    "cenario": (lambda v: isinstance(v, str), "texto"),
+    "porte": (lambda v: v is None or isinstance(v, str), "texto"),
+    "fonte": (lambda v: isinstance(v, str), "texto"),
+    "decisao": (lambda v: isinstance(v, str), "texto"),
+}
+COMPETENCIA = FORMATOS["aaaa-mm"][0]  # mesma regra do barramento (core/schema.py)
+
+
+def _inteiro(v) -> bool:
+    return _tipo_ok(v, int)
+
+
 def validar(cmd) -> None:
     if not isinstance(cmd, dict) or cmd.get("tipo") not in TIPOS:
         raise ComandoInvalido(f"tipo de comando desconhecido: {cmd.get('tipo') if isinstance(cmd, dict) else cmd}")
     faltando = [c for c in TIPOS[cmd["tipo"]] if c not in cmd]
     if faltando:
         raise ComandoInvalido(f"comando {cmd['tipo']} sem {', '.join(faltando)}")
+    for campo, valor in cmd.items():
+        if campo in CAMPOS and not CAMPOS[campo][0](valor):
+            raise ComandoInvalido(f"comando {cmd['tipo']}: campo {campo}={valor!r} deveria ser {CAMPOS[campo][1]}")
     if cmd["tipo"] == "agente" and cmd["agente"] in ("AG-ORQ",) + AGENTES_HUMANOS:
         raise ComandoInvalido(f"{cmd['agente']} não pode ser desligado (fronteira com o usuário)")
     if cmd["tipo"] == "reiniciar" and cmd.get("cenario", "expediente_sma") not in CENARIOS:
@@ -200,5 +245,5 @@ def validar(cmd) -> None:
         raise ComandoInvalido(f"porte desconhecido: {cmd.get('porte')}")
     if cmd["tipo"] == "reiniciar" and cmd.get("fonte", "sintetico") not in ("sintetico", "planilha"):
         raise ComandoInvalido(f"fonte desconhecida: {cmd.get('fonte')}")
-    if cmd["tipo"] == "decidir" and cmd["decisao"] not in ("waiver", "corrigir", "corrigir_parcial", "nenhuma"):
+    if cmd["tipo"] == "decidir" and cmd["decisao"] not in ("waiver", "corrigir", "corrigir_parcial", "bloquear", "nenhuma"):
         raise ComandoInvalido(f"decisão desconhecida: {cmd['decisao']}")

@@ -6,6 +6,7 @@ externa segue bloqueada pelo conftest.
 import json
 import threading
 import time
+import urllib.error
 import urllib.request
 
 import pytest
@@ -14,6 +15,7 @@ from fin_mas.env.dataset import brl
 from fin_mas.exportar import exportar_traces, gravar_relatorio
 from fin_mas.live import Simulacao
 from fin_mas.server import criar_servidor, tratar
+from helpers import aguardando_humano
 
 pytestmark = pytest.mark.integracao
 
@@ -25,9 +27,18 @@ def _ate_esvaziar(sim, limite=5000):
     raise AssertionError("simulação não esvaziou a fila")
 
 
+def _ate_humano(sim, limite=5000):
+    """Avança até a fila esvaziar ou só faltar o prazo da aprovação humana (o dashboard espera)."""
+    for _ in range(limite):
+        sim.processar_comandos()
+        if aguardando_humano(sim.sistema.bus) or not sim.passo():
+            return
+    raise AssertionError("simulação não chegou à espera humana")
+
+
 def test_live_operator_controls_and_human_decision():
     sim = Simulacao("veto_waiver", interativo=True)
-    _ate_esvaziar(sim)
+    _ate_humano(sim)
     estado = sim.snapshot()
     pendente = estado["pendentes_humanos"][0]
     assert pendente["solicitacao"] == "SOL-001" and pendente["opcoes"] == ["corrigir", "waiver", "bloquear"]
@@ -79,7 +90,9 @@ def test_live_server_streams_trace_over_http():
     threading.Thread(target=servidor.serve_forever, daemon=True).start()
     try:
         url = f"http://127.0.0.1:{porta}"
-        req = urllib.request.Request(url + "/api/comando", data=b'{"tipo": "pausar"}', method="POST")
+        token = json.load(urllib.request.urlopen(url + "/api/sessao", timeout=5))["token"]
+        req = urllib.request.Request(url + "/api/comando", data=b'{"tipo": "pausar"}', method="POST",
+                                     headers={"X-SMA-Token": token})
         assert urllib.request.urlopen(req, timeout=5).status == 202
         with urllib.request.urlopen(url + "/api/eventos", timeout=5) as stream:
             primeiro = json.loads(stream.readline().decode("utf-8")[len("data: "):])
@@ -126,3 +139,73 @@ def test_restart_replays_initial_records_to_live_clients():
     # quem já estava conectado recebe o meta (porte) e o pedido inicial do novo cenário
     assert registros[0]["kind"] == "meta" and registros[0]["porte"] == "micro"
     assert any(r["kind"] == "open" and r["protocol"] == "PROT-SOL" for r in registros)
+
+
+def test_dashboard_mutations_require_session_token():
+    """POST sem token, com token errado, de outro site (Origin) ou por outro nome (Host) é recusado (403)."""
+    sim = Simulacao("veto_waiver", interativo=True, ms_por_tick=0, pausado=True)
+    servidor = criar_servidor(sim, porta=0)
+    url = f"http://127.0.0.1:{servidor.server_address[1]}"
+    threading.Thread(target=servidor.serve_forever, daemon=True).start()
+
+    def status(caminho, metodo="GET", corpo=None, **cabecalhos):
+        req = urllib.request.Request(url + caminho, data=corpo, method=metodo, headers=cabecalhos)
+        try:
+            return urllib.request.urlopen(req, timeout=5).status
+        except urllib.error.HTTPError as erro:
+            return erro.code
+
+    try:
+        decisao = b'{"tipo": "decidir", "solicitacao": "SOL-001", "decisao": "waiver"}'
+        assert status("/api/comando", "POST", decisao) == 403
+        assert status("/api/comando", "POST", decisao, **{"X-SMA-Token": "chute"}) == 403
+        token = servidor.token
+        assert status("/api/comando", "POST", decisao, **{"X-SMA-Token": token, "Origin": "https://evil.example"}) == 403
+        assert status("/api/sessao", Host="evil.example:8765") == 403  # DNS rebinding
+        assert status("/api/sessao", Origin="https://evil.example") == 403
+        assert status("/api/dados/planilha", "POST", b"{}") == 403
+        assert sim.comandos.empty()  # nada chegou à simulação
+        assert status("/api/comando", "POST", b'{"tipo": "pausar"}', **{"X-SMA-Token": token}) == 202
+        assert status("/api/sessao", Host="localhost:5173", Origin="http://localhost:5173") == 200  # Vite em dev
+    finally:
+        servidor.shutdown()
+        servidor.server_close()
+
+
+def test_malformed_dashboard_commands_do_not_kill_the_simulation():
+    """Revisão da DSM3 (M3): comando com tipo errado é recusado (400) e a thread da simulação segue viva."""
+    sim = Simulacao("veto_waiver", interativo=True, ms_por_tick=0)
+    sim.iniciar()
+    try:
+        for cmd in ({"tipo": "passo", "n": "muitos"}, {"tipo": "velocidade", "ms_por_tick": "rapido"},
+                    {"tipo": "solicitar", "intencao": "fechar_mes", "competencia": "agosto"},
+                    {"tipo": "decidir", "solicitacao": "SOL-001", "decisao": "waiver", "justificativa": 12345},
+                    {"tipo": "agente", "agente": "AG-CIN", "online": "nao"}):
+            assert tratar(sim, "POST", "/api/comando", json.dumps(cmd).encode())[0] == 400
+        sim._aplicar = lambda cmd: (_ for _ in ()).throw(RuntimeError("defeito"))  # mesmo um erro inesperado
+        sim.comando({"tipo": "pausar"})
+        time.sleep(0.3)
+        assert sim._thread.is_alive()
+    finally:
+        sim.parar()
+
+
+def test_dashboard_authenticates_before_reading_the_body():
+    """Recorreção (N5): sem token, um corpo enorme declarado não é lido; token não-ASCII não gera exceção."""
+    import socket as _socket
+
+    sim = Simulacao("fechar_mes", interativo=True, ms_por_tick=0, pausado=True)
+    servidor = criar_servidor(sim, porta=0)
+    porta = servidor.server_address[1]
+    threading.Thread(target=servidor.serve_forever, daemon=True).start()
+    try:
+        for cabecalho in ("", "X-SMA-Token: ç\r\n"):
+            with _socket.create_connection(("127.0.0.1", porta), timeout=3) as s:
+                s.sendall(("POST /api/comando HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: 10000000\r\n"
+                           + cabecalho + "\r\n").encode("latin-1"))
+                resposta = s.recv(200).decode("latin-1")  # sem enviar o corpo: precisa responder já
+            assert resposta.startswith("HTTP/1.0 403") or resposta.startswith("HTTP/1.1 403"), resposta
+        assert sim.comandos.empty()
+    finally:
+        servidor.shutdown()
+        servidor.server_close()

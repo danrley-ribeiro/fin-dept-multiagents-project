@@ -9,8 +9,10 @@ Resultados, Agente de Controles Internos e Agente de Relatórios) executam as ro
 controladoria da **SMA** (empresa fictícia) de forma coordenada e auditável. Orçamento e
 Controles Internos são **agentes cognitivos BDI**; as regras valem para empresas de **qualquer
 porte** (micro, pequena, média e grande), com ou sem ERP (modelos Excel e servidor MCP de Excel). Um
-**dashboard** mostra os agentes trabalhando num escritório, ao vivo ou em replay. A IA generativa é
-**opcional e desligada por padrão**, restrita à narrativa em três agentes.
+**dashboard** mostra os agentes trabalhando num escritório, ao vivo ou em replay. Desde a DSM3, o barramento
+valida identidade, papel, destinatário, conversa e esquema de toda mensagem, e as decisões humanas passam
+por um **Approval Gate** com política explícita e uso único. A IA generativa é **opcional e desligada por
+padrão**, restrita à síntese do Agente de Relatórios e validada contra os números do template.
 
 ```bash
 .\iniciar.ps1          # Windows: prepara tudo (Python, .venv, bun, dashboard) e abre o escritório ao vivo
@@ -29,7 +31,7 @@ Na raiz do repositório:
 |---|---|
 | Windows (PowerShell) | `.\iniciar.ps1` |
 | Linux / macOS | `./iniciar.sh` |
-| Qualquer um, com Python 3.12+ já instalado | `python tools/iniciar.py` |
+| Qualquer um, com Python 3.11+ já instalado | `python tools/iniciar.py` |
 
 Sem argumento, abre o **escritório ao vivo** no navegador (`http://127.0.0.1:8765`). Para outro modo,
 passe o nome dele: `.\iniciar.ps1 testes`, `./iniciar.sh replay` etc.
@@ -49,8 +51,8 @@ Opções: `--porta N`, `--cenario NOME` (ao-vivo e cli), `--porte micro|pequena|
 
 **O que o comando prepara** (só o que falta ou mudou, então as próximas execuções são rápidas):
 
-1. **Python 3.12+**: o `iniciar.ps1` procura `py -3.13`, `py -3.12`, `python` e, se não houver, instala o
-   Python 3.12 pelo `winget`; o `iniciar.sh` procura `python3.13`/`python3.12`/`python3` e, se faltar,
+1. **Python 3.11+**: o `iniciar.ps1` procura `py -3.13`, `py -3.12`, `py -3.11`, `python` e, se não houver, instala o
+   Python 3.12 pelo `winget`; o `iniciar.sh` procura `python3.13`/`python3.12`/`python3.11`/`python3` e, se faltar,
    mostra o comando de instalação (`apt` ou `brew`).
 2. **Ambiente virtual `.venv`** com o projeto e as dependências de testes e de documentação
    (`pyproject.toml`, `requirements-dev.txt`, `docs/requirements.txt`); reinstala só se esses arquivos mudarem.
@@ -79,7 +81,7 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
 | **DSM1 v2** — revisão pós-feedback | [`entregas/dsm1/documentacao/main-v2.pdf`](entregas/dsm1/documentacao/main-v2.pdf) | ✅ concluída |
 | **DSM2** — Arquitetura e protótipo (revisados após o feedback) | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ concluída (prazo 31/10) |
-| **DSM3** — Comunicação e coordenação | [`docs/dsm3/`](docs/dsm3/index.md) | 🟡 em andamento (prazo 18/11) |
+| **DSM3** — Comunicação, coordenação e protótipo funcional | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
@@ -94,6 +96,7 @@ entregas/
     modelos-editaveis/   diagramas Mermaid (.mmd)
     diagramas/           imagens dos diagramas (.png)
   dsm2/                  README, USO_DE_IA, diagramas e modelos-editaveis do protótipo
+  dsm3/                  README, USO_DE_IA e modelos-editaveis (validação, PROT-APR)
 src/fin_mas/             protótipo em Python (agentes, bus A2A, MCP mock, cenários, CLI)
 tests/                   testes unitários e e2e (pytest)
 enunciados/              enunciados da disciplina e exemplo de formato
@@ -111,18 +114,22 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual: **18/18 requisitos (100%) com cadeia completa**, 137 objetos rastreados,
-26 testes (14 **executados** na DSM2 e 12 planejados) e 15 stubs pendentes.
+Situação atual (DSM3): **19/19 requisitos (100%) com cadeia completa**, 194 objetos rastreados,
+90 testes modelados (89 **executados**; TEST-19 é de entrega futura).
 
-## Como executar o protótipo (DSM2)
+## Como executar o protótipo (DSM3)
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
-python -m fin_mas run --scenario fechar_mes --seed 42   # make demo
-python -m pytest                                        # make test
+python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt   # Python 3.11+
+python -m fin_mas run --scenario fechar_mes --seed 42             # make demo
+python -m fin_mas run --scenario ataque_decisao_forjada           # 14 ataques rejeitados (make ataque)
+python -m fin_mas run --scenario reincidencia_waiver --memoria m.json
+python -m fin_mas verificar trace.jsonl                           # trace com cadeia de hashes e selo HMAC
+python -m pytest                                                  # 247 testes (make test)
 ```
 
-Detalhes, cenários e o cenário de depuração: [entregas/dsm2/README.md](entregas/dsm2/README.md).
+Roteiro de demonstração e mapa feedback → correção: [entregas/dsm3/README.md](entregas/dsm3/README.md);
+protótipo e cenário de depuração: [entregas/dsm2/README.md](entregas/dsm2/README.md).
 
 ## Como compilar
 

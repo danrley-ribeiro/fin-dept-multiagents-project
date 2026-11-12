@@ -10,15 +10,24 @@
     POST /api/dados/planilha     {"nome", "conteudo_base64"}: valida e grava a planilha preenchida
 
 Também serve o build do dashboard (`web/dist`) quando ele existe.
+
+Proteção (DSM3): o servidor escuta só em loopback e recusa (403) requisições cujo `Host`
+ou `Origin` não seja `127.0.0.1`/`localhost` (DNS rebinding e páginas de outros sites).
+Os POST (comandos, decisão humana e envio de planilha) exigem o cabeçalho `X-SMA-Token`
+com o token da sessão, que o dashboard obtém em `GET /api/sessao`: outro site não lê essa
+resposta (sem CORS) e, portanto, não consegue forjar comandos (CSRF).
 """
 import base64
 import json
 import mimetypes
+import hmac
 import queue
+import secrets
 import sys
 import tempfile
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from fin_mas.env.dataset import Dataset
 from fin_mas.env.portes import PORTES, perfil
@@ -32,6 +41,17 @@ XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 LIMITE_UPLOAD = 5 * 1024 * 1024
 
 WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"
+LOOPBACK = {"127.0.0.1", "localhost"}
+LEITURA_SEGUNDOS = 5  # tempo máximo para receber o corpo de um POST
+DESCARTE_MAXIMO = 64 * 1024  # corpo de requisição recusada que ainda é lido e descartado
+CABECALHO_TOKEN = "X-SMA-Token"
+
+
+def _nome_host(valor: str | None) -> str | None:
+    """Nome sem porta de um cabeçalho Host ("localhost:5173") ou Origin ("http://localhost:5173")."""
+    if not valor:
+        return None
+    return urlsplit(valor if "//" in valor else "//" + valor).hostname
 
 
 def _json(status, dados) -> tuple[int, dict, bytes]:
@@ -135,10 +155,21 @@ def _estatico(rota) -> tuple[int, dict, bytes]:
     return 200, {"Content-Type": tipo}, alvo.read_bytes()
 
 
-def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765) -> ThreadingHTTPServer:
+def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, token: str | None = None) -> ThreadingHTTPServer:
+    token = token or secrets.token_urlsafe(24)
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):  # silencioso: o trace é o log
             pass
+
+        def _origem_ok(self) -> bool:
+            if _nome_host(self.headers.get("Host")) not in LOOPBACK:
+                return False
+            origem = self.headers.get("Origin")
+            return origem is None or _nome_host(origem) in LOOPBACK
+
+        def _proibido(self, motivo):
+            self._responder(*_json(403, {"erro": motivo}))
 
         def _responder(self, status, cabecalhos, corpo):
             self.send_response(status)
@@ -150,17 +181,52 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765) -> ThreadingHTT
             self.wfile.write(corpo)
 
         def do_GET(self):
-            if self.path.split("?", 1)[0] == "/api/eventos":
+            rota = self.path.split("?", 1)[0]
+            if not self._origem_ok():
+                self._proibido("origem não permitida: use http://127.0.0.1 ou http://localhost")
+            elif rota == "/api/sessao":
+                self._responder(*_json(200, {"token": token, "cabecalho": CABECALHO_TOKEN}))
+            elif rota == "/api/eventos":
                 self._eventos()
             else:
                 self._responder(*tratar(sim, "GET", self.path))
 
+        def _ler(self, tamanho: int) -> bytes | None:
+            """Lê o corpo com tempo limite: quem declara um tamanho e não envia não prende a thread."""
+            self.connection.settimeout(LEITURA_SEGUNDOS)
+            try:
+                corpo = self.rfile.read(tamanho)
+                return corpo if len(corpo) == tamanho else None
+            except OSError:
+                return None
+            finally:
+                self.connection.settimeout(None)
+
         def do_POST(self):
-            tamanho = int(self.headers.get("Content-Length", 0))
-            if tamanho > LIMITE_UPLOAD * 2:
-                self._responder(*_json(413, {"erro": "corpo grande demais"}))
+            try:
+                tamanho = int(self.headers.get("Content-Length", 0))
+            except ValueError:
+                tamanho = -1
+            recebido = self.headers.get(CABECALHO_TOKEN, "").encode("utf-8", "surrogateescape")
+            autorizado = self._origem_ok() and hmac.compare_digest(recebido, token.encode("utf-8"))
+            if not autorizado:  # autentica antes de ler: corpo grande sem token nunca é lido
+                if 0 < tamanho <= DESCARTE_MAXIMO:
+                    self._ler(tamanho)  # descarta o corpo pequeno: responder no meio do envio aborta a conexão
+                self.close_connection = True
+                motivo = ("origem não permitida: use http://127.0.0.1 ou http://localhost" if not self._origem_ok()
+                          else f"token de sessão ausente ou inválido ({CABECALHO_TOKEN}; obtenha em /api/sessao)")
+                self._proibido(motivo)
                 return
-            self._responder(*tratar(sim, "POST", self.path, self.rfile.read(tamanho)))
+            if tamanho < 0 or tamanho > LIMITE_UPLOAD * 2:
+                self.close_connection = True
+                self._responder(*_json(413, {"erro": "corpo ausente, inválido ou grande demais"}))
+                return
+            corpo = self._ler(tamanho)
+            if corpo is None:
+                self.close_connection = True
+                self._responder(*_json(408, {"erro": "corpo incompleto ou enviado devagar demais"}))
+                return
+            self._responder(*tratar(sim, "POST", self.path, corpo))
 
         def _eventos(self):
             fila: queue.Queue = queue.Queue()
@@ -197,6 +263,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765) -> ThreadingHTT
 
     servidor = _Servidor((host, porta), Handler)
     servidor.daemon_threads = True
+    servidor.token = token
     return servidor
 
 

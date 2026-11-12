@@ -58,9 +58,10 @@ function aplicar(s: ViewState, r: Registro): void {
       s.voos.push({ id: r.seq, de: String(r.sender), para: String(r.receiver), rotulo: String(r.performative),
         protocolo: String(r.protocol), tipo: "mensagem" });
       if (r.protocol === "PROT-SOL") registrarSolicitacao(s, r);
+      if (r.protocol === "PROT-APR") registrarAprovacao(s, r, cid);
       break;
     }
-    case "ui": {
+    case "ui": {  // traces anteriores à DSM3 (canal livre veto_notice / decisao_humana)
       tocar(s, r.sender, r, String(r.performative), "fala");
       s.voos.push({ id: r.seq, de: String(r.sender), para: String(r.receiver), rotulo: String(r.performative),
         protocolo: "humano", tipo: "humano" });
@@ -88,14 +89,19 @@ function aplicar(s: ViewState, r: Registro): void {
         conv.estado = String(r.para);
         tocar(s, conv.iniciador, r, `timeout de ${conv.contraparte}`, "alerta");
       }
+      if (r.protocol === "PROT-APR") encerrarAprovacao(s, cid);  // prazo do ticket esgotado
       break;
     }
     case "advance": {
       const conv = s.conversas[cid];
       if (conv) conv.estado = String(r.para);
-      tocar(s, r.agente, r, String(r.evento));
+      if (r.agente !== "SVC-POL") tocar(s, r.agente, r, String(r.evento));
+      if (r.evento === "deny") encerrarAprovacao(s, cid);  // política negou a liberação (POL-07)
       break;
     }
+    case "rejected":  // mensagem ou transição recusada pelo barramento (DSM3)
+      tocar(s, String(r.agente ?? r.sender ?? ""), r, "rejeitada", "alerta");
+      break;
     case "mcp_call":
     case "mcp_denied": {
       tocar(s, r.agente, r);
@@ -211,6 +217,24 @@ function registrarSolicitacao(s: ViewState, r: Registro) {
   } else sol.status = STATUS_FINAL[String(r.performative)] ?? String(r.performative);
 }
 
+/** Approval Gate (PROT-APR, DSM3): a proposta vira pendência humana até approve, reject, prazo ou negação. */
+function registrarAprovacao(s: ViewState, r: Registro, cid: string) {
+  const c = (r.content ?? {}) as Record<string, unknown>;
+  if (r.performative === "propose-action") {
+    s.pendentes[String(c.solicitacao)] = {
+      solicitacao: String(c.solicitacao), conversation_id: cid, competencia: c.competencia as string,
+      achados: (c.achados as never) ?? [], correcoes_sugeridas: (c.correcoes_sugeridas as never) ?? [],
+      opcoes: (c.opcoes as string[]) ?? ["bloquear"],
+    };
+  } else if (r.performative === "approve" || r.performative === "reject") {
+    delete s.pendentes[String(c.solicitacao)];
+  }
+}
+
+function encerrarAprovacao(s: ViewState, cid: string) {
+  for (const [sid, p] of Object.entries(s.pendentes)) if (p.conversation_id === cid) delete s.pendentes[sid];
+}
+
 function clonar(s: ViewState): ViewState {
   const agentes: Record<string, EstadoAgente> = {};
   for (const [id, a] of Object.entries(s.agentes)) {
@@ -292,6 +316,14 @@ export function formatar(r: Registro): string {
       return `${cab} RESERVA ${r.evento} ${JSON.stringify(r.chave)}`;
     case "agente":
       return `${cab} OPERADOR ${r.agente} ${r.evento}`;
+    case "rejected":
+      return `${cab} REJEITADA [${r.etapa}] ${r.sender ?? r.agente} ${r.performative ?? r.evento} (${r.motivo})`;
+    case "politica":
+      return `${cab} POLÍTICA ${r.regra ?? ""} ticket ${r.evento}`;
+    case "memoria":
+      return `${cab} MEMÓRIA ${r.evento} ${r.tipo ?? ""} ${r.memoria ?? ""}`;
+    case "ataques":
+      return `${cab} ATAQUES rejeitados (aprovação ${r.aprovacao})`;
     case "meta":
       return `${cab} cenário ${r.cenario} · seed ${r.seed}`;
     default:
@@ -303,7 +335,7 @@ export function formatar(r: Registro): string {
 export function categoria(r: Registro): "mensagem" | "mente" | "decisao" | "ambiente" | "falha" {
   if (["belief", "desire", "deliberation", "intention"].includes(r.kind)) return "mente";
   if (r.kind === "decision") return "decisao";
-  if (["drop", "timeout", "discard", "mcp_denied"].includes(r.kind)) return "falha";
+  if (["drop", "timeout", "discard", "mcp_denied", "rejected", "erro_agente"].includes(r.kind)) return "falha";
   if (["open", "send", "ui", "advance"].includes(r.kind)) return "mensagem";
   return "ambiente";
 }

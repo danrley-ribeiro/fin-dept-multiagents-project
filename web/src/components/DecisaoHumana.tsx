@@ -1,10 +1,12 @@
-// O aprovador humano decide sobre o veto do AG-CIN: corrigir (aplica as correções sugeridas), waiver ou bloquear.
+// O aprovador humano decide sobre o veto do AG-CIN no Approval Gate (PROT-APR): corrigir, waiver ou bloquear.
+// A decisão cita o ticket do SVC-POL; o barramento a recusa se não for do aprovador designado (DSM3).
 import GavelIcon from "@mui/icons-material/Gavel";
 import {
   Alert, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Stack,
   TextField, Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { justificativaValida } from "../state/justificativa";
 import type { PendenciaHumana } from "../types";
 
 const ROTULO_ACAO: Record<string, string> = { reaprovar: "reaprovar por quem tem alçada", estornar: "estornar",
@@ -31,8 +33,8 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
       </DialogTitle>
       <DialogContent dividers>
         <Typography variant="body2" sx={{ mb: 1 }}>
-          O Agente de Controles Internos vetou a publicação. O Orquestrador aguarda a sua decisão; quem reavalia o
-          pacote é o próprio AG-CIN.
+          O Agente de Controles Internos vetou a publicação. O Orquestrador aguarda a sua decisão no ticket
+          {" "}<b>{pendencia.conversation_id}</b> (uso único, com prazo); quem reavalia o pacote é o próprio AG-CIN.
         </Typography>
         <Typography variant="h3" component="h3">Achados</Typography>
         <List dense>
@@ -58,7 +60,7 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
           </>
         )}
         {interativo ? (
-          <TextField label="Justificativa" helperText="Obrigatória para waiver" fullWidth multiline minRows={2}
+          <TextField label="Justificativa" helperText="Obrigatória para waiver: mínimo de 10 caracteres e duas palavras diferentes (POL-04)" fullWidth multiline minRows={2}
             value={justificativa} onChange={(e) => setJustificativa(e.target.value)} sx={{ mt: 1 }}
             placeholder="ex.: risco aceito; lançamento será corrigido no próximo ciclo" />
         ) : (
@@ -69,8 +71,8 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
         <Button onClick={aoFechar}>Decidir depois</Button>
         {interativo && (
           <>
-            <Button color="error" variant="outlined" onClick={() => aoDecidir("nenhuma", justificativa)}>Bloquear</Button>
-            <Button variant="outlined" disabled={!justificativa.trim()}
+            <Button color="error" variant="outlined" onClick={() => aoDecidir("bloquear", justificativa)}>Bloquear</Button>
+            <Button variant="outlined" disabled={!justificativaValida(justificativa)}
               onClick={() => aoDecidir("waiver", justificativa)}>Waiver (aceitar o risco)</Button>
             {podeCorrigir && pendencia.correcoes_sugeridas.length > 1 && (
               <Button variant="outlined" onClick={() => aoDecidir("corrigir_parcial", justificativa)}>

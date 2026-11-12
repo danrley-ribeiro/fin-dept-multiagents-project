@@ -79,31 +79,49 @@ Componente implementado em `src/fin_mas/mcp/gateway.py`.
 Componente implementado em `src/fin_mas/services/audit.py`.
 ````
 
-````{comp} Registro de Modelos e gateway LLM
+````{comp} Registro de Modelos e gateway LLM (opcional
 :id: COMP-MOD
-:entrega: DSM2
-:status: pendente
+:entrega: DSM3
+:status: implementado
 :realizes: SVC-MOD
 
-Stub de rastreabilidade. Caminho: a definir (próxima entrega).
+Componente implementado em `src/fin_mas/services/modelos.py`.
 ````
 
-````{comp} Serviço de Memória
+````{comp} Serviço de Memória (aprovada
 :id: COMP-MEM
-:entrega: DSM2
-:status: pendente
+:entrega: DSM3
+:status: implementado
 :realizes: SVC-MEM
 
-Stub de rastreabilidade. Caminho: a definir (próxima entrega).
+Componente implementado em `src/fin_mas/services/memoria.py`.
 ````
 
 ````{comp} Política de Segurança e Approval Gate
 :id: COMP-POL
-:entrega: DSM2
-:status: pendente
+:entrega: DSM3
+:status: implementado
 :realizes: SVC-POL
 
-Stub de rastreabilidade. Caminho: a definir (próxima entrega).
+Componente implementado em `src/fin_mas/services/politica.py`.
+````
+
+````{comp} Redaction fail-closed e trace com hash encadeado
+:id: COMP-RED
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/services/redacao.py`.
+````
+
+````{comp} Validação de envelope e esquema das mensagens A2A
+:id: COMP-SCH
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-A2A
+
+Componente implementado em `src/fin_mas/core/schema.py`.
 ````
 
 ````{comp} Núcleo BDI (crenças

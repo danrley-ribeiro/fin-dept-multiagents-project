@@ -147,9 +147,30 @@ items:
     problemas: [PROB-08]
     papeis: [ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR]
     protocolos: [PROT-APR]
-    normas: [NORM-01, NORM-02]
+    normas: [NORM-01, NORM-02, NORM-10]
     prioridade: Must
     entrega: DSM1
+
+  - id: REQ-S04
+    tipo: Segurança
+    titulo: Autenticidade e integridade das interações (feedback da DSM2)
+    descricao: >-
+      O barramento valida remetente (identidade registrada e credencial), destinatário (contraparte da
+      conversa), papel (quem pode emitir cada performativo e aplicar cada transição local), conversação,
+      performativo e esquema do conteúdo antes de mudar qualquer estado; o conteúdo é protegido contra
+      alteração após o envio; erros de um agente não interrompem a simulação; decisões humanas só valem
+      vinculadas ao ticket, ao veto e ao aprovador.
+    evidencia: >-
+      Decisão forjada de remetente inexistente, aprovação sem credencial, transição local por identificador
+      não autorizado, resposta a quem não participa da conversa, pedido sem campos obrigatórios e reutilização
+      de aprovação são rejeitados e auditados; o cenário ataque_decisao_forjada termina bloqueado, sem publicar.
+    objetivos: [G-09, G-05]
+    problemas: [PROB-08, PROB-04]
+    papeis: [ROLE-ORQ, ROLE-APR, ROLE-CIN, ROLE-SOL]
+    protocolos: [PROT-SOL, PROT-DEL, PROT-QRY, PROT-CMP, PROT-APR]
+    normas: [NORM-09, NORM-10]
+    prioridade: Must
+    entrega: DSM3
 
   - id: REQ-S02
     tipo: Segurança

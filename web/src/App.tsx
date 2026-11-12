@@ -147,7 +147,7 @@ function AoVivo(p: TelaProps) {
       const lote = buffer.current;
       buffer.current = [];
       setEstado((s) => aplicarTodos(s, lote));
-      const veto = lote.find((r) => r.kind === "ui" && r.performative === "veto_notice");
+      const veto = lote.find((r) => r.kind === "open" && r.performative === "propose-action");
       if (veto) setAviso({ texto: `AG-CIN vetou ${(veto.content as { solicitacao: string }).solicitacao}: decisão humana pendente` });
     }, 80);
     return () => { fechar(); clearInterval(timer); };

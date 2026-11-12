@@ -8,6 +8,7 @@ import {
   TableCell, TableHead, TableRow, Tabs, Typography,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
+import { postar } from "../api/fonte";
 import type { FonteDados, ViewState } from "../types";
 
 const DESCRICAO_FONTE: Record<FonteDados, string> = {
@@ -129,8 +130,7 @@ export function DadosEmpresaDialog({ aberto, aoVivo, portes, porteAtual, fonteAt
     const bytes = new Uint8Array(await f.arrayBuffer());
     let bin = "";
     for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-    const r = await fetch("/api/dados/planilha", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome: f.name, conteudo_base64: btoa(bin) }) });
+    const r = await postar("/api/dados/planilha", { nome: f.name, conteudo_base64: btoa(bin) });
     const d = await r.json();
     setEnviando(false);
     if (r.ok) {

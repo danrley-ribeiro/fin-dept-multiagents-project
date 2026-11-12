@@ -38,7 +38,7 @@ describe("escritório reconstruído do trace exportado", () => {
 
   it("veto pendente aparece para o aprovador até a decisão humana", () => {
     const t = trace("veto_waiver");
-    const ateAviso = t.registros.filter((r) => r.seq <= t.registros.find((x) => x.performative === "veto_notice")!.seq);
+    const ateAviso = t.registros.filter((r) => r.seq <= t.registros.find((x) => x.performative === "propose-action")!.seq);
     const s = aplicarTodos(estadoInicial(), ateAviso);
     expect(Object.keys(s.pendentes)).toEqual(["SOL-001"]);
     expect(s.pendentes["SOL-001"].opcoes).toContain("corrigir");

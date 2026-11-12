@@ -4,7 +4,7 @@
     "MET-07_trace_completo": 1,
     "MET-12_reprodutibilidade": 1.0,
     "MET-13_resposta_explicita": 1,
-    "MET-14_distribuicao_decisoria": 0.701,
+    "MET-14_distribuicao_decisoria": 0.692,
     "seeds": [
       1,
       2,
@@ -20,6 +20,7 @@
   },
   "avaliar_orcamento": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -31,6 +32,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 11,
       "mensagens_a2a": 13,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -38,6 +40,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -49,6 +52,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 6,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -58,17 +62,19 @@
   },
   "correcao_parcial": {
     "SMA": {
+      "aprovacoes_expiradas": 1,
       "concluida": 0,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
-      "decisoes": 12,
+      "decisoes": 13,
       "desvios_corretos": null,
-      "distribuicao_decisoria": 0.667,
+      "distribuicao_decisoria": 0.615,
       "dre_correta": null,
       "falsos_desvios": null,
-      "intervencoes_humanas": 2,
-      "latencia_ticks": 19,
-      "mensagens_a2a": 21,
+      "intervencoes_humanas": 1,
+      "latencia_ticks": 37,
+      "mensagens_a2a": 24,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 2,
       "resposta_explicita": 1,
       "runs": 10,
@@ -76,6 +82,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 2,
@@ -87,6 +94,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -96,6 +104,7 @@
   },
   "depuracao": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -106,7 +115,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 48,
-      "mensagens_a2a": 23,
+      "mensagens_a2a": 25,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 1,
       "resposta_explicita": 1,
       "runs": 10,
@@ -114,6 +124,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -125,6 +136,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -134,6 +146,7 @@
   },
   "desvio_irregular": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
@@ -144,7 +157,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 23,
-      "mensagens_a2a": 25,
+      "mensagens_a2a": 27,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 3,
       "resposta_explicita": 1,
       "runs": 10,
@@ -152,6 +166,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -163,6 +178,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -172,6 +188,7 @@
   },
   "divergencia_fonte": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -183,6 +200,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 9,
       "mensagens_a2a": 9,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -190,6 +208,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -201,6 +220,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 6,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -210,6 +230,7 @@
   },
   "falha_especialista": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 0,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -221,6 +242,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 61,
       "mensagens_a2a": 8,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -228,6 +250,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -239,6 +262,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -248,6 +272,7 @@
   },
   "fechamento_grande": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
@@ -258,7 +283,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 23,
-      "mensagens_a2a": 27,
+      "mensagens_a2a": 29,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 2,
       "resposta_explicita": 1,
       "runs": 10,
@@ -266,6 +292,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -277,6 +304,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -286,6 +314,7 @@
   },
   "fechamento_micro": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
@@ -296,7 +325,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 21,
-      "mensagens_a2a": 23,
+      "mensagens_a2a": 25,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 2,
       "resposta_explicita": 1,
       "runs": 10,
@@ -304,6 +334,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -315,6 +346,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -324,6 +356,7 @@
   },
   "fechamento_pequena": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
@@ -334,7 +367,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 21,
-      "mensagens_a2a": 23,
+      "mensagens_a2a": 25,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 2,
       "resposta_explicita": 1,
       "runs": 10,
@@ -342,6 +376,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -353,6 +388,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -362,6 +398,7 @@
   },
   "fechar_mes": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -373,6 +410,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 16,
       "mensagens_a2a": 21,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -380,6 +418,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -391,6 +430,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -400,6 +440,7 @@
   },
   "orc_sem_cin": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -411,6 +452,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 19,
       "mensagens_a2a": 10,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 1,
       "resposta_explicita": 1,
       "runs": 10,
@@ -418,6 +460,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -429,6 +472,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 6,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -438,17 +482,19 @@
   },
   "veto_bloqueio": {
     "SMA": {
+      "aprovacoes_expiradas": 1,
       "concluida": 0,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
-      "decisoes": 8,
+      "decisoes": 9,
       "desvios_corretos": null,
-      "distribuicao_decisoria": 0.75,
+      "distribuicao_decisoria": 0.667,
       "dre_correta": null,
       "falsos_desvios": null,
-      "intervencoes_humanas": 1,
-      "latencia_ticks": 14,
-      "mensagens_a2a": 19,
+      "intervencoes_humanas": 0,
+      "latencia_ticks": 32,
+      "mensagens_a2a": 20,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -456,6 +502,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -467,6 +514,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -476,6 +524,7 @@
   },
   "veto_correcao": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 1,
       "criticas_publicadas_sem_tratamento": 0,
@@ -486,7 +535,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 21,
-      "mensagens_a2a": 23,
+      "mensagens_a2a": 25,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 2,
       "resposta_explicita": 1,
       "runs": 10,
@@ -494,6 +544,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -505,6 +556,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,
@@ -514,6 +566,7 @@
   },
   "veto_waiver": {
     "SMA": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 0,
@@ -524,7 +577,8 @@
       "falsos_desvios": 0,
       "intervencoes_humanas": 1,
       "latencia_ticks": 18,
-      "mensagens_a2a": 22,
+      "mensagens_a2a": 24,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 1,
       "resposta_explicita": 1,
       "runs": 10,
@@ -532,6 +586,7 @@
       "trace_completo": 1
     },
     "workflow": {
+      "aprovacoes_expiradas": 0,
       "concluida": 1,
       "criticas_corrigidas": 0,
       "criticas_publicadas_sem_tratamento": 1,
@@ -543,6 +598,7 @@
       "intervencoes_humanas": 0,
       "latencia_ticks": 15,
       "mensagens_a2a": 0,
+      "mensagens_rejeitadas": 0,
       "reconsideracoes": 0,
       "resposta_explicita": 1,
       "runs": 10,

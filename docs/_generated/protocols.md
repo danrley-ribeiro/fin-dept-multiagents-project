@@ -98,7 +98,7 @@ stateDiagram-v2
 :id: PROT-CMP
 :entrega: DSM1
 :status: especificado
-:participants: ROLE-ORQ, ROLE-CIN, ROLE-APR
+:participants: ROLE-ORQ, ROLE-CIN
 
 **Propósito:** O Agente de Controles Internos avalia o pacote do fechamento e pode bloquear a publicação.  
 **Meio:** SVC-A2A  
@@ -156,25 +156,28 @@ stateDiagram-v2
 
 ````{prot} Approval Gate (human-in-the-loop)
 :id: PROT-APR
-:entrega: DSM1
-:status: especificado
-:participants: ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR, SVC-POL
+:entrega: DSM3
+:status: pendente
+:participants: ROLE-ORQ, ROLE-APR, SVC-POL
 
-**Propósito:** Reter ações com efeito externo até decisão humana explícita.  
-**Meio:** SVC-POL + ENV-UI  
-**Performativos:** propose-action, classify, approve, reject, execute, expire
+**Propósito:** Reter ações restritas (waiver de veto, correção no ERP) até decisão humana explícita, vinculada à solicitação, ao veto (hash dos achados), à identidade do aprovador e a um prazo; cada aprovação é de uso único.  
+**Meio:** SVC-A2A + SVC-POL  
+**Performativos:** propose-action, approve, reject
 
 **Diagrama: Máquina de estados PROT-APR** (`entregas/dsm1/modelos-editaveis/protocols_fsm_PROT-APR.mmd`)
 
 ```{mermaid}
 stateDiagram-v2
-    [*] --> PROPOSTA
+    [*] --> CRIADA
+    CRIADA --> PROPOSTA: propose-action
     PROPOSTA --> EXECUTADA: allow
     PROPOSTA --> NEGADA: deny
     PROPOSTA --> PENDENTE: require_approval
-    PENDENTE --> EXECUTADA: approve
+    PENDENTE --> APROVADA: approve
     PENDENTE --> REJEITADA: reject
     PENDENTE --> EXPIRADA: timeout
+    APROVADA --> EXECUTADA: execute
+    APROVADA --> EXPIRADA: timeout
     EXECUTADA --> [*]
     NEGADA --> [*]
     REJEITADA --> [*]
@@ -185,4 +188,7 @@ stateDiagram-v2
 
 - `PENDENTE` + `execute` → rejeitar (execução sem aprovação humana)
 - `NEGADA` + `approve` → rejeitar (ação DENY não admite aprovação)
+- `APROVADA` + `approve` → rejeitar (aprovação duplicada)
+- `EXECUTADA` + `approve` → rejeitar (aprovação reutilizada após a execução)
+- `EXPIRADA` + `approve` → rejeitar (aprovação após o prazo é descartada)
 ````

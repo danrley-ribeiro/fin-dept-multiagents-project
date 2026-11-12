@@ -12,7 +12,7 @@ Modos:
     cli       roda um cenário no terminal (use --cenario e --porte)
     instalar  só prepara o ambiente
 
-O que é preparado (só quando falta ou mudou): Python 3.12+ (verificado), ambiente virtual
+O que é preparado (só quando falta ou mudou): Python 3.11+ (verificado), ambiente virtual
 .venv com as dependências do projeto, bun (instalado pelo instalador oficial se não
 existir), dependências do dashboard, build do dashboard e traces do replay offline.
 Usa só a biblioteca padrão, para rodar antes de existir o .venv.
@@ -66,8 +66,8 @@ def _mais_novo(pasta: Path, sufixos) -> float:
 
 # ---------------------------------------------------------------- preparação
 def verificar_python():
-    if sys.version_info < (3, 12):
-        sys.exit(f"Python 3.12+ é necessário (encontrado {sys.version.split()[0]}). "
+    if sys.version_info < (3, 11):
+        sys.exit(f"Python 3.11+ é necessário (encontrado {sys.version.split()[0]}). "
                  "Use ./iniciar.ps1 (Windows) ou ./iniciar.sh, que instalam/indicam o Python certo.")
 
 
@@ -122,7 +122,7 @@ def preparar_web(bun: str):
 def preparar_traces():
     if not (WEB / "public" / "traces" / "index.json").exists():
         passo("Exportando os traces do replay offline e a comparação com o baseline")
-        rodar([PY_VENV, "-m", "fin_mas", "comparar", "--seeds", "10", "--out", "docs/dsm2/resultados"])
+        rodar([PY_VENV, "-m", "fin_mas", "comparar", "--seeds", "10", "--out", "docs/dsm3/resultados"])
         rodar([PY_VENV, "-m", "fin_mas", "export", "--out", "web/public/traces"])
 
 

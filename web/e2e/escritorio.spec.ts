@@ -1,9 +1,15 @@
 // Uso real do escritório da SMA: navegador de verdade, servidor Python de verdade, agentes executando ao vivo.
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
+async function comando(request: APIRequestContext, data: Record<string, unknown>) {
+  const { token } = await (await request.get("/api/sessao")).json();
+  const r = await request.post("/api/comando", { data, headers: { "X-SMA-Token": token } });
+  expect(r.status()).toBe(202);
+}
+
 async function reiniciar(request: APIRequestContext, cenario: string, pausado = false) {
-  await request.post("/api/comando", { data: { tipo: pausado ? "pausar" : "retomar" } });
-  await request.post("/api/comando", { data: { tipo: "reiniciar", cenario } });
+  await comando(request, { tipo: pausado ? "pausar" : "retomar" });
+  await comando(request, { tipo: "reiniciar", cenario });
   await expect.poll(async () => (await (await request.get("/api/estado")).json()).controle.cenario).toBe(cenario);
 }
 
@@ -83,6 +89,9 @@ test("waiver exige justificativa e libera com ressalva", async ({ page, request 
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await sino.click();
   const dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN/ });
+  const waiver = dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" });
+  await dialogo.getByLabel("Justificativa").fill("aaaaaaaaaa"); // 10 caracteres, uma palavra: a POL-04 recusaria
+  await expect(waiver).toBeDisabled();
   await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria; ajuste no próximo ciclo");
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
   await expect(pedido(page, "SOL-001")).toContainText("publicado c/ ressalva", { timeout: 20_000 });
@@ -191,7 +200,7 @@ test("trocar o porte para micro muda regras, fonte (sem ERP) e chip da empresa",
   const mente = page.getByRole("region", { name: "Mente de AG-CIN" });
   await mente.getByRole("tab", { name: /Crenças/ }).click();
   await expect(mente.getByRole("row", { name: /^porte micro mcp:\/\/normas\/perfil/ })).toBeVisible();
-  await request.post("/api/comando", { data: { tipo: "reiniciar", cenario: "fechar_mes", porte: "media" } });
+  await comando(request, { tipo: "reiniciar", cenario: "fechar_mes", porte: "media" });
 });
 
 test("empresa sem ERP: baixa o modelo, envia a planilha e o escritório roda sobre ela", async ({ page, request }) => {

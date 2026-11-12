@@ -3,7 +3,7 @@
   python -m fin_mas list
   python -m fin_mas run --scenario fechar_mes --seed 42 [--trace trace.jsonl] [--verbose]
   python -m fin_mas replay trace.jsonl SOL-001
-  python -m fin_mas comparar [--seeds 10] [--out docs/dsm2/resultados]
+  python -m fin_mas comparar [--seeds 10] [--out docs/dsm3/resultados]
   python -m fin_mas export [--out web/public/traces]
   python -m fin_mas relatorio --scenario fechar_mes [--out saidas]
   python -m fin_mas serve [--porta 8765] [--scenario expediente_sma] [--pasta-dados dados/empresa]
@@ -11,6 +11,10 @@
   python -m fin_mas modelos --out modelos                            # planilhas modelo para empresas sem ERP
   python -m fin_mas run --scenario fechar_mes --pasta dados/empresa  # agentes sobre a planilha preenchida
   python -m fin_mas mcp-excel --pasta dados/empresa                  # servidor MCP (stdio) das planilhas
+  python -m fin_mas run --scenario reincidencia_waiver --memoria .fin_mas/memoria.json   # SVC-MEM persistente
+  python -m fin_mas run --scenario ataque_decisao_forjada            # ataques ao Approval Gate (DSM3)
+  python -m fin_mas verificar trace.jsonl                            # confere a cadeia de hashes do trace
+  python -m fin_mas run --scenario fechar_mes --llm mock-narrador    # síntese por LLM (offline), validada
 """
 import argparse
 import sys
@@ -18,7 +22,8 @@ import sys
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
 from fin_mas.fontes.planilha import ModeloInvalido
-from fin_mas.services.audit import AuditLog
+from fin_mas.services.audit import AuditLog, TraceAdulterado
+from fin_mas.services.modelos import PROVEDORES
 
 
 def _resumo(execucao) -> list[str]:
@@ -42,7 +47,8 @@ def _run(args) -> int:
         print(f"cenário desconhecido: {args.scenario}. Use 'list'.", file=sys.stderr)
         return 2
     try:
-        execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta)
+        execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta, memoria=args.memoria,
+                                llm=args.llm)
     except ModeloInvalido as e:
         print("planilha inválida:\n  " + "\n  ".join(e.erros), file=sys.stderr)
         return 2
@@ -58,17 +64,50 @@ def _run(args) -> int:
     print("\n".join(_resumo(execucao)))
     if args.trace:
         execucao.audit.write_jsonl(args.trace)
-        print(f"trace gravado em {args.trace}")
+        print(f"trace gravado em {args.trace} (âncora: {execucao.audit.hash_cadeia()})")
     print(f"hash do trace: {execucao.hash}")
     return 0
 
 
 def _replay(args) -> int:
-    log = AuditLog.read_jsonl(args.trace)
+    try:
+        log = AuditLog.read_jsonl(args.trace, ancora=args.ancora)
+    except FileNotFoundError:
+        print(f"arquivo não encontrado: {args.trace}", file=sys.stderr)
+        return 2
+    except (TraceAdulterado, ValueError) as erro:
+        print(f"trace adulterado: {erro}", file=sys.stderr)
+        return 3
     if not log.by_conversation(args.conversation_id):
         print(f"conversation_id sem registros: {args.conversation_id}", file=sys.stderr)
         return 2
+    if not log.encadeado and not args.sem_verificar:
+        print("trace sem cadeia de hashes nem selo: não é possível garantir que não foi alterado. "
+              "Use --sem-verificar para ler mesmo assim (trace anterior à DSM3).", file=sys.stderr)
+        return 3
+    if not log.encadeado:
+        print("AVISO: trace NÃO verificado (sem cadeia de hashes)", file=sys.stderr)
     print("\n".join(log.trilha(args.conversation_id, verbose=args.verbose)))
+    return 0
+
+
+def _verificar(args) -> int:
+    try:
+        log = AuditLog.read_jsonl(args.trace, ancora=args.ancora)
+    except FileNotFoundError:
+        print(f"arquivo não encontrado: {args.trace}", file=sys.stderr)
+        return 2
+    except (TraceAdulterado, ValueError) as erro:
+        print(f"FALHA NA VERIFICAÇÃO: {erro}", file=sys.stderr)
+        return 3
+    if not log.encadeado:
+        print(f"{args.trace}: {len(log.records)} registros, sem cadeia de hashes (trace anterior à DSM3)")
+        return 1
+    rejeicoes = sum(1 for r in log.records if r["kind"] == "rejected")
+    modo = f"âncora {args.ancora[:16]}… confere" if args.ancora else "selo HMAC íntegro"
+    print(f"{args.trace}: {len(log.records)} registros, cadeia de hashes íntegra, {modo}; "
+          f"{rejeicoes} rejeição(ões) auditada(s)")
+    print(f"âncora (hash final da cadeia): {log.hash_final}")
     return 0
 
 
@@ -133,13 +172,19 @@ def main(argv=None) -> int:
     run.add_argument("--verbose", action="store_true", help="inclui as entregas de mensagem")
     run.add_argument("--porte", choices=PORTES, default=None, help="porte da empresa (regras de models/portes.yaml)")
     run.add_argument("--pasta", default=None, help="pasta (ou arquivo .xlsx) com a planilha preenchida")
+    run.add_argument("--memoria", default=None, help="arquivo JSON do SVC-MEM (persiste entre execuções)")
+    run.add_argument("--llm", default=None, choices=sorted(PROVEDORES),
+                     help="liga o LLM opcional do AG-REL (mock-* offline; claude-opus-5-5 exige o SDK anthropic)")
     rep = sub.add_parser("replay", help="reconstrói uma conversa a partir de um trace JSONL")
     rep.add_argument("trace")
     rep.add_argument("conversation_id")
     rep.add_argument("--verbose", action="store_true")
+    rep.add_argument("--sem-verificar", action="store_true", help="lê trace sem cadeia de hashes (anterior à DSM3)")
+    rep.add_argument("--ancora", default=None,
+                     help="hash final publicado: verifica sem a chave local (trace gravado em outra máquina)")
     cmp_ = sub.add_parser("comparar", help="SMA x workflow centralizado sob as mesmas seeds")
     cmp_.add_argument("--seeds", type=int, default=10)
-    cmp_.add_argument("--out", default="docs/dsm2/resultados")
+    cmp_.add_argument("--out", default="docs/dsm3/resultados")
     exp = sub.add_parser("export", help="exporta os traces de todos os cenários para o replay do dashboard")
     exp.add_argument("--out", default="web/public/traces")
     rel = sub.add_parser("relatorio", help="grava o relatório final em HTML (com logo) e JSON")
@@ -156,13 +201,18 @@ def main(argv=None) -> int:
     mod.add_argument("--out", default="modelos")
     mcp = sub.add_parser("mcp-excel", help="servidor MCP (stdio) das planilhas da pasta")
     mcp.add_argument("--pasta", required=True)
+    ver = sub.add_parser("verificar", help="confere a cadeia de hashes de um trace JSONL (adulteração)")
+    ver.add_argument("trace")
+    ver.add_argument("--ancora", default=None,
+                     help="hash final publicado: verifica sem a chave local (ex.: em outra máquina)")
     args = parser.parse_args(argv)
     if args.comando == "list":
         for sc in CENARIOS.values():
-            print(f"{sc.nome:<20} seed={sc.seed:<5} {sc.descricao}")
+            print(f"{sc.nome:<24} seed={sc.seed:<5} {sc.descricao}")
         return 0
     comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export,
-                "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel}
+                "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
+                "verificar": _verificar}
     return comandos[args.comando](args)
 
 

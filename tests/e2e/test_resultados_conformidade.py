@@ -27,7 +27,7 @@ def montar(seed=42, plantar=(), faults=None):
 
 
 def consolidar(bus, cli, cid="DEL-001"):
-    cli.send("AG-RES", "request", "PROT-DEL", cid, {"tarefa": "consolidar_resultado"}, reply_by=bus.now + 40)
+    cli.send("AG-RES", "request", "PROT-DEL", cid, {"tarefa": "consolidar_resultado", "entidade": "SMA", "competencia": "2026-09"}, reply_by=bus.now + 40)
     bus.run()
 
 
@@ -69,7 +69,7 @@ def test_query_ref_expirada_vira_failure_ao_solicitante():
 def test_planted_nonconformities_detected(seed):
     plantios = ["alcada", "sod", "duplicidade", "competencia"]
     bus, ds, cli, _ = montar(seed=seed, plantar=plantios)
-    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check"})
+    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check", "entidade": "SMA", "competencia": "2026-09"})
     bus.run()
     veto = cli.por_performativo("veto")[0]
     achados = [{"regra": a["regra"], "lancamento": a["lancamento"], "severidade": a["severidade"]}
@@ -80,7 +80,7 @@ def test_planted_nonconformities_detected(seed):
 
 def test_so_competencia_fora_do_periodo_libera_com_ressalva():
     bus, _, cli, _ = montar(plantar=["competencia"])
-    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check"})
+    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check", "entidade": "SMA", "competencia": "2026-09"})
     bus.run()
     assert [m.performative for m in cli.recebidas] == ["nao_conforme_nao_critico"]
     assert bus.conversations["CMP-001"].state == "LIBERADO_COM_RESSALVA"
@@ -88,7 +88,7 @@ def test_so_competencia_fora_do_periodo_libera_com_ressalva():
 
 def test_pacote_conforme_e_liberado():
     bus, _, cli, _ = montar()
-    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check"})
+    cli.send("AG-CIN", "request", "PROT-CMP", "CMP-001", {"tarefa": "compliance_check", "entidade": "SMA", "competencia": "2026-09"})
     bus.run()
     assert [m.performative for m in cli.recebidas] == ["conforme"]
     assert bus.conversations["CMP-001"].state == "LIBERADO"
@@ -113,6 +113,6 @@ def test_report_template_without_llm():
 
 def test_relatorio_de_tarefa_desconhecida_falha_explicitamente():
     bus, _, cli, _ = montar()
-    cli.send("AG-REL", "request", "PROT-DEL", "DEL-001", {"tarefa": "poesia"}, reply_by=bus.now + 20)
+    cli.send("AG-REL", "request", "PROT-DEL", "DEL-001", {"tarefa": "poesia", "entidade": "SMA", "competencia": "2026-09"}, reply_by=bus.now + 20)
     bus.run()
     assert bus.conversations["DEL-001"].state == "FALHOU"

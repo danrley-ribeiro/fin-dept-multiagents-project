@@ -105,6 +105,8 @@ class Orquestrador(Agent):
                        for n in plano["nos"]},
                "ressalvas": [], "notas": [], "correcoes": 0, "ciclos_veto": 0, "aprovacoes": [],
                "parecer": "conforme"}
+        if isinstance(c.get("solicitado_por"), str):  # pessoa autenticada que pediu (interface com SVC-IAM)
+            sol["solicitado_por"] = c["solicitado_por"]
         if plano["reservar_periodo"]:
             r = self.locks.reserve(sol["entidade"], sol["competencia"], sid)
             if r["performative"] == "reserve-failure":
@@ -213,7 +215,7 @@ class Orquestrador(Agent):
                     {"achados": [a["lancamento"] for a in msg.content["achados"]]}, "VETADO")
         ticket = self.politica.emitir(solicitacao=sol["id"], competencia=sol["competencia"], cmp=msg.conversation_id,
                                       ciclo=sol["ciclos_veto"], veto={**msg.content, "opcoes": opcoes},
-                                      aprovador=self.aprovador)
+                                      aprovador=self.aprovador, solicitado_por=sol.get("solicitado_por"))
         tid = ticket["id"]
         sol["veto"] = {"no": nome, "cid": msg.conversation_id, "achados": msg.content["achados"], "aprovacao": tid}
         sol["aprovacoes"].append(tid)

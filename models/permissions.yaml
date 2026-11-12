@@ -1,0 +1,73 @@
+# Permissões da plataforma (controle de acesso por papel, ADR-009). Fonte única: o SVC-IAM
+# carrega este arquivo e o campo `permissoes` de models/roles.yaml; nada disso fica no código.
+# Regra geral (NORM-12): o que não está concedido aqui é negado.
+items:
+  - id: PERM-SIM-VER
+    titulo: Ver a simulação
+    descricao: Ler cenários, estado dos agentes, conversas e o fluxo de eventos ao vivo.
+    entrega: DSM3
+  - id: PERM-SIM-OPERAR
+    titulo: Operar a simulação
+    descricao: Pausar, retomar, avançar passo a passo, mudar o ritmo e reiniciar com outro cenário, porte ou fonte.
+    entrega: DSM3
+  - id: PERM-AGT-ENERGIA
+    titulo: Ligar e desligar agentes
+    descricao: Tirar um especialista de operação e religá-lo (o Orquestrador e as caixas humanas nunca são desligados).
+    entrega: DSM3
+  - id: PERM-SOL-CRIAR
+    titulo: Fazer solicitações
+    descricao: Pedir fechamento do mês ou avaliação orçamentária em nome próprio (PROT-SOL).
+    entrega: DSM3
+  - id: PERM-APR-DECIDIR
+    titulo: Decidir no Approval Gate
+    descricao: Aprovar, corrigir ou bloquear um veto (PROT-APR), dentro do que o cargo permite e da segregação de funções.
+    entrega: DSM3
+  - id: PERM-DAD-VER
+    titulo: Ver fontes de dados
+    descricao: Consultar a planilha em uso, a validação e baixar os modelos de planilha.
+    entrega: DSM3
+  - id: PERM-DAD-ENVIAR
+    titulo: Enviar planilha
+    descricao: Substituir a planilha da pasta de dados por uma nova, depois de validada.
+    entrega: DSM3
+  - id: PERM-MOD-VER
+    titulo: Ver configuração de modelos
+    descricao: Consultar provedor, modelo, usos, cota, tokens e custo de LLM por agente (nunca a chave).
+    entrega: DSM3
+  - id: PERM-MOD-CONFIG
+    titulo: Ajustar modelos e cotas
+    descricao: Ligar ou desligar o LLM de um agente, trocar provedor e modelo, usos, cota e consentimento de envio externo; mudar o nível de cognição.
+    entrega: DSM3
+  - id: PERM-AUD-VER
+    titulo: Ver auditoria
+    descricao: Consultar o trace com filtros, a trilha de acesso e a explicação de decisões.
+    entrega: DSM3
+  - id: PERM-AUD-EXPORTAR
+    titulo: Exportar auditoria
+    descricao: Baixar recortes do trace e da trilha de acesso.
+    entrega: DSM3
+  - id: PERM-IAM-USUARIOS
+    titulo: Administrar contas
+    descricao: Criar, bloquear, desbloquear e desativar contas e redefinir senhas.
+    entrega: DSM3
+  - id: PERM-IAM-PAPEIS
+    titulo: Atribuir papéis
+    descricao: Conceder e retirar papéis de uma conta, respeitando as incompatibilidades.
+    entrega: DSM3
+  - id: PERM-IAM-SESSOES
+    titulo: Administrar sessões
+    descricao: Listar sessões ativas e revogar sessões de qualquer conta.
+    entrega: DSM3
+
+# Decisões do Approval Gate por cargo (POL-02): o cargo vem da conta, ligada à pessoa do ERP.
+decisoes_por_cargo:
+  assistente: [corrigir, bloquear]
+  analista: [corrigir, bloquear]
+  gerente: [waiver, corrigir, bloquear]
+  diretor: [waiver, corrigir, bloquear]
+  socio: [waiver, corrigir, bloquear]
+  controller: [waiver, corrigir, bloquear]
+
+# Papéis que a mesma conta não acumula (IAM-06): quem administra o acesso não decide no Approval Gate.
+incompativeis:
+  - [ROLE-ADM, ROLE-APR]

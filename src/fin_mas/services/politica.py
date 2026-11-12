@@ -21,6 +21,21 @@ Política explícita (cada regra tem id e aparece na auditoria):
 - POL-07  sem opção de liberação restante, a ação é negada (DENY) e a publicação fica bloqueada;
 - POL-08  cada aprovação é de uso único: vale para um veto, uma vez, dentro do prazo.
 
+Com o SVC-IAM ligado (`acesso`, ADR-009), a decisão deixa de valer pela caixa `APR` e passa a
+valer pela **pessoa autenticada** que a tomou:
+
+- POL-09  a decisão leva um atestado de sessão (`services/iam.py`): sem ele, com atestado de
+          outra decisão, de sessão expirada ou revogada, repetido ou de quem não é aprovador,
+          a decisão é recusada;
+- POL-02 e POL-03 passam a conferir a pessoa real: o cargo da conta define o que ela decide,
+          e quem criou ou aprovou um lançamento vetado (vínculo da conta com a pessoa do ERP)
+          não decide sobre ele;
+- POL-13  quem fez a solicitação não decide sobre ela; onde só há uma pessoa (porte com
+          controle compensatório registrado), a decisão passa e o controle fica anotado.
+
+Sem `acesso` (cenários em lote da primeira versão da DSM3) valem as regras POL-01 a POL-08
+com o cadastro por identidade, como antes.
+
 O barramento chama os validadores desta classe antes de mudar o estado de PROT-APR e de
 PROT-CMP; o gateway MCP chama `autorizar_efeito` antes de executar a correção no ERP.
 """
@@ -28,6 +43,7 @@ import hashlib
 import json
 import re
 
+from fin_mas.core import permissoes
 from fin_mas.core.fsm import ProtocolViolation
 
 PRAZO_APROVACAO = 20  # ticks lógicos para o aprovador decidir (execução em lote)
@@ -52,6 +68,13 @@ def _par(correcao: dict) -> dict:
     return {"lancamento": correcao.get("lancamento"), "acao": correcao.get("acao")}
 
 
+def digest_decisao(conteudo: dict) -> str:
+    """Corpo da decisão que o atestado cobre: justificativa e correções pedidas."""
+    corpo = {"justificativa": conteudo.get("justificativa"),
+             "correcoes": [_par(x) for x in conteudo.get("correcoes") or [] if isinstance(x, dict)]}
+    return hashlib.sha256(json.dumps(corpo, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
 def digest_veto(achados: list) -> str:
     canonico = json.dumps(achados, sort_keys=True, ensure_ascii=False, default=str)
     return hashlib.sha256(canonico.encode("utf-8")).hexdigest()
@@ -60,10 +83,13 @@ def digest_veto(achados: list) -> str:
 class PoliticaAprovacao:
     ID = "SVC-POL"
 
-    def __init__(self, bus, aprovadores: dict | None = None, prazo: int = PRAZO_APROVACAO):
+    def __init__(self, bus, aprovadores: dict | None = None, prazo: int = PRAZO_APROVACAO, acesso=None,
+                 controle_compensatorio: str | None = None):
         self.bus = bus
         self.aprovadores = {k: dict(v) for k, v in (aprovadores or APROVADORES_PADRAO).items()}
         self.prazo = prazo
+        self.acesso = acesso  # SVC-IAM: com ele, a decisão vale pela pessoa autenticada (POL-09, POL-13)
+        self.controle_compensatorio = controle_compensatorio  # texto do porte em que uma pessoa acumula funções
         self.tickets: dict[str, dict] = {}  # id da conversa PROT-APR -> ticket
         self.__credencial = bus.register_service(self.ID, "SVC-POL")
         bus.add_validator("PROT-APR", self._validar_apr)
@@ -71,7 +97,7 @@ class PoliticaAprovacao:
 
     # ---- emissão e classificação --------------------------------------------------
     def emitir(self, *, solicitacao: str, competencia: str, cmp: str, ciclo: int, veto: dict,
-               aprovador: str = "APR") -> dict:
+               aprovador: str = "APR", solicitado_por: str | None = None) -> dict:
         """Cria o ticket do veto e decide as opções abertas ao humano (POL-01, 06 e 07)."""
         achados = veto["achados"]
         opcoes, negadas = [], []
@@ -95,6 +121,8 @@ class PoliticaAprovacao:
             "decisao": None, "aprovado_por": None, "justificativa": None, "correcoes_aprovadas": [],
             "executadas": [], "consumido": False,
         }
+        if solicitado_por:
+            ticket["solicitado_por"] = solicitado_por  # pessoa autenticada que fez o pedido (POL-13)
         self.tickets[tid] = ticket
         self._auditar(tid, "emitido", classe=classe, opcoes=opcoes, negadas=negadas, veto=ticket["veto"],
                       aprovador=aprovador, expira_em=ticket["expira_em"],
@@ -141,9 +169,14 @@ class PoliticaAprovacao:
         if msg.sender != t["aprovador"] or cadastro is None:
             return f"POL-02: {msg.sender} não é o aprovador designado ({t['aprovador']})"
         decisao = "bloquear" if msg.performative == "reject" else c.get("decisao")
-        if decisao not in cadastro["decisoes"]:
+        compensatorio = None
+        if self.acesso is not None:  # a decisão vale pela pessoa autenticada, não pela caixa APR
+            cadastro, motivo, compensatorio = self._validar_pessoa(t, c, decisao)
+            if motivo:
+                return motivo
+        elif decisao not in cadastro["decisoes"]:
             return f"POL-02: {msg.sender} ({cadastro['titulo']}) não pode decidir '{decisao}'"
-        if cadastro["pessoa"] in t["envolvidos"]:
+        elif cadastro["pessoa"] in t["envolvidos"]:
             return f"POL-03: {cadastro['pessoa']} participou de um lançamento vetado e não pode decidir sobre ele"
         if msg.performative == "approve":
             if decisao not in t["opcoes"] or decisao == "bloquear":
@@ -161,11 +194,45 @@ class PoliticaAprovacao:
                     return f"POL-05: correções fora das sugeridas pelo AG-CIN: {fora}"
                 t["correcoes_aprovadas"] = pedidas
         t.update(estado="aprovado" if msg.performative == "approve" else "rejeitado", decisao=decisao,
-                 aprovado_por={"agente": msg.sender, "pessoa": cadastro["pessoa"], "titulo": cadastro["titulo"]},
+                 aprovado_por={"agente": msg.sender, "pessoa": cadastro["pessoa"], "titulo": cadastro["titulo"],
+                               **({"sessao": cadastro["sessao"]} if "sessao" in cadastro else {})},
                  justificativa=c["justificativa"], decidido_em=self.bus.now)
+        extras = {"controle_compensatorio": compensatorio} if compensatorio else {}
         self._auditar(t["id"], "decidido", decisao=decisao, aprovado_por=t["aprovado_por"],
-                      correcoes=t["correcoes_aprovadas"], regra="POL-02..05")
+                      correcoes=t["correcoes_aprovadas"],
+                      regra="POL-02..05" if self.acesso is None else "POL-02..05, POL-09, POL-13", **extras)
+        if self.acesso is not None:
+            self.acesso.registrar("decisao", cadastro["pessoa"], ticket=t["id"], decisao=decisao,
+                                  solicitacao=t["solicitacao"], **extras)
         return None
+
+    def _validar_pessoa(self, t, c, decisao) -> tuple[dict | None, str | None, str | None]:
+        """(cadastro da pessoa, motivo da recusa, controle compensatório aplicado)."""
+        from fin_mas.services.iam import AcessoNegado
+        try:
+            sessao = self.acesso.verificar_atestado(c.get("atestado"), ticket=t["id"], veto=t["veto"], decisao=decisao,
+                                                    corpo=digest_decisao(c))
+        except AcessoNegado as erro:
+            pessoa = (c.get("atestado") or {}).get("pessoa") if isinstance(c.get("atestado"), dict) else None
+            self.acesso.registrar("decisao", pessoa if isinstance(pessoa, str) else None, "negado", regra=erro.regra,
+                                  motivo=erro.motivo, ticket=t["id"])
+            return None, str(erro), None
+
+        def negar(regra, motivo):
+            self.acesso.registrar("decisao", sessao.usuario, "negado", regra=regra, motivo=motivo, ticket=t["id"])
+            return None, f"{regra}: {motivo}", None
+
+        cargo = sessao.cargo or "sem cargo"
+        if decisao not in permissoes.decisoes_do_cargo(sessao.cargo):
+            return negar("POL-02", f"{sessao.usuario} ({cargo}) não pode decidir '{decisao}'")
+        if sessao.pessoa_erp and sessao.pessoa_erp in t["envolvidos"]:
+            return negar("POL-03", f"{sessao.usuario} participou de um lançamento vetado e não pode decidir sobre ele")
+        compensatorio = None
+        if t.get("solicitado_por") and t["solicitado_por"] == sessao.usuario:
+            if not self.controle_compensatorio:
+                return negar("POL-13", f"{sessao.usuario} fez a solicitação {t['solicitacao']} e não pode decidir sobre ela")
+            compensatorio = self.controle_compensatorio
+        return {"pessoa": sessao.usuario, "titulo": cargo, "sessao": sessao.id}, None, compensatorio
 
     def _validar_cmp(self, msg, conv) -> str | None:
         if msg.performative not in ("waiver_humano", "correcao"):

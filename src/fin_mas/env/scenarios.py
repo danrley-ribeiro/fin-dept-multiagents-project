@@ -21,10 +21,12 @@ from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, 
 from fin_mas.env.empresa import EMPRESA, PESSOAS
 from fin_mas.env.portes import PORTE_PADRAO
 from fin_mas.mcp.gateway import MCPGateway
+from fin_mas.services.iam import CONTAS_DEMO, Acesso
 from fin_mas.services.locks import LockService
 from fin_mas.services.memoria import Memoria
 from fin_mas.services.modelos import VERSAO_PROMPT, RegistroModelos
-from fin_mas.services.politica import PRAZO_APROVACAO, PoliticaAprovacao
+from fin_mas.core.fsm import ProtocolViolation
+from fin_mas.services.politica import PRAZO_APROVACAO, PoliticaAprovacao, digest_decisao
 
 
 class Solicitante(Agent):
@@ -36,10 +38,13 @@ class Solicitante(Agent):
         super().__init__(agent_id, bus)
         self.recebidas = []
 
-    def solicitar(self, intencao, entidade=ENTIDADE, competencia=COMPETENCIA, atraso=1):
+    def solicitar(self, intencao, entidade=ENTIDADE, competencia=COMPETENCIA, atraso=1, solicitado_por=None):
+        """`solicitado_por`: usuário autenticado que fez o pedido (só com o SVC-IAM ligado)."""
         sid = self.bus.new_conversation_id("SOL")
-        self.send("AG-ORQ", "request", "PROT-SOL", sid,
-                  {"intencao": intencao, "entidade": entidade, "competencia": competencia}, delay=atraso)
+        conteudo = {"intencao": intencao, "entidade": entidade, "competencia": competencia}
+        if solicitado_por:
+            conteudo["solicitado_por"] = solicitado_por
+        self.send("AG-ORQ", "request", "PROT-SOL", sid, conteudo, delay=atraso)
         return sid
 
     def on_message(self, msg):
@@ -68,8 +73,10 @@ class Aprovador(Agent):
     JUSTIFICATIVA = "aceito o risco: lançamento será corrigido no próximo ciclo"
 
     def __init__(self, bus, decisao="nenhuma", ambiente: Ambiente | None = None, interativo=False,
-                 agent_id="APR"):
+                 agent_id="APR", acesso=None, persona="controller"):
         super().__init__(agent_id, bus)
+        self.acesso = acesso  # SVC-IAM: com ele, toda decisão leva o atestado de uma pessoa (POL-09)
+        self.persona = persona  # conta que decide nos cenários em lote com acesso simulado
         self.decisoes = [decisao] if isinstance(decisao, str) else list(decisao)
         self.decisao = self.decisoes[0]
         self.ambiente = ambiente
@@ -86,10 +93,26 @@ class Aprovador(Agent):
         if self.interativo:
             self.pendentes[msg.content["solicitacao"]] = msg
             return
+        if self.acesso is not None:
+            self._decidir_em_lote(msg)
+            return
         decisao = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
         self._responder(msg, decisao, self.JUSTIFICATIVA)
 
-    def decidir(self, solicitacao, decisao, justificativa=None) -> bool:
+    def _decidir_em_lote(self, msg) -> None:
+        """Roteiro com pessoas (`"carla:corrigir"`): se a política recusa uma, a próxima do roteiro tenta."""
+        while True:
+            item = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
+            persona, _, decisao = item.rpartition(":")
+            sessao = self.acesso.sessao_simulada(persona or self.persona)
+            try:
+                self._responder(msg, decisao, self.JUSTIFICATIVA, sessao)
+                return
+            except (ProtocolViolation, PermissionError):
+                if len(self.decisoes) <= 1 and item == self.decisoes[0]:
+                    return  # roteiro esgotado: o prazo do ticket decide
+
+    def decidir(self, solicitacao, decisao, justificativa=None, sessao=None) -> bool:
         """Decisão humana vinda do dashboard. A pendência só sai da lista depois que a decisão
         foi aceita pelo barramento e pelo SVC-POL: se for recusada (ex.: POL-04), a exceção
         sobe e o aprovador pode decidir de novo. Devolve False se nada foi enviado.
@@ -106,7 +129,7 @@ class Aprovador(Agent):
         texto = justificativa.strip() if isinstance(justificativa, str) else ""
         if not texto and decisao != "waiver":
             texto = self.SEM_JUSTIFICATIVA.get(decisao, "")
-        if not self._responder(msg, decisao, texto):
+        if not self._responder(msg, decisao, texto, sessao):
             return False
         self.pendentes.pop(solicitacao, None)
         return True
@@ -117,7 +140,7 @@ class Aprovador(Agent):
         "corrigir_parcial": "primeira correção sugerida aprovada pelo aprovador (sem justificativa informada)",
     }
 
-    def _responder(self, msg, decisao, justificativa) -> bool:
+    def _responder(self, msg, decisao, justificativa, sessao=None) -> bool:
         """Envia a decisão; devolve False quando não envia nada (opção não oferecida ou "nenhuma")."""
         c = msg.content
         base = {"aprovacao": msg.conversation_id, "solicitacao": c["solicitacao"], "veto": c["veto"],
@@ -127,17 +150,24 @@ class Aprovador(Agent):
                 return False  # correção não oferecida: o prazo do ticket esgota
             sugeridas = c["correcoes_sugeridas"]
             escolhidas = sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas
-            self.send("AG-ORQ", "approve", "PROT-APR", msg.conversation_id,
-                      {**base, "decisao": "corrigir", "correcoes": escolhidas})
+            self._enviar(msg, "approve", {**base, "decisao": "corrigir", "correcoes": escolhidas}, "corrigir", sessao)
         elif decisao == "waiver" and "waiver" in c["opcoes"]:
-            self.send("AG-ORQ", "approve", "PROT-APR", msg.conversation_id, {**base, "decisao": "waiver"})
+            self._enviar(msg, "approve", {**base, "decisao": "waiver"}, "waiver", sessao)
         elif decisao in ("waiver", "bloquear"):
             if decisao == "waiver":
                 base["justificativa"] = "waiver não admitido pela política; publicação permanece bloqueada"
-            self.send("AG-ORQ", "reject", "PROT-APR", msg.conversation_id, base)
+            self._enviar(msg, "reject", base, "bloquear", sessao)
         else:
             return False  # "nenhuma": silêncio deliberado; o reply_by do ticket expira a conversa
         return True
+
+    def _enviar(self, msg, performativo, conteudo, decisao, sessao) -> None:
+        """Com o SVC-IAM ligado e uma sessão, a decisão sai com o atestado da pessoa (POL-09)."""
+        if self.acesso is not None and sessao is not None:
+            conteudo = {**conteudo, "atestado": self.acesso.atestar(
+                sessao, ticket=msg.conversation_id, veto=msg.content["veto"], decisao=decisao,
+                corpo=digest_decisao(conteudo))}
+        self.send("AG-ORQ", performativo, "PROT-APR", msg.conversation_id, conteudo)
 
 
 @dataclass
@@ -154,6 +184,7 @@ class System:
     politica: PoliticaAprovacao | None = None
     memoria: Memoria | None = None
     modelos: RegistroModelos | None = None
+    acesso: object | None = None  # SVC-IAM (services/iam.py), quando ligado
 
 
 PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão do dashboard
@@ -161,13 +192,15 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
-                 prazo_aprovacao=None, llm=None, cognicao="basico") -> System:
+                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
     `aprovadores`: cadastro do SVC-POL (quem decide o quê); None = controller com todas as decisões.
     `cognicao`: `basico` (ciclo BDI de sempre), `local` (regras locais propõem hipóteses, offline) ou
     `llm` (regras locais e o LLM do agente, se a flag dele estiver ligada no SVC-MOD). Ver ADR-008.
+    `acesso`: SVC-IAM (`services/iam.py`); `"simulado"` cria as contas de demonstração em memória, com
+    o relógio lógico (cenários em lote); None = sem contas (lote da primeira versão da DSM3). Ver ADR-009.
     """
     if cognicao not in NIVEIS:
         raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
@@ -175,7 +208,12 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
-    politica = PoliticaAprovacao(bus, aprovadores=aprovadores, prazo=prazo)
+    if acesso == "simulado":
+        acesso = Acesso.simulado_com({u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c}
+                                      for u, n, p, e, c in CONTAS_DEMO}, relogio=lambda: bus.now)
+    compensatorio = "; ".join(f"{k}: {v}" for k, v in sorted(ds.perfil["controle_compensatorio"].items())) or None
+    politica = PoliticaAprovacao(bus, aprovadores=aprovadores, prazo=prazo, acesso=acesso,
+                                 controle_compensatorio=compensatorio)
     mem = Memoria(bus.audit, lambda: bus.now, politica=politica, caminho=memoria)
     gw = MCPGateway(amb, bus.audit, bus, politica=politica)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl)
@@ -196,8 +234,9 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     if cognicao == "llm":
         agentes["AG-ORC"].proponentes.append(ProponenteLLM(modelos))
     orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
-    return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador, amb, interativo),
-                  agentes, amb, politica, mem, modelos)
+    return System(bus, ds, gw, locks, orq, Solicitante(bus),
+                  Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
+                  agentes, amb, politica, mem, modelos, acesso)
 
 
 @dataclass(frozen=True)
@@ -216,6 +255,9 @@ class Scenario:
     ataques: bool = False  # dispara env/ataques.py enquanto o veto aguarda o aprovador
     cognicao: str = "basico"  # basico | local | llm (ADR-008); os cenários revisados ficam em `basico`
     llm: tuple = ()  # ((agente, ((campo, valor), ...)), ...): configuração de LLM por agente (mocks, nos cenários)
+    acesso: bool = False  # liga o SVC-IAM com as contas de demonstração em memória (ADR-009)
+    solicitante: str | None = None  # conta que faz os pedidos, nos cenários com acesso
+    ataques_acesso: bool = False  # dispara env/ataques_acesso.py enquanto o veto aguarda o aprovador
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
 
 
@@ -291,6 +333,33 @@ CENARIOS = {c.nome: c for c in [
              "fechar_mes", plantar=("desvio_irregular",), cognicao="local", decisao_aprovador="corrigir",
              faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
              esperado="hipótese confirmada; veto com estorno aprovado; relatório publicado com o insight"),
+    # ---- DSM3: decisão por pessoa autenticada (SVC-IAM com contas em memória, ADR-009) ----
+    Scenario("decisao_por_pessoa", "SoD plantado por uma gerente: ela tenta decidir sobre o próprio lançamento e a "
+             "política recusa (POL-03); outro gerente decide e o fechamento é publicado",
+             "fechar_mes", plantar=("sod",), acesso=True, solicitante="elisa",
+             decisao_aprovador=("carla:corrigir", "diego:corrigir"),
+             esperado="decisão de carla rejeitada (POL-03); ticket aprovado por diego; relatório publicado"),
+    Scenario("solicitante_nao_aprova", "A diretora que pediu o fechamento tenta aprovar a correção do veto: recusada "
+             "(POL-13); o controller decide",
+             "fechar_mes", plantar=("alcada",), acesso=True, solicitante="elisa",
+             decisao_aprovador=("elisa:corrigir", "controller:corrigir"),
+             esperado="decisão de elisa rejeitada (POL-13); ticket aprovado pelo controller"),
+    Scenario("waiver_exige_cargo", "Uma analista com papel de aprovadora tenta conceder waiver: o cargo dela só "
+             "corrige ou bloqueia (POL-02); a gerente concede",
+             "fechar_mes", plantar=("sod",), acesso=True, solicitante="elisa",
+             decisao_aprovador=("ana:waiver", "diego:waiver"),
+             esperado="waiver de ana rejeitado (POL-02); waiver de diego aceito; publicado com ressalva"),
+    Scenario("micro_controle_compensatorio", "Microempresa: a mesma pessoa pede e decide. A POL-13 cede ao controle "
+             "compensatório do porte, que fica anotado na decisão",
+             "fechar_mes", porte="micro", plantar=("alcada", "competencia"), acesso=True, solicitante="controller",
+             decisao_aprovador="controller:corrigir",
+             esperado="decisão aceita com controle_compensatorio registrado; fechamento publicado"),
+    Scenario("ataque_acesso", "Veto pendente sob ataque de quem controla a caixa APR mas não é a pessoa certa: sem "
+             "atestado, atestado forjado, de outra decisão, de sessão revogada, replay, cargo sem alçada, aprovador "
+             "envolvido, solicitante decidindo e escalada de privilégio. Tudo recusado; nada é publicado",
+             "fechar_mes", plantar=("alcada",), acesso=True, solicitante="elisa", decisao_aprovador="nenhuma",
+             ataques_acesso=True,
+             esperado="15 ataques rejeitados (POL-02, 03, 09, 13 e IAM-05, 06); prazo esgota; nada publicado"),
     # ---- DSM3: LLM opcional como proponente e redator, sempre com mocks offline (ADR-008) ----
     Scenario("orc_hipotese_llm", "A planilha descreve o lançamento repetido com outras palavras: as regras locais "
              "não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
@@ -367,7 +436,7 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -377,12 +446,14 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
-                           cognicao=cognicao or sc.cognicao)
+                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None))
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
     outros = {a: sistema.modelos.situacao(a) for a in ("AG-ORC", "AG-RES") if sistema.modelos.config(a)["llm"]}
     if outros:
         extras["llm_agentes"] = outros
+    if sistema.acesso is not None:
+        extras["acesso"] = {"modo": "simulado" if sistema.acesso.simulado else "contas", "solicitante": sc.solicitante}
     sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
@@ -399,8 +470,12 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     if sc.ataques:
         from fin_mas.env import ataques
         ataques.preparar(sistema)
+    if sc.ataques_acesso:
+        from fin_mas.env import ataques_acesso
+        ataques_acesso.preparar(sistema)
     pedidos = PEDIDOS_PLANILHA if pasta else (sc.pedidos or ((sc.intencao, None, 1),))
-    sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso)
+    sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso,
+                                      solicitado_por=sc.solicitante if sistema.acesso is not None else None)
             for intencao, c, atraso in pedidos]
     return sistema, sids
 

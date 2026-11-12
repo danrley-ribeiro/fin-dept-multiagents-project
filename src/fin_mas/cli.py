@@ -19,6 +19,7 @@
 import argparse
 import sys
 
+from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
 from fin_mas.fontes.planilha import ModeloInvalido
@@ -48,7 +49,7 @@ def _run(args) -> int:
         return 2
     try:
         execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta, memoria=args.memoria,
-                                llm=args.llm)
+                                llm=args.llm, cognicao=args.cognicao)
     except ModeloInvalido as e:
         print("planilha inválida:\n  " + "\n  ".join(e.erros), file=sys.stderr)
         return 2
@@ -175,6 +176,8 @@ def main(argv=None) -> int:
     run.add_argument("--memoria", default=None, help="arquivo JSON do SVC-MEM (persiste entre execuções)")
     run.add_argument("--llm", default=None, choices=sorted(PROVEDORES),
                      help="liga o LLM opcional do AG-REL (mock-* offline; claude-opus-5-5 exige o SDK anthropic)")
+    run.add_argument("--cognicao", default=None, choices=NIVEIS,
+                     help="nível de cognição dos agentes BDI (padrão: o do cenário); ver ADR-008")
     rep = sub.add_parser("replay", help="reconstrói uma conversa a partir de um trace JSONL")
     rep.add_argument("trace")
     rep.add_argument("conversation_id")

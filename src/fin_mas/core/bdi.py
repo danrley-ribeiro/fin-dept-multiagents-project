@@ -11,11 +11,19 @@ desejo continua ativo e o contexto do plano continua verdadeiro; a reconsideraç
 desejo satisfeito), nunca a cada tick (equilíbrio cauteloso x ousado de Kinny & Georgeff).
 
 Tudo vai para a auditoria: `belief`, `desire`, `deliberation` e `intention`.
+
+DSM3 (ADR-008): com um ou mais **proponentes** ligados (regras locais ou LLM opcional), o
+ciclo começa por `_inferir`, que recolhe propostas, valida cada uma (`core/inferencia.py`) e
+guarda as aceitas em `self.hipoteses`, um repositório separado das crenças. Hipótese não é
+crença: os planos de domínio não a leem; ela só pode gerar um desejo epistêmico (buscar a
+evidência que a confirma ou refuta), e é a evidência que revisa a crença. Sem proponentes
+(nível `basico`) `_inferir` não faz nada e nenhum registro novo aparece no trace.
 """
 from dataclasses import dataclass, field
 from typing import Callable
 
 from fin_mas.agents.base import Specialist
+from fin_mas.core.inferencia import FINAIS, Hipotese, validar_proposta
 
 TERMINAIS = {"concluida", "abandonada", "falhou"}
 
@@ -26,6 +34,7 @@ class Crencas:
     def __init__(self, agente):
         self.agente = agente
         self._b: dict = {}
+        self._fonte: dict = {}  # chave -> fonte da última revisão (quem ou o quê sustentou a crença)
 
     def get(self, chave, padrao=None):
         return self._b.get(chave, padrao)
@@ -33,11 +42,15 @@ class Crencas:
     def __contains__(self, chave):
         return chave in self._b
 
+    def fonte(self, chave) -> str | None:
+        return self._fonte.get(chave)
+
     def revisar(self, chave: str, valor, fonte: str, cid: str | None = None) -> bool:
         antes = self._b.get(chave)
         if chave in self._b and antes == valor:
             return False
         self._b[chave] = valor
+        self._fonte[chave] = fonte
         self.agente.bus.audit.record(
             self.agente.bus.now, "belief", conversation_id=cid, agente=self.agente.id,
             chave=chave, antes=antes, depois=valor, fonte=fonte,
@@ -98,6 +111,64 @@ class AgenteBDI(Specialist):
         self._seq_intencao = 0
         self._crencas_mudaram = False
         self._em_ciclo = False
+        self.proponentes: list = []  # vazio = cognição básica (sem hipóteses)
+        self.hipoteses: dict[str, Hipotese] = {}
+        self._gatilhos_usados: set = set()
+
+    # ---- hipóteses (ADR-008) -------------------------------------------------
+    def gatilhos_inferencia(self) -> list[dict]:
+        """Momentos em que vale pedir hipóteses: [{"chave", "cid", "tarefa", "competencia", "contexto", "esquema"}].
+
+        Cada gatilho é usado uma única vez (a chave o identifica), o que limita custo e garante
+        que o ciclo termine.
+        """
+        return []
+
+    def _inferir(self) -> None:
+        if not self.proponentes:
+            return
+        for g in self.gatilhos_inferencia():
+            if g["chave"] in self._gatilhos_usados:
+                continue
+            self._gatilhos_usados.add(g["chave"])
+            for proponente in self.proponentes:
+                propostas = proponente.propor(self.id, g["cid"], g["tarefa"], g["contexto"], g["esquema"])
+                for p in propostas[: g["esquema"].max_propostas]:
+                    self._receber_proposta(p, g)
+
+    def _receber_proposta(self, p, g) -> None:
+        motivo = validar_proposta(p, g["esquema"])
+        if motivo:
+            self._registrar("hipotese", g["cid"], evento="rejeitada", tipo=p.tipo, alvo=p.alvo, origem=p.origem,
+                            motivo=motivo, regra="NORM-11")
+            return
+        existente = self.hipotese_de(p.tipo, p.alvo, g["competencia"])
+        if existente is not None:
+            if p.origem not in existente.origens:
+                existente.origens.append(p.origem)
+                self._registrar("hipotese", g["cid"], hipotese=existente.id, evento="corroborada", tipo=p.tipo,
+                                alvo=p.alvo, origem=p.origem, regra="NORM-11")
+            return
+        h = Hipotese(f"{self.id}-H{len(self.hipoteses) + 1:03d}", p.tipo, p.alvo, g["competencia"], [p.origem],
+                     p.justificativa, p.evidencias, p.confianca, g["cid"])
+        self.hipoteses[h.id] = h
+        self._registrar("hipotese", g["cid"], hipotese=h.id, evento="aceita", tipo=h.tipo, alvo=h.alvo,
+                        origem=p.origem, justificativa=h.justificativa, evidencias=list(h.evidencias),
+                        confianca=h.confianca, regra="NORM-11")
+        self._crencas_mudaram = True
+
+    def hipotese_de(self, tipo, alvo, competencia) -> Hipotese | None:
+        return next((h for h in self.hipoteses.values()
+                     if (h.tipo, h.alvo, h.competencia) == (tipo, alvo, competencia)), None)
+
+    def marcar_hipotese(self, h: Hipotese, estado: str, motivo: str, fonte: str | None = None) -> None:
+        """Muda o estado da hipótese; `fonte` é a evidência determinística que a confirmou ou refutou."""
+        if h.estado in FINAIS or h.estado == estado:
+            return
+        h.estado, h.verificacao = estado, fonte or h.verificacao
+        self._registrar("hipotese", h.cid, hipotese=h.id, evento=estado, tipo=h.tipo, alvo=h.alvo, motivo=motivo,
+                        fonte=fonte, regra="NORM-11")
+        self._crencas_mudaram = True
 
     # ---- desejos ---------------------------------------------------------
     def opcoes(self) -> list[tuple]:
@@ -133,6 +204,7 @@ class AgenteBDI(Specialist):
         try:
             for _ in range(50):
                 self._crencas_mudaram = False
+                self._inferir()
                 self._reconsiderar()
                 for tipo, params, prioridade, motivo, cid in self.opcoes():
                     self._adotar_desejo(tipo, params, prioridade, motivo, cid)
@@ -277,4 +349,6 @@ class AgenteBDI(Specialist):
                         "utilidade": self._utilidade(p)} for p in self.PLANOS],
             "desejos_permanentes": dict(self.DESEJOS_PERMANENTES),
         }
+        if self.proponentes:
+            m["bdi"]["hipoteses"] = [h.resumo() for h in self.hipoteses.values()]
         return m

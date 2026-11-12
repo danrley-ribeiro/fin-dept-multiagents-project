@@ -24,6 +24,8 @@ class AgenteRelatorios(Specialist):
         if tarefa not in self.conhecimento["templates"]:
             raise ValueError(f"tarefa desconhecida: {tarefa}")
         linhas = getattr(self, "_" + tarefa)(content)
+        for insight in content.get("insights", []):  # hipóteses verificadas dos especialistas (ADR-008)
+            linhas.append(f"Insight: {insight}")
         for ressalva in content.get("ressalvas", []):
             linhas.append(f"Ressalva: {ressalva}")
         for nota in content.get("notas", []):

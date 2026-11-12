@@ -205,6 +205,10 @@ def formatar(r: dict) -> str:
         return f"{cab} DELIBERA {r['agente']}: {r['desejo']} -> {r['escolhido']} [{opcoes}]"
     if k == "intention":
         return f"{cab} INTENCAO {r['agente']}: {r['intencao']} {r['plano']} {r['evento']} ({r['motivo']})"
+    if k == "hipotese":
+        detalhe = r.get("motivo") or r.get("origem") or ""
+        alvo = f"{r.get('tipo')}({r.get('alvo')})"
+        return f"{cab} HIPOTESE {r['agente']}: {r.get('hipotese') or '-'} {alvo} {r['evento']} ({detalhe})"
     if k == "agente":
         return f"{cab} OPERADOR {r['agente']} {r['evento']}"
     if k == "rejected":

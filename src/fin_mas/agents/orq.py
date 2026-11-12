@@ -157,14 +157,16 @@ class Orquestrador(Agent):
 
     def _insumos(self, sol: dict, nome: str) -> dict:
         r = {n: e["resultado"] for n, e in sol["nos"].items()}
+        # insights dos especialistas (só existem com cognição local ou LLM, ADR-008): o Orquestrador repassa
+        extras = {"insights": list(r["orcamento"]["insights"])} if (r.get("orcamento") or {}).get("insights") else {}
         if nome == "relatorio" and sol["intencao"] == "fechar_mes":
             return {"dre": r["resultados"]["dre"], "kpis": r["resultados"]["kpis"],
                     "resultado_un": r["resultados"]["resultado_un"], "parecer": sol["parecer"],
-                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"])}
+                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"]), **extras}
         if nome == "relatorio":
             return {"totais": r["orcamento"]["totais"], "sinalizadas": r["orcamento"]["sinalizadas"],
                     "atribuidas_a_controle": r["orcamento"].get("atribuidas_a_controle", []),
-                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"])}
+                    "ressalvas": list(sol["ressalvas"]), "notas": list(sol["notas"]), **extras}
         return {}
 
     def _resposta_especialista(self, msg: Message) -> None:
@@ -346,6 +348,9 @@ class Orquestrador(Agent):
         else:
             resposta["resultado"] = {"totais": r["orcamento"]["totais"], "sinalizadas": r["orcamento"]["sinalizadas"],
                                      "atribuidas_a_controle": r["orcamento"].get("atribuidas_a_controle", [])}
+        if (r.get("orcamento") or {}).get("hipoteses"):
+            resposta["hipoteses"] = r["orcamento"]["hipoteses"]
+            resposta["insights"] = r["orcamento"]["insights"]
         self._liberar(sol)
         self.decide(sol["id"], "todas as subtarefas concluídas", {"parecer": sol["parecer"]}, resposta["status"])
         self.send(sol["solicitante"], "inform", "PROT-SOL", sol["id"], resposta)

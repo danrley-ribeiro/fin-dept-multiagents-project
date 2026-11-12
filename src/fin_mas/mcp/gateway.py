@@ -18,14 +18,16 @@ from fin_mas.services.politica import AprovacaoNecessaria
 
 ALLOWLIST = {
     "AG-CUS": {"erp.balancete"},
-    "AG-ORC": {"planilhas.orcamento", "erp.realizado_por_conta", "normas.perfil"},
+    "AG-ORC": {"planilhas.orcamento", "erp.realizado_por_conta", "normas.perfil",
+               "planilhas.observacoes", "erp.historico"},  # percepções da cognição (ADR-008); só leitura
     "AG-RES": {"erp.balancete"},
     "AG-CIN": {"erp.lancamentos", "normas.alcadas", "normas.regras", "normas.perfil"},
     "AG-ORQ": {"erp.corrigir"},  # único efeito externo: exige aprovação (PROT-APR)
 }
 EFEITO_EXTERNO = {"erp.corrigir"}
+SO_COM_ERP = {"erp.realizado_por_conta", "erp.historico"}  # empresa sem ERP: a tool falha explicitamente
 ABA = {"erp.balancete": "Produtos+CustosFixos", "erp.lancamentos": "Lancamentos", "planilhas.orcamento": "Orcamento",
-       "erp.realizado_por_conta": "Orcamento", "erp.corrigir": "Lancamentos"}
+       "erp.realizado_por_conta": "Orcamento", "erp.corrigir": "Lancamentos", "planilhas.observacoes": "Orcamento"}
 
 
 class ToolDenied(PermissionError):
@@ -59,10 +61,11 @@ class MCPGateway:
             raise ToolDenied(f"{agente} não pode chamar {tool}")
         ds = self.ambiente.dataset(competencia)
         consulta = {"entidade": ds.entidade, "competencia": ds.competencia, **args}
-        if tool == "erp.realizado_por_conta" and not ds.perfil["tem_erp"]:
+        if tool in SO_COM_ERP and not ds.perfil["tem_erp"]:
             self.audit.record(self.bus.now, "mcp_denied", conversation_id=conversation_id, agente=agente, tool=tool,
                               motivo="empresa sem ERP")
-            raise ToolIndisponivel("empresa sem ERP: o realizado vem só da planilha")
+            raise ToolIndisponivel("empresa sem ERP: o realizado vem só da planilha" if tool != "erp.historico"
+                                   else "empresa sem ERP: não há histórico mensal disponível")
         if tool in EFEITO_EXTERNO:
             dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
         else:
@@ -121,6 +124,14 @@ class MCPGateway:
         p = ds.perfil
         return {k: p[k] for k in ("porte", "titulo", "norma_contabil", "tem_erp", "fonte_primaria", "limiar_desvio",
                                   "pesos_cin", "pesos_orc", "max_ciclos_correcao", "versao")}
+
+    def _planilhas_observacoes(self, ds):
+        """Texto livre por conta (coluna "Observações"); planilha sem a coluna devolve vazio."""
+        return {"observacoes": dict(getattr(ds, "observacoes", None) or {})}
+
+    def _erp_historico(self, ds):
+        historico = getattr(ds, "historico", None)
+        return {"historico": historico() if callable(historico) else {}}
 
     def _erp_realizado_por_conta(self, ds):
         return {"meses_decorridos": ds.gold["meses_decorridos"], "realizado": dict(ds.realizado_erp)}

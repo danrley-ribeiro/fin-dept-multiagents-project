@@ -14,13 +14,36 @@ Desejos gerados das crenças (1 = mais prioritário):
 O AG-ORC decide sozinho a fonte, se consulta o AG-CIN (PROT-QRY direto, sem o
 Orquestrador) e como classifica cada desvio; a resposta do AG-CIN revisa crenças e
 pode tornar a intenção de alertar sem sentido, que é então reconsiderada.
+
+DSM3 — cognição assistida (ADR-008), só com proponentes ligados (níveis `local` e `llm`):
+o agente percebe também o texto livre da planilha e o histórico mensal, recebe hipóteses
+sobre a causa de cada desvio (`causa_controle`, `efeito_temporal`) e adota o desejo
+epistêmico `verificar_hipotese(conta)`:
+
+  2 verificar_hipotese(conta)  hipótese validada ainda sem evidência
+
+  P-CONFERIR-EVIDENCIA      o AG-CIN já respondeu: a resposta confirma ou refuta, sem mensagem nova
+  P-VERIFICAR-COM-CIN       a consulta normal se perdeu: nova consulta, se couber no prazo e no teto
+  P-VERIFICAR-NO-HISTORICO  confere o padrão de calendário em todos os trimestres do histórico
+  P-ARQUIVAR-HIPOTESE       sem evidência disponível: a hipótese é arquivada e nada muda
+
+A hipótese nunca classifica um desvio: quem muda a classificação é a crença revisada pela
+evidência (a resposta do AG-CIN, o cálculo sobre o histórico), pelos planos de sempre.
 """
 from fin_mas.core.bdi import AgenteBDI, Plano
+from fin_mas.core.inferencia import EsquemaHipoteses, resolver
 from fin_mas.env.dataset import LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, brl
 from fin_mas.mcp.gateway import ToolIndisponivel
 
 PRAZO_CONSULTA = 10  # ticks lógicos até a expiração da query-ref ao AG-CIN
 TOLERANCIA_FONTE = 1_00  # R$ 1,00: abaixo disso planilha e ERP são considerados iguais
+MAX_VERIFICACOES = 3  # consultas de verificação de hipótese por tarefa (teto de custo de coordenação)
+FOLGA_RESPOSTA = 5  # ticks entre a evidência chegar e a avaliação ser entregue ao solicitante
+MIN_TRIMESTRES = 2  # trimestres completos do histórico exigidos para confirmar um padrão de calendário
+TIPOS_HIPOTESE = {
+    "causa_controle": "o desvio vem de lançamento irregular: problema de controle interno, não de orçamento",
+    "efeito_temporal": "o desvio é efeito de calendário: gasto que se repete na mesma época e se compensa no trimestre",
+}
 
 
 def _k(nome, c, conta=None):
@@ -95,6 +118,11 @@ def _corpo_alertar(a, i):
     if pendente is not None and pendente.estado == "ativo":
         a.suspender(i, "desejo:" + pendente.id, "só sinaliza depois de tentar explicar o desvio")
         return
+    verificando = next((d for d in a.desejos.values() if d.tipo == "verificar_hipotese" and d.estado == "ativo"
+                        and d.params["c"] == c and d.params["conta"] == conta), None)
+    if verificando is not None:  # só existe com proponentes ligados (ADR-008)
+        a.suspender(i, "desejo:" + verificando.id, "só sinaliza depois de verificar a hipótese sobre o desvio")
+        return
     desvio = a.desvio_ajustado(c, conta)
     a.crencas.revisar(_k("classificacao", c, conta), "desvio_orcamentario", "plano " + i.plano.id, i.desejo.cid)
     lim = a.conhecimento
@@ -147,7 +175,132 @@ def _corpo_consolidar(a, i):
     a.responder(c)
 
 
+# ---- verificação de hipóteses (ADR-008): só a evidência muda crença -----------------
+def _hip(a, d):
+    return a.hipoteses[d.params["h"]]
+
+
+def _sem_atribuicao(conta) -> str:
+    return f"desvio de {conta} sinalizado sem atribuição: AG-CIN indisponível"
+
+
+def _ctx_conferir(a, d):
+    h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
+    if h.tipo != "causa_controle":
+        return False, "só se aplica a hipótese de causa de controle"
+    respondida = isinstance(a.crencas.get(_k("explicacao", c, conta)), list)
+    return respondida, ("o AG-CIN já respondeu sobre a conta" if respondida else "ainda sem resposta do AG-CIN")
+
+
+def _corpo_conferir(a, i):
+    h, c, conta = _hip(a, i.desejo), i.desejo.params["c"], i.desejo.params["conta"]
+    contestado = a.crencas.get(_k("contestado", c, conta)) or 0
+    a.concluir_hipotese(i, h, contestado > 0, a.crencas.fonte(_k("contestado", c, conta)),
+                        f"AG-CIN contesta {brl(contestado)} em {conta}" if contestado > 0
+                        else f"AG-CIN não contesta lançamentos de {conta}")
+
+
+def _ctx_verificar_cin(a, d):
+    h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
+    if h.tipo != "causa_controle":
+        return False, "só se aplica a hipótese de causa de controle"
+    if a.crencas.get(_k("explicacao", c, conta)) != "indisponível":
+        return False, "a consulta normal ao AG-CIN não falhou"
+    if "AG-CIN" not in a.bus.agents:
+        return False, "AG-CIN fora do diretório de agentes"
+    t = a.tarefa(c)
+    if t["verificacoes"] >= MAX_VERIFICACOES:
+        return False, f"teto de {MAX_VERIFICACOES} verificações por tarefa atingido"
+    if t["prazo"] is not None and a.bus.now + PRAZO_CONSULTA + FOLGA_RESPOSTA > t["prazo"]:
+        return False, f"não cabe no prazo do solicitante (t={t['prazo']})"
+    return True, "hipótese validada justifica nova consulta ao AG-CIN, dentro do prazo"
+
+
+def _corpo_verificar_cin(a, i):
+    h, c, conta = _hip(a, i.desejo), i.desejo.params["c"], i.desejo.params["conta"]
+    a.tarefa(c)["verificacoes"] += 1
+    qid = a.bus.new_conversation_id("QRY")
+    a.bus.audit.record(a.bus.now, "link", conversation_id=i.desejo.cid, filha=qid,
+                       subtarefa=f"verificar hipótese {h.id} ({conta})", agente=a.id)
+    a.send("AG-CIN", "query-ref", "PROT-QRY", qid, {"assunto": "irregularidades", "conta": conta, "competencia": c},
+           reply_by=a.bus.now + PRAZO_CONSULTA)
+    a.marcar_hipotese(h, "em_verificacao", f"consulta {qid} ao AG-CIN")
+    a.suspender(i, qid, f"aguarda AG-CIN sobre a hipótese {h.id}")
+
+
+def _continuar_verificar_cin(a, i, msg):
+    h, c, conta = _hip(a, i.desejo), i.desejo.params["c"], i.desejo.params["conta"]
+    valor, fonte = msg.content["valor_contestado"], f"AG-CIN ({msg.conversation_id})"
+    a.crencas.revisar(_k("contestado", c, conta), valor, fonte, i.desejo.cid)
+    a.crencas.revisar(_k("explicacao", c, conta), [lanc["lancamento"] for lanc in msg.content["lancamentos"]],
+                      fonte, i.desejo.cid)
+    t = a.tarefa(c)  # o AG-CIN respondeu: a ressalva de indisponibilidade deixou de ser verdadeira
+    t["ressalvas"] = [r for r in t["ressalvas"] if r != _sem_atribuicao(conta)]
+    a.concluir_hipotese(i, h, valor > 0, fonte, f"AG-CIN contesta {brl(valor)} em {conta}" if valor > 0
+                        else f"AG-CIN não contesta lançamentos de {conta}")
+
+
+def _ctx_historico(a, d):
+    h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
+    if h.tipo != "efeito_temporal":
+        return False, "só se aplica a hipótese de efeito de calendário"
+    tem = _k("historico", c, conta) in a.crencas
+    return tem, "há histórico mensal da conta" if tem else "sem histórico mensal da conta"
+
+
+def padrao_de_calendario(serie, mes_no_trimestre, limiar_percentual) -> dict:
+    """Confere, em cada trimestre completo do histórico, se o acumulado até este mês passou do
+    orçado além do limiar e se o trimestre mesmo assim fechou dentro do limiar."""
+    trimestres, atual = [], []
+    for m in serie:
+        if m["mes_no_trimestre"] == 1:
+            atual = []
+        atual.append(m)
+        if m["mes_no_trimestre"] == 3 and len(atual) == 3:
+            trimestres.append(atual)
+    repetiu = fechou = 0
+    for tri in trimestres:
+        orcado_ate = sum(m["orcado"] for m in tri[:mes_no_trimestre])
+        excesso = sum(m["realizado"] for m in tri[:mes_no_trimestre]) - orcado_ate
+        orcado_tri = sum(m["orcado"] for m in tri)
+        fim = sum(m["realizado"] for m in tri) - orcado_tri
+        repetiu += excesso * 100 >= orcado_ate * limiar_percentual
+        fechou += abs(fim) * 100 < orcado_tri * limiar_percentual
+    n = len(trimestres)
+    return {"trimestres": n, "repetiu": int(repetiu), "fechou_no_orcado": int(fechou),
+            "confirmado": n >= MIN_TRIMESTRES and repetiu == n and fechou == n}
+
+
+def _corpo_historico(a, i):
+    h, c, conta = _hip(a, i.desejo), i.desejo.params["c"], i.desejo.params["conta"]
+    r = padrao_de_calendario(a.crencas.get(_k("historico", c, conta)), a.tarefa(c)["meses"],
+                             a.conhecimento["limiar_percentual"])
+    fonte = "cálculo sobre " + a.crencas.fonte(_k("historico", c, conta))
+    if r["confirmado"]:
+        a.crencas.revisar(_k("padrao_calendario", c, conta), r, fonte, i.desejo.cid)
+        a.tarefa(c)["ressalvas"].append(
+            f"desvio de {conta} repete o padrão de {r['trimestres']} trimestres anteriores, que fecharam dentro "
+            f"do orçado: efeito de calendário")
+    a.concluir_hipotese(i, h, r["confirmado"], fonte,
+                        f"padrão repetido em {r['repetiu']} de {r['trimestres']} trimestres; "
+                        f"{r['fechou_no_orcado']} fecharam dentro do orçado")
+
+
+def _corpo_arquivar(a, i):
+    h = _hip(a, i.desejo)
+    a.marcar_hipotese(h, "arquivada", "sem evidência disponível dentro do prazo e do teto de verificações")
+    a.concluir(i, "arquivada", f"hipótese {h.id} arquivada: nada muda na avaliação")
+
+
 PLANOS = [
+    Plano("P-CONFERIR-EVIDENCIA", "verificar_hipotese", "conferir a hipótese com a resposta que o AG-CIN já deu",
+          ("precisao", "tempestividade"), _ctx_conferir, _corpo_conferir, preferencia=2),
+    Plano("P-VERIFICAR-COM-CIN", "verificar_hipotese", "consultar de novo o AG-CIN para confirmar ou refutar a hipótese",
+          ("precisao",), _ctx_verificar_cin, _corpo_verificar_cin, _continuar_verificar_cin, preferencia=1),
+    Plano("P-VERIFICAR-NO-HISTORICO", "verificar_hipotese", "conferir o padrão de calendário no histórico mensal",
+          ("precisao",), _ctx_historico, _corpo_historico, preferencia=1),
+    Plano("P-ARQUIVAR-HIPOTESE", "verificar_hipotese", "arquivar a hipótese sem evidência (nada muda)",
+          ("tempestividade",), _sempre("sempre aplicável (fallback)"), _corpo_arquivar),
     Plano("P-ADOTAR-ERP", "fonte_confiavel", "adotar o ERP como verdade e registrar ressalva", ("precisao",),
           _ctx_fonte("ERP"), _corpo_fonte("ERP"), preferencia=1),
     Plano("P-MANTER-PLANILHA", "fonte_confiavel", "manter a planilha e registrar ressalva", ("tempestividade",),
@@ -193,17 +346,17 @@ class AgenteOrcamento(AgenteBDI):
                 self.send(msg.sender, "failure", "PROT-DEL", msg.conversation_id,
                           {"motivo": f"tarefa desconhecida: {msg.content.get('tarefa')}"}, delay=1 + self.latencia)
                 return
-            self.iniciar(msg.content.get("competencia"), (msg.sender, msg.conversation_id, "PROT-DEL"))
+            self.iniciar(msg.content.get("competencia"), (msg.sender, msg.conversation_id, "PROT-DEL"), msg.reply_by)
         elif msg.protocol == "PROT-QRY" and msg.performative == "query-ref":
             if msg.content.get("assunto") != "desvios":
                 self.send(msg.sender, "refuse", "PROT-QRY", msg.conversation_id,
                           {"motivo": f"assunto desconhecido: {msg.content.get('assunto')}"})
                 return
-            self.iniciar(msg.content.get("competencia"), (msg.sender, msg.conversation_id, "PROT-QRY"))
+            self.iniciar(msg.content.get("competencia"), (msg.sender, msg.conversation_id, "PROT-QRY"), msg.reply_by)
         elif msg.protocol == "PROT-QRY":  # resposta (ou timeout) de uma consulta que o AG-ORC fez
             self.entregar_resposta(msg)
 
-    def iniciar(self, competencia, solicitante) -> None:
+    def iniciar(self, competencia, solicitante, prazo=None) -> None:
         c = competencia or self.gw.ambiente.principal
         t = self.estado["tarefas"].get(c)
         if t is not None and t["avaliacao"] is not None:
@@ -212,6 +365,8 @@ class AgenteOrcamento(AgenteBDI):
             return
         if t is not None:  # avaliação em andamento: só acrescenta quem espera a resposta
             t["solicitantes"].append(solicitante)
+            if prazo is not None:  # vale o prazo mais apertado entre os solicitantes
+                t["prazo"] = prazo if t["prazo"] is None else min(t["prazo"], prazo)
             return
         cid = solicitante[1]
         self._perceber_perfil(cid, c)
@@ -223,7 +378,7 @@ class AgenteOrcamento(AgenteBDI):
         contas = [linha["conta"] for linha in planilha["dados"]["contas"]]
         self.estado["tarefas"][c] = {"cid": cid, "contas": contas, "meses": planilha["dados"]["meses_decorridos"],
                                      "solicitantes": [solicitante], "avaliacao": None, "ressalvas": [],
-                                     "proveniencia": planilha["proveniencia"]}
+                                     "proveniencia": planilha["proveniencia"], "prazo": prazo, "verificacoes": 0}
         for linha in planilha["dados"]["contas"]:
             conta = linha["conta"]
             self.crencas.revisar(_k("orcado", c, conta), linha["orcado_acumulado"], "mcp://planilhas/orcamento", cid)
@@ -248,6 +403,80 @@ class AgenteOrcamento(AgenteBDI):
                                  limiar_absoluto=p["limiar_desvio"]["absoluto"], fonte_primaria=p["fonte_primaria"],
                                  norma_contabil=p["norma_contabil"], versao_normas=p["versao"])
         self.DESEJOS_PERMANENTES = dict(p["pesos_orc"])  # a utilidade dos planos muda com o porte
+
+    # ---- hipóteses: percepções extras, gatilho e conclusão (ADR-008) -------------
+    def gatilhos_inferencia(self):
+        gatilhos = []
+        for c, t in self.estado["tarefas"].items():
+            chave = f"desvios@{c}"
+            if t["avaliacao"] is not None or chave in self._gatilhos_usados:
+                continue
+            if any(self.crencas.get(_k("realizado", c, conta)) is None for conta in t["contas"]):
+                continue  # ainda há fonte em reconciliação: o desvio não está definido
+            acima = [conta for conta in t["contas"] if self.acima(c, conta, self.desvio_bruto(c, conta))]
+            if not acima:
+                continue
+            self._perceber_contexto(c, t, acima)
+            contas, valores = [], {}
+            for conta in acima:
+                chaves = {"orcado": _k("orcado", c, conta), "realizado": _k("realizado", c, conta)}
+                x = {"conta": conta, "chaves": chaves, "mes_no_trimestre": t["meses"],
+                     "limiar_percentual": self.conhecimento["limiar_percentual"],
+                     "orcado": brl(self.crencas.get(chaves["orcado"])),
+                     "realizado": brl(self.crencas.get(chaves["realizado"])),
+                     "desvio": brl(self.desvio_bruto(c, conta))}
+                valores[chaves["orcado"]], valores[chaves["realizado"]] = x["orcado"], x["realizado"]
+                if _k("observacao", c, conta) in self.crencas:
+                    chaves["observacao"] = _k("observacao", c, conta)
+                    x["observacao"] = self.crencas.get(chaves["observacao"])
+                    valores[chaves["observacao"]] = f"\"{x['observacao']}\""
+                if _k("historico", c, conta) in self.crencas:
+                    chaves["historico"] = _k("historico", c, conta)
+                    x["historico"] = self.crencas.get(chaves["historico"])
+                    valores[chaves["historico"]] = f"dos {len(x['historico'])} meses anteriores"
+                contas.append(x)
+            evidencias = tuple(sorted({k for x in contas for k in x["chaves"].values()}))
+            t["valores_hipoteses"] = valores
+            gatilhos.append({"chave": chave, "cid": t["cid"], "tarefa": "causas dos desvios orçamentários",
+                             "competencia": c,
+                             "contexto": {"competencia": c, "porte": self.conhecimento.get("porte"), "contas": contas},
+                             "esquema": EsquemaHipoteses(TIPOS_HIPOTESE, tuple(acima), evidencias, valores=valores)})
+        return gatilhos
+
+    def _perceber_contexto(self, c, t, contas) -> None:
+        """Texto livre da planilha e histórico mensal das contas com desvio: percepções, com fonte."""
+        cid = t["cid"]
+        obs = self.ferramenta("planilhas.observacoes", cid, competencia=c)
+        for conta, texto in obs["dados"]["observacoes"].items():
+            if conta in contas:
+                self.crencas.revisar(_k("observacao", c, conta), texto, obs["proveniencia"]["fonte"], cid)
+        try:
+            hist = self.ferramenta("erp.historico", cid, competencia=c)
+        except ToolIndisponivel:
+            return  # empresa sem ERP: segue só com o texto livre
+        for conta, serie in hist["dados"]["historico"].items():
+            if conta in contas and serie:
+                self.crencas.revisar(_k("historico", c, conta), serie, hist["proveniencia"]["fonte"], cid)
+
+    def concluir_hipotese(self, i, h, confirmada: bool, fonte: str, motivo: str) -> None:
+        self.marcar_hipotese(h, "confirmada" if confirmada else "refutada", motivo, fonte)
+        self.decide(i.desejo.cid, "hipótese só muda a avaliação depois de evidência determinística (NORM-11)",
+                    {"hipotese": h.id, "tipo": h.tipo, "conta": h.alvo, "origens": list(h.origens), "evidencia": fonte},
+                    h.estado)
+        self.concluir(i, h.estado, f"hipótese {h.id} {h.estado}: {motivo}")
+
+    def insights(self, c) -> list[str]:
+        """Frases sobre as hipóteses da competência, com origem e evidência (números vêm das crenças)."""
+        t, linhas = self.tarefa(c), []
+        for h in self.hipoteses.values():
+            if h.competencia != c:
+                continue
+            texto = resolver(h.justificativa, h.alvo, t.get("valores_hipoteses", {}))
+            desfecho = {"confirmada": f"confirmada por {h.verificacao}", "refutada": f"refutada por {h.verificacao}",
+                        "arquivada": "arquivada sem evidência", "em_verificacao": "em verificação",
+                        "proposta": "sem verificação"}[h.estado]
+            linhas.append(f"{h.alvo}: hipótese {h.id} ({h.tipo}; origem {', '.join(h.origens)}) {desfecho}. {texto}")
+        return linhas
 
     # ---- geração de opções e reconsideração ----------------------------------
     def tarefa(self, c) -> dict:
@@ -286,6 +515,14 @@ class AgenteOrcamento(AgenteBDI):
                 bruto = self.desvio_bruto(c, conta)
                 if not self.acima(c, conta, bruto):
                     continue
+                for h in self.hipoteses.values():  # vazio na cognição básica
+                    if (h.competencia, h.alvo, h.estado) != (c, conta, "proposta"):
+                        continue
+                    if h.tipo == "causa_controle" and _k("explicacao", c, conta) not in self.crencas:
+                        continue  # a consulta normal ao AG-CIN ainda vai responder
+                    ops.append(("verificar_hipotese", {"c": c, "conta": conta, "h": h.id}, 2,
+                                f"hipótese {h.id} ({h.tipo}) ainda sem evidência", cid))
+                    pendente = True
                 if _k("explicacao", c, conta) not in self.crencas:
                     ops.append(("explicar_desvio", p, 2, f"desvio de {brl(bruto)} acima do limiar", cid))
                     ops.append(("alertar_desvio", p, 3, f"desvio de {brl(bruto)} acima do limiar", cid))
@@ -341,6 +578,9 @@ class AgenteOrcamento(AgenteBDI):
             "metodo_forecast": self.crencas.get(_k("metodo_forecast", c)),
             "proveniencia": t["proveniencia"],
         }
+        if self.proponentes:  # cognição local ou com LLM: hipóteses e insights acompanham a avaliação
+            avaliacao["hipoteses"] = [h.resumo() for h in self.hipoteses.values() if h.competencia == c]
+            avaliacao["insights"] = self.insights(c)
         t["avaliacao"] = avaliacao
         self.estado["avaliacao"] = avaliacao
         return avaliacao

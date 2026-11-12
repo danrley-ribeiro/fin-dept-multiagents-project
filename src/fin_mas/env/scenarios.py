@@ -12,6 +12,8 @@ from fin_mas.agents.orc import AgenteOrcamento
 from fin_mas.agents.orq import Orquestrador
 from fin_mas.agents.rel import VERSAO_TEMPLATE, AgenteRelatorios
 from fin_mas.agents.res import AgenteResultados
+from fin_mas.cognicao import NIVEIS
+from fin_mas.cognicao.regras import ProponenteLocal
 from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus, Fault
 from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
@@ -158,12 +160,16 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
-                 prazo_aprovacao=None, llm=None) -> System:
+                 prazo_aprovacao=None, llm=None, cognicao="basico") -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
     `aprovadores`: cadastro do SVC-POL (quem decide o quê); None = controller com todas as decisões.
+    `cognicao`: `basico` (ciclo BDI de sempre), `local` (regras locais propõem hipóteses, offline) ou
+    `llm` (regras locais e o LLM do agente, se a flag dele estiver ligada no SVC-MOD). Ver ADR-008.
     """
+    if cognicao not in NIVEIS:
+        raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
     amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
@@ -180,6 +186,8 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     agentes["AG-REL"].modelos = modelos
     if llm:  # flag do LLM opcional no AG-REL (ADR-002); desligada por padrão
         modelos.configurar("AG-REL", llm=True, modelo=llm)
+    if cognicao != "basico":  # ADR-008: hipóteses propostas por regras locais (e por LLM, no nível `llm`)
+        agentes["AG-ORC"].proponentes.append(ProponenteLocal())
     orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
     return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador, amb, interativo),
                   agentes, amb, politica, mem, modelos)
@@ -199,6 +207,8 @@ class Scenario:
     porte: str = PORTE_PADRAO
     aprovadores: dict | None = None  # cadastro do SVC-POL; None = padrão (controller)
     ataques: bool = False  # dispara env/ataques.py enquanto o veto aguarda o aprovador
+    cognicao: str = "basico"  # basico | local | llm (ADR-008); os cenários revisados ficam em `basico`
+    esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
 
 
 CENARIOS = {c.nome: c for c in [
@@ -248,6 +258,31 @@ CENARIOS = {c.nome: c for c in [
              decisao_aprovador=("waiver", "corrigir"),
              agenda=(("2026-08", ("alcada",)), ("2026-09", ("alcada",))),
              pedidos=(("fechar_mes", "2026-08", 1), ("fechar_mes", "2026-09", 60))),
+    # ---- DSM3: cognição local (ADR-008). Os cenários acima ficam em `basico`. ----
+    Scenario("orc_hipotese_local", "Mesma perda de `orc_sem_cin`, com cognição local: a observação da planilha gera "
+             "a hipótese de causa de controle, o AG-ORC consulta de novo o AG-CIN e o desvio é reclassificado",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             esperado="hipótese confirmada pelo AG-CIN (QRY-002); conta atribuída a controle, sem falso desvio"),
+    Scenario("hipotese_refutada", "Desvio orçamentário legítimo com um alarme falso na planilha: a hipótese de "
+             "controle é conferida com a resposta que o AG-CIN já deu e refutada; o desvio segue sinalizado",
+             "avaliar_orcamento", plantar=("desvio_orcamentario", "observacao_alarme_falso"), cognicao="local",
+             esperado="hipótese refutada sem mensagem extra (P-CONFERIR-EVIDENCIA); os dois desvios sinalizados"),
+    Scenario("hipotese_arquivada", "AG-CIN não responde a nenhuma das duas consultas: a hipótese fica sem evidência, "
+             "é arquivada e a avaliação sai igual à da cognição básica",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 2},),
+             esperado="hipótese arquivada; desvio sinalizado com a ressalva de AG-CIN indisponível"),
+    Scenario("historico_calendario", "Gasto concentrado no início do trimestre: a hipótese de efeito de calendário "
+             "é conferida em todos os trimestres do histórico e entra no relatório como insight",
+             "avaliar_orcamento", cognicao="local", agenda=(("2026-07", ("desvio_sazonal",)),),
+             pedidos=(("avaliar_orcamento", "2026-07", 1),),
+             esperado="hipótese efeito_temporal confirmada pelo histórico; desvio sinalizado com ressalva de calendário"),
+    Scenario("fechamento_hipotese_local", "Fechamento do mês com a consulta ao AG-CIN perdida: a hipótese leva o "
+             "AG-ORC a consultar de novo, o AG-CIN veta a NF duplicada e o estorno aprovado destrava o fechamento",
+             "fechar_mes", plantar=("desvio_irregular",), cognicao="local", decisao_aprovador="corrigir",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             esperado="hipótese confirmada; veto com estorno aprovado; relatório publicado com o insight"),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -275,7 +310,7 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None) -> tuple[System, list]:
+           llm=None, cognicao=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -284,9 +319,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     sistema = build_system(seed if seed is not None else sc.seed, () if pasta else sc.plantar, sc.faults,
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
-                           aprovadores=sc.aprovadores, llm=llm)
+                           aprovadores=sc.aprovadores, llm=llm, cognicao=cognicao or sc.cognicao)
     ds = sistema.dataset
-    sistema.bus.audit.record(0, "meta", empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
+    extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
+    sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
                              porte_titulo=ds.perfil["titulo"], tem_erp=ds.perfil["tem_erp"],
@@ -308,8 +344,8 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

@@ -19,6 +19,7 @@
 import argparse
 import sys
 
+from fin_mas import cli_acesso
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
@@ -122,6 +123,10 @@ def _verificar(args) -> int:
         print(f"FALHA NA VERIFICAÇÃO: {erro}", file=sys.stderr)
         return 3
     if not log.encadeado:
+        if args.ancora:  # pediram conferência contra uma âncora e o arquivo não tem cadeia: não há o que conferir
+            print(f"FALHA NA VERIFICAÇÃO: {args.trace} não tem cadeia de hashes; a âncora não pode ser conferida",
+                  file=sys.stderr)
+            return 3
         print(f"{args.trace}: {len(log.records)} registros, sem cadeia de hashes (trace anterior à DSM3)")
         return 1
     rejeicoes = sum(1 for r in log.records if r["kind"] == "rejected")
@@ -163,8 +168,82 @@ def _relatorio(args) -> int:
 
 def _serve(args) -> int:
     from fin_mas.server import servir
-    servir(args.scenario, args.seed, args.porta, args.ms_por_tick, args.pasta_dados)
+    servir(args.scenario, args.seed, args.porta, args.ms_por_tick, args.pasta_dados, args.pasta_acesso, args.demo,
+           args.cognicao)
     return 0
+
+
+def _ler_trace(args):
+    try:
+        return AuditLog.read_jsonl(args.trace, ancora=getattr(args, "ancora", None))
+    except FileNotFoundError:
+        print(f"arquivo não encontrado: {args.trace}", file=sys.stderr)
+    except (TraceAdulterado, ValueError) as erro:
+        print(f"trace adulterado: {erro}", file=sys.stderr)
+    return None
+
+
+def _auditoria(args) -> int:
+    """Recorte de um trace gravado, com os mesmos filtros do dashboard (REQ-O04)."""
+    import json as _json
+
+    from fin_mas.services import consulta
+    from fin_mas.services.audit import formatar
+    log = _ler_trace(args)
+    if log is None:
+        return 3
+    registros = consulta.filtrar(log.records, agente=args.agente, de_t=args.de_t, ate_t=args.ate_t,
+                                 competencia=args.competencia, tarefa=args.tarefa, tipo=args.tipo,
+                                 custo_min=args.custo_min, texto=args.q)
+    if args.json:
+        print(_json.dumps(registros, ensure_ascii=False, default=str))
+    else:
+        print("\n".join(formatar(r) for r in registros))
+        print(f"{len(registros)} de {len(log.records)} registro(s)")
+    return 0
+
+
+def _explicar(args) -> int:
+    from fin_mas.services import explicacao
+    log = _ler_trace(args)
+    if log is None:
+        return 3
+    try:
+        if args.comando == "sequencia":
+            print(explicacao.sequencia(log.records, args.conversa), end="")
+            return 0
+        r = explicacao.explicar(log.records, args.seq)
+    except LookupError as erro:
+        print(str(erro), file=sys.stderr)
+        return 2
+    print(f"por que: {r['alvo']['texto']}")
+    print(f"agente {r['agente']} | conversa {r['conversa']} | tarefa {r['tarefa']}")
+    for item in r["cadeia"]:
+        print(f"  [{item['papel']:<22}] {item['texto']}")
+    return 0
+
+
+def _cenarios(args) -> int:
+    """Catálogo de cenários: roda cada um e confere que termina com resposta explícita e se repete (mesmo hash)."""
+    from fin_mas import invariantes
+    nomes = [n for n in CENARIOS if not args.filtro or args.filtro in n]
+    falhas = 0
+    print(f"{'cenário':<30} {'cognição':<8} {'resposta':<9} {'invariantes':<11} {'repetível':<9} o que observar")
+    for nome in nomes:
+        sc = CENARIOS[nome]
+        a = run_scenario(nome)
+        violacoes = invariantes.verificar(a.audit.records)
+        repetivel = a.hash == run_scenario(nome).hash if args.verificar else None
+        respostas = [r.performative if r is not None else "SEM RESPOSTA" for r in a.respostas.values()]
+        ok = "SEM RESPOSTA" not in respostas and not violacoes and repetivel is not False
+        falhas += not ok
+        print(f"{nome:<30} {sc.cognicao:<8} {'/'.join(dict.fromkeys(respostas)):<9} "
+              f"{'ok' if not violacoes else str(len(violacoes)) + ' VIOLAÇÃO':<11} "
+              f"{'-' if repetivel is None else 'sim' if repetivel else 'NÃO':<9} {sc.esperado or sc.descricao[:70]}")
+        for v in violacoes:
+            print(f"    {v}")
+    print(f"{len(nomes) - falhas} de {len(nomes)} cenário(s) em ordem")
+    return 1 if falhas else 0
 
 
 def _modelos(args) -> int:
@@ -172,6 +251,19 @@ def _modelos(args) -> int:
     for caminho in gerar_modelos(args.out):
         print(caminho)
     return 0
+
+
+def _invariantes(args) -> int:
+    from fin_mas import invariantes
+    log = _ler_trace(args)
+    if log is None:
+        return 3
+    violacoes = invariantes.verificar(log.records)
+    for v in violacoes:
+        print(f"VIOLAÇÃO: {v}")
+    print(f"{args.trace}: {len(log.records)} registros, {len(invariantes.INVARIANTES)} invariantes, "
+          f"{len(violacoes)} violação(ões)")
+    return 1 if violacoes else 0
 
 
 def _llm(args) -> int:
@@ -255,6 +347,29 @@ def main(argv=None) -> int:
     srv.add_argument("--seed", type=int, default=None)
     srv.add_argument("--ms-por-tick", type=int, default=350)
     srv.add_argument("--pasta-dados", default="dados/empresa", help="onde ficam as planilhas enviadas pelo dashboard")
+    srv.add_argument("--acesso", dest="pasta_acesso", default="dados/acesso", help="pasta do cadastro de acesso (SVC-IAM)")
+    srv.add_argument("--demo", action="store_true", help="cria e usa as contas de demonstração (senha pública)")
+    srv.add_argument("--cognicao", default=None, choices=NIVEIS, help="nível de cognição (padrão: o do cenário)")
+    cli_acesso.configurar(sub)
+    aud = sub.add_parser("auditoria", help="recorte de um trace JSONL com os filtros do dashboard")
+    aud.add_argument("trace")
+    for filtro in ("agente", "competencia", "tarefa", "tipo", "q"):
+        aud.add_argument(f"--{filtro}", default=None)
+    aud.add_argument("--de-t", type=int, default=None)
+    aud.add_argument("--ate-t", type=int, default=None)
+    aud.add_argument("--custo-min", type=float, default=None)
+    aud.add_argument("--json", action="store_true")
+    exp_ = sub.add_parser("explicar", help="cadeia (percepção, crença, hipótese, plano, decisão) que levou a um registro")
+    exp_.add_argument("trace")
+    exp_.add_argument("seq", type=int)
+    seq_ = sub.add_parser("sequencia", help="diagrama de sequência (Mermaid) de uma conversa do trace")
+    seq_.add_argument("trace")
+    seq_.add_argument("conversa")
+    cen = sub.add_parser("cenarios", help="roda o catálogo de cenários e mostra a tabela de conferência")
+    cen.add_argument("--verificar", action="store_true", help="roda cada cenário duas vezes e compara os hashes")
+    cen.add_argument("--filtro", default=None, help="só os cenários cujo nome contém o texto")
+    inv = sub.add_parser("invariantes", help="confere as propriedades de segurança num trace JSONL")
+    inv.add_argument("trace")
     mod = sub.add_parser("modelos", help="grava o modelo Excel em branco e um exemplo por porte")
     mod.add_argument("--out", default="modelos")
     mcp = sub.add_parser("mcp-excel", help="servidor MCP (stdio) das planilhas da pasta")
@@ -279,7 +394,8 @@ def main(argv=None) -> int:
         return 0
     comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export,
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
-                "verificar": _verificar, "llm": _llm}
+                "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
+                "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes}
     return comandos[args.comando](args)
 
 

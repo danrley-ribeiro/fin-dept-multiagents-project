@@ -133,10 +133,11 @@ class AgenteBDI(Specialist):
             self._gatilhos_usados.add(g["chave"])
             for proponente in self.proponentes:
                 propostas = proponente.propor(self.id, g["cid"], g["tarefa"], g["contexto"], g["esquema"])
+                pseudonimos = dict(getattr(proponente, "pseudonimos", None) or {})
                 for p in propostas[: g["esquema"].max_propostas]:
-                    self._receber_proposta(p, g)
+                    self._receber_proposta(p, g, pseudonimos)
 
-    def _receber_proposta(self, p, g) -> None:
+    def _receber_proposta(self, p, g, pseudonimos=None) -> None:
         motivo = validar_proposta(p, g["esquema"])
         if motivo:
             self._registrar("hipotese", g["cid"], evento="rejeitada", tipo=p.tipo, alvo=p.alvo, origem=p.origem,
@@ -150,7 +151,7 @@ class AgenteBDI(Specialist):
                                 alvo=p.alvo, origem=p.origem, regra="NORM-11")
             return
         h = Hipotese(f"{self.id}-H{len(self.hipoteses) + 1:03d}", p.tipo, p.alvo, g["competencia"], [p.origem],
-                     p.justificativa, p.evidencias, p.confianca, g["cid"])
+                     p.justificativa, p.evidencias, p.confianca, g["cid"], pseudonimos=dict(pseudonimos or {}))
         self.hipoteses[h.id] = h
         self._registrar("hipotese", g["cid"], hipotese=h.id, evento="aceita", tipo=h.tipo, alvo=h.alvo,
                         origem=p.origem, justificativa=h.justificativa, evidencias=list(h.evidencias),

@@ -24,7 +24,7 @@ from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
 from fin_mas.fontes.planilha import ModeloInvalido
 from fin_mas.services.audit import AuditLog, TraceAdulterado
-from fin_mas.services.modelos import PROVEDORES
+from fin_mas.services.modelos import USOS_POR_AGENTE, ConfiguracaoInvalida
 
 
 def _resumo(execucao) -> list[str]:
@@ -43,15 +43,35 @@ def _resumo(execucao) -> list[str]:
     return linhas
 
 
+def _config_llm(args):
+    """`--llm` em texto simples liga só a síntese do AG-REL; com `--llm-agentes` vira configuração por agente."""
+    if not args.llm:
+        return None
+    provedor, _, modelo = args.llm.partition(":")
+    campos = {"provedor": provedor, "modelo": modelo} if modelo else {"modelo": args.llm}
+    if not modelo and not (args.llm_agentes or args.llm_base_url or args.llm_usos or args.llm_consentimento):
+        return args.llm
+    if args.llm_base_url:
+        campos["base_url"] = args.llm_base_url
+    if args.llm_consentimento:
+        campos["consentimento_externo"] = True
+    agentes = [a.strip() for a in (args.llm_agentes or "AG-REL").split(",") if a.strip()]
+    usos = tuple(u.strip() for u in args.llm_usos.split(",") if u.strip()) if args.llm_usos else None
+    return {a: {**campos, "usos": usos or USOS_POR_AGENTE.get(a, ("sintese",))} for a in agentes}
+
+
 def _run(args) -> int:
     if args.scenario not in CENARIOS:
         print(f"cenário desconhecido: {args.scenario}. Use 'list'.", file=sys.stderr)
         return 2
     try:
         execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta, memoria=args.memoria,
-                                llm=args.llm, cognicao=args.cognicao)
+                                llm=_config_llm(args), cognicao=args.cognicao)
     except ModeloInvalido as e:
         print("planilha inválida:\n  " + "\n  ".join(e.erros), file=sys.stderr)
+        return 2
+    except ConfiguracaoInvalida as e:
+        print(f"configuração de LLM inválida: {e}", file=sys.stderr)
         return 2
     sc = execucao.scenario
     ds = execucao.system.dataset
@@ -154,6 +174,33 @@ def _modelos(args) -> int:
     return 0
 
 
+def _llm(args) -> int:
+    from fin_mas.services import provedores
+    if args.acao == "provedores":
+        for p in provedores.situacao():
+            chave = "não usa chave" if p["variavel_chave"] is None else \
+                f"{p['variavel_chave']}: {'definida' if p['tem_chave'] else 'ausente'}" \
+                f"{' (opcional)' if p['chave_opcional'] else ''}"
+            print(f"{p['id']:<14} {'externo' if p['externo'] else 'local':<8} {chave}"
+                  f"{' (exige --base-url)' if p['exige_base_url'] else ''}")
+        return 0
+    import json as _json
+
+    from fin_mas.cognicao import bancada
+    config = {"provedor": args.provedor, "modelo": args.modelo}
+    if args.base_url:
+        config["base_url"] = args.base_url
+    if args.consentimento:
+        config["consentimento_externo"] = True
+    try:
+        resultado = bancada.avaliar(config)
+    except ConfiguracaoInvalida as e:
+        print(f"configuração de LLM inválida: {e}", file=sys.stderr)
+        return 2
+    print(_json.dumps(resultado, ensure_ascii=False, indent=2) if args.json else bancada.tabela(resultado))
+    return 0
+
+
 def _mcp_excel(args) -> int:
     from fin_mas.mcp.excel_server import ServidorExcel
     ServidorExcel(args.pasta).servir()
@@ -174,8 +221,16 @@ def main(argv=None) -> int:
     run.add_argument("--porte", choices=PORTES, default=None, help="porte da empresa (regras de models/portes.yaml)")
     run.add_argument("--pasta", default=None, help="pasta (ou arquivo .xlsx) com a planilha preenchida")
     run.add_argument("--memoria", default=None, help="arquivo JSON do SVC-MEM (persiste entre execuções)")
-    run.add_argument("--llm", default=None, choices=sorted(PROVEDORES),
-                     help="liga o LLM opcional do AG-REL (mock-* offline; claude-opus-5-5 exige o SDK anthropic)")
+    run.add_argument("--llm", default=None, metavar="MODELO | PROVEDOR:MODELO",
+                     help="liga o LLM opcional: um apelido (mock-narrador, claude-opus-5-5) liga só a síntese do "
+                          "AG-REL; PROVEDOR:MODELO aceita mock, anthropic, openai, gemini e openai-compat")
+    run.add_argument("--llm-agentes", default=None, metavar="AG-ORC,AG-RES,AG-REL",
+                     help="agentes em que o LLM é ligado (padrão: AG-REL); AG-ORQ, AG-CUS e AG-CIN não aceitam")
+    run.add_argument("--llm-usos", default=None, metavar="hipoteses,narrativa",
+                     help="usos ligados (padrão: os do agente): sintese, hipoteses, narrativa, comentario")
+    run.add_argument("--llm-base-url", default=None, help="URL do servidor (obrigatória em openai-compat)")
+    run.add_argument("--llm-consentimento", action="store_true",
+                     help="autoriza enviar dados (com pseudônimos) a um provedor externo")
     run.add_argument("--cognicao", default=None, choices=NIVEIS,
                      help="nível de cognição dos agentes BDI (padrão: o do cenário); ver ADR-008")
     rep = sub.add_parser("replay", help="reconstrói uma conversa a partir de um trace JSONL")
@@ -208,6 +263,15 @@ def main(argv=None) -> int:
     ver.add_argument("trace")
     ver.add_argument("--ancora", default=None,
                      help="hash final publicado: verifica sem a chave local (ex.: em outra máquina)")
+    llm = sub.add_parser("llm", help="provedores de LLM e bancada de avaliação de hipóteses (ADR-008)")
+    llm_sub = llm.add_subparsers(dest="acao", required=True)
+    llm_sub.add_parser("provedores", help="lista os provedores e se a chave de cada um está no ambiente")
+    ava = llm_sub.add_parser("avaliar", help="roda os casos da bancada com um provedor e mostra a tabela")
+    ava.add_argument("--provedor", default="mock")
+    ava.add_argument("--modelo", default="mock-analista")
+    ava.add_argument("--base-url", default=None)
+    ava.add_argument("--consentimento", action="store_true", help="autoriza enviar os casos a um provedor externo")
+    ava.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     if args.comando == "list":
         for sc in CENARIOS.values():
@@ -215,7 +279,7 @@ def main(argv=None) -> int:
         return 0
     comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export,
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
-                "verificar": _verificar}
+                "verificar": _verificar, "llm": _llm}
     return comandos[args.comando](args)
 
 

@@ -1,3 +1,6 @@
 pyyaml>=6.0
 openpyxl>=3.1
 pytest>=8.0
+# opcionais do produto, instalados aqui para que a suíte exercite os dois caminhos
+anthropic>=1.0
+textual>=8,<9

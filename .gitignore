@@ -63,3 +63,8 @@ entregas/dsm2/DSM2-entrega.zip
 entregas/dsm3/DSM3-entrega.zip
 # --- Memória persistente local do SVC-MEM (--memoria) ---
 .fin_mas/
+
+# segredos locais (chaves de LLM): nunca versionar
+.env
+.env.*
+!.env.example

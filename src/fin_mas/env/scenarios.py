@@ -13,11 +13,12 @@ from fin_mas.agents.orq import Orquestrador
 from fin_mas.agents.rel import VERSAO_TEMPLATE, AgenteRelatorios
 from fin_mas.agents.res import AgenteResultados
 from fin_mas.cognicao import NIVEIS
+from fin_mas.cognicao.llm import ProponenteLLM
 from fin_mas.cognicao.regras import ProponenteLocal
 from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus, Fault
 from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
-from fin_mas.env.empresa import EMPRESA
+from fin_mas.env.empresa import EMPRESA, PESSOAS
 from fin_mas.env.portes import PORTE_PADRAO
 from fin_mas.mcp.gateway import MCPGateway
 from fin_mas.services.locks import LockService
@@ -182,12 +183,18 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": AgenteRelatorios(bus, gw)}
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
-    modelos = RegistroModelos(bus.audit, lambda: bus.now)
-    agentes["AG-REL"].modelos = modelos
-    if llm:  # flag do LLM opcional no AG-REL (ADR-002); desligada por padrão
-        modelos.configurar("AG-REL", llm=True, modelo=llm)
+    pessoas = [*ds.perfil["pessoas"], *(nome for nome, _ in PESSOAS.values())]
+    modelos = RegistroModelos(bus.audit, lambda: bus.now, pessoas=pessoas)
+    for agente in ("AG-REL", "AG-RES", "AG-ORC"):  # os três em que a NORM-07 permite LLM
+        agentes[agente].modelos = modelos
+    # flag do LLM opcional (ADR-002), desligada por padrão. Texto = apelido de modelo só para a síntese do AG-REL
+    # (forma da primeira versão da DSM3); dicionário = configuração por agente (ADR-008).
+    for agente, campos in ({"AG-REL": {"modelo": llm}} if isinstance(llm, str) else dict(llm or {})).items():
+        modelos.configurar(agente, llm=True, **campos)
     if cognicao != "basico":  # ADR-008: hipóteses propostas por regras locais (e por LLM, no nível `llm`)
         agentes["AG-ORC"].proponentes.append(ProponenteLocal())
+    if cognicao == "llm":
+        agentes["AG-ORC"].proponentes.append(ProponenteLLM(modelos))
     orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
     return System(bus, ds, gw, locks, orq, Solicitante(bus), Aprovador(bus, decisao_aprovador, amb, interativo),
                   agentes, amb, politica, mem, modelos)
@@ -208,6 +215,7 @@ class Scenario:
     aprovadores: dict | None = None  # cadastro do SVC-POL; None = padrão (controller)
     ataques: bool = False  # dispara env/ataques.py enquanto o veto aguarda o aprovador
     cognicao: str = "basico"  # basico | local | llm (ADR-008); os cenários revisados ficam em `basico`
+    llm: tuple = ()  # ((agente, ((campo, valor), ...)), ...): configuração de LLM por agente (mocks, nos cenários)
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
 
 
@@ -283,6 +291,55 @@ CENARIOS = {c.nome: c for c in [
              "fechar_mes", plantar=("desvio_irregular",), cognicao="local", decisao_aprovador="corrigir",
              faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
              esperado="hipótese confirmada; veto com estorno aprovado; relatório publicado com o insight"),
+    # ---- DSM3: LLM opcional como proponente e redator, sempre com mocks offline (ADR-008) ----
+    Scenario("orc_hipotese_llm", "A planilha descreve o lançamento repetido com outras palavras: as regras locais "
+             "não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
+             "avaliar_orcamento", plantar=("desvio_irregular", "observacao_parafraseada"), cognicao="llm",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-analista"), ("usos", ("hipoteses",)))),),
+             esperado="hipótese de origem llm confirmada pelo AG-CIN; sem falso desvio"),
+    Scenario("llm_hipotese_rejeitada", "O LLM (mock) devolve propostas com número inventado, alvo inexistente, tipo "
+             "fora da lista, ação e evidência que o agente não tem: todas rejeitadas, nada muda",
+             "avaliar_orcamento", plantar=("desvio_irregular", "observacao_parafraseada"), cognicao="llm",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-analista-ruim"), ("usos", ("hipoteses",)))),),
+             esperado="cinco propostas rejeitadas (NORM-11); resposta igual à da cognição básica"),
+    Scenario("llm_nota_injetada", "A observação da planilha traz uma instrução para o modelo; o LLM (mock) obedece e "
+             "a proposta é rejeitada: texto livre é dado, não instrução",
+             "avaliar_orcamento", plantar=("desvio_orcamentario", "nota_injetada"), cognicao="llm",
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-injetado"), ("usos", ("hipoteses",)))),),
+             esperado="proposta 'dentro_do_limiar' rejeitada; os dois desvios seguem sinalizados"),
+    Scenario("llm_json_invalido", "O LLM (mock) responde fora do formato: fallback registrado e avaliação determinística",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="llm",
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-json-invalido"), ("usos", ("hipoteses",)))),),
+             esperado="llm_fallback 'resposta fora do formato'; a hipótese local segue o caminho normal"),
+    Scenario("llm_provedor_fora", "Provedor de LLM fora do ar em dois meses seguidos: cada chamada cai no fallback, "
+             "o disjuntor abre na terceira e as avaliações saem pelo caminho determinístico",
+             "avaliar_orcamento", cognicao="llm",
+             agenda=(("2026-08", ("desvio_orcamentario",)), ("2026-09", ("desvio_orcamentario",))),
+             pedidos=(("avaliar_orcamento", "2026-08", 1), ("avaliar_orcamento", "2026-09", 40)),
+             llm=(("AG-ORC", (("provedor", "openai-compat"), ("modelo", "modelo-local"),
+                              ("base_url", "http://127.0.0.1:9/v1"), ("usos", ("hipoteses", "narrativa")))),),
+             esperado="duas falhas do provedor, depois disjuntor aberto; as duas avaliações publicadas"),
+    Scenario("llm_sem_consentimento", "Provedor externo configurado sem consentimento para enviar dados: nada sai "
+             "da máquina e o agente segue no caminho determinístico",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="llm",
+             llm=(("AG-ORC", (("provedor", "openai"), ("modelo", "modelo-externo"), ("usos", ("hipoteses",)))),),
+             esperado="llm_fallback NORM-06 'sem consentimento'; nenhum llm_prompt registrado"),
+    Scenario("llm_pseudonimos", "Envio com pseudônimos: o prompt registrado troca fornecedor e documento por rótulos "
+             "e o insight volta com os nomes reais",
+             "avaliar_orcamento", plantar=("desvio_irregular", "observacao_parafraseada"), cognicao="llm",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-analista"), ("usos", ("hipoteses",)),
+                              ("pseudonimizar", True))),),
+             esperado="prompt com FORNECEDOR-A e sem F-77; insight com F-77; hipótese confirmada"),
+    Scenario("llm_textos_validados", "Fechamento com os três textos opcionais: narrativa do AG-ORC, comentário do "
+             "AG-RES e síntese do AG-REL (mocks), cada um conferido contra os números do seu agente",
+             "fechar_mes", plantar=("desvio_orcamentario",),
+             llm=(("AG-ORC", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("narrativa",)))),
+                  ("AG-RES", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("comentario",)))),
+                  ("AG-REL", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("sintese",))))),
+             esperado="três chamadas de LLM registradas, uma por agente; nenhum número fora do texto-base"),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -319,9 +376,13 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     sistema = build_system(seed if seed is not None else sc.seed, () if pasta else sc.plantar, sc.faults,
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
-                           aprovadores=sc.aprovadores, llm=llm, cognicao=cognicao or sc.cognicao)
+                           aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
+                           cognicao=cognicao or sc.cognicao)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
+    outros = {a: sistema.modelos.situacao(a) for a in ("AG-ORC", "AG-RES") if sistema.modelos.config(a)["llm"]}
+    if outros:
+        extras["llm_agentes"] = outros
     sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,

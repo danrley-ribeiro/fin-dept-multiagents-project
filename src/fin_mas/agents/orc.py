@@ -31,7 +31,7 @@ A hipótese nunca classifica um desvio: quem muda a classificação é a crença
 evidência (a resposta do AG-CIN, o cálculo sobre o histórico), pelos planos de sempre.
 """
 from fin_mas.core.bdi import AgenteBDI, Plano
-from fin_mas.core.inferencia import EsquemaHipoteses, resolver
+from fin_mas.core.inferencia import EsquemaHipoteses
 from fin_mas.env.dataset import LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, brl
 from fin_mas.mcp.gateway import ToolIndisponivel
 
@@ -337,6 +337,7 @@ class AgenteOrcamento(AgenteBDI):
             "tolerancia_fonte": TOLERANCIA_FONTE,
         }
         self.estado = {"avaliacao": None, "tarefas": {}}
+        self.modelos = None  # SVC-MOD: narrativa opcional dos desvios (uso `narrativa`); None = sem LLM
 
     # ---- percepção ---------------------------------------------------------
     def on_message(self, msg) -> None:
@@ -471,7 +472,7 @@ class AgenteOrcamento(AgenteBDI):
         for h in self.hipoteses.values():
             if h.competencia != c:
                 continue
-            texto = resolver(h.justificativa, h.alvo, t.get("valores_hipoteses", {}))
+            texto = h.texto(t.get("valores_hipoteses", {}))
             desfecho = {"confirmada": f"confirmada por {h.verificacao}", "refutada": f"refutada por {h.verificacao}",
                         "arquivada": "arquivada sem evidência", "em_verificacao": "em verificação",
                         "proposta": "sem verificação"}[h.estado]
@@ -581,9 +582,23 @@ class AgenteOrcamento(AgenteBDI):
         if self.proponentes:  # cognição local ou com LLM: hipóteses e insights acompanham a avaliação
             avaliacao["hipoteses"] = [h.resumo() for h in self.hipoteses.values() if h.competencia == c]
             avaliacao["insights"] = self.insights(c)
+        narrativa = self._narrativa(c, t, contas) if self.modelos else None
+        if narrativa:
+            avaliacao["narrativa"] = narrativa
         t["avaliacao"] = avaliacao
         self.estado["avaliacao"] = avaliacao
         return avaliacao
+
+    def _narrativa(self, c, t, contas) -> dict | None:
+        """Texto do LLM sobre os desvios, validado contra as linhas abaixo (NORM-05); só com a flag ligada."""
+        relevantes = [x for x in contas if x["classificacao"] != "dentro_do_limiar"]
+        if not relevantes:
+            return None
+        rotulo = {"desvio_orcamentario": "desvio orçamentário", "atribuido_a_controle": "atribuído a controle interno"}
+        base = "\n".join(f"{x['conta']}: orçado {brl(x['orcado_acumulado'])}, realizado {brl(x['realizado_acumulado'])}, "
+                         f"desvio {brl(x['desvio'])} ({rotulo[x['classificacao']]})" for x in relevantes)
+        texto = self.modelos.gerar(self.id, t["cid"], f"explicar os desvios de {c}", base, uso="narrativa")
+        return {"texto": texto, "modelo": self.modelos.config(self.id)["modelo"]} if texto else None
 
     def responder(self, c) -> None:
         t = self.tarefa(c)

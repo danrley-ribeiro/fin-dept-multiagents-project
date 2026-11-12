@@ -26,6 +26,10 @@ class AgenteRelatorios(Specialist):
         linhas = getattr(self, "_" + tarefa)(content)
         for insight in content.get("insights", []):  # hipóteses verificadas dos especialistas (ADR-008)
             linhas.append(f"Insight: {insight}")
+        for campo, autor in (("comentario", "AG-RES"), ("narrativa", "AG-ORC")):  # textos de LLM já validados na origem
+            if content.get(campo):
+                linhas.append(f"Comentário do {autor} (gerado por {content[campo]['modelo']}; números conferidos): "
+                              f"{content[campo]['texto']}")
         for ressalva in content.get("ressalvas", []):
             linhas.append(f"Ressalva: {ressalva}")
         for nota in content.get("notas", []):

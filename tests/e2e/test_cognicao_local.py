@@ -70,7 +70,8 @@ def test_local_hypothesis_triggers_verification_and_reclassifies():
 def test_hypothesis_never_writes_a_belief(nome):
     """Proposta não é crença: nenhuma crença tem um proponente como fonte, em nenhum cenário."""
     e = run_scenario(nome)
-    assert _eventos(e, "hipotese"), "o cenário deveria gerar ao menos uma hipótese"
+    if nome != "llm_provedor_fora":  # único cenário cognitivo sem nenhuma proposta (provedor fora do ar)
+        assert _eventos(e, "hipotese"), "o cenário deveria registrar ao menos uma proposta"
     fontes = {r["fonte"] for a in ("AG-ORC", "AG-CIN") for r in _eventos(e, "belief", a)}
     assert not [f for f in fontes if f.startswith(("local:", "llm:"))]
     # o que muda a avaliação tem fonte determinística: o AG-CIN, uma tool MCP ou um plano de domínio

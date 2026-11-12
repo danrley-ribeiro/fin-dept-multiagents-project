@@ -159,6 +159,9 @@ class Orquestrador(Agent):
         r = {n: e["resultado"] for n, e in sol["nos"].items()}
         # insights dos especialistas (só existem com cognição local ou LLM, ADR-008): o Orquestrador repassa
         extras = {"insights": list(r["orcamento"]["insights"])} if (r.get("orcamento") or {}).get("insights") else {}
+        for origem, campo in (("orcamento", "narrativa"), ("resultados", "comentario")):  # textos de LLM validados
+            if (r.get(origem) or {}).get(campo):
+                extras[campo] = dict(r[origem][campo])
         if nome == "relatorio" and sol["intencao"] == "fechar_mes":
             return {"dre": r["resultados"]["dre"], "kpis": r["resultados"]["kpis"],
                     "resultado_un": r["resultados"]["resultado_un"], "parecer": sol["parecer"],

@@ -61,6 +61,14 @@ class Hipotese:
     cid: str | None
     estado: str = "proposta"
     verificacao: str | None = None  # fonte da evidência que confirmou ou refutou
+    pseudonimos: dict = field(default_factory=dict)  # rótulo -> valor real, quando a proposta veio de envio externo
+
+    def texto(self, valores: dict) -> str:
+        """Justificativa com os marcadores resolvidos pelas crenças do agente e os pseudônimos desfeitos."""
+        texto = resolver(self.justificativa, self.alvo, valores)
+        for rotulo in sorted(self.pseudonimos, key=len, reverse=True):
+            texto = texto.replace(rotulo, self.pseudonimos[rotulo])
+        return texto
 
     def resumo(self) -> dict:
         return {"id": self.id, "tipo": self.tipo, "alvo": self.alvo, "competencia": self.competencia,
@@ -76,7 +84,7 @@ class EsquemaHipoteses:
     tipos: dict  # tipo -> descrição
     alvos: tuple
     evidencias: tuple  # chaves de crença que podem ser citadas
-    max_propostas: int = 4
+    max_propostas: int = 6
     valores: dict = field(default_factory=dict)  # chave de crença -> texto já formatado (resolve marcadores)
 
     def como_json_schema(self) -> dict:

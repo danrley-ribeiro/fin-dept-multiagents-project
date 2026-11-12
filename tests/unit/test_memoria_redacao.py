@@ -232,9 +232,14 @@ SETEMBRO = Scenario("setembro", "mesma alçada em setembro", "fechar_mes", decis
                     agenda=(("2026-09", ("alcada",)),), pedidos=(("fechar_mes", "2026-09", 1),))
 
 
-@pytest.mark.parametrize("ataque", ["remover_entrada", "corromper", "apagar_arquivo", "versao_antiga"])
+@pytest.mark.parametrize("ataque", ["remover_entrada", "corromper", "apagar_arquivo", "versao_antiga",
+                                    "formato_anterior", "formato_ausente"])
 def test_memory_removal_corruption_or_rollback_fails_closed(tmp_path, ataque):
-    """Recorreção (N1): sem a memória íntegra, o waiver não é reaberto (falha fechada), em vez de liberar."""
+    """Recorreção (N1): sem a memória íntegra, o waiver não é reaberto (falha fechada), em vez de liberar.
+
+    `formato_anterior`/`formato_ausente` (issue #2): arquivo de outra versão do formato, com selo e
+    assinaturas válidos, cujas chaves de reincidência não casariam com as consultas atuais.
+    """
     import shutil
 
     arquivo = tmp_path / "memoria.json"
@@ -247,6 +252,13 @@ def test_memory_removal_corruption_or_rollback_fails_closed(tmp_path, ataque):
         arquivo.write_text("{corrompido", encoding="utf-8")
     elif ataque == "apagar_arquivo":
         arquivo.unlink()
+    elif ataque in ("formato_anterior", "formato_ausente"):
+        dados = json.loads(arquivo.read_text(encoding="utf-8"))
+        if ataque == "formato_anterior":
+            dados["versao"] = 3  # v3: pseudônimo SHA-256 sem chave
+        else:
+            dados.pop("versao")
+        arquivo.write_text(json.dumps(dados), encoding="utf-8")
     else:  # volta a uma cópia antiga, assinada de verdade, depois de uma gravação mais nova
         shutil.copy(arquivo, tmp_path / "antiga.json")
         run_scenario(Scenario("outubro", "nova gravação", "fechar_mes", decisao_aprovador="waiver",

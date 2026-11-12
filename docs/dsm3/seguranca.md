@@ -66,7 +66,8 @@ correção fora das sugeridas, personificação no registro e adulteração de c
 - **Memória íntegra e com falha fechada:** cada entrada é assinada com HMAC-SHA256 e o arquivo
   inteiro tem um selo HMAC sobre (contador de versão, entradas). A chave e o último contador
   ficam fora da pasta de dados (`~/.fin_mas/chaves/` ou `FIN_MAS_DIR_CHAVES`). Entrada inventada,
-  alterada, removida ou malformada, arquivo corrompido ou apagado e volta a uma versão antiga
+  alterada, removida ou malformada, arquivo corrompido ou apagado, volta a uma versão antiga e
+  arquivo em outra versão do formato (ex.: v3, com pseudônimos sem chave; issue #2)
   deixam a memória **comprometida**: nada é gravado e o AG-CIN trata todo achado crítico como
   reincidente, então a política não reabre o waiver (TEST-84). A gravação exige ticket compatível: waiver aprovado para
   `waiver`, correção executada para `correcao`, rejeição para `bloqueio`, mesma competência e

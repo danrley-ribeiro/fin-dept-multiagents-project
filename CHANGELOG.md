@@ -21,6 +21,9 @@ Registro por entrega.
   hexadecimais; NORM-05 compara números pelo valor; pseudônimo da memória com HMAC; regra de competência única.
   15 testes de regressão (247 no total). Botão de waiver do dashboard
   com a regra da POL-04 (12 testes vitest e 14 Playwright passando).
+- Issue #2: arquivo do SVC-MEM em outra versão do formato (ex.: v3, pseudônimo sem chave) deixa a memória
+  comprometida ao carregar (falha fechada), em vez de carregar chaves de reincidência que não casam e
+  desativar a POL-06. 2 casos novos no teste de falha fechada (249 no total).
 - Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
   COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
 - Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita

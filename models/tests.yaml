@@ -169,7 +169,7 @@ items:
   - {id: TEST-83, nome: test_redaction_covers_non_text_secrets_and_brazilian_ids, verifica: [REQ-P01], derivado_de: NORM-06, tipo: seguranca,
      esperado: "segredo numérico, em lista ou objeto, CPF por campo, CNPJ e telefone são redigidos", entrega: DSM3, status: executado}
   - {id: TEST-84, nome: test_memory_removal_corruption_or_rollback_fails_closed, verifica: [REQ-F07, REQ-S01], derivado_de: SVC-MEM, tipo: seguranca,
-     esperado: "entrada removida, arquivo corrompido, apagado ou versão antiga: memória comprometida e waiver não reaberto (falha fechada)", entrega: DSM3, status: executado}
+     esperado: "entrada removida, arquivo corrompido, apagado, versão antiga ou outro formato do arquivo (issue #2): memória comprometida e waiver não reaberto (falha fechada)", entrega: DSM3, status: executado}
   - {id: TEST-85, nome: test_memory_key_and_counter_live_outside_the_data_folder, verifica: [REQ-F07, REQ-P01], derivado_de: SVC-MEM, tipo: seguranca,
      esperado: "chave HMAC e contador de versão da memória ficam fora da pasta de dados", entrega: DSM3, status: executado}
   - {id: TEST-86, nome: test_memory_ids_stay_unique, verifica: [REQ-F07], derivado_de: SVC-MEM, tipo: seguranca,

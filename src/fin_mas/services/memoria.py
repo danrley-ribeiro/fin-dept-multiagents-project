@@ -20,7 +20,8 @@ Regras (REQ-F07, NORM-06, NORM-08):
   (contador de versão, entradas). A chave e o último contador ficam **fora da pasta de dados**
   (`FIN_MAS_DIR_CHAVES` ou `~/.fin_mas/chaves/`; a chave pode vir de `FIN_MAS_CHAVE_MEMORIA`);
 - **falha fechada**: arquivo ausente quando já houve gravação, corrompido, com selo que não
-  confere, com contador menor que o último gravado (volta a uma versão antiga), com entrada
+  confere, com contador menor que o último gravado (volta a uma versão antiga), em outra versão
+  do formato (`VERSAO`; ex.: v3, com pseudônimos sem chave), com entrada
   removida, inventada ou malformada deixa a memória **comprometida**: nada é gravado, a
   consulta informa o estado e o AG-CIN trata todo achado crítico como reincidente, de modo que
   a política não abre waiver até a memória ser restaurada.
@@ -257,6 +258,15 @@ class Memoria:
         except (ValueError, OSError) as erro:
             self._registrar(None, "descartada", agente=self.ID, motivo=f"arquivo ilegível: {erro}")
             self._comprometer(f"arquivo ilegível: {erro}")
+            return
+        if dados.get("versao") != VERSAO:
+            # outro formato (ex.: v3, pseudônimo sem chave): as chaves de reincidência não casam com as
+            # consultas desta versão e a POL-06 deixaria de valer. Não há migração (os nomes não ficam
+            # guardados), então a memória fica comprometida (falha fechada). Apagar só o arquivo não basta:
+            # o contador fora da pasta de dados acusaria arquivo ausente; o caminho é começar outro arquivo.
+            self._comprometer(f"arquivo na versão {dados.get('versao')!r} do formato, esta é a {VERSAO}: "
+                              "chaves de reincidência de outra versão não são reconhecidas; "
+                              "comece uma memória nova (outro arquivo em --memoria)")
             return
         contador, brutas = dados.get("contador"), dados["entradas"]
         if not isinstance(contador, int) or not hmac.compare_digest(str(dados.get("selo")),

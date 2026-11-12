@@ -1002,7 +1002,7 @@
 :derived_from: SVC-MEM
 
 `test_memory_removal_corruption_or_rollback_fails_closed()` — tipo *seguranca*.  
-**Resultado esperado:** entrada removida, arquivo corrompido, apagado ou versão antiga: memória comprometida e waiver não reaberto (falha fechada)  
+**Resultado esperado:** entrada removida, arquivo corrompido, apagado, versão antiga ou outro formato do arquivo (issue #2): memória comprometida e waiver não reaberto (falha fechada)  
 **Execução:** DSM3 (status atual: executado).
 ````
 

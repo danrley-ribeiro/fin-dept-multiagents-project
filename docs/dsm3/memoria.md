@@ -10,7 +10,7 @@ determinístico nos testes.
 | Só saída aprovada vira memória (NORM-08) | toda gravação cita um ticket PROT-APR que o SVC-POL confirma como decidido por humano (aprovado, executado ou rejeitado); sem isso, `recusada` |
 | Proveniência | aprovação, solicitação, conversa vetada, decisão, quem decidiu (pseudônimo) e fonte; quem consulta recebe o id `MEM-…` |
 | Controle de acesso | por tipo: quem grava e quem lê (hoje, só o AG-CIN usa a memória) |
-| Privacidade (NORM-06) | redaction fail-closed do valor; pessoas como `pessoa#…` (hash estável) |
+| Privacidade (NORM-06) | redaction fail-closed do valor; pessoas como `pessoa#…` (HMAC com a chave da memória: estável, mas não se reverte por dicionário; fora do trace) |
 | Retenção | entradas mais antigas que `retencao` competências (padrão 12) expiram na consulta |
 | Persistência | arquivo JSON gravado de forma atômica (`--memoria ARQ`); sem arquivo, só em memória (padrão dos testes) |
 

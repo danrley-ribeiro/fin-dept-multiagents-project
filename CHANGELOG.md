@@ -16,6 +16,10 @@ Registro por entrega.
 - Proteção de informações: redaction fail-closed em todo registro; JSONL com hash encadeado e `fin_mas verificar`.
 - LLM opcional do AG-REL (SVC-MOD) com mocks offline, validação numérica, logs de prompt e custo, cota.
 - Cenários `ataque_decisao_forjada` (14 ataques, 0 aceitos) e `reincidencia_waiver`; 75 testes novos (232 no total).
+- Revisão do PR pelo coautor (12/11/2026): decisão humana recusada não consome mais a pendência; waiver sem
+  justificativa humana é recusado (sem texto padrão); `replay --ancora`; redação de CPF/CNPJ não altera hashes
+  hexadecimais; NORM-05 compara números pelo valor; pseudônimo da memória com HMAC; regra de competência única.
+  15 testes de regressão (247 no total).
 - Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
   COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
 - Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita

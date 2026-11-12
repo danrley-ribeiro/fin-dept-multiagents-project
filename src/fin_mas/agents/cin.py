@@ -28,7 +28,7 @@ política impedir que um deles aprove a liberação (POL-03).
 from fin_mas.core.bdi import AgenteBDI, Plano
 from fin_mas.core.message import Message
 from fin_mas.env.dataset import EFEITO_ORCAMENTARIO
-from fin_mas.services.memoria import MemoriaRecusada, pseudonimo
+from fin_mas.services.memoria import MemoriaRecusada
 
 MAX_CICLOS_CORRECAO = 1
 CORRECAO_POR_REGRA = {"alcada": "reaprovar", "sod": "reaprovar", "duplicidade": "estornar",
@@ -197,9 +197,9 @@ class AgenteControlesInternos(AgenteBDI):
         b = self.crencas.get(f"lanc[{achado['lancamento']}]@{competencia}") or {}
         campo = REINCIDENCIA_POR.get(achado["regra"])
         valor = b.get(campo)
-        if not valor:
+        if not valor or self.memoria is None:
             return None
-        return f"{achado['regra']}|{campo}={pseudonimo(valor) if campo != 'fornecedor' else valor}"
+        return f"{achado['regra']}|{campo}={self.memoria.pseudonimo(valor) if campo != 'fornecedor' else valor}"
 
     def marcar_reincidencias(self, achados, competencia, cid) -> None:
         if self.memoria is None:

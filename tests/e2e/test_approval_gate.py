@@ -22,9 +22,12 @@ def pendente(plantar=("alcada",), **kw):
     return s, sid, proposta
 
 
+JUSTIFICATIVA = "aceito o risco: lançamento será corrigido no próximo ciclo"
+
+
 def decisao(sid, proposta, **extra):
     return {"aprovacao": proposta.conversation_id, "solicitacao": sid, "veto": proposta.content["veto"],
-            "justificativa": "aceito o risco: lançamento será corrigido no próximo ciclo", **extra}
+            "justificativa": JUSTIFICATIVA, **extra}
 
 
 def test_external_action_requires_approval():
@@ -112,7 +115,7 @@ def test_late_approval_after_deadline_is_discarded():
     s, sid, proposta = pendente(prazo_aprovacao=15)
     s.bus.run()  # ninguém decide: o prazo do ticket esgota
     assert s.bus.conversations[proposta.conversation_id].state == "EXPIRADA"
-    s.aprovador.decidir(sid, "waiver")  # decisão atrasada
+    s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)  # decisão atrasada
     s.bus.run()
     assert any(r["kind"] == "discard" and r["conversation_id"] == proposta.conversation_id
                for r in s.bus.audit.records)
@@ -147,8 +150,8 @@ def test_approver_role_limits_decisions():
     analista = {"APR": {"pessoa": "analista.revisor", "titulo": "Analista", "decisoes": ["corrigir", "bloquear"]}}
     s, sid, proposta = pendente(aprovadores=analista)
     with pytest.raises(MensagemRejeitada, match="POL-02.*não pode decidir 'waiver'"):
-        s.aprovador.decidir(sid, "waiver")
-    s.aprovador.pendentes[sid] = proposta
+        s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
+    assert sid in s.aprovador.pendentes  # a recusa não consome a pendência (revisão do PR, item 1)
     s.aprovador.decidir(sid, "corrigir")
     s.bus.run()
     assert s.usuario.resposta(sid).content["status"] == "publicado"
@@ -161,7 +164,7 @@ def test_approver_involved_in_vetoed_entry_cannot_decide():
     s, sid, proposta = pendente(aprovadores={"APR": {"pessoa": envolvido, "titulo": "Gerente",
                                                      "decisoes": ["waiver", "corrigir", "bloquear"]}})
     with pytest.raises(MensagemRejeitada, match="POL-03"):
-        s.aprovador.decidir(sid, "waiver")
+        s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
     assert s.bus.conversations[proposta.conversation_id].state == "PENDENTE"
 
 
@@ -229,7 +232,7 @@ def test_non_serializable_content_is_rejected_before_any_side_effect():
     with pytest.raises(MensagemRejeitada, match="não serializável"):
         s.aprovador.send("AG-ORQ", "approve", "PROT-APR", tid, {**decisao(sid, proposta, decisao="waiver"), 1: "x"})
     assert s.bus.conversations[tid].state == "PENDENTE" and s.politica.tickets[tid]["estado"] == "pendente"
-    s.aprovador.decidir(sid, "waiver")  # a decisão legítima continua possível
+    s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)  # a decisão legítima continua possível
     s.bus.run()
     assert s.usuario.resposta(sid).content["status"] == "publicado_com_ressalva"
     assert s.bus.conversations[tid].state == "EXECUTADA"  # waiver também fecha o ticket
@@ -265,7 +268,7 @@ def test_decision_that_cannot_be_delivered_in_time_is_rejected():
         s.bus.step()
     s.bus.now = expira - 1  # o humano decide no último tick antes do prazo
     with pytest.raises(MensagemRejeitada, match="não seria entregue no prazo"):
-        s.aprovador.decidir(sid, "waiver")
+        s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
     assert s.politica.tickets[tid]["estado"] == "pendente" and s.politica.tickets[tid]["aprovado_por"] is None
     s.bus.run()
     assert s.usuario.resposta(sid).content["decisao"] == "expirada"

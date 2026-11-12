@@ -18,6 +18,7 @@ Provedores offline (deterministas, usados nos testes e na demonstração): `mock
 credencial configurada; qualquer erro dele também cai no template.
 """
 import re
+from decimal import Decimal, InvalidOperation
 
 PERMITIDOS = {"AG-REL", "AG-RES", "AG-ORC"}
 VERSAO_PROMPT = "prompt-sintese-v1"
@@ -34,9 +35,33 @@ class ConfiguracaoInvalida(ValueError):
     pass
 
 
-def numeros(texto: str) -> set[str]:
-    """Números do texto normalizados para dígitos (R$ 1.234,56 -> 123456; 12,5% -> 125)."""
-    return {re.sub(r"\D", "", n) for n in NUMERO.findall(texto)}
+def valor_numerico(token: str):
+    """Valor de um número escrito em pt-BR (`.` de milhar, `,` decimal): 1.234,56 -> 1234.56.
+
+    A escala importa: `12.345,6` e `123.456` são valores diferentes de `1.234,56`. Um formato
+    que não dá para interpretar volta como texto e só confere se aparecer igual no texto-base.
+    """
+    t = token.rstrip(".,")
+    if t.count(",") == 1:
+        inteiro, decimal = t.split(",")
+        if inteiro.count(".") and not all(len(g) == 3 for g in inteiro.split(".")[1:]):
+            return t
+        t = inteiro.replace(".", "") + "." + decimal
+    elif "," in t:
+        return t
+    elif t.count(".") >= 1 and all(len(g) == 3 for g in t.split(".")[1:]):
+        t = t.replace(".", "")  # 1.388.886 (milhar)
+    elif t.count(".") > 1:
+        return t
+    try:
+        return Decimal(t).normalize()
+    except InvalidOperation:
+        return t
+
+
+def numeros(texto: str) -> set:
+    """Valores numéricos do texto (R$ 1.234,56 -> 1234.56; 12,5% -> 12.5), comparados pelo valor."""
+    return {valor_numerico(n) for n in NUMERO.findall(texto)}
 
 
 def _narrador(prompt: str, texto_base: str) -> str:
@@ -131,7 +156,7 @@ class RegistroModelos:
         self.audit.record(self.clock(), "llm_custo", conversation_id=cid, agente=agente, modelo=cfg["modelo"],
                           tokens_entrada=uso["entrada"], tokens_saida=uso["saida"], custo_usd=custo,
                           acumulado_tokens=cfg["usado"])
-        estranhos = sorted(numeros(texto) - numeros(texto_base))
+        estranhos = sorted((str(n) for n in numeros(texto) - numeros(texto_base)))
         if estranhos:
             self._fallback(agente, cid, cfg, f"NORM-05: números ausentes do núcleo determinístico: {estranhos}")
             return None

@@ -29,6 +29,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 | Modelos de rastreabilidade (REQ-S04, NORM-09/10, MET-15/16, TEST-46..71, componentes) | `models/` |
 | Dashboard adaptado ao PROT-APR | `web/src/state/reducer.ts`, `web/src/App.tsx`, `web/src/components/DecisaoHumana.tsx` |
 | Documentação da DSM3 e desta entrega | `docs/dsm3/`, `entregas/dsm3/` |
+| Correção dos 7 achados da revisão do PR feita pelo Danrley, seguindo as sugestões dele, e 15 testes de regressão | `env/scenarios.py`, `live.py`, `cli.py`, `services/redacao.py`, `services/modelos.py`, `services/memoria.py`, `agents/cin.py`, `tests/e2e/test_revisao_pr.py` |
 
 ## Decisões que ficaram com os autores
 
@@ -41,7 +42,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 
 ## Verificação
 
-- `python -m pytest`: 232 testes passam, offline (157 na DSM2).
+- `python -m pytest`: 247 testes passam, offline (157 na DSM2).
 - `python tools/trace.py --check`: 0 erros; 89 de 90 testes modelados executados (TEST-19 é de
   entrega futura).
 - `python -m fin_mas run --scenario ataque_decisao_forjada`: 14 ataques, nenhum aceito.
@@ -89,7 +90,33 @@ dessa simulação, não uma avaliação oficial.
   - **Menor:** a checagem do prazo da aprovação supõe entrega em um tick.
   - **Menor:** o padrão de CPF/CNPJ sem máscara também redige números legítimos de 11 ou 14 dígitos.
   - **Menor:** `verificar --ancora` sobre um trace sem cadeia devolve código 1, não 3.
+- **Depois da 3ª rodada:** a correção da redação feita na revisão do PR (abaixo) também resolve a parte
+  do ponto menor sobre CPF/CNPJ que atingia hashes; números legítimos soltos de 11 ou 14 dígitos
+  continuam sendo redigidos.
 - **Ainda não corrigido:** a variância zero entre as seeds e o baseline sem as mesmas funções. Isso
   exige redesenhar o experimento, trabalho da DSM4, e está registrado em
   [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md). Segundo o avaliador, é o que mais
   impede uma nota maior.
+
+## Revisão humana do PR pelo coautor
+
+O Danrley revisou o pull request da DSM3: reproduziu cada problema com um script sobre o
+código e sugeriu a correção. Ele apontou 7 pontos e descartou outros 3 depois
+de verificá-los. A IA aplicou as correções seguindo as sugestões dele e escreveu um teste de
+regressão por achado (detalhes em [`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md)):
+
+| Achado | Gravidade | Correção |
+|---|---|---|
+| Decisão humana recusada pela política tirava a pendência e impedia nova decisão | bug | a pendência só sai depois de a decisão ser aceita |
+| Waiver sem justificativa passava com um texto padrão atribuído ao aprovador | bug sério | no dashboard, o waiver exige o texto do humano |
+| `replay` não lia trace de outra máquina | bug | `replay --ancora` |
+| Redação de CPF/CNPJ alterava cerca de 5,5% dos hashes no trace | bug | fronteira sem letras nem dígitos |
+| NORM-05 aceitava número com a escala errada | bug | comparação pelo valor (pt-BR) |
+| Pseudônimo da memória reversível por dicionário | segurança | HMAC com a chave da memória |
+| Regra de competência duplicada e divergente | detalhe | uma regra só, em `core/schema.py` |
+
+Verificação depois das correções: 247 testes passando; `trace.py --check` sem erros; cenário
+adversarial com 14 de 14 ataques rejeitados e a mesma âncora; comparação em 10 seeds com as
+mesmas métricas (só os hashes de cada execução mudaram, porque o trace não guarda mais o
+pseudônimo). Os testes do dashboard (`bun run test` e Playwright) não rodaram no ambiente da IA,
+que não tem Node; o código do dashboard (`web/`) não foi alterado nesta rodada.

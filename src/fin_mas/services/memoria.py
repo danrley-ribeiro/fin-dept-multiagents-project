@@ -10,10 +10,10 @@ Regras (REQ-F07, NORM-06, NORM-08):
 - **identidade**: grava e consulta só quem tem uma visão emitida pelo serviço (`visao`), com
   um token de acesso; chamar o serviço declarando o nome de um agente não basta;
 - **proveniência**: aprovação, solicitação, conversa de conformidade, decisão, quem decidiu
-  (pseudônimo) e fonte; quem consulta recebe o id `MEM-…`;
+  (pseudônimo com chave) e fonte; quem consulta recebe o id `MEM-…`;
 - **controle de acesso**: cada tipo de memória tem escritores e leitores;
 - **privacidade**: o valor passa por redaction (fail-closed); pessoas viram pseudônimos
-  estáveis (`pessoa#…`) e nenhum texto livre com nomes é guardado;
+  estáveis (`pessoa#…`, HMAC com a chave da memória, que não se reverte por dicionário) e nenhum texto livre com nomes é guardado;
 - **retenção**: entradas mais antigas que `retencao` competências expiram na consulta;
 - **persistência íntegra**: com `caminho`, a memória é um arquivo JSON gravado de forma atômica.
   Cada entrada leva uma assinatura HMAC-SHA256 e o arquivo inteiro um **selo** HMAC sobre
@@ -33,9 +33,10 @@ import re
 import secrets
 from pathlib import Path
 
+from fin_mas.core.schema import FORMATOS
 from fin_mas.services.redacao import FalhaRedacao, redigir
 
-VERSAO = 3
+VERSAO = 4  # v4: pseudônimo com HMAC (chave da memória) em vez de SHA-256 sem chave
 RETENCAO_COMPETENCIAS = 12
 ACESSO = {  # tipo -> (quem grava, quem lê)
     "waiver": ({"AG-CIN"}, {"AG-CIN"}),
@@ -47,7 +48,7 @@ EXIGE = {  # tipo -> (decisão do ticket, estados aceitos)
     "correcao": ("corrigir", {"executado"}),
     "bloqueio": ("bloquear", {"rejeitado"}),
 }
-COMPETENCIA = re.compile(r"\d{4}-(0[1-9]|1[0-2])")
+COMPETENCIA = FORMATOS["aaaa-mm"][0]  # mesma regra do barramento e do dashboard (core/schema.py)
 CAMPOS = {"id": str, "tipo": str, "chave": str, "valor": dict, "competencia": str, "agente": str,
           "proveniencia": dict, "assinatura": str}
 
@@ -56,8 +57,22 @@ class MemoriaRecusada(PermissionError):
     pass
 
 
-def pseudonimo(valor: str) -> str:
-    return "pessoa#" + hashlib.sha256(f"fin-mas-mem:{valor}".encode("utf-8")).hexdigest()[:10]
+PSEUDONIMO = re.compile(r"pessoa#[0-9a-f]{10}")
+
+
+def _sem_pseudonimo(valor):
+    """Tira o pseudônimo dos registros do trace: ele depende da chave local da memória (mudaria o
+    hash do trace entre máquinas) e não acrescenta nada ao auditor, que já vê os usuários do ERP
+    como evidência de alçada e SoD. A entrada da memória (`MEM-…`) continua identificada."""
+    if isinstance(valor, str):
+        return PSEUDONIMO.sub("pessoa#…", valor)
+    if isinstance(valor, dict):
+        return {k: _sem_pseudonimo(v) for k, v in valor.items()}
+    if isinstance(valor, (list, tuple)):
+        return [_sem_pseudonimo(v) for v in valor]
+    return valor
+
+
 
 
 def _meses(competencia: str) -> int:
@@ -89,6 +104,15 @@ class Memoria:
     @property
     def integra(self) -> bool:
         return self.comprometida is None
+
+    def pseudonimo(self, valor: str) -> str:
+        """Pseudônimo estável de uma pessoa: HMAC com a chave da memória (fora da pasta de dados).
+
+        Sem a chave não dá para refazer a tabela nome -> pseudônimo, mesmo com poucos usuários
+        no ERP; com a mesma chave o pseudônimo se repete entre execuções (reincidência).
+        """
+        return "pessoa#" + hmac.new(self._chave, f"pseudonimo:{valor}".encode("utf-8"),
+                                    hashlib.sha256).hexdigest()[:10]
 
     # ---- identidade -------------------------------------------------------------------
     def visao(self, agente: str) -> "VisaoMemoria":
@@ -141,7 +165,7 @@ class Memoria:
             "competencia": competencia, "agente": agente,
             "proveniencia": {"aprovacao": aprovacao, "solicitacao": ticket["solicitacao"], "cmp": ticket["cmp"],
                              "decisao": ticket["decisao"],
-                             "decidido_por": pseudonimo(ticket["aprovado_por"]["pessoa"]) if ticket.get("aprovado_por")
+                             "decidido_por": self.pseudonimo(ticket["aprovado_por"]["pessoa"]) if ticket.get("aprovado_por")
                              else None, "fonte": fonte},
         }
         entrada["assinatura"] = self._assinar(entrada)
@@ -281,7 +305,7 @@ class Memoria:
         estado.write_text(str(self.contador), encoding="utf-8")
 
     def _registrar(self, cid, evento, **campos) -> None:
-        self.audit.record(self.clock(), "memoria", conversation_id=cid, evento=evento, **campos)
+        self.audit.record(self.clock(), "memoria", conversation_id=cid, evento=evento, **_sem_pseudonimo(campos))
 
 
 class VisaoMemoria:
@@ -298,9 +322,8 @@ class VisaoMemoria:
     def consultar(self, tipo, chave=None, **kw) -> list[dict]:
         return self._servico.consultar(self._agente, tipo, chave, token=self.__token, **kw)
 
-    @staticmethod
-    def pseudonimo(valor: str) -> str:
-        return pseudonimo(valor)
+    def pseudonimo(self, valor: str) -> str:
+        return self._servico.pseudonimo(valor)
 
     @property
     def integra(self) -> bool:

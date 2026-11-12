@@ -26,7 +26,7 @@ feedback, ponto a ponto, está em {doc}`revisao`.
 | Protocolo de interação documentado | seis FSMs com transições válidas e inválidas, emissores e eventos locais; diagramas em `entregas/dsm3/modelos-editaveis/` |
 | Coordenação, negociação, cooperação ou planejamento | DAG do Orquestrador, consulta ORC↔CIN, ciclo veto→aprovação→correção→reavaliação, exclusão mútua de período |
 | Tratamento de conflito, falha ou alternativa | reenvio e falha explícita, replanejamento BDI, prazo do ticket, decisão negada pela política, reincidência |
-| Testes integrados ou cenários automatizados | 232 testes pytest (75 novos) + Playwright; 17 cenários nomeados |
+| Testes integrados ou cenários automatizados | 247 testes pytest (90 novos) + Playwright; 17 cenários nomeados |
 | Evidências de comportamento coletivo | traces JSONL com crenças, intenções, decisões, rejeições e tickets; comparação em 10 seeds |
 
 ## Como reproduzir em dois minutos
@@ -36,7 +36,7 @@ python -m fin_mas run --scenario ataque_decisao_forjada     # 14 ataques, 0 acei
 python -m fin_mas run --scenario reincidencia_waiver         # memória entre meses + POL-06
 python -m fin_mas run --scenario veto_correcao --trace t.jsonl && python -m fin_mas verificar t.jsonl
 python -m fin_mas run --scenario fechar_mes --llm mock-narrador   # síntese por LLM validada (offline)
-python -m pytest                                              # 232 testes
+python -m pytest                                              # 247 testes
 ```
 
 ```{toctree}

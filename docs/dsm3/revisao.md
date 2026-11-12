@@ -75,6 +75,26 @@ e apontou os pontos abaixo, também corrigidos:
 A crítica sobre o experimento (variância zero entre as seeds, baseline sem as mesmas funções)
 está registrada em {doc}`limitacoes` e é o foco da DSM4.
 
+## Revisão do PR pelo coautor
+
+O Danrley revisou o pull request da DSM3 (commit `3c4b66f`) e reproduziu cada achado com um
+script sobre o código. Todos foram corrigidos conforme as sugestões dele, cada um com um teste
+de regressão em `tests/e2e/test_revisao_pr.py`:
+
+| Achado da revisão | Correção | Teste |
+|---|---|---|
+| decisão humana recusada pela política (ex.: POL-04) tirava a pendência antes da validação: não dava para decidir de novo e o pedido terminava `expirada`; opção não oferecida devolvia sucesso sem enviar nada | a pendência só sai depois de o barramento e o SVC-POL aceitarem a decisão; `_responder` informa quando não envia; o dashboard avisa que a pendência continua aberta | `test_refused_decision_keeps_pending_and_can_be_retried`, `test_option_not_offered_reports_nothing_sent_and_keeps_pending` |
+| waiver sem justificativa recebia o texto padrão e passava na POL-04: um POST sem justificativa liberava o veto e o trace atribuía ao aprovador um texto que ele não escreveu | no modo interativo, o waiver usa só o texto do humano (vazio é recusado); bloquear e corrigir sem justificativa registram "sem justificativa informada"; o texto padrão fica só no modo em lote dos cenários | `test_waiver_without_human_justification_is_refused`, `test_block_without_justification_says_none_was_given` |
+| `replay` não lia trace gravado em outra máquina (não tinha `--ancora`) | `replay --ancora HASH`, como no `verificar` | `test_replay_reads_trace_from_another_machine_with_anchor` |
+| a redação de CPF/CNPJ sem máscara alterava cerca de 5,5% dos hashes SHA-256 (ex.: o hash do veto no trace) | fronteira sem letras nem dígitos em volta dos 11 ou 14 dígitos | `test_redaction_keeps_hex_digests_intact` (20.000 hashes) |
+| a NORM-05 aceitava número com a escala errada (`12.345,6` contra `1.234,56`) | números comparados pelo valor, lidos no formato pt-BR | `test_norm05_number_check_respects_scale` |
+| pseudônimo da memória reversível por dicionário (SHA-256 sem chave) | HMAC com a chave da memória, que fica fora da pasta de dados; no trace o pseudônimo aparece como `pessoa#…`, para o hash continuar igual em qualquer máquina | `test_pseudonym_is_keyed_and_not_reversible_by_dictionary` |
+| regra de competência duplicada e divergente (`1999-12` válido só na memória) | memória e dashboard usam a regra de `core/schema.py` | `test_competence_rule_is_shared` |
+
+Arquivos de memória gravados antes desta correção têm pseudônimos no formato antigo (versão 3
+do arquivo): continuam íntegros, mas não casam com os novos, então uma reincidência anterior a
+esta versão não é reconhecida. Como a memória da entrega começa vazia, isso não afeta os cenários.
+
 ## Ressalva sobre a comparação experimental
 
 O professor observou que o baseline centralizado foi construído **sem** veto e correção, e

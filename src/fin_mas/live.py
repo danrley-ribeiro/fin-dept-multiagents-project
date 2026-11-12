@@ -15,6 +15,7 @@ import threading
 import time
 
 from fin_mas.core.fsm import ProtocolViolation
+from fin_mas.core.schema import FORMATOS, _tipo_ok
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, montar
 
@@ -87,10 +88,16 @@ class Simulacao:
             self.sids.append(sid)
         elif tipo == "decidir":
             try:
-                self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"], cmd.get("justificativa"))
+                enviada = self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"],
+                                                         cmd.get("justificativa"))
             except ProtocolViolation as erro:  # a política ou o barramento recusou: avisa, não derruba
                 self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
-                              "erro": f"decisão recusada: {erro}"})
+                              "erro": f"decisão recusada: {erro} (a pendência continua aberta)"})
+                return
+            if not enviada:
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": "decisão não enviada: não há pendência para essa solicitação "
+                                      "ou a opção não foi oferecida pela política"})
                 return
         elif tipo == "reiniciar":
             try:
@@ -214,11 +221,11 @@ CAMPOS = {  # campo -> (validador, descrição) para os comandos que vêm do nav
     "fonte": (lambda v: isinstance(v, str), "texto"),
     "decisao": (lambda v: isinstance(v, str), "texto"),
 }
-COMPETENCIA = re.compile(r"20\d{2}-(0[1-9]|1[0-2])")
+COMPETENCIA = FORMATOS["aaaa-mm"][0]  # mesma regra do barramento (core/schema.py)
 
 
 def _inteiro(v) -> bool:
-    return isinstance(v, int) and not isinstance(v, bool)
+    return _tipo_ok(v, int)
 
 
 def validar(cmd) -> None:

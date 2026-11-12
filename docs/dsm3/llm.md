@@ -7,7 +7,7 @@ uma síntese no topo do relatório do AG-REL; os números continuam vindo do tem
 |---|---|---|
 | Flag desligada por padrão | `RegistroModelos.config(...)["llm"] = False`; `run --llm MODELO` liga no AG-REL | `test_prompt_log_only_when_llm_enabled` |
 | LLM só em AG-REL, AG-RES, AG-ORC | `configurar` levanta `ConfiguracaoInvalida` | `test_llm_not_allowed_roles_rejected` (TEST-21) |
-| Número do texto = número do núcleo | todo número do texto gerado precisa existir no template; senão, fallback | `test_llm_numeric_mismatch_falls_back` (TEST-15) |
+| Número do texto = número do núcleo | todo número do texto gerado precisa existir no template, comparado pelo **valor** em pt-BR (`12.345,6` ≠ `1.234,56`); senão, fallback | `test_llm_numeric_mismatch_falls_back` (TEST-15) |
 | LLM não autoriza ação | texto que propõe aprovar, estornar, lançar etc. é descartado | idem |
 | Log de prompt e de custo só com a flag | registros `llm_prompt` (com `versao_prompt`) e `llm_custo` (tokens e US$) | TEST-17, TEST-18 |
 | Troca de modelo sem reiniciar agentes | `configurar(..., modelo=...)` vale na próxima tarefa | `test_model_swap_without_redeploy` (TEST-20) |

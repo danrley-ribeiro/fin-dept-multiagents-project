@@ -61,7 +61,7 @@ correção fora das sugeridas, personificação no registro e adulteração de c
   e a memória também exigem prova de identidade: `Agent.ferramenta` envia a credencial ao gateway
   e a memória só aceita a visão emitida para cada agente. Um teste confere que nenhuma
   credencial aparece no JSONL gravado.
-- **Minimização na memória:** pessoas viram pseudônimos estáveis (`pessoa#…`) e nenhum texto
+- **Minimização na memória:** pessoas viram pseudônimos estáveis (`pessoa#…`, HMAC com a chave da memória, que fica fora da pasta de dados) e nenhum texto
   livre (detalhe de correção, justificativa) é guardado; o arquivo de memória não tem nomes.
 - **Memória íntegra e com falha fechada:** cada entrada é assinada com HMAC-SHA256 e o arquivo
   inteiro tem um selo HMAC sobre (contador de versão, entradas). A chave e o último contador

@@ -87,21 +87,41 @@ class Aprovador(Agent):
         self._responder(msg, decisao, self.JUSTIFICATIVA)
 
     def decidir(self, solicitacao, decisao, justificativa=None) -> bool:
-        msg = self.pendentes.pop(solicitacao, None)
+        """Decisão humana vinda do dashboard. A pendência só sai da lista depois que a decisão
+        foi aceita pelo barramento e pelo SVC-POL: se for recusada (ex.: POL-04), a exceção
+        sobe e o aprovador pode decidir de novo. Devolve False se nada foi enviado.
+
+        O waiver usa a justificativa como veio, sem texto padrão: sem justificativa humana, a
+        POL-04 (ou o esquema) recusa. Bloquear e corrigir sem justificativa recebem um texto
+        factual que diz que nenhuma foi informada, nunca um texto atribuído ao aprovador.
+        """
+        msg = self.pendentes.get(solicitacao)
         if msg is None:
             return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
-        self._responder(msg, decisao, (justificativa or "").strip() or self.JUSTIFICATIVA)
+        texto = justificativa.strip() if isinstance(justificativa, str) else ""
+        if not texto and decisao != "waiver":
+            texto = self.SEM_JUSTIFICATIVA.get(decisao, "")
+        if not self._responder(msg, decisao, texto):
+            return False
+        self.pendentes.pop(solicitacao, None)
         return True
 
-    def _responder(self, msg, decisao, justificativa):
+    SEM_JUSTIFICATIVA = {
+        "bloquear": "publicação bloqueada pelo aprovador (sem justificativa informada)",
+        "corrigir": "correções sugeridas aprovadas pelo aprovador (sem justificativa informada)",
+        "corrigir_parcial": "primeira correção sugerida aprovada pelo aprovador (sem justificativa informada)",
+    }
+
+    def _responder(self, msg, decisao, justificativa) -> bool:
+        """Envia a decisão; devolve False quando não envia nada (opção não oferecida ou "nenhuma")."""
         c = msg.content
         base = {"aprovacao": msg.conversation_id, "solicitacao": c["solicitacao"], "veto": c["veto"],
                 "justificativa": justificativa}
         if decisao in ("corrigir", "corrigir_parcial"):
             if "corrigir" not in c["opcoes"]:
-                return  # correção não oferecida: o prazo do ticket esgota
+                return False  # correção não oferecida: o prazo do ticket esgota
             sugeridas = c["correcoes_sugeridas"]
             escolhidas = sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas
             self.send("AG-ORQ", "approve", "PROT-APR", msg.conversation_id,
@@ -112,7 +132,9 @@ class Aprovador(Agent):
             if decisao == "waiver":
                 base["justificativa"] = "waiver não admitido pela política; publicação permanece bloqueada"
             self.send("AG-ORQ", "reject", "PROT-APR", msg.conversation_id, base)
-        # "nenhuma": silêncio deliberado; o reply_by do ticket expira a conversa
+        else:
+            return False  # "nenhuma": silêncio deliberado; o reply_by do ticket expira a conversa
+        return True
 
 
 @dataclass

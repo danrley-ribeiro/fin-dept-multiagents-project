@@ -25,8 +25,10 @@ PADROES = [
     (re.compile(r"\b\d{3}\.\d{3}\.\d{3}-\d{2}\b"), "[CPF REDIGIDO]"),
     (re.compile(r"\bCPF[:\s]*\d{11}\b", re.IGNORECASE), "[CPF REDIGIDO]"),
     (re.compile(r"\b\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}\b"), "[CNPJ REDIGIDO]"),
-    # CPF (11 dígitos) ou CNPJ (14) sem máscara em texto livre: números longos assim não aparecem no domínio
-    (re.compile(r"(?<!\d)(?<!\d[.,])(\d{11}|\d{14})(?!\d)(?![.,]\d)"), "[DOCUMENTO REDIGIDO]"),
+    # CPF (11 dígitos) ou CNPJ (14) sem máscara em texto livre: números longos assim não aparecem no domínio.
+    # A fronteira exclui letras e dígitos (não só dígitos): 11 ou 14 dígitos seguidos dentro de um hash
+    # hexadecimal (ex.: o digest do veto) não são documento e não podem ser alterados.
+    (re.compile(r"(?<![0-9A-Za-z])(?<!\d[.,])(\d{11}|\d{14})(?![0-9A-Za-z])(?![.,]\d)"), "[DOCUMENTO REDIGIDO]"),
     (re.compile(r"\(?\b\d{2}\)?\s?9?\d{4}-\d{4}\b"), "[TELEFONE REDIGIDO]"),
     (re.compile(r"\b[\w.+-]+@[\w-]+(\.[\w-]+)+\b"), "[EMAIL REDIGIDO]"),
     (re.compile(r"\b(sk|pk|rk|ghp|gho|xox[abprs])[-_][A-Za-z0-9_-]{12,}\b"), SEGREDO),

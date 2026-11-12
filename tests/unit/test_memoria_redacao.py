@@ -6,7 +6,7 @@ import pytest
 
 from fin_mas.env.scenarios import Scenario, run_scenario
 from fin_mas.services.audit import AuditLog, TraceAdulterado
-from fin_mas.services.memoria import Memoria, MemoriaRecusada, pseudonimo
+from fin_mas.services.memoria import Memoria, MemoriaRecusada
 from fin_mas.services.redacao import FalhaRedacao, redigir
 
 
@@ -37,7 +37,7 @@ def test_memory_only_approved_with_provenance(tmp_path):
         rel.gravar("waiver", "alcada|x", VALOR, competencia="2026-08", aprovacao="APR-001", fonte="-")
     e = cin.gravar("waiver", "alcada|x", VALOR, competencia="2026-08", aprovacao="APR-001", fonte="PROT-APR APR-001")
     assert e["id"] == "MEM-0001" and e["proveniencia"]["aprovacao"] == "APR-001"
-    assert e["proveniencia"]["decidido_por"] == pseudonimo("controller")
+    assert e["proveniencia"]["decidido_por"] == mem.pseudonimo("controller")
     assert cin.consultar("waiver", "alcada|x", competencia_atual="2026-08") == []  # só meses anteriores
     assert cin.consultar("waiver", "alcada|x", competencia_atual="2026-09")[0]["id"] == "MEM-0001"
     assert rel.consultar("waiver", competencia_atual="2026-09") == []  # leitor sem acesso

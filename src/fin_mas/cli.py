@@ -71,8 +71,11 @@ def _run(args) -> int:
 
 def _replay(args) -> int:
     try:
-        log = AuditLog.read_jsonl(args.trace)
-    except TraceAdulterado as erro:
+        log = AuditLog.read_jsonl(args.trace, ancora=args.ancora)
+    except FileNotFoundError:
+        print(f"arquivo não encontrado: {args.trace}", file=sys.stderr)
+        return 2
+    except (TraceAdulterado, ValueError) as erro:
         print(f"trace adulterado: {erro}", file=sys.stderr)
         return 3
     if not log.by_conversation(args.conversation_id):
@@ -177,6 +180,8 @@ def main(argv=None) -> int:
     rep.add_argument("conversation_id")
     rep.add_argument("--verbose", action="store_true")
     rep.add_argument("--sem-verificar", action="store_true", help="lê trace sem cadeia de hashes (anterior à DSM3)")
+    rep.add_argument("--ancora", default=None,
+                     help="hash final publicado: verifica sem a chave local (trace gravado em outra máquina)")
     cmp_ = sub.add_parser("comparar", help="SMA x workflow centralizado sob as mesmas seeds")
     cmp_.add_argument("--seeds", type=int, default=10)
     cmp_.add_argument("--out", default="docs/dsm3/resultados")

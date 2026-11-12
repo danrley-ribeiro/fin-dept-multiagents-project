@@ -30,6 +30,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 | Dashboard adaptado ao PROT-APR | `web/src/state/reducer.ts`, `web/src/App.tsx`, `web/src/components/DecisaoHumana.tsx` |
 | Documentação da DSM3 e desta entrega | `docs/dsm3/`, `entregas/dsm3/` |
 | Correção dos 7 achados da revisão do PR feita pelo Danrley, seguindo as sugestões dele, e 15 testes de regressão | `env/scenarios.py`, `live.py`, `cli.py`, `services/redacao.py`, `services/modelos.py`, `services/memoria.py`, `agents/cin.py`, `tests/e2e/test_revisao_pr.py` |
+| Botão de waiver com a regra da POL-04 | `web/src/state/justificativa.ts`, `web/src/components/DecisaoHumana.tsx`, `web/e2e/escritorio.spec.ts` |
 
 ## Decisões que ficaram com os autores
 
@@ -118,5 +119,10 @@ regressão por achado (detalhes em [`docs/dsm3/revisao.md`](../../docs/dsm3/revi
 Verificação depois das correções: 247 testes passando; `trace.py --check` sem erros; cenário
 adversarial com 14 de 14 ataques rejeitados e a mesma âncora; comparação em 10 seeds com as
 mesmas métricas (só os hashes de cada execução mudaram, porque o trace não guarda mais o
-pseudônimo). Os testes do dashboard (`bun run test` e Playwright) não rodaram no ambiente da IA,
-que não tem Node; o código do dashboard (`web/`) não foi alterado nesta rodada.
+pseudônimo).
+
+Depois da revisão, também a pedido dos autores, o botão de waiver do dashboard passou a usar a
+mesma regra da POL-04 (10 caracteres e duas palavras diferentes): `aaaaaaaaaa` não habilita mais o
+botão. Desta vez o ambiente tinha Node e bun, e a IA rodou os testes do dashboard: `bun run test`
+com 12 de 12 (3 do reducer e 9 da regra da justificativa) e `bun run test:e2e` com 14 de 14 testes
+de uso real no Chromium, incluindo o caso `aaaaaaaaaa`.

@@ -6,6 +6,7 @@ import {
   TextField, Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { justificativaValida } from "../state/justificativa";
 import type { PendenciaHumana } from "../types";
 
 const ROTULO_ACAO: Record<string, string> = { reaprovar: "reaprovar por quem tem alçada", estornar: "estornar",
@@ -59,7 +60,7 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
           </>
         )}
         {interativo ? (
-          <TextField label="Justificativa" helperText="Obrigatória para waiver: mínimo de 10 caracteres (POL-04)" fullWidth multiline minRows={2}
+          <TextField label="Justificativa" helperText="Obrigatória para waiver: mínimo de 10 caracteres e duas palavras diferentes (POL-04)" fullWidth multiline minRows={2}
             value={justificativa} onChange={(e) => setJustificativa(e.target.value)} sx={{ mt: 1 }}
             placeholder="ex.: risco aceito; lançamento será corrigido no próximo ciclo" />
         ) : (
@@ -71,7 +72,7 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
         {interativo && (
           <>
             <Button color="error" variant="outlined" onClick={() => aoDecidir("bloquear", justificativa)}>Bloquear</Button>
-            <Button variant="outlined" disabled={justificativa.trim().length < 10}
+            <Button variant="outlined" disabled={!justificativaValida(justificativa)}
               onClick={() => aoDecidir("waiver", justificativa)}>Waiver (aceitar o risco)</Button>
             {podeCorrigir && pendencia.correcoes_sugeridas.length > 1 && (
               <Button variant="outlined" onClick={() => aoDecidir("corrigir_parcial", justificativa)}>

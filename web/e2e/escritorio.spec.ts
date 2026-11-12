@@ -89,6 +89,9 @@ test("waiver exige justificativa e libera com ressalva", async ({ page, request 
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await sino.click();
   const dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN/ });
+  const waiver = dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" });
+  await dialogo.getByLabel("Justificativa").fill("aaaaaaaaaa"); // 10 caracteres, uma palavra: a POL-04 recusaria
+  await expect(waiver).toBeDisabled();
   await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria; ajuste no próximo ciclo");
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
   await expect(pedido(page, "SOL-001")).toContainText("publicado c/ ressalva", { timeout: 20_000 });

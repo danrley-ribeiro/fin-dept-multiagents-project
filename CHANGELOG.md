@@ -19,7 +19,8 @@ Registro por entrega.
 - Revisão do PR pelo coautor (12/11/2026): decisão humana recusada não consome mais a pendência; waiver sem
   justificativa humana é recusado (sem texto padrão); `replay --ancora`; redação de CPF/CNPJ não altera hashes
   hexadecimais; NORM-05 compara números pelo valor; pseudônimo da memória com HMAC; regra de competência única.
-  15 testes de regressão (247 no total).
+  15 testes de regressão (247 no total). Botão de waiver do dashboard
+  com a regra da POL-04 (12 testes vitest e 14 Playwright passando).
 - Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
   COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
 - Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita

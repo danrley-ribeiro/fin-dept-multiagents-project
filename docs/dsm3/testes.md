@@ -3,7 +3,7 @@
 ```bash
 python -m pytest                      # 247 testes (157 na DSM2), offline, ~40 s
 python tools/trace.py --check         # rastreabilidade: 0 erros; 89 de 90 testes modelados executados
-cd web && bun run test && bun run test:e2e   # reducer do dashboard e uso real no navegador
+cd web && bun run test && bun run test:e2e   # reducer e regra da justificativa (12) e uso real no navegador (14)
 ```
 
 ## Novos na DSM3 (90 a mais que na DSM2)

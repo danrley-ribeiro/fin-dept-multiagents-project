@@ -104,6 +104,12 @@ class ArquivoSelado:
             self._recarregar()
         return copy.deepcopy(self._dados)
 
+    def ver(self) -> dict:
+        """Dados atuais **sem cópia**, só para leitura (caminho quente: uma consulta por requisição)."""
+        if self.caminho is not None:
+            self._recarregar()
+        return self._dados
+
     def _selo(self, contador: int, dados: dict) -> str:
         corpo = json.dumps({"versao": self.versao, "contador": contador, "dados": dados}, sort_keys=True,
                            ensure_ascii=False)

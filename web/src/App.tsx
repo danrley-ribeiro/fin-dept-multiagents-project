@@ -5,6 +5,8 @@ import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PasswordIcon from "@mui/icons-material/Password";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -21,7 +23,10 @@ import {
   carregarComparacao, carregarTrace, catalogoAoVivo, catalogoReplay, conectarAoVivo, enviarComando, estadoAoVivo,
   type Catalogo, type EventoAoVivo, type MenteSnapshot, type ResumoComparacao, type TraceExportado,
 } from "./api/fonte";
+import { aoEncerrarSessao, pode, sair, saude, sessaoAtual, type Saude, type Sessao } from "./api/sessao";
 import { Ajuda } from "./components/Ajuda";
+import { Aprovacoes, ConfigLLM, FichaPorte, Logs, Solicitacoes } from "./components/AreasDeTrabalho";
+import { Login, TrocarSenha } from "./components/Login";
 import { Comparacao } from "./components/Comparacao";
 import { DadosEmpresaDialog, FonteDialog, PeriodosDialog } from "./components/Dialogos";
 import { DecisaoHumana } from "./components/DecisaoHumana";
@@ -33,8 +38,8 @@ import { AGENTES, aplicarTodos, estadoInicial, statusDe } from "./state/reducer"
 import type { Controle, FonteDados, Registro, Solicitacao, ViewState } from "./types";
 import { criarTema, type ModoTema } from "./theme";
 
-type Modo = "carregando" | "aovivo" | "replay";
-type AbaPrincipal = "escritorio" | "comparacao";
+type Modo = "carregando" | "login" | "senha" | "aovivo" | "replay";
+type AbaPrincipal = "escritorio" | "solicitacoes" | "aprovacoes" | "logs" | "llm" | "porte" | "comparacao";
 
 function lerPreferencia(chave: string): string | null {
   try { return localStorage.getItem(chave); } catch { return null; }
@@ -56,15 +61,28 @@ export default function App() {
   const [comparacao, setComparacao] = useState<ResumoComparacao | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [ajuda, setAjuda] = useState(() => lerPreferencia("sma-ajuda-vista") !== "1");
+  const [servidor, setServidor] = useState<Saude | null>(null);
+  const [sessao, setSessao] = useState<Sessao | null>(null);
+  const [avisoLogin, setAvisoLogin] = useState<string | undefined>();
+
+  // Com servidor local, só entra quem tem conta (ADR-009); sem servidor, o replay offline abre sem login.
+  const abrirAoVivo = useCallback(async (s: Sessao) => {
+    setSessao(s);
+    setAvisoLogin(undefined);
+    if (s.trocar_senha) { setModo("senha"); return; }
+    const vivo = await catalogoAoVivo();
+    if (vivo) { setCatalogo(vivo); setModo("aovivo"); } else setErro("não foi possível carregar o escritório");
+  }, []);
 
   useEffect(() => {
     (async () => {
-      const vivo = await catalogoAoVivo();
+      const sd = await saude();
       setComparacao(await carregarComparacao());
-      if (vivo) {
-        setCatalogo(vivo);
+      if (sd) {
+        setServidor(sd);
         setTemServidor(true);
-        setModo("aovivo");
+        const s = await sessaoAtual();
+        if (s) await abrirAoVivo(s); else setModo("login");
         return;
       }
       try {
@@ -74,7 +92,14 @@ export default function App() {
         setErro(String(e));
       }
     })();
-  }, []);
+  }, [abrirAoVivo]);
+
+  useEffect(() => aoEncerrarSessao(() => {  // expirou, foi revogada pelo administrador ou a conta foi bloqueada
+    setSessao((atual) => { if (atual) setAvisoLogin("Sua sessão foi encerrada. Entre de novo para continuar."); return null; });
+    setModo((m) => (m === "replay" ? m : "login"));
+  }), []);
+
+  const encerrar = async () => { await sair(); setSessao(null); setAvisoLogin(undefined); setModo("login"); };
 
   const alternarTema = () => {
     const novo = modoTema === "dark" ? "light" : "dark";
@@ -82,19 +107,25 @@ export default function App() {
     gravarPreferencia("sma-tema", novo);
   };
   const fecharAjuda = () => { setAjuda(false); gravarPreferencia("sma-ajuda-vista", "1"); };
-  const comum = { catalogo: catalogo!, comparacao, modoTema, alternarTema, abrirAjuda: () => setAjuda(true) };
+  const comum = { catalogo: catalogo!, comparacao, modoTema, alternarTema, abrirAjuda: () => setAjuda(true),
+    sessao, aoSair: encerrar, aoTrocarSenha: () => setModo("senha") };
 
   return (
     <ThemeProvider theme={tema}>
       <CssBaseline />
       {erro ? <Alert severity="error" sx={{ m: 3 }}>{erro}</Alert>
-        : modo === "carregando" || !catalogo ? (
+        : modo === "login" && servidor ? <Login saude={servidor} aoEntrar={abrirAoVivo} aviso={avisoLogin} />
+        : modo === "senha" && sessao ? (
+          <TrocarSenha sessao={sessao} obrigatoria={sessao.trocar_senha}
+            aoCancelar={sessao.trocar_senha ? undefined : () => setModo("aovivo")}
+            aoConcluir={async () => { const s = await sessaoAtual(); if (s) await abrirAoVivo(s); else setModo("login"); }} />
+        ) : modo === "carregando" || !catalogo ? (
           <Stack alignItems="center" spacing={2} sx={{ mt: 10 }}><CircularProgress />
             <Typography color="text.secondary">Abrindo o escritório…</Typography></Stack>
         ) : modo === "aovivo"
           ? <AoVivo {...comum} aoTrocarModo={() => setModo("replay")} />
           : <Replay {...comum} aoTrocarModo={temServidor ? () => setModo("aovivo") : undefined} />}
-      <Ajuda aberta={ajuda} aoFechar={fecharAjuda} />
+      <Ajuda aberta={ajuda && (modo === "aovivo" || modo === "replay")} aoFechar={fecharAjuda} />
     </ThemeProvider>
   );
 }
@@ -106,6 +137,9 @@ interface TelaProps {
   alternarTema: () => void;
   abrirAjuda: () => void;
   aoTrocarModo?: () => void;
+  sessao?: Sessao | null;
+  aoSair?: () => void;
+  aoTrocarSenha?: () => void;
 }
 
 // ---------------------------------------------------------------- ao vivo
@@ -169,50 +203,69 @@ function AoVivo(p: TelaProps) {
   const pendentes = Object.values(estado.pendentes);
   const pendencia = pendentes.find((x) => x.solicitacao === decidindo);
   const velocidade = controle?.ms_por_tick ?? 350;
+  // o que a conta pode fazer (models/permissions.yaml); o servidor confere de novo em cada comando
+  const s = p.sessao ?? null;
+  const opera = pode(s, "PERM-SIM-OPERAR"), solicita = pode(s, "PERM-SOL-CRIAR"), decide = pode(s, "PERM-APR-DECIDIR");
+  const energia = pode(s, "PERM-AGT-ENERGIA");
+  const semPapel = (papel: string) => `Sua conta não tem o papel de ${papel}`;
+  const cenarioAtual = p.catalogo.cenarios.find((c) => c.nome === controle?.cenario);
 
   return (
     <>
       <Topo {...p} modo="aovivo" aba={aba} setAba={setAba} conectado={conectado} pendentes={pendentes.length}
         aoAbrirPendencia={() => setDecidindo(pendentes[0]?.solicitacao ?? null)}>
-        <FormControl size="small" sx={{ minWidth: 190 }}>
+        <FormControl size="small" sx={{ minWidth: 190 }} disabled={!opera}>
           <InputLabel id="cenario-vivo">Cenário</InputLabel>
           <Select labelId="cenario-vivo" label="Cenário" value={controle?.cenario ?? ""}
             onChange={(e) => cmd({ tipo: "reiniciar", cenario: e.target.value })}>
-            {p.catalogo.cenarios.map((c) => <MenuItem key={c.nome} value={c.nome} title={c.descricao}>{c.nome}</MenuItem>)}
+            {p.catalogo.cenarios.map((c) => <MenuItem key={c.nome} value={c.nome} title={c.esperado || c.descricao}>{c.nome}</MenuItem>)}
           </Select>
         </FormControl>
-        <Tooltip title={controle?.pausado ? "Retomar a simulação" : "Pausar a simulação"}>
-          <Button variant="contained" startIcon={controle?.pausado ? <PlayArrowIcon /> : <PauseIcon />}
+        <Tooltip title={!opera ? semPapel("operador") : controle?.pausado ? "Retomar a simulação" : "Pausar a simulação"}>
+          <span><Button variant="contained" startIcon={controle?.pausado ? <PlayArrowIcon /> : <PauseIcon />} disabled={!opera}
             onClick={() => cmd({ tipo: controle?.pausado ? "retomar" : "pausar" })}>
-            {controle?.pausado ? "Retomar" : "Pausar"}</Button>
+            {controle?.pausado ? "Retomar" : "Pausar"}</Button></span>
         </Tooltip>
         <Tooltip title="Processa um único evento (com a simulação pausada)">
           <span><IconButton aria-label="Avançar um evento" onClick={() => cmd({ tipo: "passo" })}
-            disabled={!controle?.pausado}><SkipNextIcon /></IconButton></span>
+            disabled={!controle?.pausado || !opera}><SkipNextIcon /></IconButton></span>
         </Tooltip>
-        <Ritmo valor={1240 - velocidade} aoMudar={(v) => cmd({ tipo: "velocidade", ms_por_tick: 1240 - v })}
-          min={20} max={1200} />
-        <Tooltip title="Reinicia o cenário do zero (mesma seed)">
-          <IconButton aria-label="Reiniciar cenário" onClick={() => cmd({ tipo: "reiniciar" })}><ReplayIcon /></IconButton>
+        {opera && <Ritmo valor={1240 - velocidade} aoMudar={(v) => cmd({ tipo: "velocidade", ms_por_tick: 1240 - v })}
+          min={20} max={1200} />}
+        <Tooltip title={opera ? "Reinicia o cenário do zero (mesma seed)" : semPapel("operador")}>
+          <span><IconButton aria-label="Reiniciar cenário" onClick={() => cmd({ tipo: "reiniciar" })} disabled={!opera}>
+            <ReplayIcon /></IconButton></span>
         </Tooltip>
-        <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setPedido(true)}>Novo pedido</Button>
+        <Tooltip title={solicita ? "Pedir fechamento do mês ou avaliação orçamentária" : semPapel("solicitante")}>
+          <span><Button variant="outlined" startIcon={<AddIcon />} onClick={() => setPedido(true)} disabled={!solicita}>
+            Novo pedido</Button></span>
+        </Tooltip>
         <Button variant="outlined" startIcon={<BusinessIcon />} onClick={() => setDados(true)}>Dados da empresa</Button>
         <EmpresaChip estado={estado} />
       </Topo>
       {aba === "escritorio" ? (
         <Corpo estado={estado} catalogo={p.catalogo} selecionado={selecionado} setSelecionado={setSelecionado}
           snapshots={snapshots} aoVivo chave={geracao} novidades={novidades}
-          aoAbrirFonte={setFonte} aoAbrirPeriodos={() => setPeriodos(true)} aoNovoPedido={() => setPedido(true)}
+          aoAbrirFonte={setFonte} aoAbrirPeriodos={() => setPeriodos(true)}
+          aoNovoPedido={solicita ? () => setPedido(true) : undefined}
           duracaoVoo={Math.min(1400, Math.max(350, velocidade * 1.6))}
           rodape={`t=${estado.t} · ${controle?.fila ?? 0} eventos na fila · seed ${controle?.seed ?? "?"}${
-            controle?.offline.length ? ` · fora de operação: ${controle.offline.join(", ")}` : ""}`}
-          aoAlternarEnergia={(id, online) => {
+            controle?.offline.length ? ` · fora de operação: ${controle.offline.join(", ")}` : ""} · cognição ${
+            controle?.cognicao ?? "basico"}${cenarioAtual?.esperado ? ` · observar: ${cenarioAtual.esperado}` : ""}`}
+          aoAlternarEnergia={energia ? (id, online) => {
             cmd({ tipo: "agente", agente: id, online });
             setAviso({ texto: online ? `${id} religado` : `${id} desligado: mensagens a ele serão perdidas` });
-          }} />
-      ) : <Box sx={{ px: 2 }}><Comparacao resumo={p.comparacao} /></Box>}
+          } : undefined} />
+      ) : aba === "solicitacoes" && s ? <Solicitacoes sessao={s} aoNovoPedido={() => setPedido(true)} />
+        : aba === "aprovacoes" && s ? <Aprovacoes sessao={s} aoDecidir={setDecidindo} />
+        : aba === "logs" && s ? <Logs sessao={s} />
+        : aba === "llm" && s ? <ConfigLLM sessao={s} aoComando={cmd} cenario={controle?.cenario ?? "fechar_mes"} />
+        : aba === "porte" ? <FichaPorte />
+        : <Box sx={{ px: 2 }}><Comparacao resumo={p.comparacao} /></Box>}
       {pendencia && (
-        <DecisaoHumana pendencia={pendencia} interativo={controle?.interativo ?? true} aoFechar={() => setDecidindo(null)}
+        <DecisaoHumana pendencia={pendencia} interativo={(controle?.interativo ?? true) && decide}
+          quem={s ? `${s.nome}${s.cargo ? ` (${s.cargo})` : ""}` : undefined}
+          aviso={decide ? undefined : semPapel("aprovador")} aoFechar={() => setDecidindo(null)}
           aoDecidir={(decisao, justificativa) => {
             cmd({ tipo: "decidir", solicitacao: pendencia.solicitacao, decisao, justificativa: justificativa || undefined });
             setDecidindo(null);
@@ -395,7 +448,8 @@ interface TopoProps extends TelaProps {
 }
 
 function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes, aoAbrirPendencia, modoTema,
-  alternarTema, abrirAjuda, children }: TopoProps) {
+  alternarTema, abrirAjuda, children, sessao, aoSair, aoTrocarSenha }: TopoProps) {
+  const logado = modo === "aovivo" && !!sessao;
   return (
     <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: "divider",
       bgcolor: "background.default" }}>
@@ -415,9 +469,21 @@ function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes,
         </Stack>
         <Tabs value={aba} onChange={(_, v) => setAba(v)} aria-label="Seções">
           <Tab value="escritorio" label="Escritório" />
+          {logado && <Tab value="solicitacoes" label="Solicitações" />}
+          {logado && <Tab value="aprovacoes" label="Aprovações" />}
+          {logado && pode(sessao, "PERM-AUD-VER") && <Tab value="logs" label="Logs" />}
+          {logado && pode(sessao, "PERM-MOD-VER") && <Tab value="llm" label="Agentes e LLM" />}
+          {logado && <Tab value="porte" label="Porte" />}
           <Tab value="comparacao" label="SMA × workflow" />
         </Tabs>
-        <Stack direction="row" spacing={0.5}>
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          {logado && (
+            <Tooltip title={`Papéis: ${sessao.papeis.join(", ")}`}>
+              <Chip aria-label="Conta em uso" variant="outlined" label={`${sessao.nome} · ${sessao.usuario}`} />
+            </Tooltip>)}
+          {logado && <Tooltip title="Trocar senha"><IconButton aria-label="Trocar senha" onClick={aoTrocarSenha}>
+            <PasswordIcon /></IconButton></Tooltip>}
+          {logado && <Tooltip title="Sair"><IconButton aria-label="Sair" onClick={aoSair}><LogoutIcon /></IconButton></Tooltip>}
           <Tooltip title={pendentes ? `${pendentes} decisão(ões) humana(s) pendente(s): clique para decidir`
             : "Nenhuma decisão humana pendente"}>
             <span>

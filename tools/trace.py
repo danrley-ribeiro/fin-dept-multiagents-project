@@ -34,6 +34,7 @@ KINDS = {
     "goals": ("G-", "goal"),
     "requirements": ("REQ-", "req"),
     "roles": ("ROLE-", "role"),
+    "permissions": ("PERM-", "perm"),
     "agents": ("AG-", "agent"),
     "protocols": ("PROT-", "prot"),
     "norms": ("NORM-", "norm"),
@@ -58,6 +59,7 @@ LINKS = {
     ("requirements", "normas"): (("NORM-",), "constrained_by"),
     ("roles", "exercido_por"): (("STK-",), "played_by"),
     ("roles", "protocolos"): (("PROT-",), "uses_protocol"),
+    ("roles", "permissoes"): (("PERM-",), "grants"),
     ("agents", "papeis"): (("ROLE-",), "realizes"),
     ("agents", "objetivos"): (("G-",), "pursues"),
     ("agents", "recursos"): (("ENV-",), "uses_resource"),
@@ -168,8 +170,11 @@ def validate(data: dict[str, list[dict]], index: dict[str, dict]) -> tuple[Repor
 
     for role in data["roles"]:
         rid = role["id"]
-        if not as_list(role.get("protocolos")):
+        # papel humano de plataforma (ADR-009) age pela interface, sob permissões, sem trocar mensagens com agentes
+        if not as_list(role.get("protocolos")) and not role.get("plataforma"):
             rep.err(f"{rid}: papel sem protocolo")
+        if role.get("plataforma") and not as_list(role.get("permissoes")):
+            rep.err(f"{rid}: papel de plataforma sem permissões")
         for dim in ("resp", "perm", "obl"):
             if not as_list(role.get(dim)):
                 rep.err(f"{rid}: papel sem {dim}")
@@ -178,6 +183,10 @@ def validate(data: dict[str, list[dict]], index: dict[str, dict]) -> tuple[Repor
         for prot in as_list(role.get("protocolos")):
             if prot in index and rid not in as_list(index[prot].get("participantes")):
                 rep.err(f"{rid} declara {prot}, mas não está em seus participantes")
+
+    for perm in data["permissions"]:
+        if not incoming(perm["id"], "roles.permissoes"):
+            rep.err(f"{perm['id']}: permissão que nenhum papel concede")
 
     for ag in data["agents"]:
         aid = ag["id"]
@@ -275,15 +284,17 @@ def codigo_dos_testes() -> str:
 
 
 def pendentes(data: dict) -> list[str]:
-    """Itens de entregas futuras que ainda não foram implementados ou executados."""
-    return [i["id"] for kind in data for i in data[kind]
-            if i.get("entrega") in ("DSM2", "FUTURA") and i.get("status") not in ("implementado", "executado")]
+    """O que ainda não tem evidência: testes modelados e não executados, componentes não implementados."""
+    return ([t["id"] for t in data["tests"] if t.get("status") != "executado"]
+            + [c["id"] for c in data["components"] if c.get("status") != "implementado"])
 
 
 def status_of(item: dict) -> str:
+    """Só teste e componente ficam `pendente` sem status; os demais objetos são especificação (o que os
+    comprova são os testes ligados a eles)."""
     if item.get("status"):
         return str(item["status"])
-    return "especificado" if item.get("entrega") == "DSM1" else "pendente"
+    return "pendente" if item.get("_kind") in ("tests", "components") else "especificado"
 
 
 # ------------------------------------------------------ geração sphinx-needs
@@ -355,6 +366,8 @@ def need_directive(item: dict) -> str:
         opts.append(f":prioridade: {item['prioridade']}")
     if k in ("agents", "roles") and item.get("llm"):
         opts.append(f":llm: {item['llm']}")
+    if k == "roles" and item.get("plataforma"):
+        opts.append(":plataforma: sim")
     for (lk, field), (_, link) in LINKS.items():
         if lk == k:
             vals = as_list(item.get(field))
@@ -456,7 +469,7 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
            f"| Requisitos DSM1 | {len(reqs)} |",
            f"| Requisitos com cadeia completa (até teste planejado e métrica) | {complete}/{len(reqs)} ({100 * complete // max(len(reqs), 1)}%) |",
            f"| Objetos rastreados (total) | {len(index)} |",
-           f"| Stubs pendentes para DSM2/futuro | {len(pend)} |",
+           f"| Testes e componentes ainda sem evidência | {len(pend)} |",
            f"| Testes executados | {executados} de {len(data['tests'])} |"]
     (DOCS_GEN / "cobertura.md").write_text("\n".join(cov) + "\n", encoding="utf-8")
 
@@ -484,7 +497,8 @@ def main() -> int:
     print(f"Objetos rastreados: {len(index)} | requisitos: {len(reqs)} | "
           f"testes: {len(data['tests'])} ({sum(1 for t in data['tests'] if t.get('status') == 'executado')} executados) | métricas: {len(data['metrics'])}")
     pend = pendentes(data)
-    print(f"Stubs pendentes (DSM2/futuro): {len(pend)} -> {', '.join(pend)}")
+    print(f"Sem evidência ainda (testes não executados, componentes não implementados): {len(pend)}"
+          + (f" -> {', '.join(pend)}" if pend else ""))
 
     if rep.errors:
         print(f"\n{len(rep.errors)} erro(s) de rastreabilidade:")

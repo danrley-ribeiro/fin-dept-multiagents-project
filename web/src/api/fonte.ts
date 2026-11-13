@@ -1,5 +1,6 @@
 // Fontes de dados: servidor Python ao vivo (/api) ou traces exportados (replay offline).
 import type { Cenario, Controle, Empresa, FichaAgente, Registro } from "../types";
+import { postar as postarComSessao, sessaoEncerrada } from "./sessao";
 
 export interface Catalogo {
   cenarios: Cenario[];
@@ -11,7 +12,8 @@ export interface Catalogo {
 export type EventoAoVivo =
   | { tipo: "reset"; geracao: number; cenario: string; seed: number }
   | { tipo: "registro"; geracao: number; registro: Registro }
-  | { tipo: "controle"; geracao: number; estado: Controle; erro?: string };
+  | { tipo: "controle"; geracao: number; estado: Controle; erro?: string }
+  | { tipo: "sessao_encerrada" };
 
 export interface TraceExportado {
   cenario: { nome: string; descricao: string; seed: number; intencao: string };
@@ -51,26 +53,21 @@ export async function catalogoAoVivo(): Promise<Catalogo | null> {
 
 export function conectarAoVivo(aoEvento: (e: EventoAoVivo) => void, aoErro: () => void): () => void {
   const fonte = new EventSource("/api/eventos");
-  fonte.onmessage = (m) => aoEvento(JSON.parse(m.data) as EventoAoVivo);
+  fonte.onmessage = (m) => {
+    const evento = JSON.parse(m.data) as EventoAoVivo;
+    if (evento.tipo === "sessao_encerrada") {  // sessão revogada ou expirada: o servidor fecha o fluxo
+      fonte.close();
+      sessaoEncerrada();
+      return;
+    }
+    aoEvento(evento);
+  };
   fonte.onerror = () => aoErro();
   return () => fonte.close();
 }
 
-let sessao: Promise<string> | null = null;
-
-/** Token da sessão do servidor local, exigido em todo POST (cabeçalho X-SMA-Token). */
-export function tokenSessao(): Promise<string> {
-  sessao ??= fetch("/api/sessao").then((r) => r.json()).then((d: { token: string }) => d.token)
-    .catch((e) => { sessao = null; throw e; });
-  return sessao;
-}
-
-/** POST JSON autenticado para a API do servidor local. */
-export async function postar(rota: string, corpo: unknown): Promise<Response> {
-  const token = await tokenSessao();
-  return fetch(rota, { method: "POST", headers: { "Content-Type": "application/json", "X-SMA-Token": token },
-    body: JSON.stringify(corpo) });
-}
+/** POST JSON autenticado (sessão da pessoa + token CSRF) para a API do servidor local. */
+export const postar = postarComSessao;
 
 export async function enviarComando(cmd: Record<string, unknown>): Promise<string | null> {
   const r = await postar("/api/comando", cmd);
@@ -82,6 +79,7 @@ export async function enviarComando(cmd: Record<string, unknown>): Promise<strin
 export async function estadoAoVivo(): Promise<{ agentes: Record<string, MenteSnapshot> } | null> {
   try {
     const r = await fetch("/api/estado");
+    if (r.status === 401) sessaoEncerrada();
     return r.ok ? await r.json() : null;
   } catch {
     return null;

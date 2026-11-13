@@ -128,14 +128,14 @@ class Acesso:
     # ---- cadastro: leitura com falha fechada ---------------------------------------------
     def _ler_contas(self) -> dict:
         try:
-            return self._contas.ler()["contas"]
+            return self._contas.ver()["contas"]
         except ArquivoComprometido as erro:
             self._auditar("cadastro_comprometido", None, "negado", regra="IAM-07", motivo=str(erro))
             raise AcessoNegado("IAM-07", f"cadastro de contas comprometido: {erro}") from None
 
     def _ler_sessoes(self) -> dict:
         try:
-            return self._sessoes.ler()["sessoes"]
+            return self._sessoes.ver()["sessoes"]
         except ArquivoComprometido as erro:
             self._auditar("cadastro_comprometido", None, "negado", regra="IAM-07", motivo=str(erro))
             raise AcessoNegado("IAM-07", f"cadastro de sessões comprometido: {erro}") from None

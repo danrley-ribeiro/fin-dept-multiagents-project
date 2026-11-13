@@ -15,11 +15,13 @@ const ROTULO_ACAO: Record<string, string> = { reaprovar: "reaprovar por quem tem
 interface Props {
   pendencia: PendenciaHumana;
   interativo: boolean;
+  quem?: string; // pessoa autenticada que está decidindo (a decisão fica registrada no nome dela)
+  aviso?: string; // por que esta conta não pode decidir
   aoDecidir: (decisao: string, justificativa: string) => void;
   aoFechar: () => void;
 }
 
-export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Props) {
+export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar, quem, aviso }: Props) {
   const [justificativa, setJustificativa] = useState("");
   const podeCorrigir = pendencia.opcoes.includes("corrigir");
   return (
@@ -36,6 +38,9 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
           O Agente de Controles Internos vetou a publicação. O Orquestrador aguarda a sua decisão no ticket
           {" "}<b>{pendencia.conversation_id}</b> (uso único, com prazo); quem reavalia o pacote é o próprio AG-CIN.
         </Typography>
+        {quem && <Alert severity="info" sx={{ mb: 1, py: 0 }}>Você decide como <b>{quem}</b>. A decisão fica registrada
+          no seu nome; se você criou ou aprovou o lançamento vetado, ou fez este pedido, a política recusa.</Alert>}
+        {aviso && <Alert severity="warning" sx={{ mb: 1, py: 0 }}>{aviso}</Alert>}
         <Typography variant="h3" component="h3">Achados</Typography>
         <List dense>
           {pendencia.achados.map((a) => (

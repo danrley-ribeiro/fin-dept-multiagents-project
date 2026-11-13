@@ -43,6 +43,7 @@ import mimetypes
 import queue
 import sys
 import tempfile
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -57,6 +58,7 @@ from fin_mas.exportar import agentes_info, empresa_info
 from fin_mas.fontes import planilha
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.services import consulta, explicacao, provedores
+from fin_mas.services.audit import formatar
 from fin_mas.services.iam import AcessoNegado, criar_demo
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
 
@@ -274,6 +276,7 @@ def tratar_protegidas(sim: Simulacao, acesso, sessao, metodo: str, caminho: str)
                 custos = consulta.resumo_de_custos(sim.registros)
             limite = min(max(_inteiro_ou_nada(q, "limite") or 500, 1), 5000)
             return _json(200, {"total": len(registros), "registros": registros[-limite:], "custos": custos,
+                               "textos": [formatar(r) for r in registros[-limite:]],
                                "cenario": sim.cenario.nome, "geracao": sim.geracao})
         if rota == "/api/auditoria/exportar":
             with sim.lock:
@@ -586,17 +589,21 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
             try:
                 for evento in historico:
                     self._enviar(evento)
+                conferida = time.monotonic()
                 while True:
                     try:
                         self._enviar(fila.get(timeout=VERIFICAR_SESSAO_S))
                     except queue.Empty:
                         self.wfile.write(b": ping\n\n")
                         self.wfile.flush()
+                    if time.monotonic() - conferida < VERIFICAR_SESSAO_S:
+                        continue  # a sessão é conferida a cada intervalo, não a cada registro enviado
+                    conferida = time.monotonic()
                     try:
                         viva = acesso.sessao_por_id(sessao.id) is not None
                     except AcessoNegado:
                         viva = False
-                    if not viva:  # sessão revogada ou expirada: o fluxo fecha na hora (IAM-04)
+                    if not viva:  # sessão revogada ou expirada: o fluxo fecha em até um intervalo (IAM-04)
                         self._enviar({"tipo": "sessao_encerrada"})
                         return
             except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):

@@ -1,31 +1,6 @@
 // Uso real do escritório da SMA: navegador de verdade, servidor Python de verdade, agentes executando ao vivo.
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
-
-async function comando(request: APIRequestContext, data: Record<string, unknown>) {
-  const { token } = await (await request.get("/api/sessao")).json();
-  const r = await request.post("/api/comando", { data, headers: { "X-SMA-Token": token } });
-  expect(r.status()).toBe(202);
-}
-
-async function reiniciar(request: APIRequestContext, cenario: string, pausado = false) {
-  await comando(request, { tipo: pausado ? "pausar" : "retomar" });
-  await comando(request, { tipo: "reiniciar", cenario });
-  await expect.poll(async () => (await (await request.get("/api/estado")).json()).controle.cenario).toBe(cenario);
-}
-
-async function abrir(page: Page) {
-  await page.addInitScript(() => localStorage.setItem("sma-ajuda-vista", "1"));
-  await page.goto("/");
-  await expect(page.getByText("● ao vivo")).toBeVisible();
-}
-
-function chipAgente(page: Page, id: string) {
-  return page.getByRole("navigation", { name: "Agentes" }).getByRole("button", { name: new RegExp(`^${id} ·`) });
-}
-
-function pedido(page: Page, sid: string) {  // o chip inteiro do pedido (código, intenção, competência e status)
-  return page.getByRole("region", { name: "Pedidos da liderança" }).locator(".MuiChip-root").filter({ hasText: sid });
-}
+import { expect, test } from "@playwright/test";
+import { abrir, chipAgente, comando, pedido, reiniciar } from "./apoio";
 
 test("primeira visita mostra o guia e o escritório com códigos e departamentos", async ({ page, request }) => {
   await reiniciar(request, "fechar_mes");

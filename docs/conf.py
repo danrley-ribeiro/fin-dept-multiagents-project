@@ -18,7 +18,7 @@ project = "Sistema Multiagente de Controladoria"
 author = "Danrley Moreira Ribeiro, Jiliard Mai Peifer"
 copyright = "2026, " + author
 language = "pt_BR"
-release = "DSM2 revisada"
+release = "DSM3 (v0.5.0)"
 
 extensions = [
     "myst_parser",
@@ -58,6 +58,7 @@ needs_types = [
     {"directive": "goal", "title": "Objetivo", "prefix": "G-", "color": "#FFF2CC", "style": "node"},
     {"directive": "req", "title": "Requisito", "prefix": "REQ-", "color": "#CFE2F3", "style": "node"},
     {"directive": "role", "title": "Papel", "prefix": "ROLE-", "color": "#D9EAD3", "style": "node"},
+    {"directive": "perm", "title": "Permissão", "prefix": "PERM-", "color": "#EADCF4", "style": "node"},
     {"directive": "agent", "title": "Agente", "prefix": "AG-", "color": "#B6D7A8", "style": "node"},
     {"directive": "prot", "title": "Protocolo", "prefix": "PROT-", "color": "#D0E0E3", "style": "node"},
     {"directive": "norm", "title": "Norma", "prefix": "NORM-", "color": "#FCE5CD", "style": "node"},
@@ -69,7 +70,9 @@ needs_types = [
 ]
 
 needs_fields = {
-    "entrega": {"description": "Entrega em que o objeto é produzido (DSM1, DSM2, FUTURA)", "nullable": True},
+    "entrega": {"description": "Entrega em que o objeto é produzido (DSM1, DSM2, DSM3, DSM4, FUTURA)", "nullable": True},
+    "plataforma": {"description": "Papel humano de plataforma: age pela interface, sob permissões (ADR-009)",
+                   "nullable": True},
     "categoria": {"description": "Tipo do requisito", "nullable": True},
     "prioridade": {"description": "Prioridade MoSCoW", "nullable": True},
     "llm": {"description": "Política de LLM do agente/papel", "nullable": True},
@@ -87,6 +90,7 @@ needs_links = {
     "satisfies": _link("satisfaz", "satisfeito por", "#BF9000"),
     "assigned_to": _link("atribuído a", "responsável por", "#38761D"),
     "uses_protocol": _link("usa protocolo", "usado por", "#134F5C"),
+    "grants": _link("concede", "concedida a", "#674EA7"),
     "constrained_by": _link("restrito por", "restringe", "#B45F06", "dashed"),
     "played_by": _link("exercido por", "exerce"),
     "realizes": _link("realiza", "realizado por", "#38761D"),
@@ -106,7 +110,7 @@ needs_warnings = {
     "requisito_sem_teste": "type == 'req' and len(verifies_back) == 0",
     "requisito_sem_metrica": "type == 'req' and len(measures_back) == 0",
     "requisito_sem_objetivo": "type == 'req' and len(satisfies) == 0",
-    "papel_sem_protocolo": "type == 'role' and len(uses_protocol) == 0",
+    "papel_sem_protocolo": "type == 'role' and len(uses_protocol) == 0 and plataforma != 'sim'",
     "teste_dsm1_marcado_pass": "type == 'test' and status == 'PASS' and entrega == 'DSM1'",
 }
 

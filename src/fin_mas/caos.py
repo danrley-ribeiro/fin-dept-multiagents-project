@@ -35,6 +35,8 @@ local do sistema.
 import random
 from dataclasses import asdict, dataclass
 
+from fin_mas.core.fsm import ProtocolViolation
+
 ESPECIALISTAS = ("AG-CUS", "AG-ORC", "AG-RES", "AG-CIN", "AG-REL")
 ENTRE_AGENTES = ("PROT-DEL", "PROT-CMP", "PROT-QRY")
 PLANTIOS_BASE = ("alcada", "sod", "duplicidade", "competencia", "desvio_orcamentario", "divergencia_fonte",
@@ -171,7 +173,10 @@ class ModeloFalhas:
         def decidir_depois(msg) -> None:
             if bus.conversations[msg.conversation_id].is_final or bus.now + 1 >= msg.content["prazo"]:
                 return  # chegou depois do prazo do ticket: não há mais o que decidir
-            decidir(msg)
+            try:
+                decidir(msg)
+            except ProtocolViolation:
+                pass  # a política recusou por prazo (já auditado como `rejected`): o ticket expira sozinho
 
         def on_message(msg) -> None:
             if msg.protocol != "PROT-APR" or msg.performative != "propose-action" or self.aprovador == "pontual":

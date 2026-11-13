@@ -213,11 +213,7 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     ds = amb.dataset()
     if parametros is not None:
         ttl, prazo_aprovacao = parametros.ttl_reserva, parametros.prazo_aprovacao or prazo_aprovacao
-        # limiar de desvio que os agentes leem (normas.perfil); os dados e o gabarito seguem a norma do porte
-        limiar = {k: v for k, v in (("percentual", parametros.limiar_percentual),
-                                    ("absoluto", parametros.limiar_absoluto)) if v is not None}
-        if limiar:
-            ds.perfil["limiar_desvio"] = {**ds.perfil["limiar_desvio"], **limiar}
+        parametros.aplicar_limiares(ds)
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
     if acesso == "simulado":
         acesso = Acesso.simulado_com({u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c}

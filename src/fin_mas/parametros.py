@@ -31,6 +31,17 @@ class Parametros:
     limiar_absoluto: int | None = None  # idem, em centavos
     reserva_periodo: bool = True  # o fechamento reserva o mês (PROT-LCK)
 
+    def aplicar_limiares(self, ds) -> None:
+        """Troca o limiar de desvio que os agentes (ou o workflow) leem do perfil do porte.
+
+        Os dados e o gabarito já foram gerados com a norma do porte e não mudam: o que se mede é o
+        efeito de um limiar mal ajustado em quem decide.
+        """
+        limiar = {k: v for k, v in (("percentual", self.limiar_percentual), ("absoluto", self.limiar_absoluto))
+                  if v is not None}
+        if limiar:
+            ds.perfil["limiar_desvio"] = {**ds.perfil["limiar_desvio"], **limiar}
+
     def diferencas(self) -> dict:
         """Só o que difere do padrão (vai para o `meta` do trace e para o manifesto do experimento)."""
         padrao = asdict(Parametros())

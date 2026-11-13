@@ -24,7 +24,13 @@ pytestmark = pytest.mark.e2e
 RAIZ = Path(__file__).resolve().parents[2]
 COGNITIVOS = sorted(n for n, sc in CENARIOS.items() if sc.cognicao != "basico")
 BASICOS = sorted(n for n, sc in CENARIOS.items() if sc.cognicao == "basico")
-TOOLS_DA_COGNICAO = {"planilhas.observacoes", "erp.historico"}
+TOOLS_DA_COGNICAO = {"planilhas.observacoes", "erp.historico",
+                     # DSM4 (ADR-010): percepções das variantes BDI e base normativa
+                     "normas.cognicao", "normas.buscar", "erp.direcionadores", "erp.historico_resultado"}
+# Cenários cognitivos em que o AG-ORC não recebe proposta: provedor fora do ar (DSM3) e os cenários da DSM4
+# sem desvio orçamentário, cujo assunto é outro agente (as crenças de todos seguem conferidas abaixo).
+SEM_PROPOSTA_DO_ORC = {"llm_provedor_fora", "res_explica_variacao", "res_insumo_faltante", "cus_rateio_alternativo",
+                       "rel_relatorio_de_excecao", "normas_fundamentam_achado", "normas_sem_evidencia"}
 
 
 def _eventos(e, kind, agente="AG-ORC"):
@@ -75,9 +81,9 @@ def test_local_hypothesis_triggers_verification_and_reclassifies():
 def test_hypothesis_never_writes_a_belief(nome):
     """Proposta não é crença: nenhuma crença tem um proponente como fonte, em nenhum cenário."""
     e = run_scenario(nome)
-    if nome != "llm_provedor_fora":  # único cenário cognitivo sem nenhuma proposta (provedor fora do ar)
+    if nome not in SEM_PROPOSTA_DO_ORC:
         assert _eventos(e, "hipotese"), "o cenário deveria registrar ao menos uma proposta"
-    fontes = {r["fonte"] for a in ("AG-ORC", "AG-CIN") for r in _eventos(e, "belief", a)}
+    fontes = {r["fonte"] for a in ("AG-ORC", "AG-CIN", "AG-RES", "AG-CUS", "AG-REL") for r in _eventos(e, "belief", a)}
     assert not [f for f in fontes if f.startswith(("local:", "llm:"))]
     # o que muda a avaliação tem fonte determinística: o AG-CIN, uma tool MCP ou um plano de domínio
     for r in _eventos(e, "belief"):

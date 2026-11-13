@@ -67,7 +67,8 @@ def _run(args) -> int:
         return 2
     try:
         execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta, memoria=args.memoria,
-                                llm=_config_llm(args), cognicao=args.cognicao)
+                                llm=_config_llm(args), cognicao=args.cognicao, compromisso=args.compromisso,
+                                aprendizado=args.aprendizado)
     except ModeloInvalido as e:
         print("planilha inválida:\n  " + "\n  ".join(e.erros), file=sys.stderr)
         return 2
@@ -302,6 +303,19 @@ def _llm(args) -> int:
     return 0
 
 
+def _normas(args) -> int:
+    """Busca na base normativa (CP8): documento, trecho e versão; código 1 quando não há evidência."""
+    from fin_mas.conhecimento import base
+    trechos = base.buscar(args.consulta, args.k)
+    if not trechos:
+        print(f"sem evidência na base normativa ({base.versao()}) para: {args.consulta}")
+        return 1
+    for t in trechos:
+        print(f"{t['documento']} | trecho {t['trecho']} | {t['versao']} | pontuação {t['pontuacao']} | {t['referencia']}")
+        print(f"  {t['texto']}")
+    return 0
+
+
 def _mcp_excel(args) -> int:
     from fin_mas.mcp.excel_server import ServidorExcel
     ServidorExcel(args.pasta).servir()
@@ -334,6 +348,13 @@ def main(argv=None) -> int:
                      help="autoriza enviar dados (com pseudônimos) a um provedor externo")
     run.add_argument("--cognicao", default=None, choices=NIVEIS,
                      help="nível de cognição dos agentes BDI (padrão: o do cenário); ver ADR-008")
+    run.add_argument("--compromisso", default=None, choices=("cego", "obstinado", "aberto"),
+                     help="estratégia de compromisso dos agentes BDI (padrão: a do porte, aberto); ver ADR-010")
+    run.add_argument("--aprendizado", default=None, metavar="ARQUIVO",
+                     help="arquivo selado do aprendizado das regras locais (persiste entre execuções)")
+    nor = sub.add_parser("normas", help="busca na base normativa com proveniência (CP8); sem evidência devolve vazio")
+    nor.add_argument("consulta")
+    nor.add_argument("-k", type=int, default=3)
     rep = sub.add_parser("replay", help="reconstrói uma conversa a partir de um trace JSONL")
     rep.add_argument("trace")
     rep.add_argument("conversation_id")
@@ -407,7 +428,7 @@ def main(argv=None) -> int:
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
                 "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
                 "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,
-                "instalar": implantacao.instalar, "doctor": implantacao.doctor}
+                "instalar": implantacao.instalar, "doctor": implantacao.doctor, "normas": _normas}
     return comandos[args.comando](args)
 
 

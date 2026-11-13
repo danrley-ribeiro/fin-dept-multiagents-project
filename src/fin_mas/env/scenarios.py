@@ -510,7 +510,7 @@ CENARIOS = {c.nome: c for c in [
     Scenario("normas_fundamentam_achado", "SoD crítica vetada e liberada por waiver: o AG-CIN busca na base normativa o "
              "trecho que fundamenta o achado e o cita com documento, trecho e versão",
              "fechar_mes", plantar=("sod",), decisao_aprovador="waiver", cognicao="local",
-             esperado="achado de sod com fundamento COSO-2013, trecho COSO-SEGREGACAO (corpus-v1); citação na ressalva do relatório"),
+             esperado="achado de sod com fundamento COSO-2013, trecho COSO-SEGREGACAO (corpus-v1) no veto; o relatório de exceção cita a mesma base"),
     Scenario("normas_sem_evidencia", "NF duplicada vetada e estornada: a base normativa não tem trecho sobre "
              "duplicidade, a busca devolve vazio e o AG-CIN declara 'sem evidência' em vez de citar algo aproximado",
              "fechar_mes", plantar=("duplicidade",), decisao_aprovador="corrigir", cognicao="local",

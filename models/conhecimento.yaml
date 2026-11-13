@@ -13,7 +13,7 @@ documentos:
   - id: LC-123-2006
     titulo: Lei Complementar 123/2006 (Estatuto da Microempresa e da Empresa de Pequeno Porte)
     referencia: LC 123/2006, art. 3º, I e II
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: LC-123-ART3
         texto: >-
@@ -26,7 +26,7 @@ documentos:
   - id: BNDES-PORTE
     titulo: Classificação de porte do BNDES por receita operacional bruta
     referencia: BNDES, classificação de porte de empresa
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: BNDES-MEDIA-GRANDE
         texto: >-
@@ -35,7 +35,7 @@ documentos:
   - id: LEI-11638-2007
     titulo: Lei 11.638/2007 (sociedades de grande porte)
     referencia: Lei 11.638/2007, art. 3º
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: LEI-11638-ART3
         texto: >-
@@ -46,7 +46,7 @@ documentos:
   - id: LEI-6404-1976
     titulo: Lei 6.404/1976 (Lei das Sociedades por Ações)
     referencia: Lei 6.404/1976, art. 177
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: LEI-6404-ART177
         texto: >-
@@ -56,7 +56,7 @@ documentos:
   - id: LEI-9718-1998
     titulo: Lei 9.718/1998 (limite do Lucro Presumido)
     referencia: Lei 9.718/1998, arts. 13 e 14
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: LEI-9718-PRESUMIDO
         texto: >-
@@ -65,7 +65,7 @@ documentos:
   - id: ITG-1000
     titulo: ITG 1000 (CFC) — modelo contábil para microempresa e empresa de pequeno porte
     referencia: CFC, ITG 1000
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: ITG-1000-SIMPLIFICADO
         texto: >-
@@ -74,7 +74,7 @@ documentos:
   - id: NBC-TG-1000
     titulo: NBC TG 1000 (CFC) — contabilidade para pequenas e médias empresas
     referencia: CFC, NBC TG 1000
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: NBC-TG-1000-PME
         texto: >-
@@ -83,7 +83,7 @@ documentos:
   - id: NBC-TA-320
     titulo: NBC TA 320 (CFC) — materialidade no planejamento e na execução da auditoria
     referencia: CFC, NBC TA 320
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: NBC-TA-320-MATERIALIDADE
         texto: >-
@@ -93,7 +93,7 @@ documentos:
   - id: COSO-2013
     titulo: COSO — Controle Interno, Estrutura Integrada (2013)
     referencia: COSO 2013, componente Atividades de Controle
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: COSO-SEGREGACAO
         texto: >-
@@ -107,7 +107,7 @@ documentos:
   - id: NORMAS-DO-SISTEMA
     titulo: Normas organizacionais do sistema (models/norms.yaml)
     referencia: models/norms.yaml
-    versao: paráfrase corpus-v1
+    versao: paráfrase
     trechos:
       - id: NORM-01
         texto: >-

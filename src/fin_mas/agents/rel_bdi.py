@@ -43,9 +43,12 @@ TEMAS = (
     ("reaprovado", "aprovação por alçada", "aprovação de transação por pessoa com autoridade compatível com o valor"),
     ("estornado", "lançamento em duplicidade", "pagamento em duplicidade: mesmo fornecedor, documento e valor lançados duas vezes"),
     ("reclassificado", "regime de competência", "regime de competência: despesa registrada no período a que se refere"),
+    ("waiver de alcada", "aprovação por alçada", "aprovação de transação por pessoa com autoridade compatível com o valor"),
+    ("waiver de sod", "segregação de funções", "segregação de funções: quem registra a transação não a aprova"),
+    ("waiver de duplicidade", "lançamento em duplicidade", "pagamento em duplicidade: mesmo fornecedor, documento e valor lançados duas vezes"),
+    ("waiver de competencia", "regime de competência", "regime de competência: despesa registrada no período a que se refere"),
     ("waiver de", "liberação por waiver", "não conformidade crítica veta a publicação até correção reavaliada ou waiver humano"),
 )
-REGRAS_DE_CONTROLE = ("alcada em", "sod em", "duplicidade em", "competencia em", "alcada em ", "sod em ")
 
 
 def _k(nome, cid):
@@ -149,24 +152,24 @@ class AgenteRelatoriosBDI(AgenteBDI):
         """Decisões humanas de competências anteriores (memória aprovada), para o leitor ver a reincidência."""
         if self.memoria is None or not self.memoria.integra or not competencia:
             return []
-        anteriores = [m for tipo in ("correcao", "waiver")
-                      for m in self.memoria.consultar(tipo, competencia_atual=competencia, cid=cid)]
+        anteriores = sorted(self.memoria.consultar("correcao", competencia_atual=competencia, cid=cid),
+                            key=lambda m: m["id"])  # o AG-REL só lê correções (services/memoria.py, ACESSO)
         if not anteriores:
             return []
-        anteriores.sort(key=lambda m: m["id"])
         self.crencas.revisar(_k("historico_decisoes", cid),
-                             [{"memoria": m["id"], "tipo": m["tipo"], "competencia": m["competencia"]} for m in anteriores],
+                             [{"memoria": m["id"], "tipo": m["tipo"], "competencia": m["competencia"],
+                               "acao": (m.get("valor") or {}).get("acao")} for m in anteriores],
                              "SVC-MEM " + ", ".join(m["id"] for m in anteriores), cid)
-        rotulo = {"correcao": "correção", "waiver": "waiver"}
-        return [f"Histórico: {len(anteriores)} decisão(ões) humana(s) em competências anteriores: "
-                + ", ".join(f"{rotulo[m['tipo']]} em {m['competencia']} ({m['id']})" for m in anteriores)]
+        return [f"Histórico: {len(anteriores)} correção(ões) aprovada(s) em competências anteriores: "
+                + ", ".join(f"{(m.get('valor') or {}).get('acao')} em {m['competencia']} ({m['id']})" for m in anteriores)]
 
     def _base_normativa(self, cid, competencia, excecoes, com_texto) -> list[str]:
         """Um trecho da base normativa por tema de exceção, ou a declaração de que não há evidência (CP8)."""
-        linhas, fundamentos = [], []
+        linhas, fundamentos, vistos = [], [], set()
         for marca, tema, consulta in TEMAS:
-            if not any(marca in e for e in excecoes):
+            if tema in vistos or not any(marca in e for e in excecoes):
                 continue
+            vistos.add(tema)
             r = self.ferramenta("normas.buscar", cid, competencia=competencia, consulta=consulta, k=1)
             trechos = r["dados"]["trechos"]
             if trechos:

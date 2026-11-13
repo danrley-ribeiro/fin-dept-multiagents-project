@@ -269,3 +269,36 @@ items:
      esperado: "filtros, explicação e sequência pela aba Logs", entrega: DSM3, status: executado}
   - {id: TEST-133, nome: "LLM opcional pelo dashboard: ligar o mock no AG-ORC, corroborar a hipótese e ver o custo", verifica: [REQ-C01, REQ-F08], derivado_de: SVC-MOD, tipo: interface,
      esperado: "configurar o LLM pela interface, ver a hipótese corroborada e o uso", entrega: DSM3, status: executado}
+  # ---- DSM4 (ADR-011): conectores e entendimento de fontes ----
+  - {id: TEST-250, nome: test_understanding_openapi_samples_spreadsheet_and_mcp_match_the_answer_key, verifica: [REQ-F20], derivado_de: NORM-20, tipo: integracao,
+     esperado: "OpenAPI, amostras JSON, planilha fora do modelo e tools MCP: sugestões iguais ao gabarito, com confiança e motivo", entrega: DSM4, status: executado}
+  - {id: TEST-251, nome: test_quality_report_flags_missing_duplicates_out_of_period_totals_and_negatives, verifica: [REQ-F20], derivado_de: NORM-06, tipo: integracao,
+     esperado: "faltantes, duplicados, fora da competência, total que não fecha e negativos acusados; prévia redigida", entrega: DSM4, status: executado}
+  - {id: TEST-252, nome: test_rest_demo_closes_the_month_like_the_simulated_erp_and_writes_only_with_approval, verifica: [REQ-F20, REQ-S20], derivado_de: PROT-APR, tipo: integracao,
+     esperado: "fechamento sobre o ERP de demonstração igual ao ERP simulado; correção só com ticket aprovado", entrega: DSM4, status: executado}
+  - {id: TEST-253, nome: test_source_down_fails_explicitly_and_does_not_hang, verifica: [REQ-F20], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "failure com o motivo, leituras negadas auditadas, nada publicado, em segundos", entrega: DSM4, status: executado}
+  - {id: TEST-254, nome: test_rest_connector_errors_401_500_timeout_invalid_json_and_redirect_are_redacted, verifica: [REQ-S20], derivado_de: NORM-22, tipo: seguranca,
+     esperado: "erros tipados e redigidos; redirecionamento não seguido; credencial não vai a outro host", entrega: DSM4, status: executado}
+  - {id: TEST-255, nome: test_external_host_is_denied_without_admin_release, verifica: [REQ-S20], derivado_de: NORM-22, tipo: seguranca,
+     esperado: "host externo recusado antes de qualquer conexão; liberado, só o ambiente offline bloqueia", entrega: DSM4, status: executado}
+  - {id: TEST-256, nome: test_simulated_connector_and_spreadsheet_folder_preserve_the_current_behavior, verifica: [REQ-F20], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "ERP simulado por conector com o mesmo trace; pasta com uma planilha igual a --pasta; várias competências", entrega: DSM4, status: executado}
+  - {id: TEST-257, nome: test_spreadsheet_off_model_and_mcp_scenarios_match_the_canonical_reading, verifica: [REQ-F20], derivado_de: NORM-20, tipo: e2e,
+     esperado: "planilha_fora_do_modelo e mcp_tools_entendidas iguais à leitura canônica e repetíveis", entrega: DSM4, status: executado}
+  - {id: TEST-258, nome: test_mcp_client_talks_to_the_excel_server_over_stdio, verifica: [REQ-F20], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "initialize, tools/list, tools/call e erro de tool contra o servidor embutido", entrega: DSM4, status: executado}
+  - {id: TEST-259, nome: test_optional_llm_only_suggests_and_goes_through_the_same_validation, verifica: [REQ-F20], derivado_de: NORM-21, tipo: integracao,
+     esperado: "LLM só sugere pendentes, envia só nomes e tipos; inválidas rejeitadas; externo sem consentimento não envia", entrega: DSM4, status: executado}
+  - {id: TEST-260, nome: test_cli_understands_tests_and_serves_the_demo_erp, verifica: [REQ-F20, REQ-S20], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "fontes entender, fontes testar e erp-demo pela CLI; token fora da saída", entrega: DSM4, status: executado}
+  - {id: TEST-261, nome: test_sources_flow_register_test_understand_adjust_confirm_activate_and_close, verifica: [REQ-F20, REQ-S20], derivado_de: NORM-20, tipo: integracao,
+     esperado: "cadastro, teste, entendimento, ajuste, confirmação e ativação pelo HTTP; token fora de resposta, trace, trilha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-262, nome: test_sources_permissions_external_host_and_body_validation, verifica: [REQ-S20], derivado_de: NORM-22, tipo: seguranca,
+     esperado: "403 sem permissão, 400 para corpo não objeto, host externo só pelo administrador, credencial desvinculada", entrega: DSM4, status: executado}
+  - {id: TEST-263, nome: test_spreadsheet_uploads_history_and_off_model_activation, verifica: [REQ-F20], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "envio no modelo e fora dele, histórico, planilha fora do modelo entendida, confirmada e ativada", entrega: DSM4, status: executado}
+  - {id: TEST-264, nome: "fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele", verifica: [REQ-F20, REQ-S20], derivado_de: NORM-20, tipo: interface,
+     esperado: "no navegador: aba Fontes de ponta a ponta; o token nunca aparece", entrega: DSM4, status: executado}
+  - {id: TEST-265, nome: "fontes: modelos para baixar, envio de planilha e histórico; host externo só pelo administrador", verifica: [REQ-S20], derivado_de: NORM-22, tipo: interface,
+     esperado: "modelos, envio e histórico; só o administrador libera host externo", entrega: DSM4, status: executado}

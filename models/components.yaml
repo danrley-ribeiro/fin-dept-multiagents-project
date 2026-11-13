@@ -30,3 +30,11 @@ items:
   - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  # ---- DSM4 (ADR-011): conectores e entendimento de fontes ----
+  - {id: COMP-CNX, titulo: Conectores de fonte (interface, ERP simulado, planilhas, REST genérico), realiza: [SVC-MCP], caminho: src/fin_mas/conectores/base.py, entrega: DSM4, status: implementado}
+  - {id: COMP-MCC, titulo: Cliente MCP por stdio e conector MCP, realiza: [SVC-MCP], caminho: src/fin_mas/conectores/mcp_cliente.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ERD, titulo: ERP de demonstração em loopback (API JSON com token e escrita), realiza: [SVC-MCP], caminho: src/fin_mas/conectores/erp_demo.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ENT, titulo: Entendimento determinístico de fontes (OpenAPI, amostras, MCP, planilha), realiza: [SVC-MCP], caminho: src/fin_mas/fontes/entendimento.py, entrega: DSM4, status: implementado}
+  - {id: COMP-COF, titulo: Cofre selado de credenciais, realiza: [SVC-IAM], caminho: src/fin_mas/services/cofre.py, entrega: DSM4, status: implementado}
+  - {id: COMP-FNT, titulo: Cadastro de fontes e rotas da aba Fontes de dados, realiza: [SVC-IAM], caminho: src/fin_mas/fontes/registro.py, entrega: DSM4, status: implementado}
+  - {id: COMP-FNW, titulo: Aba Fontes de dados no dashboard, realiza: [SVC-AUD], caminho: web/src/components/Fontes.tsx, entrega: DSM4, status: implementado}

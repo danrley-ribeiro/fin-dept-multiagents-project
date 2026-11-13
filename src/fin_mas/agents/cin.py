@@ -294,7 +294,8 @@ class AgenteControlesInternos(AgenteBDI):
                                  "mcp://erp/lancamentos", cid)
             self.estado["crencas"][lanc["id"]] = [r for r, _ in violacoes] or ["conforme"]
             atuais.append(lanc["id"])
-        for lid in set(self.estado["conhecidos"].get(c, [])) - set(atuais):  # estornados desde a última percepção
+        # estornados desde a última percepção; em ordem fixa, para o trace não depender do hash das strings
+        for lid in sorted(set(self.estado["conhecidos"].get(c, [])) - set(atuais)):
             self.crencas.revisar(f"lanc[{lid}]@{c}", {"conta": None, "valor": 0, "violacoes": [], "evidencias": {},
                                                       "estornado": True}, "mcp://erp/lancamentos", cid)
             self.estado["crencas"][lid] = ["estornado"]

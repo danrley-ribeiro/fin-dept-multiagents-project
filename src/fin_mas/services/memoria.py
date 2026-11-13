@@ -39,10 +39,15 @@ from fin_mas.services.redacao import FalhaRedacao, redigir
 
 VERSAO = 4  # v4: pseudônimo com HMAC (chave da memória) em vez de SHA-256 sem chave
 RETENCAO_COMPETENCIAS = 12
-ACESSO = {  # tipo -> (quem grava, quem lê)
-    "waiver": ({"AG-CIN"}, {"AG-CIN"}),
-    "correcao": ({"AG-CIN"}, {"AG-CIN"}),
-    "bloqueio": ({"AG-CIN"}, {"AG-CIN"}),
+# tipo -> (quem grava, quem lê). Só o AG-CIN grava (é ele quem recebe a decisão humana validada). A leitura
+# segue o menor privilégio (DSM4, ADR-010): correção aprovada é um fato sobre os dados (um lançamento saiu
+# ou mudou), que o AG-ORC e o AG-RES precisam para interpretar desvio e indicador, e o AG-REL para contar o
+# histórico; waiver e bloqueio são decisões de risco sobre um veto, que só interessam a quem veta (AG-CIN) e
+# a quem relata (AG-REL). O AG-CUS não lê nada: nenhum critério de rateio depende de decisão do Approval Gate.
+ACESSO = {
+    "waiver": ({"AG-CIN"}, {"AG-CIN", "AG-REL"}),
+    "correcao": ({"AG-CIN"}, {"AG-CIN", "AG-ORC", "AG-RES", "AG-REL"}),
+    "bloqueio": ({"AG-CIN"}, {"AG-CIN", "AG-REL"}),
 }
 EXIGE = {  # tipo -> (decisão do ticket, estados aceitos)
     "waiver": ("waiver", {"aprovado", "executado"}),

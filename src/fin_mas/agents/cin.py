@@ -34,6 +34,13 @@ MAX_CICLOS_CORRECAO = 1
 CORRECAO_POR_REGRA = {"alcada": "reaprovar", "sod": "reaprovar", "duplicidade": "estornar",
                       "competencia": "reclassificar"}
 REINCIDENCIA_POR = {"alcada": "aprovador", "sod": "criador", "duplicidade": "fornecedor", "competencia": "criador"}
+# O que o AG-CIN pergunta à base normativa para cada regra (CP8). A consulta descreve o fato, não cita a norma.
+CONSULTA_POR_REGRA = {
+    "alcada": "aprovação de transação por pessoa com limite de alçada compatível com o valor",
+    "sod": "segregação de funções: quem registra a transação não a aprova",
+    "duplicidade": "pagamento em duplicidade: mesmo fornecedor, documento e valor lançados duas vezes",
+    "competencia": "regime de competência: despesa registrada no período a que se refere",
+}
 
 
 def _ctx_aprovar(a, d):
@@ -77,6 +84,8 @@ def _corpo_parecer(evento, intencao_legado):
         criticos = a.criticos(d)
         conteudo = {"achados": achados, "versao_normas": a.crencas.get("versao_normas"),
                     "proveniencia": a.estado["pareceres"][cmp_id]["proveniencia"]}
+        if a.base_normativa:  # CP8 (DSM4): cada achado cita o trecho que o fundamenta, ou declara que não há
+            conteudo["fundamentos"] = a.fundamentar(achados, a.competencia_de(d), cmp_id)
         if evento == "veto":
             sugeridas = a.correcoes_sugeridas(criticos, a.competencia_de(d)) if i.plano.id == "P-VETAR-COM-CORRECAO" else []
             conteudo["correcoes_sugeridas"] = sugeridas
@@ -123,6 +132,37 @@ class AgenteControlesInternos(AgenteBDI):
                              "efeito_orcamentario": sorted(EFEITO_ORCAMENTARIO),
                              "max_ciclos_correcao": MAX_CICLOS_CORRECAO}
         self.estado = {"crencas": {}, "intencao": None, "pareceres": {}, "conhecidos": {}}
+        self.base_normativa = False  # DSM4 (CP8): ligada fora do nível `basico`; consulta `normas.buscar`
+
+    # ---- conhecimento normativo com proveniência (CP8) --------------------------
+    def fundamentar(self, achados, competencia, cid) -> list[dict]:
+        """Busca na base normativa o trecho que sustenta cada regra violada e o anexa aos achados.
+
+        Uma busca por regra. Com evidência, o achado leva documento, trecho e versão; sem evidência,
+        leva `sem evidência` e nada é preenchido no lugar (o achado continua valendo pela regra
+        interna do porte, que é de onde veio a severidade).
+        """
+        fundamentos = []
+        for regra in sorted({a["regra"] for a in achados}):
+            r = self.ferramenta("normas.buscar", cid, competencia=competencia, consulta=CONSULTA_POR_REGRA[regra], k=1)
+            trechos = r["dados"]["trechos"]
+            if trechos:
+                t = trechos[0]
+                f = {"regra": regra, "situacao": "fundamentado", "documento": t["documento"], "trecho": t["trecho"],
+                     "versao": t["versao"], "texto": t["texto"], "pontuacao": t["pontuacao"]}
+                citacao = f"fundamento: {t['documento']}, trecho {t['trecho']} ({t['versao']})"
+            else:
+                f = {"regra": regra, "situacao": "sem evidência", "corpus": r["dados"]["versao"],
+                     "consulta": CONSULTA_POR_REGRA[regra]}
+                citacao = f"sem evidência na base normativa ({r['dados']['versao']}): achado sustentado só pela regra interna"
+            self.crencas.revisar(f"fundamento[{regra}]", {k: v for k, v in f.items() if k != "texto"},
+                                 r["proveniencia"]["fonte"], cid)
+            fundamentos.append(f)
+            for a in achados:
+                if a["regra"] == regra:
+                    a["fundamento"] = {k: v for k, v in f.items() if k not in ("regra", "texto", "pontuacao")}
+                    a["evidencia"] += f"; {citacao}"
+        return fundamentos
 
     # ---- mensagens ----------------------------------------------------------
     def on_message(self, msg: Message) -> None:
@@ -152,8 +192,12 @@ class AgenteControlesInternos(AgenteBDI):
                              cmp_id)
         competencia = self.estado["pareceres"][cmp_id]["competencia"]
         for c in msg.content["correcoes"]:
+            antes = self.crencas.get(f"lanc[{c['lancamento']}]@{competencia}") or {}  # crença anterior à correção
             self._lembrar("correcao", f"{c['acao']}|lanc={c['lancamento']}",
-                          {"lancamento": c["lancamento"], "acao": c["acao"]},  # sem texto livre com nomes
+                          # sem texto livre com nomes; conta e regras deixam o AG-ORC, o AG-RES e o AG-REL
+                          # reconhecerem a reincidência numa competência seguinte (DSM4). Não vão para o trace.
+                          {"lancamento": c["lancamento"], "acao": c["acao"], "conta": antes.get("conta"),
+                           "regras": sorted(antes.get("violacoes") or [])},
                           competencia, msg.content["aprovacao"], cmp_id)
         self.perceber(cmp_id, self.estado["pareceres"][cmp_id]["competencia"])  # nova percepção, não confiança cega
         i = self.intencao_aguardando("cmp:" + cmp_id)

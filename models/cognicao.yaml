@@ -1,0 +1,58 @@
+# Perfil cognitivo por porte (DSM4, ADR-010): pesos dos desejos permanentes dos especialistas que viraram BDI
+# (AG-RES, AG-CUS, AG-REL), público do relatório, estratégia de compromisso por agente e limiares da cognição.
+# É lido pela tool MCP `normas.cognicao` (percepção com fonte), como os pesos de AG-ORC e AG-CIN vêm de
+# `normas.perfil`. Nada aqui é classificação legal: são parâmetros da simulação, declarados e versionados.
+#
+# Desejos permanentes (a utilidade de um plano é a soma dos pesos dos desejos que ele atende x 10):
+#   AG-RES  completude (entregar todos os indicadores), tempestividade (entregar no prazo),
+#           explicabilidade (variação relevante sai explicada com evidência)
+#   AG-CUS  precisao (o rateio reflete o uso dos recursos), simplicidade (critério que o porte mantém e confere)
+#   AG-REL  clareza (o leitor vê primeiro o que exige atenção), completude (todos os números), concisao
+#
+# Estratégias de compromisso (Rao & Georgeff, 1991; Wooldridge, 2000):
+#   aberto     mantém a intenção enquanto o desejo continua valendo e o plano continua possível (padrão; é o
+#              comportamento da DSM2/DSM3)
+#   obstinado  só larga a intenção quando ela é atingida ou fica impossível; não a abandona porque o motivo caiu
+#   cego       só larga a intenção quando ela é atingida; na falha do plano insiste no mesmo plano
+#              (até `max_insistencias`, um teto de segurança para a execução terminar)
+# O padrão é `aberto` em todos os portes: as outras duas existem como fator do experimento e são ligadas por
+# cenário (`Scenario.compromisso`) ou por parâmetro (`build_system(compromisso=...)`).
+versao: cognicao-v1
+limiares:
+  confianca_minima_consulta: 0.5   # hipótese abaixo disso não justifica mensagem nova (só conferência sem custo)
+  peso_do_prior: 2                 # pseudo-observações da confiança inicial de uma regra (aprendizado)
+  variacao_indicador_pp: 3         # pontos percentuais de EBITDA% contra a média do histórico para ser relevante
+  variacao_linha_percentual: 10    # % de alta (custo) ou queda (receita) de uma linha da DRE para virar hipótese
+  participacao_minima_percentual: 50  # % da variação do EBITDA que a linha precisa explicar para confirmar
+  max_insistencias: 2
+padrao:
+  publico: diretoria
+  compromisso: {AG-ORC: aberto, AG-CIN: aberto, AG-RES: aberto, AG-CUS: aberto, AG-REL: aberto}
+  pesos_res: {completude: 2, tempestividade: 3, explicabilidade: 4}
+  pesos_cus: {precisao: 3, simplicidade: 1}
+  pesos_rel: {clareza: 3, completude: 2, concisao: 2}
+portes:
+  micro:
+    publico: sócio                 # uma pessoa decide: quer o essencial, rápido
+    compromisso: {AG-ORC: aberto, AG-CIN: aberto, AG-RES: aberto, AG-CUS: aberto, AG-REL: aberto}
+    pesos_res: {completude: 1, tempestividade: 4, explicabilidade: 2}
+    pesos_cus: {precisao: 1, simplicidade: 3}      # ITG 1000: modelo simplificado, sem sistema para manter direcionador
+    pesos_rel: {clareza: 3, completude: 1, concisao: 3}
+  pequena:
+    publico: diretor e gerente
+    compromisso: {AG-ORC: aberto, AG-CIN: aberto, AG-RES: aberto, AG-CUS: aberto, AG-REL: aberto}
+    pesos_res: {completude: 2, tempestividade: 3, explicabilidade: 3}
+    pesos_cus: {precisao: 2, simplicidade: 2}
+    pesos_rel: {clareza: 3, completude: 2, concisao: 2}
+  media:
+    publico: diretoria
+    compromisso: {AG-ORC: aberto, AG-CIN: aberto, AG-RES: aberto, AG-CUS: aberto, AG-REL: aberto}
+    pesos_res: {completude: 2, tempestividade: 3, explicabilidade: 4}
+    pesos_cus: {precisao: 3, simplicidade: 1}
+    pesos_rel: {clareza: 3, completude: 2, concisao: 2}
+  grande:
+    publico: conselho e auditoria independente   # Lei 11.638/2007: auditoria obrigatória; número incompleto não sai
+    compromisso: {AG-ORC: aberto, AG-CIN: aberto, AG-RES: aberto, AG-CUS: aberto, AG-REL: aberto}
+    pesos_res: {completude: 5, tempestividade: 1, explicabilidade: 4}
+    pesos_cus: {precisao: 4, simplicidade: 1}
+    pesos_rel: {clareza: 2, completude: 4, concisao: 0}

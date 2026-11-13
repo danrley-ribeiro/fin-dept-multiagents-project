@@ -18,6 +18,22 @@ guarda as aceitas em `self.hipoteses`, um repositório separado das crenças. Hi
 crença: os planos de domínio não a leem; ela só pode gerar um desejo epistêmico (buscar a
 evidência que a confirma ou refuta), e é a evidência que revisa a crença. Sem proponentes
 (nível `basico`) `_inferir` não faz nada e nenhum registro novo aparece no trace.
+
+DSM4 (ADR-010): a política de compromisso virou parâmetro do agente (`compromisso`), com as três
+estratégias de Rao & Georgeff (1991):
+
+- `aberto` (padrão): o comportamento descrito acima, sem nenhuma mudança;
+- `obstinado`: a intenção só cai quando é atingida ou fica impossível (o contexto do plano deixa
+  de valer, o plano falha e não há outro). Ela **não** é abandonada porque o motivo do desejo caiu;
+- `cego`: a intenção só cai quando é atingida. O agente não reconsidera e, na falha do plano,
+  repete o mesmo plano. Para a execução terminar há um teto de insistências (`MAX_INSISTENCIAS`);
+  esgotado o teto, o agente replaneja como os outros.
+
+Aprendizado local auditável (ADR-010): com um registro de aprendizado ligado
+(`services/aprendizado.py`), a confiança de uma proposta de regra local passa a ser a confiança
+que a regra acumulou em competências **anteriores**, e cada hipótese confirmada ou refutada por
+evidência determinística soma um acerto ou um erro para as regras que a propuseram. Hipótese
+arquivada (sem evidência) não conta. Sem registro ligado nada disso acontece.
 """
 from dataclasses import dataclass, field
 from typing import Callable
@@ -26,6 +42,8 @@ from fin_mas.agents.base import Specialist
 from fin_mas.core.inferencia import FINAIS, Hipotese, validar_proposta
 
 TERMINAIS = {"concluida", "abandonada", "falhou"}
+COMPROMISSOS = ("cego", "obstinado", "aberto")
+MAX_INSISTENCIAS = 2  # repetições do mesmo plano que o compromisso cego faz antes de replanejar
 
 
 class Crencas:
@@ -95,6 +113,8 @@ class Intencao:
     aguardando: str | None = None  # conversation_id ou "desejo:<id>"
     tentados: list = field(default_factory=list)
     resultado: object = None
+    insistencias: int = 0  # repetições do mesmo plano após falha (compromisso cego)
+    mantida: bool = False  # já registrou que segue mesmo sem o motivo (compromisso obstinado ou cego)
 
 
 class AgenteBDI(Specialist):
@@ -102,6 +122,7 @@ class AgenteBDI(Specialist):
 
     PLANOS: list = []  # biblioteca de planos (por classe)
     DESEJOS_PERMANENTES: dict = {}  # nome -> peso; usados na utilidade dos planos
+    compromisso = "aberto"  # cego | obstinado | aberto (ADR-010); `aberto` é o comportamento da DSM3
 
     def __init__(self, agent_id, bus, gateway):
         super().__init__(agent_id, bus, gateway)
@@ -114,6 +135,7 @@ class AgenteBDI(Specialist):
         self.proponentes: list = []  # vazio = cognição básica (sem hipóteses)
         self.hipoteses: dict[str, Hipotese] = {}
         self._gatilhos_usados: set = set()
+        self.aprendizado = None  # registro de aprendizado das regras locais (ADR-010); None = sem aprendizado
 
     # ---- hipóteses (ADR-008) -------------------------------------------------
     def gatilhos_inferencia(self) -> list[dict]:
@@ -143,19 +165,30 @@ class AgenteBDI(Specialist):
             self._registrar("hipotese", g["cid"], evento="rejeitada", tipo=p.tipo, alvo=p.alvo, origem=p.origem,
                             motivo=motivo, regra="NORM-11")
             return
+        confianca, aprendida = p.confianca, {}
+        if self.aprendizado is not None and p.origem.startswith("local:"):
+            # a confiança da regra vem do que ela acertou e errou em competências anteriores (ADR-010)
+            situacao = self.aprendizado.situacao(self.id, p.origem, p.confianca, g["competencia"])
+            if situacao["observacoes"]:
+                confianca = situacao["confianca"]
+                aprendida = {"confianca_inicial": p.confianca, "aprendizado": situacao}
         existente = self.hipotese_de(p.tipo, p.alvo, g["competencia"])
         if existente is not None:
             if p.origem not in existente.origens:
                 existente.origens.append(p.origem)
+                # duas origens independentes apontam a mesma causa: a dúvida que sobra é o produto das dúvidas
+                if existente.confianca is not None and confianca is not None:
+                    existente.confianca = round(1 - (1 - existente.confianca) * (1 - confianca), 2)
                 self._registrar("hipotese", g["cid"], hipotese=existente.id, evento="corroborada", tipo=p.tipo,
-                                alvo=p.alvo, origem=p.origem, regra="NORM-11")
+                                alvo=p.alvo, origem=p.origem, confianca=existente.confianca, regra="NORM-11",
+                                **aprendida)
             return
         h = Hipotese(f"{self.id}-H{len(self.hipoteses) + 1:03d}", p.tipo, p.alvo, g["competencia"], [p.origem],
-                     p.justificativa, p.evidencias, p.confianca, g["cid"], pseudonimos=dict(pseudonimos or {}))
+                     p.justificativa, p.evidencias, confianca, g["cid"], pseudonimos=dict(pseudonimos or {}))
         self.hipoteses[h.id] = h
         self._registrar("hipotese", g["cid"], hipotese=h.id, evento="aceita", tipo=h.tipo, alvo=h.alvo,
                         origem=p.origem, justificativa=h.justificativa, evidencias=list(h.evidencias),
-                        confianca=h.confianca, regra="NORM-11")
+                        confianca=h.confianca, regra="NORM-11", **aprendida)
         self._crencas_mudaram = True
 
     def hipotese_de(self, tipo, alvo, competencia) -> Hipotese | None:
@@ -169,6 +202,8 @@ class AgenteBDI(Specialist):
         h.estado, h.verificacao = estado, fonte or h.verificacao
         self._registrar("hipotese", h.cid, hipotese=h.id, evento=estado, tipo=h.tipo, alvo=h.alvo, motivo=motivo,
                         fonte=fonte, regra="NORM-11")
+        if self.aprendizado is not None and estado in ("confirmada", "refutada"):
+            self.aprendizado.observar(self.id, h, estado, fonte)  # só evidência verificada conta (NORM-20)
         self._crencas_mudaram = True
 
     # ---- desejos ---------------------------------------------------------
@@ -225,10 +260,17 @@ class AgenteBDI(Specialist):
             if i.estado in TERMINAIS:
                 continue
             ativo, motivo = self.desejo_ativo(i.desejo)
-            if not ativo:
+            if not ativo and self.compromisso == "aberto":
                 self._encerrar_intencao(i, "abandonada", f"reconsiderada: {motivo}")
                 self._encerrar_desejo(i.desejo, "descartado", motivo)
                 continue
+            if not ativo and not i.mantida:  # obstinado e cego: o motivo caiu, mas a intenção ainda é possível
+                i.mantida = True
+                self._registrar("intention", i.desejo.cid, intencao=i.id, desejo=i.desejo.id, plano=i.plano.id,
+                                evento="mantida", motivo=f"compromisso {self.compromisso}: o motivo caiu ({motivo}), "
+                                                         f"mas a intenção não foi atingida nem ficou impossível")
+            if self.compromisso == "cego":
+                continue  # compromisso cego: não confere nem o contexto do plano
             if i.estado == "ativa" or (i.aguardando or "").startswith("desejo:"):
                 ok, motivo_ctx = i.plano.contexto(self, i.desejo)
                 if not ok:
@@ -292,7 +334,20 @@ class AgenteBDI(Specialist):
         self._crencas_mudaram = True
 
     def _falhar(self, i: Intencao, motivo: str) -> None:
-        """Falha do plano: tenta o próximo plano aplicável para o mesmo desejo (replanejamento)."""
+        """Falha do plano: tenta o próximo plano aplicável para o mesmo desejo (replanejamento).
+
+        No compromisso cego o agente insiste no mesmo plano antes de replanejar (até `MAX_INSISTENCIAS`).
+        """
+        if (self.compromisso == "cego" and i.estado not in TERMINAIS and i.desejo.estado == "ativo"
+                and i.insistencias < MAX_INSISTENCIAS):
+            i.insistencias += 1
+            i.estado, i.aguardando = "ativa", None
+            self._registrar("intention", i.desejo.cid, intencao=i.id, desejo=i.desejo.id, plano=i.plano.id,
+                            evento="insistida", motivo=f"compromisso cego: repete o mesmo plano após falha ({motivo}); "
+                                                       f"insistência {i.insistencias} de {MAX_INSISTENCIAS}")
+            i.plano.corpo(self, i)
+            self._crencas_mudaram = True
+            return
         self._encerrar_intencao(i, "falhou", motivo)
         if i.desejo.estado == "ativo":
             self._registrar("intention", i.desejo.cid, intencao=i.id, desejo=i.desejo.id, plano=i.plano.id,
@@ -350,6 +405,8 @@ class AgenteBDI(Specialist):
                         "utilidade": self._utilidade(p)} for p in self.PLANOS],
             "desejos_permanentes": dict(self.DESEJOS_PERMANENTES),
         }
+        if self.compromisso != "aberto":
+            m["bdi"]["compromisso"] = self.compromisso
         if self.proponentes:
             m["bdi"]["hipoteses"] = [h.resumo() for h in self.hipoteses.values()]
         return m

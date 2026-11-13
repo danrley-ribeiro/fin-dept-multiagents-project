@@ -19,7 +19,7 @@
 import argparse
 import sys
 
-from fin_mas import cli_acesso
+from fin_mas import cli_acesso, implantacao
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
@@ -168,6 +168,15 @@ def _relatorio(args) -> int:
 
 def _serve(args) -> int:
     from fin_mas.server import servir
+    if args.instalacao:  # pasta preparada pelo `instalar`: porte, cognição, porta e cadastro vêm de lá
+        from pathlib import Path
+
+        from fin_mas.implantacao import ler_instalacao
+        c = ler_instalacao(args.instalacao)
+        base = Path(args.instalacao)
+        servir(c["cenario"], args.seed, c["porta"], args.ms_por_tick, str(base / "empresa"), str(base / "acesso"),
+               False, c["cognicao"], porte=c["porte"])
+        return 0
     servir(args.scenario, args.seed, args.porta, args.ms_por_tick, args.pasta_dados, args.pasta_acesso, args.demo,
            args.cognicao)
     return 0
@@ -302,7 +311,7 @@ def _mcp_excel(args) -> int:
 def main(argv=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(prog="fin_mas", description="Sistema multiagente de controladoria da SMA (fictícia)")
+    parser = argparse.ArgumentParser(prog="fin-mas", description="Sistema multiagente de controladoria da SMA (fictícia)")
     sub = parser.add_subparsers(dest="comando", required=True)
     sub.add_parser("list", help="lista os cenários")
     run = sub.add_parser("run", help="executa um cenário")
@@ -350,7 +359,9 @@ def main(argv=None) -> int:
     srv.add_argument("--acesso", dest="pasta_acesso", default="dados/acesso", help="pasta do cadastro de acesso (SVC-IAM)")
     srv.add_argument("--demo", action="store_true", help="cria e usa as contas de demonstração (senha pública)")
     srv.add_argument("--cognicao", default=None, choices=NIVEIS, help="nível de cognição (padrão: o do cenário)")
+    srv.add_argument("--instalacao", default=None, metavar="PASTA", help="sobe a partir da pasta criada pelo `instalar`")
     cli_acesso.configurar(sub)
+    implantacao.configurar(sub)
     aud = sub.add_parser("auditoria", help="recorte de um trace JSONL com os filtros do dashboard")
     aud.add_argument("trace")
     for filtro in ("agente", "competencia", "tarefa", "tipo", "q"):
@@ -395,7 +406,8 @@ def main(argv=None) -> int:
     comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export,
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
                 "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
-                "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes}
+                "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,
+                "instalar": implantacao.instalar, "doctor": implantacao.doctor}
     return comandos[args.comando](args)
 
 

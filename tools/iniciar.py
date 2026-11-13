@@ -163,7 +163,9 @@ def _manter(processos):
 
 def modo_ao_vivo(args, _bun):
     passo("Iniciando o escritório ao vivo (servidor local, sem internet)")
-    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", str(args.porta),
+    # --demo: contas de demonstração com senha pública (o servidor a imprime), para avaliar sem configurar nada.
+    # Uso real: `python -m fin_mas instalar` e depois `python -m fin_mas serve --instalacao dados`.
+    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", str(args.porta), "--demo",
                             "--scenario", args.cenario or "expediente_sma"], cwd=RAIZ, env=_env())
     _abrir_quando_pronto(f"http://127.0.0.1:{args.porta}", not args.sem_navegador)
     _manter([srv])
@@ -179,7 +181,7 @@ def modo_replay(args, bun):
 
 def modo_dev(args, bun):
     passo("Modo desenvolvimento: servidor Python (8765) + Vite com recarga automática (5173)")
-    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", "8765"], cwd=RAIZ, env=_env())
+    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", "8765", "--demo"], cwd=RAIZ, env=_env())
     web = subprocess.Popen([bun, "run", "dev", "--host", "127.0.0.1"], cwd=WEB, env=_env())
     _abrir_quando_pronto("http://127.0.0.1:5173", not args.sem_navegador)
     _manter([srv, web])

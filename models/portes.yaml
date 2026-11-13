@@ -12,6 +12,14 @@
 #   - CFC: ITG 1000 (modelo contábil simplificado para ME/EPP), NBC TG 1000 (PMEs), CPCs completos.
 #   - NBC TA 320: materialidade proporcional ao porte; usada para os limiares absolutos de desvio.
 #   - COSO 2013: sem pessoas para segregar funções, aceita-se controle compensatório (revisão do sócio).
+#
+# Ficha do porte (DSM3): os campos regime_tributario, obrigacoes, estrutura, volume, calendario_fechamento,
+# politica_aprovacao, papeis_de_acesso, fonte_de_dados e cognicao_padrao descrevem como uma empresa daquele
+# porte costuma operar e como o sistema é implantado nela. São referência para o assistente de instalação e
+# para a aba "Porte" do dashboard; não são lidos pelos agentes e não mudam nenhuma regra (a versão das normas
+# continua normas-v2). Regimes e obrigações estão resumidos: cada empresa confirma os seus com a contabilidade.
+#   - LC 123/2006: Simples Nacional para ME e EPP (opção, com vedações).
+#   - Lei 9.718/1998, arts. 13 e 14: Lucro Presumido até R$ 78 milhões de receita no ano anterior; acima, Lucro Real.
 versao: normas-v2
 portes:
   micro:
@@ -33,6 +41,15 @@ portes:
     pesos_cin: {conformidade: 10, prazo: 8}             # dono pequeno: travar o mês custa caro
     pesos_orc: {precisao: 2, tempestividade: 2}
     max_ciclos_correcao: 2
+    regime_tributario: Simples Nacional (opção da LC 123/2006) ou Lucro Presumido
+    obrigacoes: [apuração mensal do Simples (PGDAS-D), declaração anual (DEFIS), livro caixa ou escrituração simplificada (ITG 1000)]
+    estrutura: {pessoas: 2, descricao: sócio que decide e um assistente que lança; contabilidade externa}
+    volume: {lancamentos_mes: dezenas, contas_orcamento: 5, centros_de_custo: 1 a 3}
+    calendario_fechamento: fechamento até o dia 10 do mês seguinte, numa única etapa
+    politica_aprovacao: o sócio aprova tudo; quem pede também decide, sob controle compensatório (revisão mensal registrada)
+    papeis_de_acesso: {socio: [ROLE-SOL, ROLE-APR], assistente: [ROLE-SOL, ROLE-OPE], administrador_de_acesso: contador externo ou o próprio sócio em outra conta}
+    fonte_de_dados: planilha modelo (dados/modelos), enviada pelo dashboard a cada competência
+    cognicao_padrao: local
 
   pequena:
     titulo: Empresa de Pequeno Porte (EPP)
@@ -52,6 +69,15 @@ portes:
     pesos_cin: {conformidade: 10, prazo: 6}
     pesos_orc: {precisao: 3, tempestividade: 2}
     max_ciclos_correcao: 1
+    regime_tributario: Simples Nacional (até o limite de R$ 4,8 milhões) ou Lucro Presumido
+    obrigacoes: [apuração mensal do Simples (PGDAS-D) ou do Lucro Presumido, declaração anual, escrituração pela NBC TG 1000]
+    estrutura: {pessoas: 4, descricao: diretor, um gerente e dois analistas; financeiro e contábil na mesma equipe}
+    volume: {lancamentos_mes: centenas, contas_orcamento: 5, centros_de_custo: 3}
+    calendario_fechamento: fechamento até o dia 8, com conferência do gerente antes da publicação
+    politica_aprovacao: gerente ou diretor aprovam; quem criou ou aprovou o lançamento vetado não decide sobre ele
+    papeis_de_acesso: {diretor: [ROLE-SOL, ROLE-APR], gerente: [ROLE-APR], analista: [ROLE-SOL], operacao: [ROLE-OPE]}
+    fonte_de_dados: sistema de gestão simples (ERP) como fonte primária; planilha para o orçamento
+    cognicao_padrao: local
 
   media:
     titulo: Média empresa
@@ -71,6 +97,15 @@ portes:
     pesos_cin: {conformidade: 10, prazo: 5}
     pesos_orc: {precisao: 3, tempestividade: 1}
     max_ciclos_correcao: 1
+    regime_tributario: Lucro Presumido (até R$ 78 milhões de receita no ano anterior) ou Lucro Real
+    obrigacoes: [escrituração contábil e fiscal digitais (ECD, ECF), apurações mensais e trimestrais, demonstrações pela NBC TG 1000 ou pelos CPCs]
+    estrutura: {pessoas: 5, descricao: diretor, dois gerentes e dois analistas; controladoria separada do financeiro}
+    volume: {lancamentos_mes: milhares, contas_orcamento: 5, centros_de_custo: 3}
+    calendario_fechamento: fechamento até o dia 5 útil, com parecer de controles internos antes do relatório à diretoria
+    politica_aprovacao: gerente até a alçada dele, diretor acima; segregação de funções obrigatória
+    papeis_de_acesso: {diretor: [ROLE-SOL, ROLE-APR], gerente: [ROLE-APR], analista: [ROLE-SOL], operacao: [ROLE-OPE], auditoria: [ROLE-AUD], ti: [ROLE-ADM]}
+    fonte_de_dados: ERP como fonte primária; planilha de orçamento reconciliada com o ERP
+    cognicao_padrao: local
 
   grande:
     titulo: Grande empresa (sociedade de grande porte)
@@ -90,3 +125,12 @@ portes:
     pesos_cin: {conformidade: 10, prazo: 3}
     pesos_orc: {precisao: 4, tempestividade: 1}
     max_ciclos_correcao: 1
+    regime_tributario: Lucro Real
+    obrigacoes: [escrituração contábil e fiscal digitais (ECD, ECF), demonstrações pela Lei 6.404/76 e pelos CPCs completos, auditoria independente (Lei 11.638/2007)]
+    estrutura: {pessoas: 5 ou mais, descricao: diretoria estatutária, gerências por área, analistas; auditoria interna e comitê}
+    volume: {lancamentos_mes: dezenas de milhares, contas_orcamento: 5, centros_de_custo: 3 ou mais}
+    calendario_fechamento: fechamento até o dia 3 útil, com corte de competência rígido e revisão de auditoria
+    politica_aprovacao: alçadas por valor em três níveis; nenhuma pessoa decide sozinha acima da própria alçada
+    papeis_de_acesso: {diretor: [ROLE-SOL, ROLE-APR], gerente: [ROLE-APR], analista: [ROLE-SOL], operacao: [ROLE-OPE], auditoria: [ROLE-AUD], seguranca_da_informacao: [ROLE-ADM]}
+    fonte_de_dados: ERP corporativo como fonte primária; integrações por conector (DSM4)
+    cognicao_padrao: local

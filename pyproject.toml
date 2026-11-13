@@ -5,6 +5,9 @@ description = "Protótipo (DSM3) do sistema multiagente de controladoria"
 requires-python = ">=3.11"
 dependencies = ["pyyaml>=6.0", "openpyxl>=3.1"]
 
+[project.scripts]
+fin-mas = "fin_mas.cli:main"
+
 [project.optional-dependencies]
 llm = ["anthropic>=1.0"]   # SDK do Claude; GPT, Gemini e modelos locais usam HTTP da biblioteca padrão
 tui = ["textual>=8,<9"]    # console de administração de acesso (python -m fin_mas acesso tui)

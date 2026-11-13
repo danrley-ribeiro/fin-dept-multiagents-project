@@ -632,7 +632,7 @@ class _Servidor(ThreadingHTTPServer):
 
 
 def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pasta_dados="dados/empresa",
-           pasta_acesso="dados/acesso", demo=False, cognicao=None) -> None:
+           pasta_acesso="dados/acesso", demo=False, cognicao=None, porte=None) -> None:
     from fin_mas.services.iam import SENHA_DEMO, Acesso
     acesso = criar_demo(pasta_acesso) if demo else Acesso(pasta_acesso)
     if acesso.vazio():
@@ -640,6 +640,8 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
                          f"`python -m fin_mas acesso iniciar --acesso {pasta_acesso}` ou suba com --demo")
     sim = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick, pasta_dados=pasta_dados, acesso=acesso,
                     cognicao=cognicao)
+    if porte and porte != sim.porte:  # instalação com porte escolhido: os agentes já sobem com as regras dele
+        sim._montar(cenario, seed, True, porte=porte)
     sim.iniciar()
     servidor = criar_servidor(sim, porta=porta, acesso=acesso)
     print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)")

@@ -7,21 +7,21 @@
 <text x="14" y="82" font-weight="700" fill="#52514e">sem_reenvio: execução correta, perda_media</text>
 <line x1="164" y1="89" x2="164" y2="169" stroke="#d6d5d0"/>
 <text x="156" y="99.5" text-anchor="end" fill="#0b0b0b">completo · fechar</text>
-<rect x="164" y="92" width="36.9" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · completo · fechar · SMA com cognição local: 23,3%</title></rect>
-<line x1="179.8" y1="96.5" x2="227.2" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="179.8" y1="93.5" x2="179.8" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="227.2" y1="93.5" x2="227.2" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="231.2" y="100" font-size="9" fill="#52514e">23,3%</text>
+<rect x="164" y="92" width="79.0" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · completo · fechar · SMA com cognição local: 50,0%</title></rect>
+<line x1="216.7" y1="96.5" x2="274.6" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="216.7" y1="93.5" x2="216.7" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="274.6" y1="93.5" x2="274.6" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="278.6" y="100" font-size="9" fill="#52514e">50,0%</text>
 <text x="156" y="120.5" text-anchor="end" fill="#0b0b0b">completo · avaliar</text>
-<rect x="164" y="113" width="89.5" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · completo · avaliar · SMA com cognição local: 56,7%</title></rect>
-<line x1="227.2" y1="117.5" x2="279.9" y2="117.5" stroke="#0b0b0b" stroke-width="1"/><line x1="227.2" y1="114.5" x2="227.2" y2="120.5" stroke="#0b0b0b" stroke-width="1"/><line x1="279.9" y1="114.5" x2="279.9" y2="120.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="283.9" y="121" font-size="9" fill="#52514e">56,7%</text>
+<rect x="164" y="113" width="115.9" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · completo · avaliar · SMA com cognição local: 73,3%</title></rect>
+<line x1="253.5" y1="117.5" x2="300.9" y2="117.5" stroke="#0b0b0b" stroke-width="1"/><line x1="253.5" y1="114.5" x2="253.5" y2="120.5" stroke="#0b0b0b" stroke-width="1"/><line x1="300.9" y1="114.5" x2="300.9" y2="120.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="304.9" y="121" font-size="9" fill="#52514e">73,3%</text>
 <text x="156" y="141.5" text-anchor="end" fill="#0b0b0b">sem_reenvio · fechar</text>
-<rect x="164" y="134" width="21.1" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · sem_reenvio · fechar · SMA com cognição local: 13,3%</title></rect>
-<line x1="169.3" y1="138.5" x2="206.1" y2="138.5" stroke="#0b0b0b" stroke-width="1"/><line x1="169.3" y1="135.5" x2="169.3" y2="141.5" stroke="#0b0b0b" stroke-width="1"/><line x1="206.1" y1="135.5" x2="206.1" y2="141.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="210.1" y="142" font-size="9" fill="#52514e">13,3%</text>
+<rect x="164" y="134" width="26.3" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · sem_reenvio · fechar · SMA com cognição local: 16,7%</title></rect>
+<line x1="169.3" y1="138.5" x2="211.4" y2="138.5" stroke="#0b0b0b" stroke-width="1"/><line x1="169.3" y1="135.5" x2="169.3" y2="141.5" stroke="#0b0b0b" stroke-width="1"/><line x1="211.4" y1="135.5" x2="211.4" y2="141.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="215.4" y="142" font-size="9" fill="#52514e">16,7%</text>
 <text x="156" y="162.5" text-anchor="end" fill="#0b0b0b">sem_reenvio · avaliar</text>
-<rect x="164" y="155" width="68.5" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · sem_reenvio · avaliar · SMA com cognição local: 43,3%</title></rect>
-<line x1="206.1" y1="159.5" x2="258.8" y2="159.5" stroke="#0b0b0b" stroke-width="1"/><line x1="206.1" y1="156.5" x2="206.1" y2="162.5" stroke="#0b0b0b" stroke-width="1"/><line x1="258.8" y1="156.5" x2="258.8" y2="162.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="262.8" y="163" font-size="9" fill="#52514e">43,3%</text>
+<rect x="164" y="155" width="73.7" height="9" rx="2" fill="#eb6834"><title>sem_reenvio: execução correta, perda_media · sem_reenvio · avaliar · SMA com cognição local: 46,7%</title></rect>
+<line x1="211.4" y1="159.5" x2="264.1" y2="159.5" stroke="#0b0b0b" stroke-width="1"/><line x1="211.4" y1="156.5" x2="211.4" y2="162.5" stroke="#0b0b0b" stroke-width="1"/><line x1="264.1" y1="156.5" x2="264.1" y2="162.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="268.1" y="163" font-size="9" fill="#52514e">46,7%</text>
 <text x="410" y="82" font-weight="700" fill="#52514e">sem_reserva: publicações do período, nominal</text>
 <line x1="560" y1="89" x2="560" y2="127" stroke="#d6d5d0"/>
 <text x="552" y="99.5" text-anchor="end" fill="#0b0b0b">completo</text>

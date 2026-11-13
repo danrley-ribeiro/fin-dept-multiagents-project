@@ -144,6 +144,7 @@ class Bus:
     # ---- envio ---------------------------------------------------------------------
     def send(self, msg: Message, delay: int = 1, credencial: str | None = None) -> None:
         """Valida a mensagem (ver docstring do módulo) e a agenda para entrega em now + delay."""
+        self.entrega_prevista = self.now + delay  # lido pelos validadores de domínio (prazo do ticket, POL-08)
         if isinstance(msg.content, dict):
             msg = replace(msg, content=copy.deepcopy(msg.content))  # o remetente não altera o que já enviou
         if not isinstance(msg.sender, str) or msg.sender not in self._credenciais:

@@ -163,7 +163,8 @@ class PoliticaAprovacao:
             return "POL-08: hash do veto não confere: a decisão não se refere aos achados apresentados"
         if t["estado"] != "pendente":
             return f"POL-08: ticket {t['id']} já está {t['estado']} (decisão duplicada ou reutilizada)"
-        if self.bus.now + 1 >= t["expira_em"]:  # a entrega (now+1) precisa ocorrer antes do prazo
+        # a entrega precisa ocorrer antes do prazo; o instante vem do barramento (now + atraso do envio)
+        if getattr(self.bus, "entrega_prevista", self.bus.now + 1) >= t["expira_em"]:
             return f"POL-08: ticket {t['id']} expira em t={t['expira_em']}; a decisão não seria entregue no prazo"
         cadastro = self.aprovadores.get(msg.sender)
         if msg.sender != t["aprovador"] or cadastro is None:

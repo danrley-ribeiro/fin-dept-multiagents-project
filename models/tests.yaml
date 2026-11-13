@@ -269,3 +269,17 @@ items:
      esperado: "filtros, explicação e sequência pela aba Logs", entrega: DSM3, status: executado}
   - {id: TEST-133, nome: "LLM opcional pelo dashboard: ligar o mock no AG-ORC, corroborar a hipótese e ver o custo", verifica: [REQ-C01, REQ-F08], derivado_de: SVC-MOD, tipo: interface,
      esperado: "configurar o LLM pela interface, ver a hipótese corroborada e o uso", entrega: DSM3, status: executado}
+  - {id: TEST-134, nome: test_deadline_check_uses_the_real_delivery_time_of_the_decision, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "decisão que só chegaria depois do prazo do ticket é recusada (POL-08); pelo canal normal, vale", entrega: DSM3, status: executado}
+  - {id: TEST-135, nome: test_first_use_wizard_creates_the_first_administrator, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: interface,
+     esperado: "TUI: o primeiro uso cria o administrador e exige senha forte", entrega: DSM3, status: executado}
+  - {id: TEST-136, nome: test_assigning_approver_role_to_the_administrator_is_refused_with_iam06, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: administrador não acumula aprovador (IAM-06)", entrega: DSM3, status: executado}
+  - {id: TEST-137, nome: test_revoking_a_session_opened_by_the_server_drops_it, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: sessão aberta pelo servidor é revogada e deixa de valer", entrega: DSM3, status: executado}
+  - {id: TEST-138, nome: test_access_trail_filters_export_integrity_and_tampering, verifica: [REQ-S05, REQ-O01], derivado_de: NORM-13, tipo: interface,
+     esperado: "TUI: trilha filtrada, exportada, íntegra aprovada e adulterada acusada", entrega: DSM3, status: executado}
+  - {id: TEST-139, nome: test_open_a_recorded_trace_filter_explain_and_export, verifica: [REQ-O01, REQ-O04], derivado_de: SVC-AUD, tipo: interface,
+     esperado: "TUI: abrir trace, filtrar, explicar a decisão e exportar", entrega: DSM3, status: executado}
+  - {id: TEST-140, nome: test_auditor_sees_the_trail_and_cannot_administer, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: auditor lê a trilha e não administra", entrega: DSM3, status: executado}

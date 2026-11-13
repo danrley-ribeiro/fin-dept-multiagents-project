@@ -209,6 +209,7 @@ items:
     esquemas:
       propose-action: {solicitacao: str, competencia: aaaa-mm, acao: str, veto: str, achados: list, opcoes: list,
                        correcoes_sugeridas: list, prazo: int}
-      approve: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?"}
-      reject: {aprovacao: str, solicitacao: str, veto: str, justificativa: str}
+      approve: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?",
+                atestado: "dict?"}
+      reject: {aprovacao: str, solicitacao: str, veto: str, justificativa: str, atestado: "dict?"}
     entrega: DSM3

@@ -30,3 +30,5 @@ items:
   - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  - {id: COMP-TUI, titulo: Console de administração de acesso e auditoria (TUI), realiza: [SVC-IAM, SVC-AUD], caminho: src/fin_mas/tui/app.py, entrega: DSM3, status: implementado}
+  - {id: COMP-IMP, titulo: Instalação por um comando e diagnóstico, realiza: [SVC-IAM], caminho: src/fin_mas/implantacao.py, entrega: DSM3, status: implementado}

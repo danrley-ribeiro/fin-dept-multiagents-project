@@ -272,3 +272,20 @@ def test_decision_that_cannot_be_delivered_in_time_is_rejected():
     assert s.politica.tickets[tid]["estado"] == "pendente" and s.politica.tickets[tid]["aprovado_por"] is None
     s.bus.run()
     assert s.usuario.resposta(sid).content["decisao"] == "expirada"
+
+
+def test_deadline_check_uses_the_real_delivery_time_of_the_decision():
+    """Residual da 3ª rodada: a checagem do prazo supunha entrega em um tick. Uma decisão enviada com
+    antecedência, mas por um canal lento (entrega depois do prazo), é recusada; pelo canal normal, vale."""
+    s, sid, proposta = pendente(prazo_aprovacao=15)
+    tid, expira = proposta.conversation_id, s.politica.tickets[proposta.conversation_id]["expira_em"]
+    falta = expira - s.bus.now
+    assert falta > 3
+    with pytest.raises(MensagemRejeitada, match="não seria entregue no prazo"):
+        s.aprovador.send("AG-ORQ", "approve", "PROT-APR", tid,
+                         {**decisao(sid, proposta, decisao="waiver"), "justificativa": JUSTIFICATIVA}, delay=falta)
+    assert s.politica.tickets[tid]["estado"] == "pendente" and s.politica.tickets[tid]["aprovado_por"] is None
+    s.aprovador.send("AG-ORQ", "approve", "PROT-APR", tid,
+                     {**decisao(sid, proposta, decisao="waiver"), "justificativa": JUSTIFICATIVA}, delay=falta - 1)
+    s.bus.run()
+    assert s.usuario.resposta(sid).content["status"] == "publicado_com_ressalva"

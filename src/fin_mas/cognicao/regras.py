@@ -65,8 +65,48 @@ def _pico_no_historico(x) -> Proposta | None:
                     (k["historico"], k["realizado"]), 0.7)
 
 
+def _memoria_reincidencia(x) -> Proposta | None:
+    """DSM4: a memória aprovada registra, em competência anterior, correção de lançamento irregular na conta."""
+    k = x["chaves"]
+    if not x.get("reincidencia") or "reincidencia" not in k:
+        return None
+    return Proposta("causa_controle", x["conta"],
+                    f"A memória aprovada {{{k['reincidencia']}}} registra correção de lançamento irregular em "
+                    f"{{alvo}} em competência anterior; o realizado {{{k['realizado']}}} pode repetir o mesmo "
+                    f"problema de controle.", (k["reincidencia"], k["realizado"]), 0.7)
+
+
 REGRAS = (("R-OBS-REPETICAO", _obs_repeticao), ("R-OBS-RECORRENCIA", _obs_recorrencia),
-          ("R-HIST-PICO", _pico_no_historico))
+          ("R-HIST-PICO", _pico_no_historico), ("R-MEM-REINCIDENCIA", _memoria_reincidencia))
+
+
+# ---- regras do AG-RES (DSM4, ADR-010): causa da variação de um indicador --------------------
+# Contexto de um indicador:
+#   {"conta": nome do indicador, "chaves": {"indicador", "historico", "receita", "custos_variaveis", "custos_fixos"},
+#    "linhas": {linha: {"atual", "media", "adverso_percentual"}}, "limiar_linha": int}
+# `adverso_percentual` é quanto a linha piorou contra a média do histórico (alta de custo ou queda de receita).
+def _linha_adversa(linha, tipo, frase):
+    def regra(x) -> Proposta | None:
+        dados = (x.get("linhas") or {}).get(linha)
+        if not dados or dados["adverso_percentual"] < x["limiar_linha"]:
+            return None
+        k = x["chaves"]
+        return Proposta(tipo, x["conta"], frase.format(linha=f"{{{k[linha]}}}", historico=f"{{{k['historico']}}}"),
+                        (k[linha], k["historico"], k["indicador"]), 0.7)
+    return regra
+
+
+REGRAS_RES = (
+    ("R-RES-CUSTO-FIXO", _linha_adversa("custos_fixos", "causa_custo_fixo",
+                                        "Os custos fixos {linha} estão acima da média do histórico {historico}; a "
+                                        "queda de {{alvo}} pode vir de um centro de custo.")),
+    ("R-RES-CUSTO-VARIAVEL", _linha_adversa("custos_variaveis", "causa_custo_variavel",
+                                            "Os custos variáveis {linha} estão acima da média do histórico "
+                                            "{historico}; a queda de {{alvo}} pode vir do custo dos produtos.")),
+    ("R-RES-RECEITA", _linha_adversa("receita", "causa_receita",
+                                     "A receita {linha} está abaixo da média do histórico {historico}; a queda de "
+                                     "{{alvo}} pode vir do volume ou do preço.")),
+)
 
 
 class ProponenteLocal:

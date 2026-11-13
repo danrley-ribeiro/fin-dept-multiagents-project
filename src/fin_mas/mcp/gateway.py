@@ -13,21 +13,30 @@ DSM3 — efeito externo protegido (CP7, REQ-S01): todas as tools são de leitura
 allowlist do Orquestrador e só executa com o id de uma aprovação PROT-APR que o SVC-POL
 confirme para aquela correção (`autorizar_efeito`); sem isso, nada chega à fonte de dados.
 """
-from fin_mas.env.dataset import Ambiente, Dataset
+from fin_mas.cognicao.perfis import perfil_cognitivo
+from fin_mas.conhecimento import base as conhecimento
+from fin_mas.env.dataset import BASE_DIRECIONADOR, RATEIO, VERSAO_RATEIO, Ambiente, Dataset
 from fin_mas.services.politica import AprovacaoNecessaria
 
 ALLOWLIST = {
-    "AG-CUS": {"erp.balancete"},
+    # DSM4 (ADR-010): as tools acrescentadas a AG-CUS, AG-RES, AG-CIN e AG-REL são de leitura e só são chamadas
+    # pelas variantes BDI (níveis `local` e `llm`); no nível `basico` ninguém as usa.
+    "AG-CUS": {"erp.balancete", "erp.direcionadores", "normas.cognicao"},
     "AG-ORC": {"planilhas.orcamento", "erp.realizado_por_conta", "normas.perfil",
                "planilhas.observacoes", "erp.historico"},  # percepções da cognição (ADR-008); só leitura
-    "AG-RES": {"erp.balancete"},
-    "AG-CIN": {"erp.lancamentos", "normas.alcadas", "normas.regras", "normas.perfil"},
+    "AG-RES": {"erp.balancete", "erp.historico_resultado", "normas.cognicao"},
+    "AG-CIN": {"erp.lancamentos", "normas.alcadas", "normas.regras", "normas.perfil", "normas.buscar"},
+    "AG-REL": {"normas.cognicao", "normas.buscar"},
     "AG-ORQ": {"erp.corrigir"},  # único efeito externo: exige aprovação (PROT-APR)
 }
 EFEITO_EXTERNO = {"erp.corrigir"}
-SO_COM_ERP = {"erp.realizado_por_conta", "erp.historico"}  # empresa sem ERP: a tool falha explicitamente
+COM_ARGUMENTOS = {"normas.buscar"}  # tools de leitura que recebem parâmetros além da competência
+SO_COM_ERP = {"erp.realizado_por_conta", "erp.historico", "erp.historico_resultado"}  # sem ERP: falha explícita
 ABA = {"erp.balancete": "Produtos+CustosFixos", "erp.lancamentos": "Lancamentos", "planilhas.orcamento": "Orcamento",
-       "erp.realizado_por_conta": "Orcamento", "erp.corrigir": "Lancamentos", "planilhas.observacoes": "Orcamento"}
+       "erp.realizado_por_conta": "Orcamento", "erp.corrigir": "Lancamentos", "planilhas.observacoes": "Orcamento",
+       "erp.direcionadores": "CustosFixos"}
+INDISPONIVEL = {"erp.historico": "empresa sem ERP: não há histórico mensal disponível",
+                "erp.historico_resultado": "empresa sem ERP: não há histórico de resultado disponível"}
 
 
 class ToolDenied(PermissionError):
@@ -64,10 +73,11 @@ class MCPGateway:
         if tool in SO_COM_ERP and not ds.perfil["tem_erp"]:
             self.audit.record(self.bus.now, "mcp_denied", conversation_id=conversation_id, agente=agente, tool=tool,
                               motivo="empresa sem ERP")
-            raise ToolIndisponivel("empresa sem ERP: o realizado vem só da planilha" if tool != "erp.historico"
-                                   else "empresa sem ERP: não há histórico mensal disponível")
+            raise ToolIndisponivel(INDISPONIVEL.get(tool, "empresa sem ERP: o realizado vem só da planilha"))
         if tool in EFEITO_EXTERNO:
             dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
+        elif tool in COM_ARGUMENTOS:
+            dados = getattr(self, "_" + tool.replace(".", "_"))(ds, **args)
         else:
             dados = getattr(self, "_" + tool.replace(".", "_"))(ds)
         proveniencia = {"fonte": self._fonte(ds, tool), "consulta": consulta, "seed": ds.seed}
@@ -132,6 +142,29 @@ class MCPGateway:
     def _erp_historico(self, ds):
         historico = getattr(ds, "historico", None)
         return {"historico": historico() if callable(historico) else {}}
+
+    # ---- DSM4 (ADR-010 e CP8): percepções das variantes BDI e base normativa; todas de leitura ----------
+    def _erp_direcionadores(self, ds):
+        """Direcionadores de rateio do período. Fonte sem a tabela (planilha real) devolve o rateio vigente."""
+        fn = getattr(ds, "direcionadores", None)
+        return fn() if callable(fn) else {"base": BASE_DIRECIONADOR, "versao": VERSAO_RATEIO, "valores": dict(RATEIO)}
+
+    def _erp_historico_resultado(self, ds):
+        fn = getattr(ds, "historico_resultado", None)
+        return {"meses": fn() if callable(fn) else []}
+
+    def _normas_cognicao(self, ds):
+        """Perfil cognitivo do porte (models/cognicao.yaml): pesos dos desejos, público, compromisso e limiares."""
+        return {**perfil_cognitivo(ds.perfil["porte"]), "tem_erp": ds.perfil["tem_erp"]}
+
+    def _normas_buscar(self, ds, consulta: str = "", k: int = 3):
+        """Trechos da base normativa que sustentam a consulta, com documento, trecho e versão (CP8).
+
+        Sem evidência devolve `trechos` vazio: quem chama declara "sem evidência", nunca preenche.
+        """
+        if not isinstance(consulta, str) or not isinstance(k, int) or isinstance(k, bool):
+            raise ValueError("normas.buscar: consulta (texto) e k (inteiro) são obrigatórios")
+        return {"consulta": consulta, "versao": conhecimento.versao(), "trechos": conhecimento.buscar(consulta, min(k, 10))}
 
     def _erp_realizado_por_conta(self, ds):
         return {"meses_decorridos": ds.gold["meses_decorridos"], "realizado": dict(ds.realizado_erp)}

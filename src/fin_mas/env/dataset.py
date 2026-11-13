@@ -24,7 +24,13 @@ SEVERIDADE = dict(_MEDIA["severidade"])
 PLANTIOS = {"alcada", "sod", "duplicidade", "competencia", "desvio_orcamentario",
             "divergencia_fonte", "desvio_irregular",
             # DSM3 (cognição): padrão sazonal e variações do texto livre da planilha de orçamento
-            "desvio_sazonal", "observacao_parafraseada", "observacao_alarme_falso", "nota_injetada"}
+            "desvio_sazonal", "observacao_parafraseada", "observacao_alarme_falso", "nota_injetada",
+            # DSM4 (especialistas BDI, ADR-010): direcionador de rateio do período e variação de indicador
+            "direcionador_ausente", "direcionador_inconsistente", "variacao_custo_fixo"}
+CENTRO_VARIACAO = "CC-OPS"  # centro de custo que salta no mês (variacao_custo_fixo)
+VARIACAO_PP = 8  # pontos percentuais da receita acrescentados ao centro: o EBITDA% cai isso contra o histórico
+MESES_HISTORICO_RESULTADO = 3  # meses anteriores devolvidos por `historico_resultado`
+BASE_DIRECIONADOR = "percentual de uso por unidade de negócio"
 CONTA_DIVERGENTE = "C-3003 Servicos"  # planilha diverge do ERP (divergencia_fonte)
 CONTA_IRREGULAR = "C-3002 Marketing"  # desvio inflado por lançamento duplicado (desvio_irregular)
 EFEITO_ORCAMENTARIO = {"duplicidade", "competencia"}  # violações que inflam o realizado da conta
@@ -101,7 +107,19 @@ class Dataset:
         for p in self.produtos:
             receita, cv = p["preco"] * p["qtd"], p["custo_variavel_unit"] * p["qtd"]
             margens[p["id"]] = {"receita": receita, "custo_variavel": cv, "margem": receita - cv}
+        # base do histórico de resultado (DSM4): o mês "normal", antes de qualquer variação plantada
+        self._base_resultado = {"receita": sum(m["receita"] for m in margens.values()),
+                                "custos_variaveis": sum(m["custo_variavel"] for m in margens.values()),
+                                "custos_fixos_por_centro": {c["centro"]: c["valor"] for c in self.custos_fixos}}
+        self._historico_resultado = None
+        self.gold["variacao"] = None
+        if "variacao_custo_fixo" in self.plantar:  # um centro de custo salta no mês: o EBITDA% cai contra o histórico
+            aumento = self._base_resultado["receita"] * VARIACAO_PP // 100
+            next(c for c in self.custos_fixos if c["centro"] == CENTRO_VARIACAO)["valor"] += aumento
+            self.gold["variacao"] = {"indicador": "ebitda_pct", "linha": "custos_fixos", "centro": CENTRO_VARIACAO,
+                                     "aumento": aumento}
         fixo_total = sum(c["valor"] for c in self.custos_fixos)
+        self._gabarito_rateio(margens, fixo_total)
         fixo_un = ratear(fixo_total, RATEIO)
         por_un = {}
         for un in RATEIO:
@@ -116,6 +134,62 @@ class Dataset:
             "receita": receita, "custos_variaveis": cv, "margem_contribuicao": receita - cv,
             "custos_fixos": fixo_total, "ebitda": receita - cv - fixo_total,
         }
+
+    # ---- direcionador de rateio e histórico de resultado (DSM4, ADR-010) -----------
+    def _gabarito_rateio(self, margens, fixo_total):
+        """Situação do direcionador do período e o resultado por UN em cada critério de rateio possível.
+
+        O gabarito não diz qual critério escolher (isso é decisão do AG-CUS conforme o porte): diz o que
+        foi plantado e quanto cada critério dá, para conferir a conta do critério que o agente declarar.
+        """
+        situacao = ("ausente" if "direcionador_ausente" in self.plantar
+                    else "inconsistente" if "direcionador_inconsistente" in self.plantar else "ok")
+        receita_un = {un: sum(margens[p["id"]]["receita"] for p in self.produtos if p["un"] == un) for un in RATEIO}
+        margem_un = {un: sum(margens[p["id"]]["margem"] for p in self.produtos if p["un"] == un) for un in RATEIO}
+        pesos = {"padrao": dict(RATEIO), "ultimo_valido": dict(RATEIO), "proporcional_receita": receita_un,
+                 "igualitario": {un: 1 for un in RATEIO}}
+        por_criterio = {}
+        for criterio, p in pesos.items():
+            unidades, soma = list(p), sum(p.values())
+            partes = {un: fixo_total * p[un] // soma for un in unidades}
+            partes[unidades[-1]] += fixo_total - sum(partes.values())
+            por_criterio[criterio] = {un: {"margem": margem_un[un], "custo_fixo_rateado": partes[un],
+                                           "resultado": margem_un[un] - partes[un]} for un in unidades}
+        self.gold["rateio"] = {"direcionador": situacao, "por_criterio": por_criterio}
+
+    def direcionadores(self) -> dict:
+        """Tabela de direcionadores de rateio do período, como o ERP a publica (percentual por UN).
+
+        `direcionador_ausente`: a tabela do período não foi publicada. `direcionador_inconsistente`: uma
+        linha foi alterada e a outra não, e a soma deixa de ser 100.
+        """
+        if "direcionador_ausente" in self.plantar:
+            valores = {}
+        elif "direcionador_inconsistente" in self.plantar:
+            unidades = list(RATEIO)
+            valores = {**RATEIO, unidades[-1]: RATEIO[unidades[-1]] + 10}
+        else:
+            valores = dict(RATEIO)
+        return {"base": BASE_DIRECIONADOR, "versao": VERSAO_RATEIO, "valores": valores}
+
+    def historico_resultado(self) -> list[dict]:
+        """Linhas da DRE dos meses anteriores (receita, custos variáveis e custos fixos por centro).
+
+        Gerador próprio, derivado da seed: pedir o histórico não altera nenhum outro dado. Os meses
+        anteriores oscilam 1% em torno do mês normal; só um plantio produz variação relevante.
+        """
+        if self._historico_resultado is None:
+            rng = random.Random(f"{self.seed}:historico_resultado")
+            base = self._base_resultado
+            self._historico_resultado = []
+            for k in range(MESES_HISTORICO_RESULTADO, 0, -1):
+                centros = {c: int(v * rng.uniform(0.99, 1.01)) for c, v in base["custos_fixos_por_centro"].items()}
+                self._historico_resultado.append({
+                    "competencia": _somar_meses(self.competencia, -k),
+                    "receita": int(base["receita"] * rng.uniform(0.99, 1.01)),
+                    "custos_variaveis": int(base["custos_variaveis"] * rng.uniform(0.99, 1.01)),
+                    "custos_fixos": sum(centros.values()), "custos_fixos_por_centro": centros})
+        return [{**m, "custos_fixos_por_centro": dict(m["custos_fixos_por_centro"])} for m in self._historico_resultado]
 
     # ---- orçamento --------------------------------------------------------
     def _gerar_orcamento(self, rng):

@@ -13,6 +13,7 @@ DSM3 — efeito externo protegido (CP7, REQ-S01): todas as tools são de leitura
 allowlist do Orquestrador e só executa com o id de uma aprovação PROT-APR que o SVC-POL
 confirme para aquela correção (`autorizar_efeito`); sem isso, nada chega à fonte de dados.
 """
+from fin_mas.conectores.base import ErroConector
 from fin_mas.env.dataset import Ambiente, Dataset
 from fin_mas.services.politica import AprovacaoNecessaria
 
@@ -66,10 +67,15 @@ class MCPGateway:
                               motivo="empresa sem ERP")
             raise ToolIndisponivel("empresa sem ERP: o realizado vem só da planilha" if tool != "erp.historico"
                                    else "empresa sem ERP: não há histórico mensal disponível")
-        if tool in EFEITO_EXTERNO:
-            dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
-        else:
-            dados = getattr(self, "_" + tool.replace(".", "_"))(ds)
+        try:
+            if tool in EFEITO_EXTERNO:
+                dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
+            else:
+                dados = getattr(self, "_" + tool.replace(".", "_"))(ds)
+        except ErroConector as erro:  # fonte por conector fora do ar ou recusando (ADR-011): falha explícita
+            self.audit.record(self.bus.now, "mcp_denied", conversation_id=conversation_id, agente=agente, tool=tool,
+                              consulta=consulta, motivo=f"fonte indisponível: {erro}")
+            raise
         proveniencia = {"fonte": self._fonte(ds, tool), "consulta": consulta, "seed": ds.seed}
         self.audit.record(self.bus.now, "mcp_call", conversation_id=conversation_id, agente=agente, tool=tool,
                           consulta=consulta, fonte=proveniencia["fonte"])

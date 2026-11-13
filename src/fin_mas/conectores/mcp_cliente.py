@@ -164,11 +164,14 @@ class ConectorMCP(ConectorMapeado):
             raise RespostaInvalida(f"recurso não configurado: {recurso}")
         args = {k: (v.replace("{competencia}", competencia or "") if isinstance(v, str) else v)
                 for k, v in (spec.get("argumentos") or {}).items()}
+        from fin_mas.conectores.planilhas import chave_valor
         cliente = getattr(self, "_aberto", None)
         if cliente is None:
             with self.cliente() as c:
-                return raiz_de(c.tool(spec["tool"], args), spec.get("raiz"))
-        return raiz_de(cliente.tool(spec["tool"], args), spec.get("raiz"))
+                registros = raiz_de(c.tool(spec["tool"], args), spec.get("raiz"))
+        else:
+            registros = raiz_de(cliente.tool(spec["tool"], args), spec.get("raiz"))
+        return chave_valor(registros) if spec.get("formato") == "chave_valor" else registros
 
     def uri(self, recurso: str) -> str:
         spec = (self.config.get("recursos") or {}).get(recurso) or {}

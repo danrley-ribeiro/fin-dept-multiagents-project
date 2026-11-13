@@ -323,7 +323,9 @@ class DatasetIndisponivel:
 
     def __init__(self, conector: Conector, competencia: str, porte: str, erro: ErroConector):
         self.conector, self.competencia, self.porte, self.erro = conector, competencia, porte, erro
-        self.entidade, self.razao_social = "EMPRESA", ""
+        from fin_mas.env.dataset import ENTIDADE
+        self.entidade = (getattr(conector, "config", None) or {}).get("sigla") or ENTIDADE
+        self.razao_social = ""
         self.perfil = {**perfil(porte), "tem_erp": True}
         self.gold = {"meses_decorridos": mes_no_trimestre(competencia)}
         self.correcoes: list = []

@@ -45,6 +45,21 @@ def linha_de_total(registro: dict) -> bool:
     return False
 
 
+CHAVE_VALOR = ({"campo", "valor"}, {"field", "value"}, {"chave", "valor"}, {"item", "valor"}, {"key", "value"})
+
+
+def eh_chave_valor(colunas) -> bool:
+    """Tabela de pares campo/valor (ex.: a aba Empresa do modelo): vira um registro único."""
+    return {normalizar(c) for c in list(colunas)[:2]} in CHAVE_VALOR and len(colunas) == 2
+
+
+def chave_valor(registros: list[dict], colunas=None) -> list[dict]:
+    if not registros:
+        return []
+    c1, c2 = (list(colunas) if colunas else list(registros[0]))[:2]
+    return [{str(r[c1]).strip(): r.get(c2) for r in registros if r.get(c1) not in (None, "")}]
+
+
 def ler_tabelas(arquivo) -> dict[str, dict]:
     """Por aba: cabeçalho detectado, registros (sem a linha de total) e o total, se houver."""
     try:
@@ -67,7 +82,11 @@ def ler_tabelas(arquivo) -> dict[str, dict]:
                 continue
             r = dict(zip(colunas, linha))
             (totais if linha_de_total(r) else registros).append(r)
-        saida[ws.title] = {"cabecalho_linha": i + 1, "colunas": colunas, "registros": registros, "totais": totais}
+        formato = "tabela"
+        if eh_chave_valor(colunas):
+            registros, totais, formato = chave_valor(registros, colunas), [], "chave_valor"
+        saida[ws.title] = {"cabecalho_linha": i + 1, "colunas": colunas, "registros": registros, "totais": totais,
+                           "formato": formato}
     wb.close()
     return saida
 

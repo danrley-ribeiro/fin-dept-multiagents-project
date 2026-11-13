@@ -388,6 +388,7 @@ def _escrita(spec, caminho, post) -> dict | None:
 def de_mcp_tools(lista: list[dict], amostras: dict | None = None) -> dict:
     """Tools de um servidor MCP. Uma tool com parâmetro enumerado cujos valores são nomes de abas canônicas
     (ex.: `ler_aba(aba=Lancamentos)`) vira um recurso por valor; `amostras` ({recurso: resultado}) dá os campos."""
+    from fin_mas.conectores.planilhas import chave_valor, eh_chave_valor
     recursos, ferramentas = [], []
     abas = {normalizar(s): aba for aba, sins in SINONIMOS_ABA.items() for s in sins} | \
         {normalizar(a): a for a in CANONICO}
@@ -401,19 +402,18 @@ def de_mcp_tools(lista: list[dict], amostras: dict | None = None) -> dict:
             for valor in casados:
                 nome = f"{t['name']}:{valor}"
                 pendentes = [k for k in obrig if k != param]
-                registros, raiz = [], ""
+                registros, raiz, formato = [], "", "tabela"
                 if amostras and nome in amostras:
                     raiz, registros = _registros_de(amostras[nome])
                     registros = [_achatar(r) for r in registros]
+                    if registros and eh_chave_valor(list(registros[0])):
+                        registros, formato = chave_valor(registros), "chave_valor"
                 recursos.append({"nome": nome, "raiz": raiz, "linhas": len(registros) if registros else None,
                                  "campos": _campos(registros) if registros else [],
                                  "descritor": {"tool": t["name"], "argumentos": {param: valor},
-                                               "raiz": raiz, "pendentes": pendentes},
+                                               "raiz": raiz, "pendentes": pendentes, "formato": formato},
                                  "_registros": registros})
     return {"origem": "mcp", "recursos": recursos, "ferramentas": ferramentas, "avisos": []}
-
-
-CHAVE_VALOR = ({"campo", "valor"}, {"field", "value"}, {"chave", "valor"}, {"item", "valor"}, {"key", "value"})
 
 
 def de_planilha(arquivo) -> dict:
@@ -426,13 +426,8 @@ def de_planilha(arquivo) -> dict:
             avisos.append(f"aba {aba}: vazia ou sem tabela; ignorada")
             continue
         registros = t["registros"]
-        formato = "tabela"
-        if {normalizar(c) for c in t["colunas"]} in CHAVE_VALOR:
-            c1, c2 = t["colunas"][:2]
-            registros = [{str(r[c1]).strip(): r[c2] for r in registros if r.get(c1) not in (None, "")}]
-            formato = "chave_valor"
         recursos.append({"nome": aba, "raiz": "", "linhas": len(registros), "campos": _campos(registros),
-                         "descritor": {"aba": aba, "cabecalho_linha": t["cabecalho_linha"], "formato": formato},
+                         "descritor": {"aba": aba, "cabecalho_linha": t["cabecalho_linha"], "formato": t["formato"]},
                          "totais": [{k: _json_valor(v) for k, v in x.items()} for x in t["totais"]],
                          "_registros": registros})
         if t["cabecalho_linha"] and t["cabecalho_linha"] > 1:

@@ -64,3 +64,10 @@ dsm2/index
 
 dsm3/index
 ```
+
+```{toctree}
+:caption: DSM4 — Experimentação, documentação e entrega final
+:maxdepth: 2
+
+dsm4/index
+```

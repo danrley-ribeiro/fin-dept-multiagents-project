@@ -46,7 +46,7 @@
 :llm: nao_permitido
 :realizes: ROLE-CUS
 :pursues: G-02
-:uses_resource: ENV-ERP, ENV-BD
+:uses_resource: ENV-ERP, ENV-BD, ENV-SEG
 
 **Cognição:** Deliberativo determinístico (regras de rateio + cálculo)  
 **LLM:** nao_permitido

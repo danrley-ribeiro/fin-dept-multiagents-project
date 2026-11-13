@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from fin_mas.invariantes import INVARIANTES
+
 pytestmark = pytest.mark.integracao
 RAIZ = Path(__file__).resolve().parents[2]
 ADM, NOVA = "Administrador-2026-forte", "Temporaria-2026-abcd"
@@ -143,7 +145,8 @@ def test_audit_explain_sequence_and_invariants_over_a_saved_trace(cli, tmp_path)
     seq = cli("sequencia", trace, "SOL-001", acesso=False).stdout
     assert seq.startswith("sequenceDiagram") and "query-ref [QRY-002]" in seq
     inv = cli("invariantes", trace, acesso=False)
-    assert inv.returncode == 0 and "8 invariantes, 0 violação" in inv.stdout
+    # DSM4: o catálogo de invariantes cresceu (INV-09, INV-10); confere-se contra o tamanho dele
+    assert inv.returncode == 0 and f"{len(INVARIANTES)} invariantes, 0 violação" in inv.stdout
     # um trace adulterado nem chega aos invariantes: a cadeia de hashes acusa antes
     linhas = Path(trace).read_text(encoding="utf-8").splitlines()
     linhas[10] = linhas[10].replace("AG-ORC", "AG-CIN", 1)

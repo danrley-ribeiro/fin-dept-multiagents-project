@@ -8,6 +8,8 @@
     python -m fin_mas acesso sessao listar | revogar ID
     python -m fin_mas acesso trilha ver [--ator U --evento E --resultado negado] | verificar | exportar ARQ
     python -m fin_mas acesso tui                                              console de administração (Textual)
+    python -m fin_mas acesso 2fa | politica | delegacao | alcadas | empresa | segredo   acesso avançado (DSM4,
+                                                                              ver `cli_avancado.py`)
 
 A pasta do cadastro vem de `--acesso` (padrão `dados/acesso`, ou a variável `FIN_MAS_ACESSO`).
 Toda alteração exige um administrador: `--como USUARIO` e a senha, pedida no terminal ou lida
@@ -19,8 +21,9 @@ import json
 import os
 import sys
 
+from fin_mas import cli_avancado
 from fin_mas.core import permissoes
-from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
+from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, SegundoFatorPendente, criar_demo
 from fin_mas.services.trilha import TrilhaAdulterada
 
 PASTA_PADRAO = "dados/acesso"
@@ -32,6 +35,7 @@ def configurar(sub) -> None:
                    help="pasta do cadastro de acesso")
     p.add_argument("--como", default=None, help="administrador que executa a alteração")
     p.add_argument("--json", action="store_true")
+    p.add_argument("--empresa", default=None, help="empresa ativa da sessão da CLI (com várias empresas no cadastro)")
     a = p.add_subparsers(dest="acao", required=True)
     ini = a.add_parser("iniciar", help="cria o primeiro administrador (só com o cadastro vazio)")
     ini.add_argument("--usuario", required=True)
@@ -66,6 +70,7 @@ def configurar(sub) -> None:
     ver.add_argument("--ultimos", type=int, default=40)
     t.add_parser("verificar")
     t.add_parser("exportar").add_argument("arquivo")
+    cli_avancado.configurar_acesso(a)
 
 
 def _senha(variavel: str, pergunta: str, confirmar=False) -> str:
@@ -82,7 +87,11 @@ def _senha(variavel: str, pergunta: str, confirmar=False) -> str:
 def _administrador(acesso: Acesso, args):
     if not args.como:
         raise AcessoNegado("IAM-05", "informe quem executa a alteração: --como USUARIO")
-    sessao, _ = acesso.autenticar(args.como, _senha("FIN_MAS_SENHA", f"senha de {args.como}"), origem="cli")
+    try:
+        sessao, _ = acesso.autenticar(args.como, _senha("FIN_MAS_SENHA", f"senha de {args.como}"), origem="cli")
+    except SegundoFatorPendente as pendente:  # IAM-08: segunda etapa com o código do aplicativo ou de recuperação
+        codigo = cli_avancado.segredo_do_terminal("FIN_MAS_CODIGO_2FA", "código do segundo fator")
+        sessao, _ = acesso.confirmar_entrada(pendente.desafio, codigo, origem="cli")
     return sessao
 
 
@@ -133,6 +142,8 @@ def _executar(args) -> int:
         return 0
     if args.acao == "trilha":
         return _trilha(acesso, args)
+    if args.acao in cli_avancado.ACOES:
+        return cli_avancado.executar(acesso, args, _administrador, _mostrar)
     if args.acao == "usuario" and args.operacao == "listar":
         _mostrar(args, acesso.contas(), [_conta(c) for c in acesso.contas()] or ["nenhuma conta: use `acesso iniciar`"])
         return 0

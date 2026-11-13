@@ -34,16 +34,6 @@ PERMISSOES_GLOBAIS = {"PERM-IAM-USUARIOS", "PERM-IAM-PAPEIS", "PERM-IAM-SESSOES"
 PREFIXOS_INTERFACE = ("llm:", "conector:")  # segredos que a interface pode definir e remover (TOTP é interno)
 
 
-class SegundoFatorPendente(PermissionError):
-    """Senha certa, falta o código: `desafio` é o token da pré-sessão (só serve para `confirmar_entrada`)."""
-
-    def __init__(self, desafio: str, expira_em: float):
-        super().__init__("IAM-08: segundo fator pendente: informe o código do aplicativo autenticador ou um código de "
-                         "recuperação")
-        self.regra, self.motivo = "IAM-08", "segundo fator pendente"
-        self.desafio, self.expira_em = desafio, expira_em
-
-
 def _negado(regra, motivo):
     from fin_mas.services.iam import AcessoNegado
     return AcessoNegado(regra, motivo)

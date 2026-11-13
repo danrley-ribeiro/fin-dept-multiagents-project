@@ -45,7 +45,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fin_mas.core import permissoes
-from fin_mas.services.acesso_avancado import AcessoAvancado, SegundoFatorPendente  # noqa: F401 (reexportada)
+from fin_mas.services.acesso_avancado import AcessoAvancado
 from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada
 from fin_mas.services.trilha import TrilhaAcesso
 
@@ -68,6 +68,16 @@ class AcessoNegado(PermissionError):
     def __init__(self, regra: str, motivo: str):
         super().__init__(f"{regra}: {motivo}")
         self.regra, self.motivo = regra, motivo
+
+
+class SegundoFatorPendente(AcessoNegado):
+    """Senha certa, falta o código (IAM-08): `desafio` é o token da pré-sessão, que só serve para
+    `confirmar_entrada`. Quem não trata o caso continua negando a entrada (falha fechada)."""
+
+    def __init__(self, desafio: str, expira_em: float):
+        super().__init__("IAM-08", "segundo fator pendente: informe o código do aplicativo autenticador ou um "
+                                   "código de recuperação")
+        self.desafio, self.expira_em = desafio, expira_em
 
 
 @dataclass(frozen=True)

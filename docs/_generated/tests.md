@@ -2565,3 +2565,291 @@
 **Resultado esperado:** compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_new_scenarios_hold_every_invariant_and_repeat
+:id: TEST-300
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_new_scenarios_hold_every_invariant_and_repeat()` — tipo *e2e*.  
+**Resultado esperado:** os sete cenários novos repetem o hash e respeitam todos os invariantes  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_person_without_authority_in_the_size_cannot_release
+:id: TEST-301
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_person_without_authority_in_the_size_cannot_release()` — tipo *e2e*.  
+**Resultado esperado:** liberação sem alçada no porte recusada (POL-10); exposição no veto  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_without_iam_the_veto_carries_no_exposure
+:id: TEST-302
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_without_iam_the_veto_carries_no_exposure()` — tipo *e2e*.  
+**Resultado esperado:** sem SVC-IAM o veto e o ticket são os da v0.5.0  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_delegated_decision_records_who_delegated
+:id: TEST-303
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_delegated_decision_records_who_delegated()` — tipo *e2e*.  
+**Resultado esperado:** decisão por delegação aceita e registrada com quem delegou (POL-11)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_expired_delegation_is_refused_and_the_delegator_decides
+:id: TEST-304
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_expired_delegation_is_refused_and_the_delegator_decides()` — tipo *e2e*.  
+**Resultado esperado:** delegação expirada recusada (POL-11)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_four_eyes_endorse_then_approve_by_another_person
+:id: TEST-305
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_four_eyes_endorse_then_approve_by_another_person()` — tipo *e2e*.  
+**Resultado esperado:** endorse PENDENTE->PENDENTE e approve de outra pessoa (POL-12)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_same_person_cannot_endorse_and_approve
+:id: TEST-306
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_same_person_cannot_endorse_and_approve()` — tipo *e2e*.  
+**Resultado esperado:** a mesma pessoa nos dois passos é recusada (POL-12)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_approval_without_endorsement_is_refused_above_the_limit
+:id: TEST-307
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_approval_without_endorsement_is_refused_above_the_limit()` — tipo *e2e*.  
+**Resultado esperado:** aprovação direta acima do limite recusada (POL-12)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_ticket_escalates_after_half_the_deadline
+:id: TEST-308
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_ticket_escalates_after_half_the_deadline()` — tipo *e2e*.  
+**Resultado esperado:** nível acima recusado antes; escalonamento registrado na metade do prazo (POL-14)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_advanced_access_attacks_are_all_rejected
+:id: TEST-309
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_advanced_access_attacks_are_all_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** doze ataques ao acesso avançado, nenhum aceito  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_invariants_catch_a_single_person_release_and_one_above_authority
+:id: TEST-310
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_invariants_catch_a_single_person_release_and_one_above_authority()` — tipo *seguranca*.  
+**Resultado esperado:** INV-09 e INV-10 acusam trace adulterado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_one_company_memory_is_never_remembered_in_another
+:id: TEST-311
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_one_company_memory_is_never_remembered_in_another()` — tipo *e2e*.  
+**Resultado esperado:** memória de uma empresa não vira reincidência em outra; cópia fica comprometida  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_second_factor_from_the_terminal_with_policy_replay_and_recovery_codes
+:id: TEST-312
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_second_factor_from_the_terminal_with_policy_replay_and_recovery_codes()` — tipo *integracao*.  
+**Resultado esperado:** 2FA pela CLI: política, replay, janela, recuperação de uso único  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_vault_keeps_llm_keys_without_ever_showing_them
+:id: TEST-313
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_vault_keeps_llm_keys_without_ever_showing_them()` — tipo *integracao*.  
+**Resultado esperado:** cofre 0600 fora da pasta de dados, chave de LLM pelo cofre, valor nunca mostrado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_delegation_policy_and_companies_from_the_terminal
+:id: TEST-314
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_delegation_policy_and_companies_from_the_terminal()` — tipo *integracao*.  
+**Resultado esperado:** delegação, escalonamento e escopo de empresas pela CLI  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_memory_copied_to_another_folder_is_adopted_under_permission
+:id: TEST-315
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_memory_copied_to_another_folder_is_adopted_under_permission()` — tipo *integracao*.  
+**Resultado esperado:** cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_two_runs_writing_the_same_memory_at_once_keep_both_entries
+:id: TEST-316
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_two_runs_writing_the_same_memory_at_once_keep_both_entries()` — tipo *integracao*.  
+**Resultado esperado:** quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_two_step_login_with_short_lived_pre_session
+:id: TEST-317
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_two_step_login_with_short_lived_pre_session()` — tipo *integracao*.  
+**Resultado esperado:** login em dois passos no servidor; pré-sessão só vale em /api/login/2fa  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_policy_requiring_second_factor_only_lets_the_account_enrol
+:id: TEST-318
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_policy_requiring_second_factor_only_lets_the_account_enrol()` — tipo *integracao*.  
+**Resultado esperado:** conta sem o 2FA exigido só consegue ativá-lo  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_vault_routes_store_llm_keys_without_returning_them
+:id: TEST-319
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_vault_routes_store_llm_keys_without_returning_them()` — tipo *integracao*.  
+**Resultado esperado:** rotas do cofre nunca devolvem o valor  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_each_company_gets_its_own_simulation_and_nothing_crosses_over
+:id: TEST-320
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_each_company_gets_its_own_simulation_and_nothing_crosses_over()` — tipo *integracao*.  
+**Resultado esperado:** uma simulação por empresa; seletor /api/empresa; nada cruza  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_enrol_second_factor_then_log_in_with_a_recovery_code
+:id: TEST-321
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_enrol_second_factor_then_log_in_with_a_recovery_code()` — tipo *interface*.  
+**Resultado esperado:** TUI: ativar 2FA, segredo e códigos uma vez, entrada em dois passos  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_approver_creates_and_revokes_a_delegation
+:id: TEST-322
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_approver_creates_and_revokes_a_delegation()` — tipo *interface*.  
+**Resultado esperado:** TUI: criar e revogar delegação  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_administrator_sets_policy_vault_companies_and_sees_authority_limits
+:id: TEST-323
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_administrator_sets_policy_vault_companies_and_sees_authority_limits()` — tipo *interface*.  
+**Resultado esperado:** TUI: política, cofre, empresas e alçadas  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -90,6 +90,9 @@ class Aprovador(Agent):
         self.interativo = interativo
         self.avisos = []
         self.pendentes: dict[str, object] = {}  # solicitação -> proposta aguardando decisão humana
+        self.avalizados: set = set()  # tickets com dupla aprovação em que o aval (endorse) já foi aceito (POL-12)
+        self._propostas: dict[str, object] = {}  # ticket -> proposta, para decidir de novo quando ele escala (POL-14)
+        self.ultimo_performativo = None
 
     def on_message(self, msg):
         if msg.protocol != "PROT-APR" or msg.performative != "propose-action":
@@ -101,23 +104,36 @@ class Aprovador(Agent):
             self.pendentes[msg.content["solicitacao"]] = msg
             return
         if self.acesso is not None:
+            self._propostas[msg.conversation_id] = msg
             self._decidir_em_lote(msg)
             return
         decisao = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
         self._responder(msg, decisao, self.JUSTIFICATIVA)
 
     def _decidir_em_lote(self, msg) -> None:
-        """Roteiro com pessoas (`"carla:corrigir"`): se a política recusa uma, a próxima do roteiro tenta."""
+        """Roteiro com pessoas (`"carla:corrigir"`): se a política recusa uma, a próxima do roteiro tenta.
+
+        DSM4: `"ana@DLG-001:waiver"` decide pela delegação DLG-001 (POL-11); num ticket com dupla aprovação
+        a primeira decisão aceita é o aval (endorse) e o roteiro segue até a segunda pessoa aprovar (POL-12).
+        """
         while True:
             item = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
             persona, _, decisao = item.rpartition(":")
+            persona, _, delegacao = persona.partition("@")
             sessao = self.acesso.sessao_simulada(persona or self.persona)
             try:
-                self._responder(msg, decisao, self.JUSTIFICATIVA, sessao)
-                return
+                self._responder(msg, decisao, self.JUSTIFICATIVA, sessao, delegacao or None)
+                if self.ultimo_performativo != "endorse":
+                    return
             except (ProtocolViolation, PermissionError):
                 if len(self.decisoes) <= 1 and item == self.decisoes[0]:
                     return  # roteiro esgotado: o prazo do ticket decide
+
+    def reconsiderar(self, tid: str) -> None:
+        """O ticket escalou (POL-14): o roteiro do cenário tenta de novo com o nível de cargo acima."""
+        msg = self._propostas.get(tid)
+        if msg is not None and not self.interativo and self.acesso is not None:
+            self._decidir_em_lote(msg)
 
     def decidir(self, solicitacao, decisao, justificativa=None, sessao=None) -> bool:
         """Decisão humana vinda do dashboard. A pendência só sai da lista depois que a decisão
@@ -138,7 +154,8 @@ class Aprovador(Agent):
             texto = self.SEM_JUSTIFICATIVA.get(decisao, "")
         if not self._responder(msg, decisao, texto, sessao):
             return False
-        self.pendentes.pop(solicitacao, None)
+        if self.ultimo_performativo != "endorse":  # com o aval (POL-12) o ticket segue à espera da segunda pessoa
+            self.pendentes.pop(solicitacao, None)
         return True
 
     SEM_JUSTIFICATIVA = {
@@ -147,11 +164,12 @@ class Aprovador(Agent):
         "corrigir_parcial": "primeira correção sugerida aprovada pelo aprovador (sem justificativa informada)",
     }
 
-    def _responder(self, msg, decisao, justificativa, sessao=None) -> bool:
+    def _responder(self, msg, decisao, justificativa, sessao=None, delegacao=None) -> bool:
         """Envia a decisão; devolve False quando não envia nada (opção não oferecida ou "nenhuma")."""
         c = msg.content
+        self.ultimo_performativo = None
         base = {"aprovacao": msg.conversation_id, "solicitacao": c["solicitacao"], "veto": c["veto"],
-                "justificativa": justificativa}
+                "justificativa": justificativa, **({"delegacao": delegacao} if delegacao else {})}
         if decisao in ("corrigir", "corrigir_parcial"):
             if "corrigir" not in c["opcoes"]:
                 return False  # correção não oferecida: o prazo do ticket esgota
@@ -169,12 +187,20 @@ class Aprovador(Agent):
         return True
 
     def _enviar(self, msg, performativo, conteudo, decisao, sessao) -> None:
-        """Com o SVC-IAM ligado e uma sessão, a decisão sai com o atestado da pessoa (POL-09)."""
+        """Com o SVC-IAM ligado e uma sessão, a decisão sai com o atestado da pessoa (POL-09).
+
+        Ticket com dupla aprovação (POL-12): a primeira liberação sai como aval (`endorse`)."""
+        tid = msg.conversation_id
+        if performativo == "approve" and msg.content.get("dupla") and tid not in self.avalizados:
+            performativo = "endorse"
         if self.acesso is not None and sessao is not None:
             conteudo = {**conteudo, "atestado": self.acesso.atestar(
-                sessao, ticket=msg.conversation_id, veto=msg.content["veto"], decisao=decisao,
+                sessao, ticket=tid, veto=msg.content["veto"], decisao=decisao,
                 corpo=digest_decisao(conteudo))}
-        self.send("AG-ORQ", performativo, "PROT-APR", msg.conversation_id, conteudo)
+        self.send("AG-ORQ", performativo, "PROT-APR", tid, conteudo)
+        if performativo == "endorse":
+            self.avalizados.add(tid)
+        self.ultimo_performativo = performativo
 
 
 @dataclass
@@ -236,7 +262,7 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                                       for u, n, p, e, c in CONTAS_DEMO}, relogio=lambda: bus.now)
     compensatorio = "; ".join(f"{k}: {v}" for k, v in sorted(ds.perfil["controle_compensatorio"].items())) or None
     politica = PoliticaAprovacao(bus, aprovadores=aprovadores, prazo=prazo, acesso=acesso,
-                                 controle_compensatorio=compensatorio)
+                                 controle_compensatorio=compensatorio, perfil=ds.perfil)
     mem = Memoria(bus.audit, lambda: bus.now, politica=politica, caminho=memoria)
     gw = MCPGateway(amb, bus.audit, bus, politica=politica)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl, autenticar=bus.autenticar)
@@ -248,6 +274,7 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
     if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:  # DSM4: direcionador de rateio do segmento
         agentes["AG-CUS"].conhecimento.update(rateio=dict(ds.rateio), versao_rateio=ds.versao_rateio)
+    agentes["AG-CIN"].informar_exposicao = acesso is not None  # DSM4: exposição no veto só com o SVC-IAM (POL-10)
     pessoas = [*ds.perfil["pessoas"], *(nome for nome, _ in PESSOAS.values())]
     modelos = RegistroModelos(bus.audit, lambda: bus.now, pessoas=pessoas)
     for agente in ("AG-REL", "AG-RES", "AG-ORC"):  # os três em que a NORM-07 permite LLM
@@ -308,6 +335,11 @@ class Scenario:
     acesso: bool = False  # liga o SVC-IAM com as contas de demonstração em memória (ADR-009)
     solicitante: str | None = None  # conta que faz os pedidos, nos cenários com acesso
     ataques_acesso: bool = False  # dispara env/ataques_acesso.py enquanto o veto aguarda o aprovador
+    # DSM4 (ADR-012), só com `acesso`: delegações ((de, para, ate, teto, competência), ...), política do cadastro
+    # ((campo, valor), ...) e os ataques de env/ataques_acesso_avancado.py
+    delegacoes: tuple = ()
+    politica_acesso: tuple = ()
+    ataques_acesso_avancado: bool = False
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
     compromisso: tuple = ()  # ((agente, estratégia), ...): cego | obstinado | aberto (ADR-010); vazio = a do porte
     segmento: str = SEGMENTO_PADRAO  # DSM4: comércio, serviços, indústria (models/segmentos.yaml)
@@ -422,6 +454,44 @@ CENARIOS = {c.nome: c for c in [
              "fechar_mes", plantar=("alcada",), acesso=True, solicitante="elisa", decisao_aprovador="nenhuma",
              ataques_acesso=True,
              esperado="15 ataques rejeitados (POL-02, 03, 09, 13 e IAM-05, 06); prazo esgota; nada publicado"),
+    # ---- DSM4: acesso avançado (ADR-012): alçada, delegação, dupla aprovação e escalonamento ----
+    Scenario("aprovador_sem_alcada", "Microempresa: uma gerente com papel de aprovadora tenta liberar a correção, mas "
+             "as normas do porte só dão alçada ao assistente e ao sócio (POL-10); o controller corrige",
+             "fechar_mes", porte="micro", plantar=("alcada", "competencia"), acesso=True, solicitante="controller",
+             decisao_aprovador=("carla:corrigir", "controller:corrigir"),
+             esperado="correção de carla recusada (POL-10, gerente sem alçada no porte); o controller corrige; publicado"),
+    Scenario("delegacao_valida", "O gerente delega à analista a sua alçada para a competência, com teto de R$ 10 mil; "
+             "ela concede o waiver que o cargo dela sozinho não permitiria, e a decisão registra a delegação",
+             "fechar_mes", plantar=("sod",), acesso=True, solicitante="elisa",
+             delegacoes=(("diego", "ana", 10_000, 1_000_000, None),), decisao_aprovador="ana@DLG-001:waiver",
+             esperado="waiver de ana por delegação de diego (DLG-001) aceito; publicado com ressalva"),
+    Scenario("delegacao_expirada", "Mesma delegação, mas com prazo que termina antes do veto: a analista não decide "
+             "mais por ela (POL-11) e o próprio gerente concede o waiver",
+             "fechar_mes", plantar=("sod",), acesso=True, solicitante="elisa",
+             delegacoes=(("diego", "ana", 5, 1_000_000, None),), decisao_aprovador=("ana@DLG-001:waiver", "diego:waiver"),
+             esperado="waiver de ana recusado (POL-11, delegação expirada); waiver de diego aceito"),
+    Scenario("dupla_aprovacao", "Grande empresa: a correção de R$ 30 mil passa do limite de quatro olhos (R$ 25 mil); "
+             "uma gerente dá o aval e o outro gerente aprova",
+             "fechar_mes", porte="grande", plantar=("alcada",), acesso=True, solicitante="elisa",
+             decisao_aprovador=("carla:corrigir", "diego:corrigir"),
+             esperado="endorse de carla (PENDENTE->PENDENTE), approve de diego; aprovado_por com o aval; publicado"),
+    Scenario("dupla_mesma_pessoa_recusada", "Grande empresa: a gerente que deu o aval tenta também aprovar; a política "
+             "recusa (POL-12) e a segunda aprovação vem de outra pessoa",
+             "fechar_mes", porte="grande", plantar=("alcada",), acesso=True, solicitante="elisa",
+             decisao_aprovador=("carla:corrigir", "carla:corrigir", "diego:corrigir"),
+             esperado="aprovação de carla depois do próprio aval recusada (POL-12); diego aprova; publicado"),
+    Scenario("escalonamento", "Ticket no nível de gerente: a diretora tenta decidir antes e é recusada (POL-14); sem "
+             "decisão na metade do prazo o ticket escala para diretor e a decisão dela vale",
+             "fechar_mes", plantar=("sod",), acesso=True, solicitante="ana", decisao_aprovador="elisa:corrigir",
+             politica_acesso=(("escalonamento_percentual", 50),),
+             esperado="elisa recusada (POL-14) antes; ticket escalado de gerente para diretor; elisa aprova depois"),
+    Scenario("ataque_acesso_avancado", "Veto pendente sob ataques ao acesso avançado: código TOTP repetido e fora da "
+             "janela, código de recuperação reutilizado, pré-sessão usada como sessão, delegação forjada, expirada e "
+             "subdelegada, a mesma pessoa nos dois passos, decisão acima da alçada e sessão de outra empresa. Tudo "
+             "recusado; nada é publicado",
+             "fechar_mes", porte="grande", plantar=("alcada",), acesso=True, solicitante="elisa",
+             decisao_aprovador="nenhuma", ataques_acesso_avancado=True,
+             esperado="ataques rejeitados (IAM-04, 08, 09, POL-10, 11, 12); prazo esgota; nada publicado"),
     # ---- DSM3: LLM opcional como proponente e redator, sempre com mocks offline (ADR-008) ----
     Scenario("orc_hipotese_llm", "A planilha descreve o lançamento repetido com outras palavras: as regras locais "
              "não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
@@ -633,11 +703,27 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     if sc.ataques_acesso:
         from fin_mas.env import ataques_acesso
         ataques_acesso.preparar(sistema)
+    if sistema.acesso is not None and sistema.acesso.simulado:
+        _preparar_acesso_avancado(sistema, sc)
     pedidos = PEDIDOS_PLANILHA if pasta else (sc.pedidos or ((sc.intencao, None, 1),))
     sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso,
                                       solicitado_por=sc.solicitante if sistema.acesso is not None else None)
             for intencao, c, atraso in pedidos]
     return sistema, sids
+
+
+def _preparar_acesso_avancado(sistema, sc) -> None:
+    """DSM4: política do cadastro, delegações e ataques avançados de um cenário com acesso simulado."""
+    acesso = sistema.acesso
+    sistema.politica.ao_escalar.append(sistema.aprovador.reconsiderar)
+    if sc.politica_acesso:
+        acesso.definir_politica(acesso.sessao_simulada("admin"), **dict(sc.politica_acesso))
+    for de, para, ate, teto, competencia in sc.delegacoes:
+        acesso.delegar(acesso.sessao_simulada(de), para, ate=ate, teto=teto,
+                       competencia=competencia or sistema.ambiente.principal)
+    if sc.ataques_acesso_avancado:
+        from fin_mas.env import ataques_acesso_avancado
+        ataques_acesso_avancado.preparar(sistema)
 
 
 def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,

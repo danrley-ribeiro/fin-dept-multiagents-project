@@ -19,7 +19,7 @@ items:
     perm: [Aprovar ou rejeitar ActionRequest, Ajustar configuração de modelos e cotas]
     obl: [Registrar justificativa da decisão]
     protocolos: [PROT-APR]
-    permissoes: [PERM-SIM-VER, PERM-APR-DECIDIR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER]
+    permissoes: [PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER]
     llm: nao_aplicavel
     entrega: DSM1
 
@@ -54,7 +54,8 @@ items:
     resp: [Manter contas, papéis e sessões, Zelar pela trilha de acesso]
     perm: [Criar e bloquear contas, Atribuir papéis, Revogar sessões]
     obl: [Não acumular o papel de aprovador, Manter ao menos um administrador ativo]
-    permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER]
+    permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER,
+                 PERM-IAM-POLITICA, PERM-IAM-EMPRESAS, PERM-MOD-SEGREDOS, PERM-MEM-ADOTAR]
     llm: nao_aplicavel
     entrega: DSM3
 

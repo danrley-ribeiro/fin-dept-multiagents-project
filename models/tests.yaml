@@ -436,3 +436,51 @@ items:
      esperado: "wheel com YAML e dashboard embutidos instalado num venv limpo: list, run (mesmo hash do checkout), instalar --demo e doctor fora do repositório", entrega: DSM4, status: executado}
   - {id: TEST-182, nome: test_container_files_publish_only_on_loopback_and_keep_keys_apart, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: configuracao,
      esperado: "compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude", entrega: DSM4, status: executado}
+  - {id: TEST-300, nome: test_new_scenarios_hold_every_invariant_and_repeat, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "os sete cenários novos repetem o hash e respeitam todos os invariantes", entrega: DSM4, status: executado}
+  - {id: TEST-301, nome: test_person_without_authority_in_the_size_cannot_release, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "liberação sem alçada no porte recusada (POL-10); exposição no veto", entrega: DSM4, status: executado}
+  - {id: TEST-302, nome: test_without_iam_the_veto_carries_no_exposure, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "sem SVC-IAM o veto e o ticket são os da v0.5.0", entrega: DSM4, status: executado}
+  - {id: TEST-303, nome: test_delegated_decision_records_who_delegated, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "decisão por delegação aceita e registrada com quem delegou (POL-11)", entrega: DSM4, status: executado}
+  - {id: TEST-304, nome: test_expired_delegation_is_refused_and_the_delegator_decides, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "delegação expirada recusada (POL-11)", entrega: DSM4, status: executado}
+  - {id: TEST-305, nome: test_four_eyes_endorse_then_approve_by_another_person, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "endorse PENDENTE->PENDENTE e approve de outra pessoa (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-306, nome: test_same_person_cannot_endorse_and_approve, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "a mesma pessoa nos dois passos é recusada (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-307, nome: test_approval_without_endorsement_is_refused_above_the_limit, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "aprovação direta acima do limite recusada (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-308, nome: test_ticket_escalates_after_half_the_deadline, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "nível acima recusado antes; escalonamento registrado na metade do prazo (POL-14)", entrega: DSM4, status: executado}
+  - {id: TEST-309, nome: test_advanced_access_attacks_are_all_rejected, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "doze ataques ao acesso avançado, nenhum aceito", entrega: DSM4, status: executado}
+  - {id: TEST-310, nome: test_invariants_catch_a_single_person_release_and_one_above_authority, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "INV-09 e INV-10 acusam trace adulterado", entrega: DSM4, status: executado}
+  - {id: TEST-311, nome: test_one_company_memory_is_never_remembered_in_another, verifica: [REQ-S06], derivado_de: NORM-15, tipo: e2e,
+     esperado: "memória de uma empresa não vira reincidência em outra; cópia fica comprometida", entrega: DSM4, status: executado}
+  - {id: TEST-312, nome: test_second_factor_from_the_terminal_with_policy_replay_and_recovery_codes, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "2FA pela CLI: política, replay, janela, recuperação de uso único", entrega: DSM4, status: executado}
+  - {id: TEST-313, nome: test_vault_keeps_llm_keys_without_ever_showing_them, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "cofre 0600 fora da pasta de dados, chave de LLM pelo cofre, valor nunca mostrado", entrega: DSM4, status: executado}
+  - {id: TEST-314, nome: test_delegation_policy_and_companies_from_the_terminal, verifica: [REQ-S06], derivado_de: NORM-14, tipo: integracao,
+     esperado: "delegação, escalonamento e escopo de empresas pela CLI", entrega: DSM4, status: executado}
+  - {id: TEST-315, nome: test_memory_copied_to_another_folder_is_adopted_under_permission, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada", entrega: DSM4, status: executado}
+  - {id: TEST-316, nome: test_two_runs_writing_the_same_memory_at_once_keep_both_entries, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida", entrega: DSM4, status: executado}
+  - {id: TEST-317, nome: test_two_step_login_with_short_lived_pre_session, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "login em dois passos no servidor; pré-sessão só vale em /api/login/2fa", entrega: DSM4, status: executado}
+  - {id: TEST-318, nome: test_policy_requiring_second_factor_only_lets_the_account_enrol, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "conta sem o 2FA exigido só consegue ativá-lo", entrega: DSM4, status: executado}
+  - {id: TEST-319, nome: test_vault_routes_store_llm_keys_without_returning_them, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "rotas do cofre nunca devolvem o valor", entrega: DSM4, status: executado}
+  - {id: TEST-320, nome: test_each_company_gets_its_own_simulation_and_nothing_crosses_over, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "uma simulação por empresa; seletor /api/empresa; nada cruza", entrega: DSM4, status: executado}
+  - {id: TEST-321, nome: test_enrol_second_factor_then_log_in_with_a_recovery_code, verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "TUI: ativar 2FA, segredo e códigos uma vez, entrada em dois passos", entrega: DSM4, status: executado}
+  - {id: TEST-322, nome: test_approver_creates_and_revokes_a_delegation, verifica: [REQ-S06], derivado_de: NORM-14, tipo: interface,
+     esperado: "TUI: criar e revogar delegação", entrega: DSM4, status: executado}
+  - {id: TEST-323, nome: test_administrator_sets_policy_vault_companies_and_sees_authority_limits, verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "TUI: política, cofre, empresas e alçadas", entrega: DSM4, status: executado}

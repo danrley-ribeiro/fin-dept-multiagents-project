@@ -160,3 +160,31 @@ items:
     decisao: OBRIGACAO
     imposta_por: [SVC-MCP]
     entrega: DSM4
+
+  - id: NORM-14
+    titulo: Liberação dentro da alçada de quem decide, com quatro olhos acima do limite do porte
+    escopo: Decisões de waiver e correção no Approval Gate com o SVC-IAM ligado (POL-10, POL-11, POL-12, POL-14)
+    condicao: >-
+      Exposição do veto acima da alçada do cargo (ou do teto da delegação); delegação inexistente, de outra
+      pessoa, revogada, expirada, fora do escopo ou repassada; liberação acima de `dupla_aprovacao` sem o aval
+      de outra pessoa; cargo acima do nível do ticket antes do escalonamento
+    consequencia: >-
+      A decisão é recusada no barramento com a regra; o ticket segue pendente até a decisão válida ou o prazo;
+      a decisão aceita registra a alçada, a delegação ("por delegação de") e o aval
+    decisao: DENY
+    imposta_por: [SVC-POL, SVC-IAM]
+    entrega: DSM4
+
+  - id: NORM-15
+    titulo: Segundo fator, segredos e empresas sob falha fechada
+    escopo: Entrada na plataforma, cofre de segredos e escopo de empresas (IAM-08, IAM-09, IAM-10)
+    condicao: >-
+      Código TOTP repetido ou fora da janela, código de recuperação já usado, pré-sessão usada como sessão,
+      conta sem o segundo fator exigido pela política, segredo pedido pela interface, cofre alterado fora do
+      sistema, sessão sem empresa ativa ou com empresa fora do escopo
+    consequencia: >-
+      A entrada ou a ação é negada com a regra e registrada na trilha; o valor de um segredo nunca sai para a
+      interface; cofre comprometido não é lido; nada de outra empresa é mostrado nem decidido
+    decisao: DENY
+    imposta_por: [SVC-IAM]
+    entrega: DSM4

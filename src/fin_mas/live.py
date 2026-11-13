@@ -40,7 +40,9 @@ CAMPOS_MODELO = ("llm", "provedor", "modelo", "base_url", "usos", "consentimento
 
 class Simulacao:
     def __init__(self, cenario="expediente_sma", seed=None, interativo=True, ms_por_tick=350, pausado=False,
-                 pasta_dados=None, acesso=None, cognicao=None):
+                 pasta_dados=None, acesso=None, cognicao=None, empresa=None, memoria=None):
+        self.empresa = empresa  # DSM4 (IAM-09): empresa desta simulação; decisões só de sessões ativas nela
+        self.memoria = memoria  # DSM4: arquivo do SVC-MEM desta empresa (dados/<empresa>/memoria.json)
         self.pasta_dados = pasta_dados  # onde o dashboard grava as planilhas enviadas
         self.acesso = acesso  # SVC-IAM: com ele, comando sem pessoa autorizada é negado
         self.cognicao = cognicao  # None = a do cenário
@@ -63,7 +65,9 @@ class Simulacao:
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
-                               llm=llm or None, segmento=segmento)  # planilha inválida levanta antes de trocar
+                               llm=llm or None, segmento=segmento,
+                               memoria=self.memoria)  # planilha inválida levanta antes de trocar o estado
+        sistema.politica.empresa = self.empresa
         self.cenario, self.interativo = sc, interativo
         self.seed = seed if seed is not None else sc.seed
         self.sistema, self.sids = sistema, sids

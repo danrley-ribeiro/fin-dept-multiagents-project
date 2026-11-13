@@ -58,6 +58,27 @@ items:
     titulo: Administrar sessões
     descricao: Listar sessões ativas e revogar sessões de qualquer conta.
     entrega: DSM3
+  # ---- DSM4: acesso avançado (ADR-012) ----
+  - id: PERM-APR-DELEGAR
+    titulo: Delegar a decisão
+    descricao: Delegar a própria alçada de aprovação a outra conta aprovadora, com prazo, teto e escopo (POL-11), e revogar a delegação.
+    entrega: DSM4
+  - id: PERM-IAM-POLITICA
+    titulo: Política do cadastro
+    descricao: Exigir o segundo fator por papel (IAM-08) e definir o escalonamento de tickets sem decisão (POL-14).
+    entrega: DSM4
+  - id: PERM-IAM-EMPRESAS
+    titulo: Administrar empresas
+    descricao: Cadastrar empresas clientes e definir o escopo de empresas de cada conta (IAM-09).
+    entrega: DSM4
+  - id: PERM-MOD-SEGREDOS
+    titulo: Definir segredos
+    descricao: Definir e remover chaves de LLM e credenciais de conector no cofre selado, sem nunca vê-las (IAM-10).
+    entrega: DSM4
+  - id: PERM-MEM-ADOTAR
+    titulo: Adotar memória
+    descricao: Adotar no lugar um arquivo íntegro do SVC-MEM vindo de outra pasta ou de um backup (memoria adotar).
+    entrega: DSM4
 
 # Decisões do Approval Gate por cargo (POL-02): o cargo vem da conta, ligada à pessoa do ERP.
 decisoes_por_cargo:
@@ -67,6 +88,12 @@ decisoes_por_cargo:
   diretor: [waiver, corrigir, bloquear]
   socio: [waiver, corrigir, bloquear]
   controller: [waiver, corrigir, bloquear]
+
+# POL-10 (DSM4): cargo da plataforma sem linha em `limites_alcada` do porte usa a alçada de referência:
+# `maior` = a maior alçada do porte (o controller responde pela controladoria inteira). Cargo sem linha e sem
+# referência não decide liberação (falha fechada).
+alcada_de_referencia:
+  controller: maior
 
 # Papéis que a mesma conta não acumula (IAM-06): quem administra o acesso não decide no Approval Gate.
 incompativeis:

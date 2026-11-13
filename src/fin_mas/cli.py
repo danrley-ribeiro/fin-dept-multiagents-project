@@ -22,7 +22,7 @@
 import argparse
 import sys
 
-from fin_mas import cli_acesso, implantacao, manutencao
+from fin_mas import cli_acesso, cli_avancado, implantacao, manutencao
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
@@ -416,6 +416,7 @@ def main(argv=None) -> int:
     srv.add_argument("--cognicao", default=None, choices=NIVEIS, help="nível de cognição (padrão: o do cenário)")
     srv.add_argument("--instalacao", default=None, metavar="PASTA", help="sobe a partir da pasta criada pelo `instalar`")
     cli_acesso.configurar(sub)
+    cli_avancado.configurar_memoria(sub)
     implantacao.configurar(sub)
     manutencao.configurar(sub)
     aud = sub.add_parser("auditoria", help="recorte de um trace JSONL com os filtros do dashboard")
@@ -463,7 +464,7 @@ def main(argv=None) -> int:
         return 0
     comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export, "experimento": _experimento,
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
-                "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
+                "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "memoria": cli_avancado.executar_memoria, "auditoria": _auditoria,
                 "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,
                 "instalar": implantacao.instalar, "doctor": implantacao.doctor, "normas": _normas,
                 "backup": manutencao.executar, "restaurar": manutencao.executar, "migrar": manutencao.executar}

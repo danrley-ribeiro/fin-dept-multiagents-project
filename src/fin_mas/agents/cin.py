@@ -92,6 +92,8 @@ def _corpo_parecer(evento, intencao_legado):
             conteudo["opcoes"] = (["corrigir"] if sugeridas else []) + ["waiver", "bloquear"]
             a.marcar_reincidencias(achados, a.competencia_de(d), cmp_id)
             conteudo["envolvidos"] = a.envolvidos(criticos, a.competencia_de(d))
+            if a.informar_exposicao:  # DSM4 (POL-10): só com o SVC-IAM ligado; sem ele o veto é o de antes
+                conteudo["exposicao"] = a.exposicao(criticos, a.competencia_de(d))
             a.estado["pareceres"][cmp_id]["ultimo_veto"] = achados
         a.estado["intencao"] = intencao_legado
         regra = {"veto": "NORM-04: não conformidade crítica veta a publicação",
@@ -132,6 +134,7 @@ class AgenteControlesInternos(AgenteBDI):
                              "efeito_orcamentario": sorted(EFEITO_ORCAMENTARIO),
                              "max_ciclos_correcao": MAX_CICLOS_CORRECAO}
         self.estado = {"crencas": {}, "intencao": None, "pareceres": {}, "conhecidos": {}}
+        self.informar_exposicao = False  # DSM4: build_system liga quando há SVC-IAM (alçada por pessoa, POL-10)
         self.base_normativa = False  # DSM4 (CP8): ligada fora do nível `basico`; consulta `normas.buscar`
 
     # ---- conhecimento normativo com proveniência (CP8) --------------------------
@@ -267,6 +270,12 @@ class AgenteControlesInternos(AgenteBDI):
                                f"({m['proveniencia']['aprovacao']})")
             self.crencas.revisar(f"reincidencia[{a['lancamento']}]@{competencia}", a["reincidencia"],
                                  f"SVC-MEM {m['id']}", cid)
+
+    def exposicao(self, criticos, competencia) -> int:
+        """Valor sob decisão (centavos): soma dos lançamentos com achado crítico, cada um uma vez."""
+        lancamentos = {a["lancamento"] for a in criticos}
+        return sum(int((self.crencas.get(f"lanc[{lid}]@{competencia}") or {}).get("valor") or 0)
+                   for lid in sorted(lancamentos))
 
     def envolvidos(self, criticos, competencia) -> list[str]:
         pessoas = set()

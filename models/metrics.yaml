@@ -236,3 +236,13 @@ items:
     mede: [REQ-F01, REQ-O01]
     entrega: DSM4
     status: implementado
+
+  - id: MET-19
+    titulo: Liberações fora da alçada ou com uma pessoa só
+    formula: >-
+      liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação,
+      sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)
+    alvo: "0"
+    mede: [REQ-S06]
+    entrega: DSM4
+    status: implementado

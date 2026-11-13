@@ -21,6 +21,7 @@ pytest.importorskip("textual")  # extra opcional `tui`: sem ele a suíte pula in
 from textual import events  # noqa: E402
 from textual.widgets import DataTable, Static  # noqa: E402
 
+from fin_mas import invariantes  # noqa: E402
 from fin_mas.env.scenarios import run_scenario  # noqa: E402
 from fin_mas.services.explicacao import explicar  # noqa: E402
 from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo  # noqa: E402
@@ -578,7 +579,8 @@ def test_open_a_recorded_trace_filter_explain_and_export(demo, tmp_path):
         await pilot.pause()
         assert texto(pilot, "#trace-estado").startswith(
             f"ÍNTEGRO — a cadeia de hashes e o selo conferem: {len(registros)} registro(s)")
-        assert texto(pilot, "#invariantes") == "invariantes: 8 conferidos, nenhuma violação"
+        # DSM4: o número de invariantes cresce com o catálogo (INV-09 e INV-10); confere-se contra a lista
+        assert texto(pilot, "#invariantes") == f"invariantes: {len(invariantes.INVARIANTES)} conferidos, nenhuma violação"
         assert tabela(pilot, "#tabela-trace").row_count == len(registros)
         await digitar(pilot, "#trace-tipo", "decision")
         await pilot.press("enter")

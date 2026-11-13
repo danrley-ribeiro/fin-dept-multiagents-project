@@ -86,6 +86,8 @@ from fin_mas.services.audit import AuditLog, TraceAdulterado, formatar
 from fin_mas.services.explicacao import explicar
 from fin_mas.services.iam import Acesso, AcessoNegado
 from fin_mas.services.trilha import TrilhaAdulterada
+from fin_mas.tui.avancado import (ABAS_AVANCADAS, BINDINGS_AVANCADAS, BOTOES_AVANCADOS, COLUNAS_AVANCADAS,
+                                  AbasAvancadas)
 from fin_mas.tui.telas import (ERROS, PERMISSOES_CONSOLE, Confirmar, FormArquivo, FormConta, FormPapeis, FormSenha,
                                FormTrocarSenha, FormVinculo, Invalido, TelaEntrada, descrever)
 
@@ -122,6 +124,9 @@ COLUNAS = {
     "tabela-trilha": ("#", "quando", "evento", "ator", "resultado", "regra", "detalhes"),
     "tabela-trace": ("#", "tipo", "agente", "registro"),
 }
+ABAS.update(ABAS_AVANCADAS)  # DSM4: F6 a F12, acesso avançado (tui/avancado.py)
+BOTOES.update(BOTOES_AVANCADOS)
+COLUNAS.update(COLUNAS_AVANCADAS)
 FORA_DOS_DETALHES = ("seq", "t", "evento", "ator", "resultado", "regra", "_hash")
 SOLICITA_E_APROVA = {"ROLE-SOL", "ROLE-APR"}
 ERROS_DE_FORMATO = (KeyError, TypeError, AttributeError, ValueError)  # arquivo que não é um trace do sistema
@@ -162,7 +167,7 @@ def _linha_do_trace(registro: dict) -> str:
         return f"{registro.get('kind')} (registro fora do formato)"
 
 
-class TelaConsole(Screen):
+class TelaConsole(AbasAvancadas, Screen):
     """As cinco abas. Cada ação confere a sessão, chama o SVC-IAM e relê os dados do disco."""
 
     BINDINGS = [
@@ -188,12 +193,14 @@ class TelaConsole(Screen):
         Binding("e", "exportar", "Exportar", show=False),
         Binding("a", "abrir_trace", "Abrir trace", show=False),
         Binding("l", "explicar", "Explicar", show=False),
+        *BINDINGS_AVANCADAS,
     ]
 
     def __init__(self, aviso: str = ""):
         super().__init__()
         self.aviso = aviso
         self.abas: tuple = ()
+        self.abas_extras: tuple = ()
         self._permissoes = frozenset()
         self._contas: dict = {}
         self._sessoes: dict = {}
@@ -207,7 +214,10 @@ class TelaConsole(Screen):
     def compose(self) -> ComposeResult:
         sessao = self.app.sessao
         self._permissoes = sessao.permissoes
-        self.abas = tuple(aba for aba, (_, permissao, _, _) in ABAS.items() if sessao.pode(permissao))
+        self.abas = tuple(aba for aba, (_, permissao, _, _) in ABAS.items()
+                          if aba not in ABAS_AVANCADAS and sessao.pode(permissao))
+        self.abas_extras = tuple(aba for aba, (_, permissao, _, _) in ABAS_AVANCADAS.items()  # DSM4: F6 a F12
+                                 if permissao is None or sessao.pode(permissao))
         yield Static("", id="status", markup=False)
         with TabbedContent(id="abas"):
             if "aba-usuarios" in self.abas:
@@ -264,6 +274,7 @@ class TelaConsole(Screen):
                             with VerticalScroll(id="quadro-explicacao"):
                                 yield Static("selecione um registro e aperte Enter (ou l) para ver a cadeia que levou "
                                              "a ele", id="explicacao", markup=False)
+            yield from self.abas_avancadas()
         yield Static(self.aviso, id="mensagem", markup=False)
         yield Static("", id="atalhos", markup=False)
         yield Footer()
@@ -356,7 +367,7 @@ class TelaConsole(Screen):
         sessao = self._ator()
         if sessao is None:
             return False
-        for carregar in (self._carregar_contas, self._carregar_sessoes, self._carregar_trilha):
+        for carregar in (self._carregar_contas, self._carregar_sessoes, self._carregar_trilha, self._carregar_avancado):
             try:
                 carregar(sessao)
             except ERROS as erro:
@@ -480,14 +491,14 @@ class TelaConsole(Screen):
         aba = self._aba()
         if aba not in ABAS:
             return
-        self.query_one("#atalhos", Static).update(f"{ABAS[aba][3]}   |   F1–F5 abas")
+        self.query_one("#atalhos", Static).update(f"{ABAS[aba][3]}   |   F1–F12 abas")
         self.refresh_bindings()
         self.action_tabela()
 
     def action_aba(self, aba: str) -> None:
         if self._ator(ABAS[aba][1]) is None:
             return
-        if aba in self.abas:
+        if aba in self.abas + self.abas_extras:
             self.query_one("#abas", TabbedContent).active = aba
             self._ao_trocar_aba()
 

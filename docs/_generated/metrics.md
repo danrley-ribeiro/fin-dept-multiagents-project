@@ -267,3 +267,13 @@
 **Fórmula:** execuções do SMA em que o verificador de invariantes acusa violação, por invariante e por condição do experimento  
 **Alvo:** 0 (o experimento mede a frequência do INV-07 sob perda de mensagens)
 ````
+
+````{metric} Liberações fora da alçada ou com uma pessoa só
+:id: MET-19
+:entrega: DSM4
+:status: implementado
+:measures: REQ-S06
+
+**Fórmula:** liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação, sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)  
+**Alvo:** 0
+````

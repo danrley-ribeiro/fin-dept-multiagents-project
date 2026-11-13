@@ -28,7 +28,7 @@ from textual.widgets import Button, Footer, Input, Label, Select, SelectionList,
 from textual.widgets.selection_list import Selection
 
 from fin_mas.core import permissoes
-from fin_mas.services.iam import AcessoNegado
+from fin_mas.services.iam import AcessoNegado, SegundoFatorPendente
 from fin_mas.services.selado import ArquivoComprometido, TravaOcupada
 
 # Só entra no console quem administra o acesso ou audita (ao menos uma destas permissões).
@@ -125,13 +125,18 @@ class TelaEntrada(Screen):
                 if senha != self._valor("senha2"):
                     raise Invalido("as senhas digitadas não conferem")
                 acesso.iniciar(usuario, self._valor("nome").strip() or "Administração de Acesso", senha)
-            sessao, _ = acesso.autenticar(usuario, senha, origem="tui")
-            if not any(sessao.pode(p) for p in PERMISSOES_CONSOLE):
-                acesso.sair(sessao)
-                acesso.registrar("permissao", usuario, "negado", regra="IAM-05", origem="tui",
-                                 permissao=" ou ".join(PERMISSOES_CONSOLE))
-                raise AcessoNegado("IAM-05", f"{usuario} não administra o acesso nem audita; este console é só para "
-                                             f"isso (a plataforma é usada pelo dashboard web)")
+            try:
+                sessao, _ = acesso.autenticar(usuario, senha, origem="tui")
+            except SegundoFatorPendente as pendente:  # IAM-08: o código entra num segundo formulário
+                desafio = pendente.desafio
+                for campo in self.query("Input"):
+                    if campo.password:
+                        campo.value = ""
+                self.app.push_screen(FormCodigoEntrada(lambda codigo: self._conferir(
+                    acesso.confirmar_entrada(desafio, codigo, origem="tui")[0])),
+                    lambda sessao: self.app.entrar(sessao) if sessao else None)
+                return
+            self._conferir(sessao)
         except ERROS as erro:
             for campo in self.query("Input"):
                 if campo.password:
@@ -146,6 +151,17 @@ class TelaEntrada(Screen):
             self.query_one("#erro-entrada", Static).update(descrever(erro))
             return
         self.app.entrar(sessao)
+
+    def _conferir(self, sessao):
+        """Só entra no console quem administra o acesso ou audita."""
+        acesso, usuario = self.app.acesso, sessao.usuario
+        if not any(sessao.pode(p) for p in PERMISSOES_CONSOLE):
+            acesso.sair(sessao)
+            acesso.registrar("permissao", usuario, "negado", regra="IAM-05", origem="tui",
+                             permissao=" ou ".join(PERMISSOES_CONSOLE))
+            raise AcessoNegado("IAM-05", f"{usuario} não administra o acesso nem audita; este console é só para "
+                                         f"isso (a plataforma é usada pelo dashboard web)")
+        return sessao
 
 
 class Confirmar(ModalScreen):
@@ -311,6 +327,19 @@ class FormTrocarSenha(Formulario):
 
     def valores(self) -> dict:
         return {"atual": self._texto("senha-atual", limpar=False), "nova": self._senha_repetida("senha-nova")}
+
+
+class FormCodigoEntrada(Formulario):
+    """Segunda etapa da entrada (IAM-08): código do aplicativo autenticador ou um código de recuperação."""
+
+    def __init__(self, aplicar):
+        super().__init__(aplicar, "Segundo fator: digite o código do aplicativo (ou um código de recuperação)")
+
+    def campos(self) -> ComposeResult:
+        yield _linha("código", Input(id="codigo-entrada", compact=True))
+
+    def valores(self) -> dict:
+        return {"codigo": self._texto("codigo-entrada")}
 
 
 class FormArquivo(Formulario):

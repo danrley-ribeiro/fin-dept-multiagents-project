@@ -25,17 +25,34 @@ Regras (REQ-F07, NORM-06, NORM-08):
   removida, inventada ou malformada deixa a memória **comprometida**: nada é gravado, a
   consulta informa o estado e o AG-CIN trata todo achado crítico como reincidente, de modo que
   a política não abre waiver até a memória ser restaurada.
+
+DSM4 (ADR-012): o arquivo passa a ser um `ArquivoSelado` (`services/selado.py`) no **mesmo
+formato em disco** da v4 (nenhum arquivo existente precisa de migração). Com isso:
+
+- **duas execuções sobre o mesmo arquivo** não perdem entradas: toda gravação e toda expiração
+  acontecem dentro da trava entre processos, relendo o arquivo e juntando o que o outro
+  processo gravou (antes, a última a gravar sobrescrevia a outra);
+- **cópia íntegra em outra pasta**: o selo é conferido com a chave do caminho; uma cópia de
+  outra pasta (chave de outro caminho) continua comprometida (falha fechada), mas o motivo diz
+  que é uma cópia íntegra e o comando `python -m fin_mas memoria adotar ARQUIVO` (sob
+  `PERM-MEM-ADOTAR`, registrado na trilha de acesso) confere selo e assinaturas com a chave de
+  origem e passa a usá-la no caminho novo, com contador novo. O mesmo comando aceita, de forma
+  explícita e auditada, um backup recolocado no mesmo caminho (contador antigo).
 """
+import contextlib
+import copy
 import hashlib
 import hmac
 import json
 import os
 import re
 import secrets
+import time
 from pathlib import Path
 
 from fin_mas.core.schema import FORMATOS
 from fin_mas.services.redacao import FalhaRedacao, redigir
+from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada, _estado, pasta_de_chaves
 
 VERSAO = 4  # v4: pseudônimo com HMAC (chave da memória) em vez de SHA-256 sem chave
 RETENCAO_COMPETENCIAS = 12
@@ -62,6 +79,33 @@ CAMPOS = {"id": str, "tipo": str, "chave": str, "valor": dict, "competencia": st
 
 class MemoriaRecusada(PermissionError):
     pass
+
+
+class _SemMudanca(Exception):
+    """Transação sem alteração: não grava (o contador só sobe quando algo mudou)."""
+
+
+class _ArquivoMemoria(ArquivoSelado):
+    """`ArquivoSelado` no formato em disco da memória v4: entradas no topo e selo sobre (contador, entradas)."""
+
+    def __init__(self, caminho, chave: bytes):
+        super().__init__(caminho, "memoria", VERSAO, {"entradas": []}, chave=chave)
+
+    def _selo(self, contador: int, dados: dict) -> str:
+        return _selo_memoria(self._chave, contador, dados["entradas"])
+
+    def _decodificar(self, bruto: dict) -> tuple:
+        if not isinstance(bruto.get("entradas"), list):
+            raise KeyError("entradas")
+        return bruto["versao"], bruto["contador"], {"entradas": bruto["entradas"]}, bruto["selo"]
+
+    def _codificar(self, contador: int, dados: dict, selo: str) -> dict:
+        return {"versao": self.versao, "contador": contador, "entradas": dados["entradas"], "selo": selo}
+
+
+def _selo_memoria(chave: bytes, contador, entradas) -> str:
+    corpo = json.dumps({"contador": contador, "entradas": entradas}, sort_keys=True, ensure_ascii=False)
+    return hmac.new(chave, corpo.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
 PSEUDONIMO = re.compile(r"pessoa#[0-9a-f]{10}")
@@ -105,6 +149,7 @@ class Memoria:
         self.comprometida: str | None = None  # motivo, quando a integridade do arquivo não pôde ser garantida
         self.contador = 0
         self._chave = self._carregar_chave()
+        self._arquivo = _ArquivoMemoria(self.caminho, self._chave) if self.caminho else None
         if self.caminho:
             self._carregar()
 
@@ -161,23 +206,27 @@ class Memoria:
         except MemoriaRecusada as erro:
             self._registrar(cid, "recusada", agente=agente, tipo=tipo, chave=chave, motivo=str(erro))
             raise
-        repetida = next((e for e in self.entradas if (e["tipo"], e["chave"], e["competencia"],
-                                                      e["proveniencia"]["aprovacao"]) ==
-                         (tipo, chave, competencia, aprovacao)), None)
-        if repetida:
-            return repetida
-        proximo = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0) + 1
-        entrada = {
-            "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
-            "competencia": competencia, "agente": agente,
-            "proveniencia": {"aprovacao": aprovacao, "solicitacao": ticket["solicitacao"], "cmp": ticket["cmp"],
-                             "decisao": ticket["decisao"],
-                             "decidido_por": self.pseudonimo(ticket["aprovado_por"]["pessoa"]) if ticket.get("aprovado_por")
-                             else None, "fonte": fonte},
-        }
-        entrada["assinatura"] = self._assinar(entrada)
-        self.entradas.append(entrada)
-        self._persistir()
+        try:
+            with self._sob_trava():  # relê dentro da trava: o que outro processo gravou entra antes
+                repetida = next((e for e in self.entradas if (e["tipo"], e["chave"], e["competencia"],
+                                                              e["proveniencia"]["aprovacao"]) ==
+                                 (tipo, chave, competencia, aprovacao)), None)
+                if repetida:
+                    return repetida
+                proximo = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0) + 1
+                entrada = {
+                    "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
+                    "competencia": competencia, "agente": agente,
+                    "proveniencia": {"aprovacao": aprovacao, "solicitacao": ticket["solicitacao"], "cmp": ticket["cmp"],
+                                     "decisao": ticket["decisao"],
+                                     "decidido_por": self.pseudonimo(ticket["aprovado_por"]["pessoa"])
+                                     if ticket.get("aprovado_por") else None, "fonte": fonte},
+                }
+                entrada["assinatura"] = self._assinar(entrada)
+                self.entradas.append(entrada)
+        except MemoriaRecusada as erro:
+            self._registrar(cid, "recusada", agente=agente, tipo=tipo, chave=chave, motivo=str(erro))
+            raise
         self._registrar(cid, "gravada", agente=agente, memoria=entrada["id"], tipo=tipo, chave=chave,
                         competencia=competencia, aprovacao=aprovacao)
         return entrada
@@ -202,10 +251,15 @@ class Memoria:
 
     def expirar(self, competencia_atual: str, cid: str | None = None) -> None:
         limite = _meses(competencia_atual) - self.retencao
-        vencidas = [e for e in self.entradas if _meses(e["competencia"]) < limite]
+        vencidas = []
+        try:
+            with self._sob_trava():
+                vencidas = [e for e in self.entradas if _meses(e["competencia"]) < limite]
+                if vencidas:
+                    self.entradas = [e for e in self.entradas if e not in vencidas]
+        except MemoriaRecusada:
+            return  # memória comprometida ou ocupada: a consulta seguinte informa o estado
         if vencidas:
-            self.entradas = [e for e in self.entradas if e not in vencidas]
-            self._persistir()
             self._registrar(cid, "expirada", agente=self.ID, memorias=[e["id"] for e in vencidas],
                             retencao=self.retencao)
 
@@ -221,23 +275,27 @@ class Memoria:
         if not self.caminho:
             return secrets.token_bytes(32)  # memória só em processo: chave efêmera
         arquivo = self._arquivo_estado("chave")  # fora da pasta de dados
-        if arquivo.exists():
-            return arquivo.read_bytes()
         arquivo.parent.mkdir(parents=True, exist_ok=True)
-        chave = secrets.token_bytes(32)
-        arquivo.write_bytes(chave)
+        # criação atômica: dois processos no primeiro uso não podem gerar chaves diferentes (ver selado.chave_de)
         try:
-            os.chmod(arquivo, 0o600)
-        except OSError:
-            pass
+            fd = os.open(arquivo, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            for _ in range(200):
+                chave = arquivo.read_bytes()
+                if len(chave) >= 32:
+                    return chave
+                time.sleep(0.01)
+            raise ArquivoComprometido(f"chave da memória incompleta em {arquivo.name}") from None
+        chave = secrets.token_bytes(32)
+        with os.fdopen(fd, "wb") as f:
+            f.write(chave)
         return chave
 
     def _assinar(self, entrada: dict) -> str:
         return hmac.new(self._chave, _canonico(entrada), hashlib.sha256).hexdigest()
 
     def _selar(self, contador: int, entradas: list) -> str:
-        corpo = json.dumps({"contador": contador, "entradas": entradas}, sort_keys=True, ensure_ascii=False)
-        return hmac.new(self._chave, corpo.encode("utf-8"), hashlib.sha256).hexdigest()
+        return _selo_memoria(self._chave, contador, entradas)
 
     def _ultimo_contador(self) -> int:
         try:
@@ -252,10 +310,36 @@ class Memoria:
                             arquivo=self.caminho.name if self.caminho else None)
 
     def _carregar(self) -> None:
+        try:
+            dados = self._arquivo.ler()
+        except ArquivoComprometido as erro:
+            self._diagnosticar(str(erro))
+            return
+        if not self.caminho.exists():
+            return  # memória nova: nada gravado ainda
+        self.contador = self._arquivo._contador
+        self.entradas = self._validas(dados["entradas"])
+        self._registrar(None, "carregada", agente=self.ID, entradas=len(self.entradas), arquivo=self.caminho.name,
+                        integra=self.integra)
+
+    def _validas(self, brutas) -> list:
+        validas = []
+        for e in brutas:
+            motivo = self._invalida(e)
+            if motivo:
+                self._registrar(None, "descartada", agente=self.ID,
+                                memoria=e.get("id") if isinstance(e, dict) else None, motivo=motivo)
+                self._comprometer(f"entrada inválida: {motivo}")
+            else:
+                validas.append(e)
+        return validas
+
+    def _diagnosticar(self, motivo_selado: str) -> None:
+        """O `ArquivoSelado` recusou o arquivo: descobre o motivo para o auditor e carrega, só para leitura do
+        diagnóstico, as entradas que ainda têm assinatura válida (a memória fica comprometida de qualquer jeito)."""
         esperado = self._ultimo_contador()
         if not self.caminho.exists():
-            if esperado > 0:
-                self._comprometer(f"arquivo ausente, mas a versão {esperado} já foi gravada")
+            self._comprometer(f"arquivo ausente, mas a versão {esperado} já foi gravada")
             return
         try:
             dados = json.loads(self.caminho.read_text(encoding="utf-8"))
@@ -276,21 +360,50 @@ class Memoria:
             return
         contador, brutas = dados.get("contador"), dados["entradas"]
         if not isinstance(contador, int) or not hmac.compare_digest(str(dados.get("selo")),
-                                                                    self._selar(contador, brutas)):
-            self._comprometer("selo do arquivo não confere (entrada removida, inserida ou arquivo alterado)")
-        elif contador < esperado:
-            self._comprometer(f"versão {contador} é anterior à última gravada ({esperado}): arquivo antigo restaurado")
-        self.contador = contador if isinstance(contador, int) else 0
-        for e in brutas:
-            motivo = self._invalida(e)
-            if motivo:
-                self._registrar(None, "descartada", agente=self.ID,
-                                memoria=e.get("id") if isinstance(e, dict) else None, motivo=motivo)
-                self._comprometer(f"entrada inválida: {motivo}")
+                                                                    _selo_memoria(self._chave, contador, brutas)):
+            if isinstance(contador, int) and _chave_que_sela(dados) is not None:
+                self._comprometer("cópia íntegra de outra pasta (selada com a chave de outro caminho): confira a "
+                                  "origem e adote com `python -m fin_mas memoria adotar " + self.caminho.name + "`")
             else:
-                self.entradas.append(e)
+                self._comprometer("selo do arquivo não confere (entrada removida, inserida ou arquivo alterado)")
+        elif contador < esperado:
+            self._comprometer(f"versão {contador} é anterior à última gravada ({esperado}): arquivo antigo restaurado "
+                              f"(para aceitar o backup de propósito: `python -m fin_mas memoria adotar`)")
+        else:
+            self._comprometer(motivo_selado)
+        self.contador = contador if isinstance(contador, int) else 0
+        self.entradas = self._validas(brutas)
         self._registrar(None, "carregada", agente=self.ID, entradas=len(self.entradas), arquivo=self.caminho.name,
                         integra=self.integra)
+
+    @contextlib.contextmanager
+    def _sob_trava(self):
+        """Alteração das entradas. Com arquivo: trava entre processos, relê e confere o arquivo, entrega
+        `self.entradas` atualizadas para o bloco alterar e grava ao sair (só se algo mudou)."""
+        if self._arquivo is None:
+            yield
+            return
+        if self.comprometida:
+            raise MemoriaRecusada(f"memória comprometida ({self.comprometida}): restaure o arquivo antes de gravar")
+        try:
+            with self._arquivo.transacao() as dados:
+                atuais = self._validas(dados["entradas"])
+                if self.comprometida:
+                    raise MemoriaRecusada(f"memória comprometida ({self.comprometida})")
+                self.entradas = atuais
+                antes = copy.deepcopy(atuais)
+                yield
+                if self.entradas == antes:
+                    raise _SemMudanca
+                dados["entradas"] = copy.deepcopy(self.entradas)
+        except _SemMudanca:
+            pass
+        except ArquivoComprometido as erro:
+            self._comprometer(str(erro))
+            raise MemoriaRecusada(f"memória comprometida ({erro})") from None
+        except TravaOcupada as erro:
+            raise MemoriaRecusada(f"memória em uso por outro processo, tente de novo: {erro}") from None
+        self.contador = self._arquivo._contador
 
     def _invalida(self, e) -> str | None:
         if not isinstance(e, dict):
@@ -305,20 +418,6 @@ class Memoria:
         if not hmac.compare_digest(e["assinatura"], self._assinar(e)):
             return "assinatura não confere (entrada alterada fora do SVC-MEM)"
         return None
-
-    def _persistir(self) -> None:
-        if not self.caminho:
-            return
-        self.contador += 1
-        self.caminho.parent.mkdir(parents=True, exist_ok=True)
-        temporario = self.caminho.with_suffix(self.caminho.suffix + ".tmp")
-        temporario.write_text(json.dumps({"versao": VERSAO, "contador": self.contador, "entradas": self.entradas,
-                                          "selo": self._selar(self.contador, self.entradas)},
-                                         ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
-        os.replace(temporario, self.caminho)
-        estado = self._arquivo_estado("contador")
-        estado.parent.mkdir(parents=True, exist_ok=True)
-        estado.write_text(str(self.contador), encoding="utf-8")
 
     def _registrar(self, cid, evento, **campos) -> None:
         self.audit.record(self.clock(), "memoria", conversation_id=cid, evento=evento, **_sem_pseudonimo(campos))
@@ -352,3 +451,78 @@ class VisaoMemoria:
     def resumo(self) -> dict:
         return {"entradas": len(self._servico.entradas), "persistente": self._servico.caminho is not None,
                 "integra": self._servico.integra}
+
+
+# ---- adoção de um arquivo íntegro (DSM4) ----------------------------------------------------------
+def _chaves_conhecidas() -> list[bytes]:
+    chaves = []
+    if os.environ.get("FIN_MAS_CHAVE_MEMORIA"):
+        chaves.append(os.environ["FIN_MAS_CHAVE_MEMORIA"].encode("utf-8"))
+    pasta = pasta_de_chaves()
+    if pasta.is_dir():
+        chaves += [p.read_bytes() for p in sorted(pasta.glob("memoria-*.chave"))]
+    return chaves
+
+
+def _chave_que_sela(bruto: dict) -> bytes | None:
+    """Chave conhecida (desta máquina) que confere o selo e todas as assinaturas do arquivo, ou None."""
+    for chave in _chaves_conhecidas():
+        if not hmac.compare_digest(str(bruto.get("selo")), _selo_memoria(chave, bruto.get("contador"), bruto["entradas"])):
+            continue
+        if all(isinstance(e, dict) and isinstance(e.get("assinatura"), str) and hmac.compare_digest(
+                e["assinatura"], hmac.new(chave, _canonico(e), hashlib.sha256).hexdigest()) for e in bruto["entradas"]):
+            return chave
+    return None
+
+
+def adotar(caminho, *, forcar: bool = False) -> dict:
+    """Adota no lugar um arquivo de memória íntegro: cópia de outra pasta ou backup recolocado (contador antigo).
+
+    Confere o formato, o selo e as assinaturas com uma chave conhecida desta máquina; passa a usar essa chave
+    no caminho do arquivo (pseudônimos e reincidência continuam valendo) e grava de novo com contador maior
+    que qualquer um já visto. Quem chama confere a permissão (`PERM-MEM-ADOTAR`) e registra na trilha.
+    """
+    caminho = Path(caminho)
+    try:
+        bruto = json.loads(caminho.read_text(encoding="utf-8"))
+        if not isinstance(bruto, dict) or not isinstance(bruto.get("entradas"), list) \
+                or not isinstance(bruto.get("contador"), int):
+            raise ValueError("estrutura inesperada")
+    except (OSError, ValueError) as erro:
+        raise MemoriaRecusada(f"{caminho.name}: não é um arquivo de memória legível ({erro})") from None
+    if bruto.get("versao") != VERSAO:
+        raise MemoriaRecusada(f"{caminho.name}: versão {bruto.get('versao')!r} do formato; só a versão {VERSAO} é "
+                              f"adotada (outra versão tem chaves de reincidência incompatíveis)")
+    chave = _chave_que_sela(bruto)
+    if chave is None:
+        raise MemoriaRecusada(f"{caminho.name}: nenhuma chave desta máquina confere o selo e as assinaturas: não é "
+                              f"uma memória íntegra deste sistema (alterada ou de outra instalação)")
+    arquivo_chave = _estado("memoria", caminho, "chave")
+    arquivo_contador = _estado("memoria", caminho, "contador")
+    try:
+        ultimo = int(arquivo_contador.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        ultimo = 0
+    da_env = bool(os.environ.get("FIN_MAS_CHAVE_MEMORIA")) and chave == os.environ["FIN_MAS_CHAVE_MEMORIA"].encode("utf-8")
+    atual = arquivo_chave.read_bytes() if arquivo_chave.exists() else None
+    troca = not da_env and atual is not None and atual != chave
+    if troca and ultimo > 0 and not forcar:
+        raise MemoriaRecusada(f"{caminho.name}: este caminho já tem outra memória gravada ({ultimo} gravação(ões)) com "
+                              f"outra chave; para substituí-la de propósito, use --forcar")
+    if not da_env and atual != chave:
+        arquivo_chave.parent.mkdir(parents=True, exist_ok=True)
+        arquivo_chave.write_bytes(chave)
+        with contextlib.suppress(OSError):
+            os.chmod(arquivo_chave, 0o600)
+    arquivo_contador.parent.mkdir(parents=True, exist_ok=True)
+    arquivo_contador.write_text(str(max(bruto["contador"], 0)), encoding="utf-8")
+    selado = _ArquivoMemoria(caminho, chave)
+    with selado.transacao() as dados:
+        dados["entradas"] = list(dados["entradas"])  # regrava: contador novo, acima de tudo o que já foi visto
+    if selado._contador <= ultimo:
+        with selado.transacao() as dados:  # contador ainda abaixo do último já gravado aqui: sobe de novo
+            pass
+        arquivo_contador.write_text(str(max(selado._contador, ultimo + 1)), encoding="utf-8")
+    return {"arquivo": str(caminho), "entradas": len(bruto["entradas"]), "contador": selado._contador,
+            "origem": "outra pasta" if atual != chave and not da_env else "este caminho (backup recolocado)",
+            "chave_substituida": troca, "contador_anterior": ultimo}

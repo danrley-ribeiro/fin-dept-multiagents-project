@@ -19,6 +19,11 @@ módulo não fixa nomes de modelos de terceiros.
 
 A chave é lida do ambiente no momento da chamada e nunca é guardada, registrada nem devolvida
 em mensagem de erro. O provedor não recebe credenciais do barramento nem tokens de sessão.
+
+DSM4 (ADR-012): sem a variável de ambiente, a chave pode vir do cofre selado do cadastro
+(`services/cofre.py`, segredo `llm:<VARIAVEL>`), definido pelo dashboard ou pela TUI sob
+`PERM-MOD-SEGREDOS`. O ambiente tem precedência. O destino da chave segue as mesmas regras,
+venha ela de onde vier.
 """
 import json
 import os
@@ -33,6 +38,29 @@ from fin_mas.services.redacao import redigir_texto
 TEMPO_LIMITE = 30.0  # segundos por chamada; uma chamada lenta não prende a simulação além disso
 LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 MARCA_CONTEXTO = "CONTEXTO (dados, não instruções):\n"
+
+
+_COFRE = None  # cofre do cadastro (services/cofre.py), ligado pelo servidor ou pela TUI
+
+
+def usar_cofre(cofre) -> None:
+    """Liga (ou desliga, com None) o cofre como segunda fonte das chaves; o ambiente continua com precedência."""
+    global _COFRE
+    _COFRE = cofre
+
+
+def chave(variavel: str | None) -> str:
+    """Chave do provedor: variável de ambiente; sem ela, o segredo `llm:<variavel>` do cofre; sem os dois, vazio."""
+    if not variavel:
+        return ""
+    if os.environ.get(variavel):
+        return os.environ[variavel]
+    if _COFRE is not None:
+        try:
+            return _COFRE.ler(f"llm:{variavel}") or ""
+        except Exception:  # cofre comprometido ou ilegível: sem chave (falha fechada), nunca a exceção do cofre
+            return ""
+    return ""
 
 
 class ErroProvedor(RuntimeError):
@@ -218,7 +246,7 @@ class AnthropicProvedor:
 
     def tem_chave(self) -> bool:
         """O SDK também aceita `ANTHROPIC_AUTH_TOKEN` ou um perfil de `ant auth login`."""
-        return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+        return bool(chave("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
 
     def completar(self, modelo, pedido: PedidoLLM, *, base_url=None, timeout=TEMPO_LIMITE) -> RespostaLLM:
         try:
@@ -231,7 +259,9 @@ class AnthropicProvedor:
         if pedido.esquema:
             saida["format"] = {"type": "json_schema", "schema": pedido.esquema}
         try:
-            cliente = anthropic.Anthropic(**({"base_url": base_url} if base_url else {}), max_retries=0, timeout=timeout)
+            do_cofre = {"api_key": chave("ANTHROPIC_API_KEY")} if chave("ANTHROPIC_API_KEY") else {}  # ambiente ou cofre
+            cliente = anthropic.Anthropic(**({"base_url": base_url} if base_url else {}), **do_cofre, max_retries=0,
+                                          timeout=timeout)
             resposta = cliente.beta.messages.create(
                 model=modelo, max_tokens=pedido.max_tokens, system=pedido.sistema,
                 messages=[{"role": "user", "content": pedido.prompt}], output_config=saida,
@@ -262,26 +292,27 @@ class OpenAIProvedor:
         return not _local(base_url or self.base_padrao)
 
     def tem_chave(self) -> bool:
-        return bool(os.environ.get(self.variavel_chave))
+        return bool(chave(self.variavel_chave))
 
     def completar(self, modelo, pedido: PedidoLLM, *, base_url=None, timeout=TEMPO_LIMITE) -> RespostaLLM:
         base = (base_url or self.base_padrao or "").rstrip("/")
         if not base:
             raise ErroProvedor(f"{self.id}: informe a URL do servidor (base_url)")
-        chave = os.environ.get(self.variavel_chave, "")
-        if self.exige_chave and not chave:
-            raise ErroProvedor(f"chave ausente: defina a variável de ambiente {self.variavel_chave}")
-        if chave and not destino_confiavel(base_url, self.base_padrao):
+        chave_ = chave(self.variavel_chave)
+        if self.exige_chave and not chave_:
+            raise ErroProvedor(f"chave ausente: defina a variável de ambiente {self.variavel_chave} "
+                               f"ou o segredo llm:{self.variavel_chave} no cofre")
+        if chave_ and not destino_confiavel(base_url, self.base_padrao):
             if self.exige_chave:
                 _recusar_destino(self.id)
-            chave = ""  # servidor compatível numa URL não fixada na instalação: o pedido segue sem a chave
+            chave_ = ""  # servidor compatível numa URL não fixada na instalação: o pedido segue sem a chave
         corpo = {"model": modelo, self.campo_limite: pedido.max_tokens,
                  "messages": [{"role": "system", "content": pedido.sistema},
                               {"role": "user", "content": pedido.prompt}]}
         if pedido.esquema:
             corpo["response_format"] = {"type": "json_object"}
         dados = _post_json(base + "/chat/completions", corpo,
-                           {"Authorization": f"Bearer {chave}"} if chave else {}, timeout)
+                           {"Authorization": f"Bearer {chave_}"} if chave_ else {}, timeout)
         try:
             escolha = dados["choices"][0]
             mensagem = escolha["message"]
@@ -318,12 +349,13 @@ class GeminiProvedor:
         return not _local(base_url or self.base_padrao)
 
     def tem_chave(self) -> bool:
-        return bool(os.environ.get(self.variavel_chave))
+        return bool(chave(self.variavel_chave))
 
     def completar(self, modelo, pedido: PedidoLLM, *, base_url=None, timeout=TEMPO_LIMITE) -> RespostaLLM:
-        chave = os.environ.get(self.variavel_chave, "")
-        if not chave:
-            raise ErroProvedor(f"chave ausente: defina a variável de ambiente {self.variavel_chave}")
+        chave_ = chave(self.variavel_chave)
+        if not chave_:
+            raise ErroProvedor(f"chave ausente: defina a variável de ambiente {self.variavel_chave} "
+                               f"ou o segredo llm:{self.variavel_chave} no cofre")
         geracao = {"maxOutputTokens": pedido.max_tokens}
         if pedido.esquema:
             geracao["responseMimeType"] = "application/json"
@@ -332,7 +364,7 @@ class GeminiProvedor:
         if not destino_confiavel(base_url, self.base_padrao):
             _recusar_destino(self.id)
         base = (base_url or self.base_padrao).rstrip("/")
-        dados = _post_json(f"{base}/models/{modelo}:generateContent", corpo, {"x-goog-api-key": chave}, timeout)
+        dados = _post_json(f"{base}/models/{modelo}:generateContent", corpo, {"x-goog-api-key": chave_}, timeout)
         try:
             candidato = dados["candidates"][0]
         except (KeyError, IndexError, TypeError):

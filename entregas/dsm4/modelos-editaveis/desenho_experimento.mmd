@@ -1,0 +1,28 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+flowchart LR
+  S["seed 1..30<br/>random.Random(seed:fator)<br/>fluxos independentes"] --> C["carga da seed<br/>4 portes × 2 intenções<br/>7 plantios com p = 0,35<br/>perfil do aprovador"]
+  C --> A1["sma_basico<br/>SMA da DSM3"]
+  C --> A2["sma_local<br/>especialistas BDI + hipóteses"]
+  C --> A3["wf_equivalente<br/>controlador único, mesmas regras"]
+  C --> A4["wf_minimo<br/>baseline da DSM3, só nominal"]
+  subgraph COND["condições (mesma seed = mesmas perdas por mensagem)"]
+    K1["nominal"]
+    K2["perda 5% / 15% / 30%"]
+    K3["indisponibilidade de um especialista"]
+    K4["humano lento"]
+    K5["combinadas (+ ataque)"]
+  end
+  A1 --> COND
+  A2 --> COND
+  A3 --> COND
+  A4 --> K1
+  COND --> T["trace JSONL + gabarito ds.gold<br/>uma linha por execução em execucoes.csv"]
+  T --> M["métricas: execução correta, resposta explícita,<br/>classificação, críticas sem tratamento,<br/>mensagens, latência, recuperação, ataques, invariantes"]
+  M --> E["análise por seed (n = 30)<br/>bootstrap 95% · Wilcoxon pareado<br/>delta de Cliff · Holm por família"]
+  subgraph BLOCOS["blocos"]
+    BA["A: 3 braços × 8 condições + wf_minimo"]
+    BB["B: varredura de 6 parâmetros (porte médio)"]
+    BC["C: ablação de 5 mecanismos"]
+    BD["D: controle de acesso ligado"]
+  end
+  E --- BLOCOS

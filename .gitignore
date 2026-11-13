@@ -68,3 +68,8 @@ entregas/dsm3/DSM3-entrega.zip
 .env
 .env.*
 !.env.example
+
+# --- DSM4: build do wheel (tools/empacotar_wheel.py) ---
+build/
+dist/
+src/fin_mas/_dados/

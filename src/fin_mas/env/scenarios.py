@@ -426,30 +426,28 @@ CENARIOS = {c.nome: c for c in [
                   ("AG-RES", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("comentario",)))),
                   ("AG-REL", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("sintese",))))),
              esperado="três chamadas de LLM registradas, uma por agente; nenhum número fora do texto-base"),
-    # ---- DSM4: portes novos (MEI e Média empresa II) e segmentos (models/segmentos.yaml) ----
+    # ---- DSM4: portes novos (MEI e Média empresa II) e segmentos (models/segmentos.yaml). Ficam em `basico`,
+    # como fechamento_micro/pequena/grande: o que muda é a regra do porte e a forma do segmento, não a cognição.
     Scenario("fechamento_mei", "MEI: uma pessoa só, sem ERP; toda a segregação é impossível e vira controle "
              "compensatório; a NF duplicada é vetada e estornada, a competência errada fica como ressalva",
              "fechar_mes", porte="mei", plantar=("duplicidade", "competencia"), decisao_aprovador="corrigir",
-             cognicao="local",
              esperado="veto só da duplicidade (crítica); estorno aprovado; SoD e competência viram ressalvas; "
                       "realizado da planilha"),
     Scenario("fechamento_media_ii", "Média empresa II (BNDES, R$ 90 a 300 milhões): alçadas e materialidade da "
              "faixa de cima; alçada violada é reaprovada e os desvios orçamentários entram no relatório",
              "fechar_mes", porte="media_ii", plantar=("alcada", "desvio_orcamentario"), decisao_aprovador="corrigir",
-             cognicao="local",
              esperado="veto da alçada com reaprovação; dois desvios acima de 7% e de R$ 20 mil; publicado"),
     Scenario("fechamento_comercio", "Comércio: CMV pelo estoque, lojas física e virtual e rateio por área ocupada; "
              "NF duplicada de fornecedor vetada e estornada", "fechar_mes", segmento="comercio",
-             plantar=("duplicidade",), decisao_aprovador="corrigir", cognicao="local",
+             plantar=("duplicidade",), decisao_aprovador="corrigir",
              esperado="AG-CUS rateia por m² (80/20); estorno aprovado; relatório publicado"),
     Scenario("fechamento_servicos", "Serviços profissionais: mão de obra direta como custo variável e rateio por "
              "horas trabalhadas; a gerente aprova o próprio lançamento (SoD) e outro aprovador reaprova",
-             "fechar_mes", segmento="servicos", plantar=("sod",), decisao_aprovador="corrigir", cognicao="local",
+             "fechar_mes", segmento="servicos", plantar=("sod",), decisao_aprovador="corrigir",
              esperado="AG-CUS rateia por horas (65/35); SoD vetado e reaprovado; relatório publicado"),
     Scenario("fechamento_industria", "Indústria: custo de produção e rateio dos custos fixos por horas-máquina; NF "
              "lançada duas vezes na conta de marketing infla o desvio; o AG-CIN veta e o estorno destrava",
              "fechar_mes", segmento="industria", plantar=("desvio_irregular",), decisao_aprovador="corrigir",
-             cognicao="local",
              esperado="AG-CUS rateia por horas-máquina (70/30); desvio atribuído a controle; estorno aprovado"),
 ]}
 

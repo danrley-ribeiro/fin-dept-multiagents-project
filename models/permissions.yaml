@@ -30,6 +30,19 @@ items:
     titulo: Enviar planilha
     descricao: Substituir a planilha da pasta de dados por uma nova, depois de validada.
     entrega: DSM3
+  - id: PERM-DAD-CONECTAR
+    titulo: Conectar e mapear fontes de dados
+    descricao: >-
+      Cadastrar, testar e remover conectores (pasta de planilhas, API REST, servidor MCP de Excel), guardar a
+      credencial no cofre (sem nunca vê-la de volta), entender a fonte, confirmar o mapeamento sugerido e ativar a
+      fonte na simulação. Host fora do loopback só depois da liberação de um administrador (PERM-DAD-REDE).
+    entrega: DSM4
+  - id: PERM-DAD-REDE
+    titulo: Liberar host externo para conectores
+    descricao: >-
+      Liberar ou revogar um host fora do loopback para os conectores REST (por padrão a plataforma só fala com a
+      própria máquina); cada liberação fica na trilha de acesso com a pessoa.
+    entrega: DSM4
   - id: PERM-MOD-VER
     titulo: Ver configuração de modelos
     descricao: Consultar provedor, modelo, usos, cota, tokens e custo de LLM por agente (nunca a chave).

@@ -19,7 +19,7 @@
 import argparse
 import sys
 
-from fin_mas import cli_acesso, implantacao
+from fin_mas import cli_acesso, cli_fontes, implantacao
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
@@ -362,6 +362,7 @@ def main(argv=None) -> int:
     srv.add_argument("--instalacao", default=None, metavar="PASTA", help="sobe a partir da pasta criada pelo `instalar`")
     cli_acesso.configurar(sub)
     implantacao.configurar(sub)
+    cli_fontes.configurar(sub)  # fontes entender|testar e erp-demo (ADR-011)
     aud = sub.add_parser("auditoria", help="recorte de um trace JSONL com os filtros do dashboard")
     aud.add_argument("trace")
     for filtro in ("agente", "competencia", "tarefa", "tipo", "q"):
@@ -407,7 +408,8 @@ def main(argv=None) -> int:
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
                 "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
                 "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,
-                "instalar": implantacao.instalar, "doctor": implantacao.doctor}
+                "instalar": implantacao.instalar, "doctor": implantacao.doctor,
+                "fontes": cli_fontes.executar, "erp-demo": cli_fontes.executar}
     return comandos[args.comando](args)
 
 

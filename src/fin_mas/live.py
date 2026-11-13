@@ -44,6 +44,7 @@ class Simulacao:
         self.acesso = acesso  # SVC-IAM: com ele, comando sem pessoa autorizada é negado
         self.cognicao = cognicao  # None = a do cenário
         self.config_llm: dict[str, dict] = {}  # LLM por agente, reaplicado a cada reinício
+        self.fabrica_fonte = None  # fonte "conector": devolve um Ambiente novo a cada reinício (ADR-011)
         self.lock = threading.RLock()
         self.comandos: queue.Queue = queue.Queue()
         self.ouvintes: list = []  # callbacks(evento: dict) para os clientes SSE
@@ -60,9 +61,15 @@ class Simulacao:
         sc = CENARIOS[cenario]
         pasta = self.pasta_dados if fonte == "planilha" else None
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
+        if fonte == "conector" and self.fabrica_fonte is None:
+            raise LookupError("nenhuma fonte de conector ativada (aba Fontes de dados)")
+        ambiente = self.fabrica_fonte() if fonte == "conector" else None
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
-                               llm=llm or None)  # se a planilha for inválida, levanta antes de trocar o estado
+                               llm=llm or None, ambiente=ambiente)  # dados inválidos levantam antes de trocar o estado
+        anterior = getattr(getattr(self, "sistema", None), "ambiente", None)
+        if anterior is not None and hasattr(anterior, "fechar"):
+            anterior.fechar()
         self.cenario, self.interativo = sc, interativo
         self.seed = seed if seed is not None else sc.seed
         self.sistema, self.sids = sistema, sids
@@ -300,7 +307,7 @@ def validar(cmd) -> None:
         raise ComandoInvalido(f"cenário desconhecido: {cmd.get('cenario')}")
     if cmd["tipo"] == "reiniciar" and cmd.get("porte") not in (None, *PORTES):
         raise ComandoInvalido(f"porte desconhecido: {cmd.get('porte')}")
-    if cmd["tipo"] == "reiniciar" and cmd.get("fonte", "sintetico") not in ("sintetico", "planilha"):
+    if cmd["tipo"] == "reiniciar" and cmd.get("fonte", "sintetico") not in ("sintetico", "planilha", "conector"):
         raise ComandoInvalido(f"fonte desconhecida: {cmd.get('fonte')}")
     if cmd["tipo"] == "decidir" and cmd["decisao"] not in ("waiver", "corrigir", "corrigir_parcial", "bloquear", "nenhuma"):
         raise ComandoInvalido(f"decisão desconhecida: {cmd['decisao']}")

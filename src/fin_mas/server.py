@@ -55,6 +55,7 @@ from fin_mas.env.empresa import EMPRESA, LOGO_SVG
 from fin_mas.env.portes import PORTES, perfil
 from fin_mas.env.scenarios import CENARIOS
 from fin_mas.exportar import agentes_info, empresa_info
+from fin_mas.fontes import api as fontes_api
 from fin_mas.fontes import planilha
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.services import consulta, explicacao, provedores
@@ -197,6 +198,7 @@ PERMISSAO_ROTA = [  # (método, prefixo da rota, permissão); a primeira que cas
     ("GET", "/api/auditoria", "PERM-AUD-VER"), ("GET", "/api/acesso/trilha", "PERM-AUD-VER"),
     ("GET", "/api/llm", "PERM-MOD-VER"), ("GET", "/api/modelos", "PERM-DAD-VER"), ("GET", "/api/dados", "PERM-DAD-VER"),
     ("POST", "/api/dados/planilha", "PERM-DAD-ENVIAR"),
+    *fontes_api.ROTAS,  # aba Fontes de dados (ADR-011)
 ]
 SEGURANCA = {  # cabeçalhos de toda resposta: o dashboard não carrega nada de fora nem é embutido em outra página
     "Content-Security-Policy": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
@@ -454,7 +456,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
             elif rota == "/api/eventos":
                 self._eventos(sessao)
             else:
-                self._responder(*(tratar_protegidas(sim, acesso, sessao, "GET", self.path) or tratar(sim, "GET", self.path)))
+                self._responder(*(tratar_protegidas(sim, acesso, sessao, "GET", self.path)
+                                  or fontes_api.tratar(sim, acesso, sessao, "GET", self.path)
+                                  or tratar(sim, "GET", self.path)))
 
         def _ler(self, tamanho: int) -> bytes | None:
             """Lê o corpo com tempo limite: quem declara um tamanho e não envia não prende a thread."""
@@ -569,7 +573,8 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                 return
             if rota == "/api/dados/planilha":
                 acesso.registrar("planilha_enviada", sessao.usuario)
-            self._responder(*tratar(sim, "POST", self.path, corpo))
+            self._responder(*(fontes_api.tratar(sim, acesso, sessao, "POST", self.path, corpo)
+                              or tratar(sim, "POST", self.path, corpo)))
 
         def _eventos(self, sessao):
             fila: queue.Queue = queue.Queue()

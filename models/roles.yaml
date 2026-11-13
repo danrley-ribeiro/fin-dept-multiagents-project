@@ -32,7 +32,7 @@ items:
     resp: [Acompanhar a execução dos agentes, Operar a simulação e as fontes de dados]
     perm: [Pausar e retomar a execução, Ligar e desligar especialistas, Enviar planilhas validadas]
     obl: [Agir só pela interface autenticada, Não decidir no Approval Gate sem o papel de aprovador]
-    permissoes: [PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-MOD-VER, PERM-AUD-VER]
+    permissoes: [PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER, PERM-AUD-VER]
     llm: nao_aplicavel
     entrega: DSM3
 
@@ -54,7 +54,7 @@ items:
     resp: [Manter contas, papéis e sessões, Zelar pela trilha de acesso]
     perm: [Criar e bloquear contas, Atribuir papéis, Revogar sessões]
     obl: [Não acumular o papel de aprovador, Manter ao menos um administrador ativo]
-    permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER]
+    permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER, PERM-DAD-VER, PERM-DAD-REDE]
     llm: nao_aplicavel
     entrega: DSM3
 

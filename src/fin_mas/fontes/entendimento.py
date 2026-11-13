@@ -446,7 +446,7 @@ def _sinonimos(aba, chave) -> list[str]:
 def _nome_score(nome_fonte: str, sinonimos: list[str], chave: str = "") -> tuple[float, str]:
     n = normalizar(nome_fonte)
     tokens = set(n.split("_"))
-    idioma = lambda s: " (en)" if set(s.split("_")) & INGLES else ""  # noqa: E731
+    idioma = lambda s: " (en)" if set(s.split("_")) <= INGLES else ""  # noqa: E731
     if n in sinonimos:
         if n == chave:
             return 1.0, f"nome '{nome_fonte}' igual ao campo canônico"

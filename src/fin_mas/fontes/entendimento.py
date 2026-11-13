@@ -44,7 +44,8 @@ SINONIMOS_ABA = {
     "CustosFixos": ["custos_fixos", "fixed_costs", "cost_centers", "centros_de_custo", "despesas_fixas", "custos"],
     "Orcamento": ["orcamento", "budget", "budget_lines", "orcado", "orcamentos", "orcado_x_realizado"],
     "Lancamentos": ["lancamentos", "journal_entries", "entries", "transactions", "lancamentos_contabeis",
-                    "ledger_entries", "movimentos", "contas_a_pagar", "pagamentos", "notas"],
+                    "ledger_entries", "movimentos", "contas_a_pagar", "pagamentos", "notas", "payments",
+                    "vendor_payments", "bills", "invoices"],
     "Realizado": ["realizado", "actuals", "ledger_actuals", "balances", "saldos", "realizado_contabil"],
     "Historico": ["historico", "history", "monthly_history", "serie_historica", "historico_mensal"],
 }
@@ -567,10 +568,10 @@ def sugerir_mapeamento(estrutura: dict, canonico: dict = CANONICO) -> dict:
             motivo = "; ".join(m for m in (mn, f"{len(fortes)} de {len(obrig)} campos "
                                                f"{'obrigatórios ' if any(c[3] for c in canonico[aba]) else ''}"
                                                "reconhecidos") if m)
-            pares.append((score, pn, -ordem, aba, r, campos, motivo))
-    pares.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+            pares.append((score, pn, len(fortes), -ordem, aba, r, campos, motivo))
+    pares.sort(key=lambda x: (x[0], x[1], x[2], x[3]), reverse=True)  # empate: mais campos reconhecidos vence
     abas, usados = {}, set()
-    for score, _, _, aba, r, campos, motivo in pares:
+    for score, _, _, _, aba, r, campos, motivo in pares:
         if aba in abas or r["nome"] in usados:
             continue
         abas[aba] = {"recurso": r["nome"], "confianca": score, "motivo": motivo, "campos": campos}

@@ -214,6 +214,9 @@ class ConectorREST(ConectorMapeado):
                 spec = self.contrato()
                 etapas.append(etapa("contrato", True, f"OpenAPI {spec.get('openapi', '?')}: "
                                                       f"{len(spec.get('paths') or {})} caminhos"))
+                if not self.config.get("recursos"):  # sem recursos cadastrados: os do contrato
+                    from fin_mas.fontes.entendimento import de_openapi
+                    self.config["recursos"] = {r["nome"]: r["descritor"] for r in de_openapi(spec)["recursos"]}
             except ErroConector as e:
                 etapas.append(etapa("contrato", False, str(e)))
                 return diagnostico(etapas)

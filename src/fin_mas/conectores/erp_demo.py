@@ -293,7 +293,7 @@ def servir(porta: int, seed: int = 42, porte: str = PORTE_PADRAO, plantar=(), to
     print(f"ERP de demonstração em {erp.url}  (contrato: {erp.url}/openapi.json; Ctrl+C encerra)")
     print(f"token de acesso (Authorization: Bearer ...): {erp.token}")
     print(f"empresa fictícia: seed {seed}, porte {porte}, competência {erp.ambiente.principal}"
-          + (f", plantios {', '.join(plantar)}" if plantar else ""))
+          + (f", plantios {', '.join(plantar)}" if plantar else ""), flush=True)
     try:
         while True:
             time.sleep(3600)

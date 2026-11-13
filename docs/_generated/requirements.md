@@ -344,3 +344,20 @@ O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, s
 
 **Evidência observável de aceite:** Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito; propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
 ````
+
+````{req} Acesso avançado — segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas
+:id: REQ-S06
+:entrega: DSM4
+:status: especificado
+:categoria: Segurança
+:prioridade: Should
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-APR
+:uses_protocol: PROT-APR, PROT-CMP
+:constrained_by: NORM-14, NORM-15
+
+Contas de administração e de aprovação podem (ou, pela política do cadastro, devem) entrar com segundo fator TOTP e códigos de recuperação de uso único. A liberação de um veto só vale se a exposição couber na alçada do cargo de quem decide; a alçada pode ser delegada com prazo, teto e escopo, sem subdelegação; acima do limite do porte, duas pessoas diferentes liberam (aval e aprovação), e o ticket sem decisão escala para o nível acima. Segredos (TOTP, chaves de LLM, credenciais) ficam num cofre selado que nunca os devolve à interface. Cada empresa cliente tem dados, memória e decisões isolados.
+
+**Evidência observável de aceite:** Código TOTP repetido, fora da janela, código de recuperação reutilizado e pré-sessão usada em rota comum são negados (IAM-08); liberação acima da alçada (POL-10), por delegação forjada, expirada ou subdelegada (POL-11), pela mesma pessoa nos dois passos (POL-12) ou por sessão de outra empresa (IAM-09) é rejeitada e auditada; a API e as telas mostram só se um segredo existe; nada de uma empresa é lido, decidido ou lembrado em outra; nos cenários sem SVC-IAM o trace é o mesmo da v0.5.0.
+````

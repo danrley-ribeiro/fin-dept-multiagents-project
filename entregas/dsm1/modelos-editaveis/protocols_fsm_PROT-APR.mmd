@@ -4,6 +4,7 @@ stateDiagram-v2
     PROPOSTA --> EXECUTADA: allow
     PROPOSTA --> NEGADA: deny
     PROPOSTA --> PENDENTE: require_approval
+    PENDENTE --> PENDENTE: endorse
     PENDENTE --> APROVADA: approve
     PENDENTE --> REJEITADA: reject
     PENDENTE --> EXPIRADA: timeout

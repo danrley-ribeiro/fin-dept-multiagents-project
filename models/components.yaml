@@ -30,3 +30,10 @@ items:
   - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  - {id: COMP-AAV, titulo: Acesso avançado (segundo fator, delegação, empresas, política do cadastro), realiza: [SVC-IAM], caminho: src/fin_mas/services/acesso_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-TOTP, titulo: Segundo fator TOTP (RFC 6238) e códigos de recuperação, realiza: [SVC-IAM], caminho: src/fin_mas/services/totp.py, entrega: DSM4, status: implementado}
+  - {id: COMP-COF, titulo: Cofre de segredos selado, realiza: [SVC-IAM], caminho: src/fin_mas/services/cofre.py, entrega: DSM4, status: implementado}
+  - {id: COMP-AAT, titulo: Ataques ao acesso avançado (cenário), realiza: [SVC-IAM], caminho: src/fin_mas/env/ataques_acesso_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CLV, titulo: Linha de comando do acesso avançado e da memória, realiza: [SVC-IAM, SVC-MEM], caminho: src/fin_mas/cli_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-SAV, titulo: Rotas do acesso avançado no servidor, realiza: [SVC-IAM], caminho: src/fin_mas/server_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-TAV, titulo: Abas do acesso avançado no console, realiza: [SVC-IAM], caminho: src/fin_mas/tui/avancado.py, entrega: DSM4, status: implementado}

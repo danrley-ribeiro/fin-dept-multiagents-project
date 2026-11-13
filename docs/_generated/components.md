@@ -240,3 +240,66 @@ Componente implementado em `src/fin_mas/invariantes.py`.
 
 Componente implementado em `src/fin_mas/services/explicacao.py`.
 ````
+
+````{comp} Acesso avançado (segundo fator
+:id: COMP-AAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/acesso_avancado.py`.
+````
+
+````{comp} Segundo fator TOTP (RFC 6238) e códigos de recuperação
+:id: COMP-TOTP
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/totp.py`.
+````
+
+````{comp} Cofre de segredos selado
+:id: COMP-COF
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/cofre.py`.
+````
+
+````{comp} Ataques ao acesso avançado (cenário)
+:id: COMP-AAT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/env/ataques_acesso_avancado.py`.
+````
+
+````{comp} Linha de comando do acesso avançado e da memória
+:id: COMP-CLV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM, SVC-MEM
+
+Componente implementado em `src/fin_mas/cli_avancado.py`.
+````
+
+````{comp} Rotas do acesso avançado no servidor
+:id: COMP-SAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/server_avancado.py`.
+````
+
+````{comp} Abas do acesso avançado no console
+:id: COMP-TAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/tui/avancado.py`.
+````

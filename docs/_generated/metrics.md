@@ -177,3 +177,13 @@
 **Fórmula:** crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo  
 **Alvo:** 0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens
 ````
+
+````{metric} Liberações fora da alçada ou com uma pessoa só
+:id: MET-19
+:entrega: DSM4
+:status: implementado
+:measures: REQ-S06
+
+**Fórmula:** liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação, sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)  
+**Alvo:** 0
+````

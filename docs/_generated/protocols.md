@@ -169,7 +169,7 @@ stateDiagram-v2
 
 **Propósito:** Reter ações restritas (waiver de veto, correção no ERP) até decisão humana explícita, vinculada à solicitação, ao veto (hash dos achados), à identidade do aprovador e a um prazo; cada aprovação é de uso único.  
 **Meio:** SVC-A2A + SVC-POL  
-**Performativos:** propose-action, approve, reject
+**Performativos:** propose-action, approve, reject, endorse
 
 **Diagrama: Máquina de estados PROT-APR** (`entregas/dsm1/modelos-editaveis/protocols_fsm_PROT-APR.mmd`)
 
@@ -180,6 +180,7 @@ stateDiagram-v2
     PROPOSTA --> EXECUTADA: allow
     PROPOSTA --> NEGADA: deny
     PROPOSTA --> PENDENTE: require_approval
+    PENDENTE --> PENDENTE: endorse
     PENDENTE --> APROVADA: approve
     PENDENTE --> REJEITADA: reject
     PENDENTE --> EXPIRADA: timeout
@@ -198,4 +199,5 @@ stateDiagram-v2
 - `APROVADA` + `approve` → rejeitar (aprovação duplicada)
 - `EXECUTADA` + `approve` → rejeitar (aprovação reutilizada após a execução)
 - `EXPIRADA` + `approve` → rejeitar (aprovação após o prazo é descartada)
+- `APROVADA` + `endorse` → rejeitar (aval depois da aprovação)
 ````

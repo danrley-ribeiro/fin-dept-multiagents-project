@@ -109,3 +109,43 @@ Conceder e retirar papéis de uma conta, respeitando as incompatibilidades.
 
 Listar sessões ativas e revogar sessões de qualquer conta.
 ````
+
+````{perm} Delegar a decisão
+:id: PERM-APR-DELEGAR
+:entrega: DSM4
+:status: especificado
+
+Delegar a própria alçada de aprovação a outra conta aprovadora, com prazo, teto e escopo (POL-11), e revogar a delegação.
+````
+
+````{perm} Política do cadastro
+:id: PERM-IAM-POLITICA
+:entrega: DSM4
+:status: especificado
+
+Exigir o segundo fator por papel (IAM-08) e definir o escalonamento de tickets sem decisão (POL-14).
+````
+
+````{perm} Administrar empresas
+:id: PERM-IAM-EMPRESAS
+:entrega: DSM4
+:status: especificado
+
+Cadastrar empresas clientes e definir o escopo de empresas de cada conta (IAM-09).
+````
+
+````{perm} Definir segredos
+:id: PERM-MOD-SEGREDOS
+:entrega: DSM4
+:status: especificado
+
+Definir e remover chaves de LLM e credenciais de conector no cofre selado, sem nunca vê-las (IAM-10).
+````
+
+````{perm} Adotar memória
+:id: PERM-MEM-ADOTAR
+:entrega: DSM4
+:status: especificado
+
+Adotar no lugar um arquivo íntegro do SVC-MEM vindo de outra pasta ou de um backup (memoria adotar).
+````

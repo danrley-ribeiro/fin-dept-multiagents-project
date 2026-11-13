@@ -19,10 +19,10 @@
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 
-### Segurança: REQ-S05
+### Segurança: REQ-S05 a REQ-S06
 
 ```{needflow}
-:filter: id in ["NORM-10", "NORM-12", "NORM-13", "PROT-APR", "REQ-S05", "ROLE-ADM", "ROLE-APR", "ROLE-AUD", "ROLE-OPE", "ROLE-SOL"]
+:filter: id in ["NORM-10", "NORM-12", "NORM-13", "NORM-14", "NORM-15", "PROT-APR", "PROT-CMP", "REQ-S05", "REQ-S06", "ROLE-ADM", "ROLE-APR", "ROLE-AUD", "ROLE-OPE", "ROLE-SOL"]
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 

@@ -153,3 +153,27 @@
 **Consequência:** O comando leva o ator no trace (registro operador) e a decisão leva a pessoa e a sessão no ticket; entradas, falhas, bloqueios, revogações e mudanças de papel vão para a trilha com cadeia de hash, e a verificação acusa qualquer adulteração  
 **Decisão:** `OBRIGACAO`
 ````
+
+````{norm} Liberação dentro da alçada de quem decide, com quatro olhos acima do limite do porte
+:id: NORM-14
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-POL, SVC-IAM
+
+**Escopo:** Decisões de waiver e correção no Approval Gate com o SVC-IAM ligado (POL-10, POL-11, POL-12, POL-14)  
+**Condição:** Exposição do veto acima da alçada do cargo (ou do teto da delegação); delegação inexistente, de outra pessoa, revogada, expirada, fora do escopo ou repassada; liberação acima de `dupla_aprovacao` sem o aval de outra pessoa; cargo acima do nível do ticket antes do escalonamento  
+**Consequência:** A decisão é recusada no barramento com a regra; o ticket segue pendente até a decisão válida ou o prazo; a decisão aceita registra a alçada, a delegação ("por delegação de") e o aval  
+**Decisão:** `DENY`
+````
+
+````{norm} Segundo fator, segredos e empresas sob falha fechada
+:id: NORM-15
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-IAM
+
+**Escopo:** Entrada na plataforma, cofre de segredos e escopo de empresas (IAM-08, IAM-09, IAM-10)  
+**Condição:** Código TOTP repetido ou fora da janela, código de recuperação já usado, pré-sessão usada como sessão, conta sem o segundo fator exigido pela política, segredo pedido pela interface, cofre alterado fora do sistema, sessão sem empresa ativa ou com empresa fora do escopo  
+**Consequência:** A entrada ou a ação é negada com a regra e registrada na trilha; o valor de um segredo nunca sai para a interface; cofre comprometido não é lido; nada de outra empresa é mostrado nem decidido  
+**Decisão:** `DENY`
+````

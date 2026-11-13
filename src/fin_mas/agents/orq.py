@@ -67,14 +67,21 @@ def ressalvas(achados, agrupar_acima=3) -> list[str]:
 
 class Orquestrador(Agent):
     PAPEL = "ROLE-ORQ"
-    def __init__(self, bus, locks, aprovador="APR", politica: PoliticaAprovacao | None = None, gateway=None):
+    def __init__(self, bus, locks, aprovador="APR", politica: PoliticaAprovacao | None = None, gateway=None,
+                 parametros=None):
         super().__init__("AG-ORQ", bus)
         self.locks = locks
         self.aprovador = aprovador
         self.politica = politica if politica is not None else PoliticaAprovacao(bus)
         self.gw = gateway
-        self.conhecimento = {"catalogo": CATALOGO, "prazo_subtarefa": PRAZO_SUBTAREFA,
-                             "max_tentativas": MAX_TENTATIVAS, "max_correcoes": MAX_CORRECOES,
+        # DSM4: parâmetros de coordenação injetáveis (`fin_mas.parametros`); sem eles valem as constantes acima
+        self.prazo_subtarefa = getattr(parametros, "prazo_subtarefa", PRAZO_SUBTAREFA)
+        self.max_tentativas = getattr(parametros, "max_tentativas", MAX_TENTATIVAS)
+        self.max_correcoes = getattr(parametros, "max_correcoes", MAX_CORRECOES)
+        self.max_extensao = getattr(parametros, "max_extensao", MAX_EXTENSAO)
+        self.reserva_periodo = getattr(parametros, "reserva_periodo", True)
+        self.conhecimento = {"catalogo": CATALOGO, "prazo_subtarefa": self.prazo_subtarefa,
+                             "max_tentativas": self.max_tentativas, "max_correcoes": self.max_correcoes,
                              "prazo_aprovacao": self.politica.prazo}
         self.estado = {"solicitacoes": {}, "conversa_para_solicitacao": {}, "aprovacao_para_solicitacao": {}}
 
@@ -108,7 +115,7 @@ class Orquestrador(Agent):
                "parecer": "conforme"}
         if isinstance(c.get("solicitado_por"), str):  # pessoa autenticada que pediu (interface com SVC-IAM)
             sol["solicitado_por"] = c["solicitado_por"]
-        if plano["reservar_periodo"]:
+        if plano["reservar_periodo"] and self.reserva_periodo:
             r = self.locks.reserve(sol["entidade"], sol["competencia"], sid)
             if r["performative"] == "reserve-failure":
                 self.decide(sid, "período já reservado por outro fechamento", {"dono_atual": r["dono_atual"]}, "refuse")
@@ -156,7 +163,7 @@ class Orquestrador(Agent):
         conteudo = {"tarefa": no["tarefa"], "entidade": sol["entidade"], "competencia": sol["competencia"],
                     **self._insumos(sol, nome)}
         self.send(no["agente"], "request", no["protocolo"], cid, conteudo,
-                  reply_by=self.bus.now + PRAZO_SUBTAREFA)
+                  reply_by=self.bus.now + self.prazo_subtarefa)
 
     def _insumos(self, sol: dict, nome: str) -> dict:
         r = {n: e["resultado"] for n, e in sol["nos"].items()}
@@ -211,8 +218,8 @@ class Orquestrador(Agent):
             motivo = "período reservado para o fechamento: a subtarefa precisa caber no prazo original"
         elif no.get("extensoes"):
             motivo = "esta subtarefa já teve uma extensão de prazo"
-        elif not 0 < c["prazo_extra"] <= MAX_EXTENSAO:
-            motivo = f"extensão de {c['prazo_extra']} ticks fora do teto de {MAX_EXTENSAO}"
+        elif not 0 < c["prazo_extra"] <= self.max_extensao:
+            motivo = f"extensão de {c['prazo_extra']} ticks fora do teto de {self.max_extensao}"
         entradas = {"subtarefa": nome, "prazo_extra": c["prazo_extra"], "motivo_do_pedido": c["motivo"]}
         if motivo:
             self.decide(sol["id"], "negociação de prazo (PROT-DEL): proposta recusada", entradas, motivo)
@@ -240,7 +247,7 @@ class Orquestrador(Agent):
     def _veto(self, sol, nome, msg):
         sol["nos"][nome].update(status="vetado", resultado=msg.content)
         opcoes = list(msg.content.get("opcoes", ["waiver", "bloquear"]))
-        if sol["correcoes"] >= MAX_CORRECOES:
+        if sol["correcoes"] >= self.max_correcoes:
             opcoes = [o for o in opcoes if o != "corrigir"]
         sol["ciclos_veto"] += 1
         self.decide(sol["id"], "NORM-04: não conformidade crítica bloqueia a publicação",
@@ -255,7 +262,7 @@ class Orquestrador(Agent):
         self.bus.audit.record(self.bus.now, "link", conversation_id=sol["id"], filha=tid,
                               subtarefa="aprovação humana", agente=self.id)
         if sol["reserva"] and not self.locks.renovar(sol["entidade"], sol["competencia"], sol["id"],
-                                                     ticket["expira_em"] + 2 * PRAZO_SUBTAREFA):
+                                                     ticket["expira_em"] + 2 * self.prazo_subtarefa):
             sol.pop("veto")  # a reserva do período expirou antes do veto: não há como esperar o aprovador
             self.politica.expirar(tid)
             self.decide(sol["id"], "PROT-LCK: reserva do período perdida durante o fechamento", {}, "abortar")
@@ -341,7 +348,7 @@ class Orquestrador(Agent):
     # ---- falha, reenvio e abort -------------------------------------------
     def _falha(self, sol, nome, performativo, motivo):
         estado = sol["nos"][nome]
-        if performativo != "refuse" and estado["tentativas"] < MAX_TENTATIVAS:
+        if performativo != "refuse" and estado["tentativas"] < self.max_tentativas:
             self.decide(sol["id"], "um reenvio por subtarefa expirada ou falha",
                         {"subtarefa": nome, "motivo": motivo, "tentativa": estado["tentativas"]}, "reenviar")
             self._enviar(sol, nome)

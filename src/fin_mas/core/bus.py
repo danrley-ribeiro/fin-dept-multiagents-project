@@ -78,10 +78,11 @@ def digest_conteudo(content) -> str:
 
 class Bus:
     def __init__(self, audit: AuditLog | None = None, faults: list[Fault] | None = None,
-                 diretorio: dict | None = None, isolar_erros: bool = True):
+                 diretorio: dict | None = None, isolar_erros: bool = True, caos=None):
         self.audit = audit if audit is not None else AuditLog()
         self.protocols = load_protocols()
         self.faults = faults or []
+        self.caos = caos  # DSM4: modelo de falhas aleatórias por seed (`fin_mas.caos`); None = nenhum efeito
         self.now = 0
         self.agents: dict = {}
         self.papeis: dict[str, str] = {}  # identidade -> papel (agentes e serviços registrados)
@@ -213,6 +214,8 @@ class Bus:
             if msg.reply_by is not None:  # prazo renegociado (PROT-DEL, accept-proposal): o temporizador antigo perde efeito
                 self.prazos[msg.conversation_id] = msg.reply_by
                 self._push(msg.reply_by, "timer", msg.conversation_id)
+        if self.caos is not None:  # atraso de entrega sorteado (jitter); os prazos (reply_by) não mudam
+            delay += self.caos.atraso(msg)
         self._push(self.now + delay, "msg", (msg, digest))
 
     def _validar_dominio(self, msg: Message, conv) -> None:
@@ -329,6 +332,9 @@ class Bus:
                 falha.times -= 1
                 self.audit.record(self.now, "drop", motivo="falha injetada", **_campos(msg))
                 return
+        if self.caos is not None and self.caos.perder(msg):
+            self.audit.record(self.now, "drop", motivo="perda aleatória (caos)", **_campos(msg))
+            return
         if msg.receiver in self.offline:
             self.audit.record(self.now, "drop", motivo="agente fora de operação", **_campos(msg))
             return

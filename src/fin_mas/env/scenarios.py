@@ -192,7 +192,8 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
-                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None) -> System:
+                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None, parametros=None,
+                 caos=None) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
@@ -201,12 +202,22 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     `llm` (regras locais e o LLM do agente, se a flag dele estiver ligada no SVC-MOD). Ver ADR-008.
     `acesso`: SVC-IAM (`services/iam.py`); `"simulado"` cria as contas de demonstração em memória, com
     o relógio lógico (cenários em lote); None = sem contas (lote da primeira versão da DSM3). Ver ADR-009.
+    `parametros`: `fin_mas.parametros.Parametros` (prazos, tentativas, correções, TTL da reserva, limiares de
+    desvio); None = os valores de sempre. `caos`: `fin_mas.caos.ModeloFalhas` (falhas sorteadas por seed);
+    None = nenhuma. Os dois existem para o experimento da DSM4 e não mudam nada por padrão.
     """
     if cognicao not in NIVEIS:
         raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
-    bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
+    bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults], caos=caos)
     amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
+    if parametros is not None:
+        ttl, prazo_aprovacao = parametros.ttl_reserva, parametros.prazo_aprovacao or prazo_aprovacao
+        # limiar de desvio que os agentes leem (normas.perfil); os dados e o gabarito seguem a norma do porte
+        limiar = {k: v for k, v in (("percentual", parametros.limiar_percentual),
+                                    ("absoluto", parametros.limiar_absoluto)) if v is not None}
+        if limiar:
+            ds.perfil["limiar_desvio"] = {**ds.perfil["limiar_desvio"], **limiar}
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
     if acesso == "simulado":
         acesso = Acesso.simulado_com({u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c}
@@ -233,10 +244,13 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
         agentes["AG-ORC"].proponentes.append(ProponenteLocal())
     if cognicao == "llm":
         agentes["AG-ORC"].proponentes.append(ProponenteLLM(modelos))
-    orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
-    return System(bus, ds, gw, locks, orq, Solicitante(bus),
-                  Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
-                  agentes, amb, politica, mem, modelos, acesso)
+    orq = Orquestrador(bus, locks, politica=politica, gateway=gw, parametros=parametros)
+    sistema = System(bus, ds, gw, locks, orq, Solicitante(bus),
+                     Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
+                     agentes, amb, politica, mem, modelos, acesso)
+    if caos is not None:
+        caos.instalar(sistema)
+    return sistema
 
 
 @dataclass(frozen=True)
@@ -446,7 +460,7 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None, acesso=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None, parametros=None, caos=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -456,7 +470,8 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
-                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None))
+                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None),
+                           parametros=parametros, caos=caos)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
     outros = {a: sistema.modelos.situacao(a) for a in ("AG-ORC", "AG-RES") if sistema.modelos.config(a)["llm"]}
@@ -464,6 +479,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
         extras["llm_agentes"] = outros
     if sistema.acesso is not None:
         extras["acesso"] = {"modo": "simulado" if sistema.acesso.simulado else "contas", "solicitante": sc.solicitante}
+    if parametros is not None and parametros.diferencas():  # só no experimento da DSM4
+        extras["parametros"] = parametros.diferencas()
+    if caos is not None:
+        extras["caos"] = caos.descricao()
     sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
@@ -490,8 +509,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,
+                 parametros=None, caos=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao,
+                           parametros=parametros, caos=caos)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

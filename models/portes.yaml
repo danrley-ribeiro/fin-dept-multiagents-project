@@ -34,6 +34,7 @@ portes:
     pessoas: {ana: assistente, elisa: socio}
     aprovadores: [socio]
     limites_alcada: {assistente: 200000, socio: null}   # assistente até R$ 2 mil; sócio sem limite
+    dupla_aprovacao: null                               # POL-12 (DSM4): uma pessoa só decide; não se aplica
     severidade: {alcada: critica, sod: nao_critica, duplicidade: critica, competencia: nao_critica}
     controle_compensatorio:
       sod: revisão mensal dos lançamentos pelo sócio (controle compensatório, COSO 2013)
@@ -63,6 +64,7 @@ portes:
     pessoas: {ana: analista, bruno: analista, carla: gerente, elisa: diretor}
     aprovadores: [gerente, diretor]
     limites_alcada: {analista: 300000, gerente: 1500000, diretor: null}
+    dupla_aprovacao: null                               # POL-12 (DSM4): quatro pessoas, sem quatro olhos
     severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: nao_critica}
     controle_compensatorio: {}
     limiar_desvio: {percentual: 12, absoluto: 200000}   # R$ 2 mil
@@ -91,6 +93,7 @@ portes:
     pessoas: {ana: analista, bruno: analista, carla: gerente, diego: gerente, elisa: diretor}
     aprovadores: [gerente, diretor]
     limites_alcada: {analista: 1000000, gerente: 5000000, diretor: 20000000}
+    dupla_aprovacao: 5000000                            # POL-12 (DSM4): acima de R$ 50 mil, duas pessoas
     severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: nao_critica}
     controle_compensatorio: {}
     limiar_desvio: {percentual: 10, absoluto: 500000}   # R$ 5 mil
@@ -119,6 +122,7 @@ portes:
     pessoas: {ana: analista, bruno: analista, carla: gerente, diego: gerente, elisa: diretor}
     aprovadores: [gerente, diretor]
     limites_alcada: {analista: 2000000, gerente: 10000000, diretor: 50000000}
+    dupla_aprovacao: 2500000                            # POL-12 (DSM4): acima de R$ 25 mil, duas pessoas
     severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: critica}  # corte material
     controle_compensatorio: {}
     limiar_desvio: {percentual: 5, absoluto: 5000000}   # R$ 50 mil

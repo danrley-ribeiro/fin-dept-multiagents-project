@@ -88,14 +88,27 @@ def trava(caminho: Path):
 
 
 class ArquivoSelado:
-    def __init__(self, caminho, rotulo: str, versao: int, vazio: dict):
+    """`modo`: permissão do arquivo gravado (ex.: 0o600 no cofre); `chave`: chave do selo vinda de fora
+    (ex.: `FIN_MAS_CHAVE_MEMORIA`) em vez da chave guardada na pasta de chaves (DSM4, aditivos)."""
+
+    def __init__(self, caminho, rotulo: str, versao: int, vazio: dict, *, modo: int | None = None,
+                 chave: bytes | None = None):
         self.caminho = Path(caminho) if caminho else None
         self.rotulo, self.versao = rotulo, versao
+        self.modo = modo
         self._vazio = vazio
         self._dados = copy.deepcopy(vazio)
         self._contador = 0
         self._marca = None  # (mtime_ns, tamanho) do que está em memória
-        self._chave = chave_de(rotulo, self.caminho) if self.caminho else secrets.token_bytes(32)
+        self._chave = chave or (chave_de(rotulo, self.caminho) if self.caminho else secrets.token_bytes(32))
+
+    # ---- formato em disco (subclasses com outro formato sobrescrevem só estes dois) ----------
+    def _decodificar(self, bruto: dict) -> tuple:
+        """(versão, contador, dados, selo) do JSON lido."""
+        return bruto["versao"], bruto["contador"], bruto["dados"], bruto["selo"]
+
+    def _codificar(self, contador: int, dados: dict, selo: str) -> dict:
+        return {"versao": self.versao, "contador": contador, "dados": dados, "selo": selo}
 
     # ---- leitura ---------------------------------------------------------------
     def ler(self) -> dict:
@@ -136,7 +149,7 @@ class ArquivoSelado:
             return
         try:
             bruto = json.loads(self.caminho.read_text(encoding="utf-8"))
-            versao, contador, dados, selo = bruto["versao"], bruto["contador"], bruto["dados"], bruto["selo"]
+            versao, contador, dados, selo = self._decodificar(bruto)
         except (OSError, ValueError, KeyError, TypeError):
             raise ArquivoComprometido(f"{self.caminho.name}: arquivo ilegível ou fora do formato") from None
         if versao != self.versao:
@@ -165,9 +178,14 @@ class ArquivoSelado:
             contador = max(self._contador, self._ultimo_contador()) + 1
             self.caminho.parent.mkdir(parents=True, exist_ok=True)
             temporario = self.caminho.with_suffix(self.caminho.suffix + ".tmp")
-            temporario.write_text(json.dumps({"versao": self.versao, "contador": contador, "dados": rascunho,
-                                              "selo": self._selo(contador, rascunho)},
-                                             ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+            texto = json.dumps(self._codificar(contador, rascunho, self._selo(contador, rascunho)),
+                               ensure_ascii=False, indent=1, sort_keys=True)
+            fd = os.open(temporario, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, self.modo if self.modo is not None else 0o666)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(texto)
+            if self.modo is not None:
+                with contextlib.suppress(OSError):
+                    os.chmod(temporario, self.modo)
             for tentativa in range(5):  # no Windows o destino pode estar aberto por um leitor por um instante
                 try:
                     os.replace(temporario, self.caminho)

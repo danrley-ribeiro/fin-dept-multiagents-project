@@ -31,6 +31,9 @@ formada, vinda da caixa `APR`, não basta.
 
 `Acesso.simulado()` cria contas em memória, sem senha e com relógio lógico, para os cenários
 em lote: o atestado e as regras POL valem do mesmo jeito, de forma determinística.
+
+DSM4 (ADR-012): segundo fator (IAM-08), empresas (IAM-09), cofre (IAM-10) e delegações (POL-11)
+ficam em `services/acesso_avancado.py`, uma extensão desta classe.
 """
 import base64
 import contextlib
@@ -42,6 +45,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fin_mas.core import permissoes
+from fin_mas.services.acesso_avancado import AcessoAvancado, SegundoFatorPendente  # noqa: F401 (reexportada)
 from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada
 from fin_mas.services.trilha import TrilhaAcesso
 
@@ -78,6 +82,9 @@ class Sessao:
     csrf: str
     expira_em: float
     trocar_senha: bool = False
+    pendente_2fa: bool = False  # a política do cadastro exige o segundo fator e a conta ainda não o ativou (IAM-08)
+    empresa: str | None = None  # empresa ativa da sessão (IAM-09)
+    empresas: tuple = ()  # escopo da conta
 
     def pode(self, permissao: str) -> bool:
         return permissao in self.permissoes
@@ -86,7 +93,8 @@ class Sessao:
         """O que a interface recebe sobre a própria sessão (sem o token)."""
         return {"usuario": self.usuario, "nome": self.nome, "papeis": list(self.papeis),
                 "permissoes": sorted(self.permissoes), "pessoa_erp": self.pessoa_erp, "cargo": self.cargo,
-                "expira_em": self.expira_em, "trocar_senha": self.trocar_senha}
+                "expira_em": self.expira_em, "trocar_senha": self.trocar_senha, "pendente_2fa": self.pendente_2fa,
+                "empresa": self.empresa, "empresas": list(self.empresas)}
 
 
 def _hash_senha(senha: str, custo: int, sal: bytes | None = None) -> str:
@@ -107,7 +115,16 @@ def _sha(texto: str) -> str:
     return hashlib.sha256(texto.encode("utf-8")).hexdigest()
 
 
-class Acesso:
+def _publica(conta: dict) -> dict:
+    """A conta como a interface a vê: sem o hash da senha e sem os hashes dos códigos de recuperação."""
+    publica = {k: v for k, v in conta.items() if k not in ("senha", "segundo_fator")}
+    sf = conta.get("segundo_fator") or {}
+    publica["segundo_fator"] = {"ativo": bool(sf.get("ativo")), "desde": sf.get("desde"),
+                                "codigos_restantes": len(sf.get("recuperacao", []))}
+    return publica
+
+
+class Acesso(AcessoAvancado):
     ID = "SVC-IAM"
 
     def __init__(self, pasta=None, *, relogio=time.time, custo_scrypt: int = 15):
@@ -157,12 +174,12 @@ class Acesso:
         return not self._ler_contas()
 
     def contas(self) -> list[dict]:
-        """Contas sem o hash da senha (para a TUI e a CLI)."""
-        return [{k: v for k, v in c.items() if k != "senha"} for c in self._ler_contas().values()]
+        """Contas sem o hash da senha nem os hashes dos códigos de recuperação (para a TUI e a CLI)."""
+        return [_publica(c) for c in self._ler_contas().values()]
 
     def conta(self, usuario: str) -> dict | None:
         c = self._ler_contas().get(usuario)
-        return None if c is None else {k: v for k, v in c.items() if k != "senha"}
+        return None if c is None else _publica(c)
 
     def registrar(self, evento: str, ator: str | None, resultado: str = "ok", **campos) -> None:
         """Registro na trilha de acesso feito por outro serviço (ex.: decisões aceitas e negadas pelo SVC-POL)."""
@@ -325,17 +342,27 @@ class Acesso:
             regra, mensagem, motivo = negacao
             self._auditar("entrada", str(usuario)[:64], "negado", regra=regra, motivo=motivo, origem=origem)
             raise AcessoNegado(regra, mensagem)
+        if (copia.get("segundo_fator") or {}).get("ativo"):  # IAM-08: a senha só abre a pré-sessão do código
+            desafio, expira = self._abrir_pre_sessao(usuario, agora, origem)
+            self._auditar("entrada", usuario, "pendente", regra="IAM-08", motivo="segundo fator pendente", origem=origem)
+            raise SegundoFatorPendente(desafio, expira)
+        return self._abrir_sessao(usuario, copia, agora, origem)
+
+    def _abrir_sessao(self, usuario: str, conta: dict, agora: float, origem: str) -> tuple["Sessao", str]:
         token = secrets.token_urlsafe(32)
-        sid = "S-" + secrets.token_hex(6)
+        sid = "S-" + self._id_sessao()
+        escopo = conta.get("empresas") or []
         registro = {"id": sid, "usuario": usuario, "hash": _sha(token), "csrf": secrets.token_urlsafe(18),
                     "criada_em": round(agora, 3), "vista_em": round(agora, 3), "expira_em": round(agora + TTL_SESSAO_S, 3),
                     "origem": str(origem)[:80], "revogada": None}
+        if len(escopo) == 1:  # uma empresa só no escopo: ela já é a ativa (IAM-09)
+            registro["empresa"] = escopo[0]
         with self._tx(self._sessoes) as dados:
             for antigo in [k for k, s in dados["sessoes"].items() if s["expira_em"] < agora - 24 * 3600]:
                 del dados["sessoes"][antigo]  # limpeza: expiradas há mais de um dia
             dados["sessoes"][sid] = registro
         self._auditar("entrada", usuario, sessao=sid, origem=origem)
-        return self._sessao(registro, copia), token
+        return self._sessao(registro, conta), token
 
     def _transacao_contas(self):
         try:
@@ -345,11 +372,11 @@ class Acesso:
             raise AcessoNegado("IAM-07", f"cadastro de contas comprometido: {erro}") from None
         return self._tx(self._contas)
 
-    @staticmethod
-    def _sessao(registro: dict, conta: dict) -> Sessao:
+    def _sessao(self, registro: dict, conta: dict) -> Sessao:
         return Sessao(registro["id"], conta["usuario"], conta["nome"], tuple(conta["papeis"]),
                       permissoes.permissoes_de(conta["papeis"]), conta.get("pessoa_erp"), conta.get("cargo"),
-                      registro["csrf"], registro["expira_em"], bool(conta.get("trocar_senha")))
+                      registro["csrf"], registro["expira_em"], bool(conta.get("trocar_senha")),
+                      self.exige_2fa(conta), registro.get("empresa"), tuple(conta.get("empresas") or ()))
 
     def sessao(self, token: str | None) -> Sessao | None:
         """Sessão viva do token, ou None (IAM-04). Relê os cadastros: revogação e bloqueio valem na hora."""
@@ -363,7 +390,7 @@ class Acesso:
         return self._viva(self._ler_sessoes().get(sid))
 
     def _viva(self, registro) -> Sessao | None:
-        if registro is None or registro["revogada"]:
+        if registro is None or registro["revogada"] or registro.get("pre2fa"):  # pré-sessão só confirma o código
             return None
         agora = self.relogio()
         vista = max(registro["vista_em"], self._vista.get(registro["id"], 0))
@@ -389,6 +416,12 @@ class Acesso:
                           motivo="sessão encerrada")
             raise AcessoNegado("IAM-04", "sessão expirada ou revogada")
         sessao = atual                         # e valem os papéis de agora, não os de quando entrou
+        if sessao.pendente_2fa:
+            self._auditar("permissao", sessao.usuario, "negado", regra="IAM-08", permissao=permissao,
+                          motivo="segundo fator exigido pela política do cadastro")
+            raise AcessoNegado("IAM-08", "a política do cadastro exige o segundo fator para a sua conta: ative-o "
+                                         "antes de continuar")
+        self._conferir_empresa(sessao, permissao)
         if not sessao.pode(permissao):
             self._auditar("permissao", sessao.usuario, "negado", regra="IAM-05", permissao=permissao)
             titulo = permissoes.catalogo().get(permissao, {}).get("titulo", permissao)
@@ -400,6 +433,7 @@ class Acesso:
         agora = self.relogio()
         return [{"id": s["id"], "usuario": s["usuario"], "criada_em": s["criada_em"], "vista_em": s["vista_em"],
                  "expira_em": s["expira_em"], "origem": s["origem"], "revogada": s["revogada"],
+                 "pre2fa": bool(s.get("pre2fa")), "empresa": s.get("empresa"),
                  "viva": not s["revogada"] and agora < s["expira_em"] and agora - s["vista_em"] <= INATIVIDADE_S}
                 for s in self._ler_sessoes().values()]
 
@@ -463,6 +497,8 @@ class Acesso:
             raise AcessoNegado("POL-09", "a sessão do atestado está expirada, revogada ou é de outra pessoa")
         if not sessao.pode("PERM-APR-DECIDIR"):
             raise AcessoNegado("POL-09", f"{sessao.usuario} não tem o papel de aprovador")
+        if sessao.pendente_2fa:
+            raise AcessoNegado("POL-09", f"{sessao.usuario} ainda não ativou o segundo fator exigido pela política")
         self._nonces.add((atestado["sessao"], atestado["nonce"]))
         return sessao
 

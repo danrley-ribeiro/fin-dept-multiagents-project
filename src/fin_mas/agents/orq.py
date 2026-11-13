@@ -274,6 +274,11 @@ class Orquestrador(Agent):
         if sol is None or sol["status"] != "executando" or sol.get("veto", {}).get("aprovacao") != tid:
             return  # decisão de um ticket encerrado ou de outro ciclo de veto
         ticket = self.politica.ticket(tid)
+        if msg.performative == "endorse":  # POL-12 (DSM4): primeiro aval da dupla aprovação; o veto continua pendente
+            self.decide(sol["id"], "POL-12: aval registrado; a liberação espera a aprovação de outra pessoa",
+                        {"aprovacao": tid, "aval": ticket["endossos"][-1]["pessoa"] if ticket.get("endossos") else None},
+                        "AGUARDAR_SEGUNDA_PESSOA")
+            return
         veto = sol.pop("veto")
         if msg.performative == "timeout":
             self.politica.expirar(tid)

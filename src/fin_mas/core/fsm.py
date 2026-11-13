@@ -19,7 +19,9 @@ class ProtocolViolation(Exception):
 
 
 def models_dir() -> Path:
-    return Path(__file__).resolve().parents[3] / "models"
+    """Dados do pacote instalado primeiro; no checkout, `models/` na raiz (ver fin_mas/recursos.py)."""
+    from fin_mas.recursos import models_dir as _models_dir
+    return _models_dir()
 
 
 @dataclass(frozen=True)

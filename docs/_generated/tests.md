@@ -2409,3 +2409,159 @@
 **Resultado esperado:** a análise refeita só com o execucoes.csv dá o mesmo resumo e os mesmos testes  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_legal_bands_follow_lc123_and_bndes
+:id: TEST-170
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05, REQ-F03
+:derived_from: NORM-04
+
+`test_legal_bands_follow_lc123_and_bndes()` — tipo *cenario*.  
+**Resultado esperado:** faixas legais: MEI só por opção (LC 123/2006, art. 18-A), ME, EPP, Média I e II e grande (BNDES); os quatro portes de antes inalterados  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_mei_runs_alone_without_erp_and_with_compensating_control
+:id: TEST-171
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05, REQ-F03
+:derived_from: NORM-04
+
+`test_mei_runs_alone_without_erp_and_with_compensating_control()` — tipo *cenario*.  
+**Resultado esperado:** MEI com uma pessoa e sem ERP: SoD impossível vira controle compensatório, duplicidade vetada e estornada, plantio de alçada recusado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_media_ii_applies_the_upper_band_rules
+:id: TEST-172
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05, REQ-F03
+:derived_from: NORM-04
+
+`test_media_ii_applies_the_upper_band_rules()` — tipo *cenario*.  
+**Resultado esperado:** Média empresa II: receita na faixa de R$ 90 a 300 milhões, materialidade e pesos do porte, alçada reaprovada e publicação  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_segment_changes_accounts_costs_and_allocation_driver
+:id: TEST-173
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F02, REQ-F04
+:derived_from: SVC-MCP
+
+`test_segment_changes_accounts_costs_and_allocation_driver()` — tipo *cenario*.  
+**Resultado esperado:** comércio, serviços e indústria: plano de contas, unidades e centros do segmento; AG-CUS rateia pelo direcionador e o resultado por UN confere com o gabarito  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_segment_cost_structure_is_consistent
+:id: TEST-174
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F02
+:derived_from: SVC-MCP
+
+`test_segment_cost_structure_is_consistent()` — tipo *cenario*.  
+**Resultado esperado:** CMV pelo estoque no comércio, horas de mão de obra direta em serviços, custo de produção e rateio dos CIF na indústria  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_default_segment_keeps_the_dsm3_data_and_trace
+:id: TEST-175
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-AUD
+
+`test_default_segment_keeps_the_dsm3_data_and_trace()` — tipo *regressao*.  
+**Resultado esperado:** segmento padrão gera os mesmos dados e o mesmo hash de trace da DSM3; o meta só ganha segmento fora do padrão  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_backup_restores_into_another_folder_on_another_machine
+:id: TEST-176
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05, REQ-NF01
+:derived_from: SVC-IAM
+
+`test_backup_restores_into_another_folder_on_another_machine()` — tipo *integracao*.  
+**Resultado esperado:** backup com manifesto selado e chaves em arquivo separado; restauração em outra pasta e outra pasta de chaves com selos, trilha e memória conferidos  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_tampered_or_mismatched_backup_is_refused
+:id: TEST-177
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05, REQ-S04
+:derived_from: SVC-IAM
+
+`test_tampered_or_mismatched_backup_is_refused()` — tipo *seguranca*.  
+**Resultado esperado:** arquivo trocado, hash corrigido, manifesto re-selado, fuga de diretório, arquivo a mais, chaves de outra instalação e rollback: recusados sem gravar nada  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_migration_mechanism_with_an_example_from_version_1_to_2
+:id: TEST-178
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF02, REQ-S05
+:derived_from: SVC-IAM
+
+`test_migration_mechanism_with_an_example_from_version_1_to_2()` — tipo *integracao*.  
+**Resultado esperado:** migrar confere o selo na versão de origem, aplica a migração de exemplo 1->2 e grava selado; o sistema na versão 1 recusa o arquivo migrado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_server_on_all_interfaces_still_accepts_only_loopback_names
+:id: TEST-179
+:entrega: DSM4
+:status: executado
+:verifies: REQ-O04, REQ-S05
+:derived_from: NORM-12
+
+`test_server_on_all_interfaces_still_accepts_only_loopback_names()` — tipo *seguranca*.  
+**Resultado esperado:** serve --host 0.0.0.0 (contêiner) continua recusando Host e Origin que não sejam de loopback  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_dashboard_api_lists_sizes_segments_templates_and_restarts_with_a_segment
+:id: TEST-180
+:entrega: DSM4
+:status: executado
+:verifies: REQ-O04
+:derived_from: SVC-AUD
+
+`test_dashboard_api_lists_sizes_segments_templates_and_restarts_with_a_segment()` — tipo *integracao*.  
+**Resultado esperado:** /api/portes com segmentos, /api/modelos com os portes novos e os segmentos, reiniciar com segmento e segmento desconhecido recusado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository
+:id: TEST-181
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-AUD
+
+`test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository()` — tipo *integracao*.  
+**Resultado esperado:** wheel com YAML e dashboard embutidos instalado num venv limpo: list, run (mesmo hash do checkout), instalar --demo e doctor fora do repositório  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_container_files_publish_only_on_loopback_and_keep_keys_apart
+:id: TEST-182
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_container_files_publish_only_on_loopback_and_keep_keys_apart()` — tipo *configuracao*.  
+**Resultado esperado:** compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -41,7 +41,7 @@ items:
       e simplicidade do porte; o plano padrão falha ao perceber um direcionador inutilizável e o agente replaneja
     llm: nao_permitido
     objetivos: [G-02]
-    recursos: [ENV-ERP, ENV-BD]
+    recursos: [ENV-ERP, ENV-BD, ENV-SEG]  # ENV-SEG: direcionador de rateio do segmento (DSM4)
     percepcoes:
       - Request de apuração (competência, entidade, dimensão)
       - Query-ref do Agente de Resultados (custos por UN; custos fixos por centro, na variante BDI)

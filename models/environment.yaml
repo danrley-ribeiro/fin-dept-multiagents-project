@@ -100,3 +100,12 @@ items:
     autoridade: Pessoas com conta e papel (STK-01, STK-02, STK-04, STK-05, STK-06), cada uma sob as suas permissões
     acesso: [SVC-IAM, SVC-POL]
     entrega: DSM1
+
+  - id: ENV-SEG
+    titulo: Perfil de segmento da empresa (models/segmentos.yaml)
+    observabilidade: Plano de contas, unidades e centros chegam pelos dados do ERP ou da planilha; o direcionador de rateio é conhecimento do AG-CUS
+    acionabilidade: Nenhuma (configuração da implantação)
+    exclusividade: Não exclusiva
+    autoridade: Controller (STK-02) na instalação
+    acesso: SVC-MCP
+    entrega: DSM4

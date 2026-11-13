@@ -28,7 +28,14 @@ def modelos(tmp_path):
 
 def test_spreadsheet_templates_validate_and_report_errors(modelos, tmp_path):
     assert set(modelos) == {"modelo_controladoria_em_branco.xlsx", "exemplo_micro.xlsx", "exemplo_pequena.xlsx",
-                            "exemplo_media.xlsx", "exemplo_grande.xlsx"}
+                            "exemplo_media.xlsx", "exemplo_grande.xlsx",
+                            # DSM4: portes novos e um exemplo por segmento (média empresa)
+                            "exemplo_mei.xlsx", "exemplo_media_ii.xlsx", "exemplo_comercio.xlsx",
+                            "exemplo_servicos.xlsx", "exemplo_industria.xlsx"}
+    for nome, (porte, segmento) in {"exemplo_mei.xlsx": ("mei", "software_servicos"),
+                                    "exemplo_industria.xlsx": ("media", "industria")}.items():
+        lido = planilha.ler(modelos[nome])
+        assert (lido.porte, lido.segmento) == (porte, segmento) and lido.rateio == Dataset(seed=42, segmento=segmento).rateio
     ds = planilha.ler(modelos["exemplo_pequena.xlsx"])
     assert (ds.porte, ds.competencia, ds.tem_erp) == ("pequena", "2026-09", False)
     with pytest.raises(planilha.ModeloInvalido) as vazio:

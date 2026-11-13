@@ -93,3 +93,15 @@
 **Exclusividade:** Não exclusiva  
 **Autoridade:** Pessoas com conta e papel (STK-01, STK-02, STK-04, STK-05, STK-06), cada uma sob as suas permissões
 ````
+
+````{env} Perfil de segmento da empresa (models/segmentos.yaml)
+:id: ENV-SEG
+:entrega: DSM4
+:status: especificado
+:accessed_via: SVC-MCP
+
+**Observabilidade:** Plano de contas, unidades e centros chegam pelos dados do ERP ou da planilha; o direcionador de rateio é conhecimento do AG-CUS  
+**Acionabilidade:** Nenhuma (configuração da implantação)  
+**Exclusividade:** Não exclusiva  
+**Autoridade:** Controller (STK-02) na instalação
+````

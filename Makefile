@@ -97,3 +97,12 @@ pdf-v2:
 clean:
 	rm -rf docs/_build
 	cd $(DSM1_DOC) && latexmk -c
+
+# ---- DSM4: pacote instalável e contêiner (docs/dsm4/implantacao.md) ----
+.PHONY: wheel docker
+
+wheel: web
+	$(PYTHON) tools/empacotar_wheel.py
+
+docker:
+	docker compose build && docker compose up -d && docker compose ps

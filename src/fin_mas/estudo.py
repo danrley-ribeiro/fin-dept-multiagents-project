@@ -27,7 +27,11 @@ from pathlib import Path
 from fin_mas import __version__, baseline, baseline_eq, caos, estatistica, invariantes, metricas
 from fin_mas.caos import ModeloFalhas
 from fin_mas.env.dataset import Dataset
-from fin_mas.env.portes import PORTES, versao_normas
+from fin_mas.env.portes import versao_normas
+
+# Portes do pré-registro (docs/dsm4/experimento.md). MEI e Média empresa II entraram no sistema depois e ficam
+# fora do experimento: o workflow equivalente não implementa as regras deles (ver docs/dsm4/resultados.md).
+PORTES = ("micro", "pequena", "media", "grande")
 from fin_mas.env.scenarios import Scenario, run_scenario
 from fin_mas.parametros import PADRAO, Parametros
 

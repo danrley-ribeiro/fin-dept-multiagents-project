@@ -75,3 +75,8 @@ htmlcov/
 
 # --- Cópias de trabalho de agentes ---
 .claude/worktrees/
+
+# --- DSM4: build do wheel (tools/empacotar_wheel.py) ---
+build/
+dist/
+src/fin_mas/_dados/

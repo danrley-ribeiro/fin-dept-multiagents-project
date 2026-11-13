@@ -383,13 +383,17 @@ export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cena
 type Perfil = Json & { titulo: string; norma_contabil: string; tem_erp: boolean; fonte_primaria: string;
   pessoas: Record<string, string>; aprovadores: string[]; limites_alcada: Record<string, number | null>;
   severidade: Record<string, string>; limiar_desvio: { percentual: number; absoluto: number };
-  controle_compensatorio: Record<string, string>; receita_bruta_anual_max: number | null };
+  controle_compensatorio: Record<string, string>; receita_bruta_anual_max: number | null;
+  receita_bruta_anual_min?: number };
+type FichaSegmento = { titulo: string; natureza_dos_custos: string; unidades: Record<string, string>;
+  centros_custo: Record<string, string>; contas: string[]; rateio: { direcionador: string; percentuais: Record<string, number> } };
 
 const brl = (centavos: number | null) => (centavos === null ? "sem limite"
   : (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }));
 
 export function FichaPorte() {
-  const { dados, erro } = useRota<{ atual: string; portes: Record<string, Perfil> }>("/api/portes");
+  const { dados, erro } = useRota<{ atual: string; portes: Record<string, Perfil>; segmento_atual?: string;
+    segmentos?: Record<string, FichaSegmento> }>("/api/portes");
   if (erro) return <Secao titulo="Porte da empresa"><Alert severity="error">{erro}</Alert></Secao>;
   if (!dados) return null;
   const portes = Object.entries(dados.portes);
@@ -418,7 +422,8 @@ export function FichaPorte() {
             <TableCell key={id}><b>{p.titulo}</b>{id === dados.atual && <Chip size="small" color="primary" label="em uso" sx={{ ml: 1 }} />}</TableCell>))}
           </TableRow></TableHead>
           <TableBody>
-            {linha("Receita bruta anual", (p) => (p.receita_bruta_anual_max === null ? "acima da faixa anterior" : `até ${brl(p.receita_bruta_anual_max)}`))}
+            {linha("Receita bruta anual", (p) => (p.receita_bruta_anual_max === null ? "acima da faixa anterior"
+              : `${p.receita_bruta_anual_min ? `acima de ${brl(p.receita_bruta_anual_min)} e ` : ""}até ${brl(p.receita_bruta_anual_max)}`))}
             {linha("Norma contábil", (p) => p.norma_contabil)}
             {linha("Dados", (p) => (p.tem_erp ? `ERP (fonte primária: ${p.fonte_primaria})` : "sem ERP: planilhas"))}
             {linha("Pessoas e cargos", (p) => Object.entries(p.pessoas).map(([u, c]) => `${u} (${c})`).join(", "))}
@@ -434,6 +439,26 @@ export function FichaPorte() {
           </TableBody>
         </Table>
       </Box>
+      {dados.segmentos && (
+        <Box sx={{ overflow: "auto", mt: 2 }}>
+          <Typography variant="subtitle2">Segmento (models/segmentos.yaml): plano de contas, custos e rateio</Typography>
+          <Table size="small" aria-label="Ficha por segmento">
+            <TableHead><TableRow><TableCell />{Object.entries(dados.segmentos).map(([id, s]) => (
+              <TableCell key={id}><b>{s.titulo}</b>{id === dados.segmento_atual && <Chip size="small" color="primary" label="em uso" sx={{ ml: 1 }} />}</TableCell>))}
+            </TableRow></TableHead>
+            <TableBody>
+              {([["Custos", (s: FichaSegmento) => s.natureza_dos_custos],
+                ["Unidades de negócio", (s: FichaSegmento) => Object.values(s.unidades).join(", ")],
+                ["Centros de custo", (s: FichaSegmento) => Object.values(s.centros_custo).join(", ")],
+                ["Plano de contas (orçamento)", (s: FichaSegmento) => s.contas.join("; ")],
+                ["Rateio dos custos fixos", (s: FichaSegmento) => `${s.rateio.direcionador}: ${Object.entries(s.rateio.percentuais).map(([u, v]) => `${u} ${v}%`).join(", ")}`],
+              ] as [string, (s: FichaSegmento) => string][]).map(([rotulo, valor]) => (
+                <TableRow key={rotulo}><TableCell><b>{rotulo}</b></TableCell>
+                  {Object.entries(dados.segmentos ?? {}).map(([id, s]) => <TableCell key={id}>{valor(s)}</TableCell>)}
+                </TableRow>))}
+            </TableBody>
+          </Table>
+        </Box>)}
     </Secao>
   );
 }

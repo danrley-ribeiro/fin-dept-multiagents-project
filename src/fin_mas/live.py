@@ -24,6 +24,7 @@ from fin_mas.cognicao import NIVEIS
 from fin_mas.core.fsm import ProtocolViolation
 from fin_mas.core.schema import FORMATOS, _tipo_ok
 from fin_mas.env.portes import PORTES
+from fin_mas.env.segmentos import SEGMENTOS
 from fin_mas.env.scenarios import CENARIOS, montar
 from fin_mas.services.modelos import ConfiguracaoInvalida
 
@@ -56,17 +57,18 @@ class Simulacao:
         self._montar(cenario, seed, interativo)
 
     # ---- montagem ---------------------------------------------------------
-    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico") -> None:
+    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", segmento=None) -> None:
         sc = CENARIOS[cenario]
         pasta = self.pasta_dados if fonte == "planilha" else None
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
-                               llm=llm or None)  # se a planilha for inválida, levanta antes de trocar o estado
+                               llm=llm or None, segmento=segmento)  # planilha inválida levanta antes de trocar
         self.cenario, self.interativo = sc, interativo
         self.seed = seed if seed is not None else sc.seed
         self.sistema, self.sids = sistema, sids
         self.porte, self.fonte = sistema.dataset.porte, fonte
+        self.segmento = getattr(sistema.dataset, "segmento", None)
         self.geracao += 1
         self._emitir({"tipo": "reset", "geracao": self.geracao, "cenario": sc.nome, "seed": self.seed})
         for registro in self.sistema.bus.audit.records:  # meta e pedidos iniciais, gravados antes da assinatura
@@ -144,7 +146,8 @@ class Simulacao:
                 self.cognicao = cmd["cognicao"]
             try:
                 self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
-                             cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"))
+                             cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"),
+                             cmd.get("segmento"))
             except (ValueError, LookupError) as erro:  # planilha inválida: mantém a simulação atual
                 self.cognicao = anterior
                 self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
@@ -225,6 +228,7 @@ class Simulacao:
         return {"cenario": self.cenario.nome, "seed": self.seed, "t": bus.now, "pausado": self.pausado,
                 "ms_por_tick": self.ms_por_tick, "offline": sorted(bus.offline), "interativo": self.interativo,
                 "fila": len(bus._queue), "geracao": self.geracao, "porte": self.porte, "fonte": self.fonte,
+                "segmento": self.segmento,
                 "cognicao": self.cognicao or self.cenario.cognicao}
 
     def snapshot(self) -> dict:
@@ -266,6 +270,7 @@ CAMPOS = {  # campo -> (validador, descrição) para os comandos que vêm do nav
     "interativo": (lambda v: isinstance(v, bool), "booleano"),
     "cenario": (lambda v: isinstance(v, str), "texto"),
     "porte": (lambda v: v is None or isinstance(v, str), "texto"),
+    "segmento": (lambda v: v is None or isinstance(v, str), "texto"),
     "fonte": (lambda v: isinstance(v, str), "texto"),
     "decisao": (lambda v: isinstance(v, str), "texto"),
     "cognicao": (lambda v: v in NIVEIS, f"um de {', '.join(NIVEIS)}"),
@@ -304,6 +309,8 @@ def validar(cmd) -> None:
         raise ComandoInvalido(f"cenário desconhecido: {cmd.get('cenario')}")
     if cmd["tipo"] == "reiniciar" and cmd.get("porte") not in (None, *PORTES):
         raise ComandoInvalido(f"porte desconhecido: {cmd.get('porte')}")
+    if cmd["tipo"] == "reiniciar" and cmd.get("segmento") not in (None, *SEGMENTOS):
+        raise ComandoInvalido(f"segmento desconhecido: {cmd.get('segmento')}")
     if cmd["tipo"] == "reiniciar" and cmd.get("fonte", "sintetico") not in ("sintetico", "planilha"):
         raise ComandoInvalido(f"fonte desconhecida: {cmd.get('fonte')}")
     if cmd["tipo"] == "decidir" and cmd["decisao"] not in ("waiver", "corrigir", "corrigir_parcial", "bloquear", "nenhuma"):

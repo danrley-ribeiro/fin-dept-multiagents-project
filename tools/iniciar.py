@@ -9,7 +9,7 @@ Modos:
     dev       servidor Python + Vite em modo desenvolvimento (recarga automática)
     testes    pytest (e2e e integração), rastreabilidade, testes do dashboard e de uso real
     docs      gera a documentação (Sphinx) em docs/_build/html
-    cli       roda um cenário no terminal (use --cenario e --porte)
+    cli       roda um cenário no terminal (use --cenario, --porte e --segmento)
     instalar  só prepara o ambiente
 
 O que é preparado (só quando falta ou mudou): Python 3.11+ (verificado), ambiente virtual
@@ -209,6 +209,8 @@ def modo_cli(args, _bun):
     cmd = [PY_VENV, "-m", "fin_mas", "run", "--scenario", args.cenario or "desvio_irregular"]
     if args.porte:
         cmd += ["--porte", args.porte]
+    if args.segmento:
+        cmd += ["--segmento", args.segmento]
     rodar(cmd)
 
 
@@ -217,7 +219,10 @@ def main(argv=None) -> int:
     parser.add_argument("modo", nargs="?", default="ao-vivo", choices=MODOS)
     parser.add_argument("--porta", type=int, default=None, help="porta do navegador (8765 ao vivo, 4173 replay)")
     parser.add_argument("--cenario", default=None, help="cenário (ao-vivo e cli)")
-    parser.add_argument("--porte", default=None, choices=("micro", "pequena", "media", "grande"), help="modo cli")
+    parser.add_argument("--porte", default=None, choices=("mei", "micro", "pequena", "media", "media_ii", "grande"),
+                        help="modo cli")
+    parser.add_argument("--segmento", default=None, choices=("software_servicos", "comercio", "servicos", "industria"),
+                        help="modo cli (models/segmentos.yaml)")
     parser.add_argument("--sem-navegador", action="store_true", help="não abre o navegador")
     args = parser.parse_args(argv)
     args.porta = args.porta or (4173 if args.modo == "replay" else 8765)

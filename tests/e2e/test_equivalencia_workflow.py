@@ -10,7 +10,7 @@ import pytest
 from fin_mas import baseline, baseline_eq, metricas
 from fin_mas.caos import ModeloFalhas
 from fin_mas.env.dataset import Dataset
-from fin_mas.env.portes import PORTES
+from fin_mas.estudo import PORTES  # os quatro portes do pré-registro; MEI e Média II ficam fora do experimento
 from fin_mas.env.scenarios import CENARIOS, Scenario, run_scenario
 
 pytestmark = pytest.mark.e2e

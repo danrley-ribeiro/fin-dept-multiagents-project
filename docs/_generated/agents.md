@@ -46,7 +46,7 @@
 :llm: nao_permitido
 :realizes: ROLE-CUS
 :pursues: G-02
-:uses_resource: ENV-ERP, ENV-BD
+:uses_resource: ENV-ERP, ENV-BD, ENV-SEG
 
 **Cognição:** Dois níveis (ADR-010). Básico: reativo determinístico (rateio fixo + cálculo), mantido como braço de comparação. Local e llm: BDI, com crenças sobre o direcionador de rateio do período (ok, ausente, inconsistente) e a receita por unidade, desejo de definir o critério de rateio e quatro planos alternativos (padrão, última tabela aprovada, proporcional à receita, igualitário) escolhidos pela utilidade de precisão e simplicidade do porte; o plano padrão falha ao perceber um direcionador inutilizável e o agente replaneja  
 **LLM:** nao_permitido

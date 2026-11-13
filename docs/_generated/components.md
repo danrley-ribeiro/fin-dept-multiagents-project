@@ -375,3 +375,39 @@ Componente implementado em `src/fin_mas/estudo.py`.
 
 Componente implementado em `src/fin_mas/estudo_relato.py`.
 ````
+
+````{comp} Eixo segmento (plano de contas
+:id: COMP-SEG
+:entrega: DSM4
+:status: implementado
+:realizes: AG-CUS
+
+Componente implementado em `src/fin_mas/env/segmentos.py`.
+````
+
+````{comp} Backup
+:id: COMP-BKP
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/manutencao.py`.
+````
+
+````{comp} Pacote instalável com modelos YAML e dashboard embutidos
+:id: COMP-PKG
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/recursos.py`.
+````
+
+````{comp} Contêiner (Dockerfile e compose) publicado só em loopback
+:id: COMP-CTN
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `Dockerfile`.
+````

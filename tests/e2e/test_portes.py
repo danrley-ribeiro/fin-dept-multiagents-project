@@ -1,4 +1,8 @@
-"""Regras base e BDI por porte de empresa (micro, pequena, média, grande): TEST-36 e TEST-37.
+"""Regras base e BDI por porte de empresa (MEI, micro, pequena, média, média II, grande): TEST-36 e TEST-37.
+
+DSM4: MEI e Média empresa II entram nos testes parametrizados por `PORTES`. O MEI tem uma pessoa só,
+então o veto dele vem da NF duplicada (não há alçada menor para violar) e a faixa legal exige a opção
+pelo SIMEI (`porte_por_receita(..., mei=True)`).
 
 As regras vêm de models/portes.yaml (LC 123/2006, BNDES, Lei 11.638/2007, ITG 1000, NBC TG 1000,
 NBC TA 320, COSO 2013) e são percebidas pelos agentes pela tool MCP `normas.perfil`.
@@ -11,6 +15,7 @@ from fin_mas.env.portes import PORTES, perfil, porte_por_receita
 from fin_mas.env.scenarios import Scenario, run_scenario
 
 pytestmark = pytest.mark.e2e
+PLANTIO_VETO = {"mei": ("duplicidade",)}  # MEI: sem segunda pessoa, a alçada não tem como ser violada
 
 
 def _cin(e, kind):
@@ -19,11 +24,11 @@ def _cin(e, kind):
 
 @pytest.mark.parametrize("porte", PORTES)
 def test_rules_and_bdi_follow_company_size(porte):
-    e = run_scenario(Scenario(f"alcada_{porte}", "alçada violada", "fechar_mes", porte=porte, plantar=("alcada",),
-                              decisao_aprovador="corrigir"))
+    e = run_scenario(Scenario(f"alcada_{porte}", "alçada violada", "fechar_mes", porte=porte,
+                              plantar=PLANTIO_VETO.get(porte, ("alcada",)), decisao_aprovador="corrigir"))
     ds, p = e.system.dataset, perfil(porte)
     # a receita anual simulada cai na faixa legal do porte
-    assert porte_por_receita(ds.gold["dre"]["receita"] * 12) == porte
+    assert porte_por_receita(ds.gold["dre"]["receita"] * 12, mei=porte == "mei") == porte
     # os agentes percebem o porte pela base normativa e ajustam conhecimento e pesos dos desejos
     for agente in ("AG-ORC", "AG-CIN"):
         assert any(r["kind"] == "belief" and r["agente"] == agente and r["chave"] == "porte" and r["depois"] == porte
@@ -79,5 +84,5 @@ def test_large_company_treats_cutoff_as_critical():
 def test_size_profile_is_legal_across_seeds_and_baseline_uses_same_rules(porte):
     for seed in range(1, 11):
         ds = Dataset(seed=seed, porte=porte, plantar=("desvio_orcamentario",))
-        assert porte_por_receita(ds.gold["dre"]["receita"] * 12) == porte
+        assert porte_por_receita(ds.gold["dre"]["receita"] * 12, mei=porte == "mei") == porte
         assert baseline.executar(ds, "avaliar_orcamento").sinalizadas == ds.gold["desvios"]

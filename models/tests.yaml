@@ -409,3 +409,30 @@ items:
      esperado: "Wilcoxon, Mann-Whitney, Cliff, Holm e descritivas gravados pelo pipeline batem com valores calculados à mão", entrega: DSM4, status: executado}
   - {id: TEST-247, nome: test_summary_and_tests_are_recomputed_from_the_raw_rows, verifica: [REQ-NF01, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
      esperado: "a análise refeita só com o execucoes.csv dá o mesmo resumo e os mesmos testes", entrega: DSM4, status: executado}
+  # ---- DSM4: portes novos, segmentos e implantação (ids a partir de 170, fora das faixas dos outros lotes) ----
+  - {id: TEST-170, nome: test_legal_bands_follow_lc123_and_bndes, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "faixas legais: MEI só por opção (LC 123/2006, art. 18-A), ME, EPP, Média I e II e grande (BNDES); os quatro portes de antes inalterados", entrega: DSM4, status: executado}
+  - {id: TEST-171, nome: test_mei_runs_alone_without_erp_and_with_compensating_control, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "MEI com uma pessoa e sem ERP: SoD impossível vira controle compensatório, duplicidade vetada e estornada, plantio de alçada recusado", entrega: DSM4, status: executado}
+  - {id: TEST-172, nome: test_media_ii_applies_the_upper_band_rules, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "Média empresa II: receita na faixa de R$ 90 a 300 milhões, materialidade e pesos do porte, alçada reaprovada e publicação", entrega: DSM4, status: executado}
+  - {id: TEST-173, nome: test_segment_changes_accounts_costs_and_allocation_driver, verifica: [REQ-F02, REQ-F04], derivado_de: SVC-MCP, tipo: cenario,
+     esperado: "comércio, serviços e indústria: plano de contas, unidades e centros do segmento; AG-CUS rateia pelo direcionador e o resultado por UN confere com o gabarito", entrega: DSM4, status: executado}
+  - {id: TEST-174, nome: test_segment_cost_structure_is_consistent, verifica: [REQ-F02], derivado_de: SVC-MCP, tipo: cenario,
+     esperado: "CMV pelo estoque no comércio, horas de mão de obra direta em serviços, custo de produção e rateio dos CIF na indústria", entrega: DSM4, status: executado}
+  - {id: TEST-175, nome: test_default_segment_keeps_the_dsm3_data_and_trace, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: regressao,
+     esperado: "segmento padrão gera os mesmos dados e o mesmo hash de trace da DSM3; o meta só ganha segmento fora do padrão", entrega: DSM4, status: executado}
+  - {id: TEST-176, nome: test_backup_restores_into_another_folder_on_another_machine, verifica: [REQ-S05, REQ-NF01], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "backup com manifesto selado e chaves em arquivo separado; restauração em outra pasta e outra pasta de chaves com selos, trilha e memória conferidos", entrega: DSM4, status: executado}
+  - {id: TEST-177, nome: test_tampered_or_mismatched_backup_is_refused, verifica: [REQ-S05, REQ-S04], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "arquivo trocado, hash corrigido, manifesto re-selado, fuga de diretório, arquivo a mais, chaves de outra instalação e rollback: recusados sem gravar nada", entrega: DSM4, status: executado}
+  - {id: TEST-178, nome: test_migration_mechanism_with_an_example_from_version_1_to_2, verifica: [REQ-NF02, REQ-S05], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "migrar confere o selo na versão de origem, aplica a migração de exemplo 1->2 e grava selado; o sistema na versão 1 recusa o arquivo migrado", entrega: DSM4, status: executado}
+  - {id: TEST-179, nome: test_server_on_all_interfaces_still_accepts_only_loopback_names, verifica: [REQ-O04, REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "serve --host 0.0.0.0 (contêiner) continua recusando Host e Origin que não sejam de loopback", entrega: DSM4, status: executado}
+  - {id: TEST-180, nome: test_dashboard_api_lists_sizes_segments_templates_and_restarts_with_a_segment, verifica: [REQ-O04], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "/api/portes com segmentos, /api/modelos com os portes novos e os segmentos, reiniciar com segmento e segmento desconhecido recusado", entrega: DSM4, status: executado}
+  - {id: TEST-181, nome: test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "wheel com YAML e dashboard embutidos instalado num venv limpo: list, run (mesmo hash do checkout), instalar --demo e doctor fora do repositório", entrega: DSM4, status: executado}
+  - {id: TEST-182, nome: test_container_files_publish_only_on_loopback_and_keep_keys_apart, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: configuracao,
+     esperado: "compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude", entrega: DSM4, status: executado}

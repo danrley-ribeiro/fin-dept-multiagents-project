@@ -150,6 +150,12 @@ de tela. Isso encontrou problemas que a suíte não pegava, todos corrigidos e c
 | Na reincidência, o waiver negado pela política (POL-06) aparecia no diálogo e, ao ser escolhido, virava rejeição: o fechamento era bloqueado sem o aprovador saber | o botão fica desabilitado com a explicação; no servidor, o waiver não oferecido não é enviado e a pendência continua | `test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard`; teste de navegador "reincidência: a política nega o waiver" |
 | O aviso dizia "Simulação pausada por erro" mesmo quando a simulação não pausava (ex.: decisão recusada) | só diz "pausada" quando está pausada | sessão exploratória |
 
+Na revisão final do PR, a IA testou a reincidência com os dois meses pendentes ao mesmo tempo e
+encontrou uma brecha anterior a estas mudanças: a POL-06 só é conferida na emissão do ticket, então
+dois vetos do mesmo padrão pendentes juntos podem receber waiver os dois. Por decisão dos autores,
+a correção (conferir também na decisão, o que muda o PROT-APR) fica para a DSM4, e a limitação está
+registrada em [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md).
+
 Também foram corrigidas duas atribuições: a revisão da MET-01 e a tabela de `docs/dsm2/revisao.md`
 tratam do feedback da **DSM1** (o texto dizia DSM2).
 

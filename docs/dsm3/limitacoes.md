@@ -21,6 +21,15 @@
   fornecedor), sem embeddings nem grafo; serve à reincidência, não a perguntas abertas. RAG
   sobre documentos normativos (CP8) continua não implementado: a base normativa é o YAML por
   porte, com proveniência `mcp://normas/...`.
+- **Reincidência conferida só na emissão do ticket (POL-06).** A política decide se o waiver é
+  oferecido quando o veto é emitido, com o que a memória tem naquele momento, e não confere de
+  novo quando a decisão chega. Se dois vetos do mesmo padrão ficam pendentes ao mesmo tempo (ex.:
+  agosto e setembro no dashboard, com o aprovador ainda sem decidir agosto), o de setembro é
+  emitido antes de o waiver de agosto existir; o aprovador pode então conceder waiver nos dois, e
+  a POL-06 não age. Em sequência (agosto decidido antes do veto de setembro), a POL-06 nega o
+  novo waiver, como no cenário `reincidencia_waiver`. A correção é conferir a reincidência também
+  no `approve` do waiver (o SVC-POL consultando o AG-CIN ou a memória), o que muda o PROT-APR e
+  fica para a DSM4, junto com as falhas combinadas.
 - **Contract Net não adotado** (justificativa em {doc}`coordenacao`): há um especialista por
   capacidade.
 - **Prazos em tempo lógico.** O prazo do ticket é de 20 ticks em lote e 1.800 no dashboard
@@ -42,6 +51,7 @@
    mesmas regras de conformidade, correção e aprovação em sequência, para isolar o efeito do
    paradigma (distribuição, autonomia, reconsideração) do efeito das funções.
 2. **Falhas combinadas:** perda de mensagens + agente fora do ar + ataque + aprovação expirada
+   + vetos do mesmo padrão pendentes ao mesmo tempo (reincidência conferida também na decisão)
    no mesmo expediente.
 3. **Portes e parâmetros:** micro a grande; limiares, prazos de subtarefa e de aprovação, TTL da
    reserva e máximo de correções variando.

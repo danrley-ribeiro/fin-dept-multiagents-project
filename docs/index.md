@@ -15,7 +15,7 @@ Prof. Rafael Luiz Cancian), modelado segundo AOSE (Gaia, Tropos e Prometheus).
 |---|---|---|
 | [DSM1](dsm1/index.md) | Cenário, requisitos e modelagem | <span class="badge-ok">concluída</span> |
 | [DSM2](dsm2/index.md) | Arquitetura e protótipo, revisados após o feedback ([o que mudou](dsm2/revisao.md)) | <span class="badge-ok">concluída</span> |
-| [DSM3](dsm3/index.md) | Comunicação, coordenação e protótipo funcional; correções do feedback da DSM2 ([o que mudou](dsm3/revisao.md)) | <span class="badge-ok">concluída</span> |
+| [DSM3](dsm3/index.md) | Comunicação, coordenação e protótipo funcional; correções do feedback da DSM2 ([o que mudou](dsm3/revisao.md)); v0.5.0: cognição assistida, negociação de prazo, acesso por pessoa, dashboard autenticado e LLM multiprovedor | <span class="badge-ok">concluída</span> |
 | DSM4 | Experimentação, documentação e entrega final (até 02/12) | <span class="badge-pend">pendente</span> |
 
 A documentação cresce **uma entrega por vez**. O que pertence a entregas futuras aparece

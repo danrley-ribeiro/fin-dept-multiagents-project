@@ -11,7 +11,7 @@ adversarial: **repetem o ataque** e verificam que ele é rejeitado, auditado e q
 | transição local atribuída a identificador não autorizado mudou a FSM | `advance` aceitava qualquer `actor` | `advance` exige credencial, participação e papel listado em `eventos_locais` | `test_local_transition_by_unauthorized_identity_is_rejected` |
 | resposta de protocolo para quem não participava da conversa foi aceita | só o remetente era conferido | o destinatário precisa ser a outra ponta da conversa e ter papel participante do protocolo | `test_reply_to_non_participant_receiver_is_rejected` |
 | solicitação sem campos obrigatórios gerou `KeyError` e parou a execução | conteúdo sem esquema | esquema por performativo no barramento; exceção de agente isolada (`erro_agente` + resposta explícita) | `test_malformed_request_does_not_crash_simulation`, `test_agent_exception_is_isolated_and_answered` |
-| a suíte não detectava essas violações | testes só nominais e de FSM | 75 testes novos, incluindo os adversariais e um cenário com 14 ataques | `test_adversarial_scenario_rejects_every_attack` |
+| a suíte não detectava essas violações | testes só nominais e de FSM | testes adversariais e um cenário com 14 ataques: 75 testes novos na entrega inicial (232 no total, 10/11/2026), 249 na tag `dsm3-base` depois da revisão do PR e da issue #2, 414 na v0.5.0 ({doc}`testes`) | `test_adversarial_scenario_rejects_every_attack` |
 
 ## Recomendações para a DSM3
 
@@ -94,6 +94,67 @@ de regressão em `tests/e2e/test_revisao_pr.py`:
 Arquivos de memória gravados antes desta correção têm pseudônimos no formato antigo (versão 3
 do arquivo): continuam íntegros, mas não casam com os novos, então uma reincidência anterior a
 esta versão não é reconhecida. Como a memória da entrega começa vazia, isso não afeta os cenários.
+
+## Etapa v0.5.0 (12/11/2026)
+
+Depois da tag `dsm3-base` (a versão revisada acima, com 249 testes), a DSM3 foi concluída com o
+que faltava das funcionalidades previstas e com a lacuna que a própria revisão deixou exposta.
+
+| Ponto de partida | O que foi feito | Onde |
+|---|---|---|
+| Qualquer processo local que lesse o token do dashboard agia como o aprovador `APR`; TEST-19 (dashboard autenticado) pendente desde a DSM1 | SVC-IAM: contas, sessões, papéis, permissões por rota e comando; decisão atestada pela pessoa (POL-09), cargo e SoD contra a pessoa real (POL-02, POL-03), quem pede não aprova (POL-13); cenário `ataque_acesso` com 15 ataques, 0 aceitos | {doc}`acesso`, {doc}`dashboard`, ADR-009 |
+| AG-ORC ignorava o texto livre da planilha e o histórico | hipóteses validadas por regras, ação epistêmica, evidência determinística; motor local e LLM opcional | {doc}`cognicao`, ADR-008 |
+| PROT-DEL só aceitava resultado ou falha no prazo | negociação de prazo (`propose`, `accept-proposal`, `reject-proposal`, estado `NEGOCIANDO`) | {doc}`protocolos` |
+| LLM só no AG-REL e só Claude | usos por agente (síntese, hipóteses, narrativa, comentário), cinco provedores, consentimento, pseudônimos, disjuntor, conferência de números por rótulo, bancada | {doc}`llm` |
+| Implantação só pelo repositório | `fin-mas instalar`, `doctor`, `serve --instalacao`; ficha do porte | {doc}`implantacao` |
+| Propriedades de segurança conferidas cenário a cenário | 8 invariantes sobre qualquer trace; `cenarios --verificar` | {doc}`seguranca` |
+
+Os 17 cenários revisados continuam no nível `basico`: as 20 colunas de métricas da comparação em
+10 seeds são idênticas às da tag `dsm3-base`; os hashes dos traces mudaram só porque o registro
+`meta` leva a versão do pacote (0.4.0 → 0.5.0), o que também muda a âncora do cenário
+adversarial ({doc}`cognicao`).
+
+### Pontos da correção simulada que estavam em aberto
+
+Na 3ª rodada da correção simulada (`entregas/dsm3/USO_DE_IA.md`) ficaram cinco pontos
+não corrigidos. Situação na v0.5.0:
+
+| Ponto (gravidade) | Situação | Teste |
+|---|---|---|
+| a checagem do prazo da aprovação supõe entrega em um tick (menor) | **corrigido**: o barramento expõe `entrega_prevista` (agora + atraso do envio) e a POL-08 confere o prazo nesse instante | `test_deadline_check_uses_the_real_delivery_time_of_the_decision` (TEST-134) |
+| `verificar --ancora` sobre trace sem cadeia devolve 1, não 3 (menor) | **corrigido**: devolve 3, com a mensagem de que a âncora não pode ser conferida | `test_verify_with_anchor_on_unchained_trace_returns_three` |
+| números legítimos soltos de 11 ou 14 dígitos são redigidos como CPF/CNPJ (menor) | **mantido por decisão** (falha fechada): os testes da revisão exigem redigir, por exemplo, "chave pix 98765432100" e "doc (12345678901)", que não têm contexto de CPF nem dígito verificador válido; a parte que atingia hashes foi corrigida na revisão do PR | {doc}`limitacoes` |
+| cópia íntegra da memória em outra pasta ou máquina é tratada como comprometida (moderado) | em aberto, DSM4 | {doc}`limitacoes` |
+| duas execuções simultâneas sobre o mesmo arquivo de memória perdem entradas (menor) | em aberto, DSM4 (o cadastro de acesso já usa trava entre processos; a memória ainda não) | {doc}`limitacoes` |
+
+### Correção simulada da v0.5.0 (4ª rodada, 12 e 13/11/2026)
+
+Antes do pacote, um avaliador independente (agente de IA sem acesso ao plano nem à conversa de
+desenvolvimento, só leitura) avaliou a v0.5.0 contra a rubrica da DSM3 e fez testes adversariais
+próprios. Confirmou as quatro falhas do feedback da DSM2 como corrigidas, não conseguiu publicar
+com veto pendente nem executar `erp.corrigir` sem aprovação por nenhum caminho, e deu **7,2** ao
+estado que avaliou. Os achados abaixo foram reproduzidos por ele e corrigidos depois; **não houve
+nova avaliação depois das correções**, então a nota não foi refeita.
+
+| Achado (gravidade) | Correção | Teste |
+|---|---|---|
+| C1: identidade fora do diretório se registrava com papel privilegiado (ROLE-ORQ, ROLE-RES), delegava ao AG-CIN, lia o veto e encurtava o prazo de uma avaliação legítima (crítico) | com o sistema montado o registro do barramento é fechado: só identidades do diretório; a tentativa é auditada | TEST-141 |
+| C2: a validação do texto do LLM era contornável (número por extenso, numeral de outra escrita, sinônimo e flexão de ação, homógrafo, caractere invisível, instrução ao leitor, marcador com rótulo trocado) e o texto saía no relatório publicado junto de "confirmada por AG-CIN" (crítico) | só letras latinas e pontuação comum (NFKC estável, sem caracteres de formato); números por extenso e radicais de ação e de instrução recusados; valor resolvido sai com a grandeza ao lado (`R$ … (realizado)`); o texto de modelo sai rotulado "texto não verificado", separado do desfecho; a síntese do AG-REL passou para o fim do relatório, rotulada, e recomendação na síntese cai no template | TEST-142, 143, 144 |
+| M1: a chave de API do servidor seguia para uma `base_url` escolhida por quem configura o modelo (moderado) | a chave só segue para a URL padrão do provedor ou para uma URL da lista `FIN_MAS_LLM_URLS_CONFIAVEIS`, definida na instalação | TEST-145 |
+| M2: o especialista estendia o próprio prazo com `reply_by` numa resposta (moderado) | só o iniciador da conversa define ou estende o prazo | TEST-146 |
+| M3: conteúdo aninhado inválido de um especialista deixava o solicitante sem resposta e o período reservado (moderado) | o Orquestrador aborta com `failure` e libera a reserva | TEST-147 |
+| M4: oito exceções não tratadas no servidor HTTP, três sem autenticação (moderado) | todo corpo é validado como objeto JSON; campo de tipo errado devolve 400 | TEST-148 |
+| M5: cinco senhas erradas de quem não tem conta derrubavam a sessão viva da pessoa (moderado) | o bloqueio temporário só impede novas entradas; a sessão aberta continua | TEST-149 |
+| M6: SVC-LCK aceitava liberar e tomar a reserva só com o nome do dono (moderado) | reserva, renovação e liberação exigem a credencial do Orquestrador | TEST-150 |
+| M8: verificador de invariantes com um falso positivo (reenvio do pedido de parecer) e dois falsos negativos (moderado) | aviso de prazo do PROT-CMP não conta como transição; INV-01 exige parecer do AG-CIN em todo fechamento publicado; INV-02 confere uso único da correção | TEST-151 |
+| m1: operador sem a permissão de modelos reiniciava com outro nível de cognição; agente inexistente aceito no comando (menor) | o reinício com mudança de cognição exige `PERM-MOD-CONFIG`; agente desconhecido devolve 400 | TEST-153 |
+| m2: identificador não textual ou conteúdo não copiável levantava exceção sem registro (menor) | rejeição com registro `rejected` | TEST-152 |
+
+Continuam em aberto, declarados em {doc}`limitacoes`: o prazo compartilhado entre solicitantes no
+AG-ORC; o pedido (`solicitado_por`) sem atestado no barramento (M7); o fluxo de eventos ao vivo
+visível a quem vê a simulação (M9, assumido e descrito em `PERM-SIM-VER`); o baseline sem as
+mesmas funções (M10, DSM4); esquemas de conteúdo só no primeiro nível; a raiz de confiança das
+chaves no disco; a POL-04 só léxica; lacunas da redação; AG-CUS e AG-REL reativos.
 
 ## Ressalva sobre a comparação experimental
 

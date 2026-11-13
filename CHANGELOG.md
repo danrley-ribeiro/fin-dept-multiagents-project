@@ -2,6 +2,52 @@
 
 Registro por entrega.
 
+## DSM3 v0.5.0 (12/11/2026)
+
+- Cognição assistida (ADR-008, NORM-11, REQ-F08): proposta → validação (cinco regras) → hipótese → ação
+  epistêmica → evidência → crença no AG-ORC; motor local offline (`cognicao/regras.py`) e LLM opcional como
+  proponente; desejo `verificar_hipotese` com os planos P-CONFERIR-EVIDENCIA, P-VERIFICAR-COM-CIN,
+  P-NEGOCIAR-PRAZO, P-VERIFICAR-NO-HISTORICO e P-ARQUIVAR-HIPOTESE; tools `planilhas.observacoes` e
+  `erp.historico`; níveis `basico | local | llm` (`--cognicao`). Os 17 cenários revisados ficam em `basico`, com as
+  mesmas métricas (o hash dos traces muda só pela versão do pacote no registro `meta`).
+- Negociação de prazo no PROT-DEL: `propose`, `accept-proposal`, `reject-proposal`, estado `NEGOCIANDO`; regras do
+  Orquestrador (só prazo, sem extensão com período reservado, uma por subtarefa, até 20 ticks); prazo vigente por
+  conversa no barramento.
+- Identidade e acesso por pessoa (ADR-009, SVC-IAM, REQ-S05, NORM-12, NORM-13): contas com scrypt, sessões com
+  prazo e revogação, papéis ROLE-OPE, ROLE-AUD e ROLE-ADM, permissões em `models/permissions.yaml`, regras IAM-01 a
+  IAM-07; cadastro em arquivo selado com contador e trava entre processos; trilha de acesso encadeada.
+- Approval Gate pela pessoa: atestado de sessão (POL-09) no `approve`/`reject` (campo `atestado` no esquema), POL-02
+  e POL-03 contra a pessoa real, POL-13 (quem solicita não aprova; controle compensatório na micro); prazo do ticket
+  pelo instante previsto de entrega da decisão (TEST-134). Cenários `decisao_por_pessoa`, `solicitante_nao_aprova`,
+  `waiver_exige_cargo`, `micro_controle_compensatorio` e `ataque_acesso` (15 ataques, 0 aceitos).
+- Servidor e dashboard: login com cookie `HttpOnly; SameSite=Strict`, CSRF por sessão, permissão por rota e por
+  comando, cabeçalhos de segurança; áreas Solicitações, Aprovações, Logs, Agentes e LLM e Porte; aba Hipóteses e
+  origem das crenças na mente do agente. TEST-19 executado.
+- LLM multiprovedor (SVC-MOD): mock, Claude (SDK opcional), GPT, Gemini e servidores compatíveis com a API da OpenAI;
+  usos por agente (síntese, hipóteses, narrativa, comentário); consentimento para envio externo, pseudônimos,
+  disjuntor, preço por modelo, conferência de números por rótulo; bancada `fin-mas llm avaliar`; `.env.example`.
+  AG-ORQ, AG-CUS e AG-CIN seguem sem LLM (NORM-07).
+- CLI: `acesso`, `auditoria`, `explicar`, `sequencia`, `invariantes` (INV-01 a INV-08), `cenarios [--verificar]`,
+  `llm provedores | avaliar`, `instalar`, `doctor`, `serve --demo | --acesso | --instalacao | --cognicao`; comando
+  `fin-mas`. Console de administração e auditoria no terminal (Textual, extra `tui`).
+- Ficha do porte em `models/portes.yaml` (regime, obrigações, estrutura, calendário, papéis de acesso); as regras lidas
+  pelos agentes não mudaram (normas-v2).
+- Rastreabilidade: REQ-S05, REQ-F08, NORM-11 a NORM-13, SVC-IAM, componentes novos, MET-17 e MET-18, TEST-19 e
+  TEST-91 a TEST-153 executados (312 objetos, 21 requisitos, 153 testes modelados, 0 erros).
+- Correção simulada da v0.5.0 (4ª rodada): registro do barramento fechado depois da montagem; validação do texto
+  de LLM endurecida e texto de modelo rotulado como não verificado; chave de API só para destinos confiáveis
+  (`FIN_MAS_LLM_URLS_CONFIAVEIS`); prazo só pelo iniciador da conversa; falha explícita para resposta malformada de
+  especialista; 400 para corpo HTTP inválido; bloqueio por tentativas sem derrubar sessões; SVC-LCK com credencial;
+  invariantes INV-01, 02 e 03 corrigidos (TEST-141 a 153).
+- Testes: 431 no pytest (eram 249 na tag `dsm3-base`), todos e2e, de integração ou de interface (TUI pelo Pilot do
+  Textual); nenhum unitário novo. Playwright: 29 roteiros (9 de acesso e 6 das áreas de trabalho, novos). `make
+  cenarios`, `make diagramas`, `make cobertura`, `make verificar-tudo`; `requirements-lock.txt`.
+- Diagramas novos em `entregas/dsm3/`: login e sessão, decisão atestada, ciclo de hipóteses, PROT-DEL com
+  negociação. Âncora nova do cenário `ataque_decisao_forjada`.
+- Documentação: `docs/dsm3/` ganhou cognição, acesso, dashboard, implantação, catálogo de cenários de teste, ADR-008 e
+  ADR-009; protocolos, coordenação, segurança (modelo de ameaças e invariantes), LLM, testes, revisão e limitações
+  atualizados.
+
 ## DSM3 — Comunicação, coordenação e protótipo funcional (10/11/2026)
 
 - Feedback da DSM2 (segurança das interações): o barramento autentica o remetente (credencial por

@@ -1,7 +1,8 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DSM1_DOC = entregas/dsm1/documentacao
 
-.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 entrega-dsm3 ataque clean
+.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 entrega-dsm3 ataque clean \
+	cenarios diagramas cobertura verificar-tudo
 
 all: trace docs pdf
 
@@ -54,6 +55,35 @@ entrega-dsm2:
 
 web-test:
 	cd web && bun run test && bun run test:e2e
+
+# Catálogo de cenários rodado duas vezes por cenário, comparando os hashes dos traces
+cenarios:
+	PYTHONPATH=src $(PYTHON) -m fin_mas cenarios --verificar
+
+# PNG dos .mmd da entrega DSM3 (Playwright + mermaid de web/node_modules; só os desatualizados)
+diagramas:
+	cd web && bun install && node ../tools/diagramas.mjs ../entregas/dsm3
+
+# Cobertura da suíte pytest. Subprocessos da CLI (python -m fin_mas ...) não entram na medição.
+cobertura:
+	$(PYTHON) -m coverage run --source=src/fin_mas -m pytest -q
+	$(PYTHON) -m coverage report --sort=cover
+
+# Tudo o que a entrega promete, parando no primeiro erro; resumo de uma linha por etapa no final.
+# Os comandos são os dos alvos check, test, cenarios, web-test e docs (sem $(MAKE) recursivo, para que
+# `make -n verificar-tudo` só mostre o que faria).
+verificar-tudo:
+	@resumo=""; \
+	etapa() { nome="$$1"; shift; echo "==> $$nome: $$*"; \
+	  if sh -c "$$*"; then resumo="$$resumo\n  ok     $$nome"; \
+	  else printf "\nResumo:$$resumo\n  FALHOU $$nome (as etapas seguintes não rodaram)\n"; exit 1; fi; }; \
+	etapa check     "$(PYTHON) tools/trace.py --check"; \
+	etapa test      "$(PYTHON) -m pytest"; \
+	etapa cenarios  "PYTHONPATH=src $(PYTHON) -m fin_mas cenarios --verificar"; \
+	etapa web-unit  "cd web && bun run test"; \
+	etapa web-e2e   "cd web && bun run test:e2e"; \
+	etapa docs      "$(PYTHON) tools/trace.py && $(PYTHON) -m sphinx -W --keep-going -b html docs docs/_build/html"; \
+	printf "\nResumo:$$resumo\n"
 
 pdf:
 	cd $(DSM1_DOC) && latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex && latexmk -c

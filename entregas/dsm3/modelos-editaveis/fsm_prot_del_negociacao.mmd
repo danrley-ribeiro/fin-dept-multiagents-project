@@ -1,0 +1,21 @@
+stateDiagram-v2
+  [*] --> CRIADA
+  CRIADA --> AGUARDANDO: request (ORQ)
+  AGUARDANDO --> EM_EXECUCAO: agree
+  AGUARDANDO --> RECUSADA: refuse
+  AGUARDANDO --> EXPIRADA: timeout (reply_by)
+  EM_EXECUCAO --> CONCLUIDA: inform
+  EM_EXECUCAO --> FALHOU: failure
+  EM_EXECUCAO --> EXPIRADA: timeout (reply_by)
+  EM_EXECUCAO --> NEGOCIANDO: propose (mais prazo)
+  NEGOCIANDO --> EM_EXECUCAO: accept-proposal (ORQ, novo prazo)
+  NEGOCIANDO --> EM_EXECUCAO: reject-proposal (ORQ)
+  NEGOCIANDO --> EXPIRADA: timeout (reply_by)
+  CONCLUIDA --> [*]
+  FALHOU --> [*]
+  RECUSADA --> [*]
+  EXPIRADA --> [*]
+  note right of NEGOCIANDO
+    inválidas: inform e segunda propose
+    antes da resposta à proposta
+  end note

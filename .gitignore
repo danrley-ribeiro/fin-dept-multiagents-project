@@ -68,3 +68,7 @@ entregas/dsm3/DSM3-entrega.zip
 .env
 .env.*
 !.env.example
+
+# --- Cobertura (make cobertura) ---
+.coverage
+htmlcov/

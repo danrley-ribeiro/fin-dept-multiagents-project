@@ -155,7 +155,7 @@ def test_open_commitment_is_the_default_and_reproduces_previous_behaviour():
     assert basico.resposta.content["resultado"]["sinalizadas"] == basico.system.dataset.gold["desvios_atribuidos"]
 
 
-def test_blind_commitment_stops_insisting_at_the_cap_and_still_answers():
+def test_blind_commitment_stops_insisting_at_the_cap_and_costs_the_deadline():
     """Falha permanente: o cego repete a consulta duas vezes, estoura o prazo da subtarefa e só então replaneja."""
     sc = Scenario("cego_sem_cin", "AG-CIN nunca responde", "avaliar_orcamento", plantar=("desvio_irregular",),
                   cognicao="local", compromisso=(("AG-ORC", "cego"),),

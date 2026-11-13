@@ -344,3 +344,37 @@ O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, s
 
 **Evidência observável de aceite:** Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito; propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
 ````
+
+````{req} Especialistas de Resultados, Custos e Relatórios com deliberação BDI
+:id: REQ-F20
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-02, G-04, G-06, G-08
+:addresses: PROB-01, PROB-02, PROB-05, PROB-07
+:assigned_to: ROLE-RES, ROLE-CUS, ROLE-REL, ROLE-ORC
+:uses_protocol: PROT-DEL, PROT-QRY
+:constrained_by: NORM-07, NORM-08, NORM-11, NORM-20
+
+Nos níveis de cognição local e llm, AG-RES, AG-CUS e AG-REL são agentes BDI: crenças com fonte, desejos gerados das crenças, planos alternativos com contexto e utilidade pelos pesos do porte, falha de plano com replanejamento e reconsideração. A estratégia de compromisso (cego, obstinado, aberto) é parâmetro por agente e porte, e cada regra local de hipótese aprende com as confirmações e refutações verificadas. No nível básico os três continuam sendo as classes reativas, que servem de braço de comparação.
+
+**Evidência observável de aceite:** O trace de cada cenário novo mostra deliberação com planos aplicáveis e não aplicáveis, a falha e o replanejamento, e a escolha mudando com o porte; o resultado bate com o gabarito; o mesmo cenário no nível básico não tem registro BDI desses agentes e os traces revisados da DSM3 não mudam.
+````
+
+````{req} Conhecimento normativo com proveniência
+:id: REQ-F21
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-05, G-07
+:addresses: PROB-04, PROB-06
+:assigned_to: ROLE-CIN, ROLE-REL
+:uses_protocol: PROT-CMP
+:constrained_by: NORM-02, NORM-21
+
+Uma base normativa versionada, com trechos curtos em paráfrase das normas já citadas pelo projeto, é consultada por recuperação lexical offline. Cada resultado traz documento, trecho e versão. O AG-CIN cita o trecho que fundamenta cada achado e o AG-REL cita a base de cada exceção; sem evidência, declaram "sem evidência".
+
+**Evidência observável de aceite:** A busca devolve o trecho esperado em primeiro para as consultas de referência e lista vazia para assunto fora do corpus; o achado de SoD cita COSO-SEGREGACAO com a versão; o de duplicidade sai marcado sem evidência e nada é citado no lugar.
+````

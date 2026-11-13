@@ -177,3 +177,23 @@
 **Fórmula:** crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo  
 **Alvo:** 0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens
 ````
+
+````{metric} Deliberação efetiva dos especialistas
+:id: MET-30
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F20
+
+**Fórmula:** por agente BDI e cenário, lidos do trace (`metricas_cognicao.medir_deliberacao`): deliberações com mais de um plano aplicável, deliberações em que as crenças tornaram um plano não aplicável, replanejamentos após falha, insistências e intenções mantidas (compromisso cego e obstinado), crenças sem fonte determinística  
+**Alvo:** 0 crenças sem fonte; reportar por agente e comparar o resultado com o nível básico (experimento da DSM4)
+````
+
+````{metric} Citações normativas com proveniência
+:id: MET-31
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F21
+
+**Fórmula:** achados e exceções fundamentados com documento, trecho e versão; declarados sem evidência; citações incompletas (`metricas_cognicao.medir_fundamentacao`)  
+**Alvo:** 0 citações incompletas; 100% dos achados com fundamento ou com 'sem evidência' declarado
+````

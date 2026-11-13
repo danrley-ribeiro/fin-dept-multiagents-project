@@ -133,3 +133,30 @@ items:
     decisao: OBRIGACAO
     imposta_por: [SVC-IAM, SVC-AUD]
     entrega: DSM3
+
+  - id: NORM-20
+    titulo: Só evidência verificada conta no aprendizado das regras
+    escopo: Registro de aprendizado das regras locais de hipótese (SVC-APD) e seu uso por AG-ORC e AG-RES
+    condicao: >-
+      Hipótese arquivada, sem fonte de evidência, com fonte de proponente (regra local ou LLM), de origem LLM,
+      já contada para a mesma competência, ou arquivo do registro com selo inválido
+    consequencia: >-
+      A observação é recusada e registrada; a confiança da regra numa competência vem só de competências
+      anteriores; com o arquivo comprometido o aprendizado se desliga e as regras voltam à confiança inicial.
+      Confiança aprendida não é crença: só restringe os planos epistêmicos que custam mensagem
+    decisao: DENY
+    imposta_por: [SVC-APD]
+    entrega: DSM4
+
+  - id: NORM-21
+    titulo: Citação normativa tem proveniência; ausência de evidência é declarada, nunca preenchida
+    escopo: Tool `normas.buscar` (base de conhecimento normativo) e os agentes que citam norma (AG-CIN, AG-REL)
+    condicao: >-
+      Consulta sem trecho que cubra pelo menos metade do peso informativo dos seus termos; citação sem
+      documento, trecho ou versão
+    consequencia: >-
+      A busca devolve lista vazia e o agente registra `sem evidência` com a versão do corpus; o achado segue
+      valendo pela regra interna do porte e nenhum trecho aproximado é citado no lugar
+    decisao: OBRIGACAO
+    imposta_por: [SVC-MCP]
+    entrega: DSM4

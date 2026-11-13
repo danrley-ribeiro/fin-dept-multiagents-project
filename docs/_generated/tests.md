@@ -1593,3 +1593,411 @@
 **Resultado esperado:** configurar o LLM pela interface, ver a hipótese corroborada e o uso  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_new_scenarios_deliberate_and_keep_beliefs_with_deterministic_sources
+:id: TEST-201
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-11
+
+`test_new_scenarios_deliberate_and_keep_beliefs_with_deterministic_sources()` — tipo *e2e*.  
+**Resultado esperado:** nos onze cenários novos há deliberação com plano aplicável e não aplicável e toda crença tem fonte determinística  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_basic_level_runs_the_same_scenario_with_the_reactive_specialists
+:id: TEST-202
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-NF01
+:derived_from: ROLE-RES
+
+`test_basic_level_runs_the_same_scenario_with_the_reactive_specialists()` — tipo *reprodutibilidade*.  
+**Resultado esperado:** no nível básico os mesmos cenários rodam com as classes reativas, sem registro BDI de RES, CUS e REL  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_build_system_picks_the_variant_by_cognition_level
+:id: TEST-203
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: ROLE-RES
+
+`test_build_system_picks_the_variant_by_cognition_level()` — tipo *e2e*.  
+**Resultado esperado:** variante BDI nos níveis local e llm; classe reativa no básico; estratégia de compromisso inválida é recusada  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_results_agent_explains_a_relevant_variation_with_verified_evidence
+:id: TEST-204
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F04
+:derived_from: PROT-QRY
+
+`test_results_agent_explains_a_relevant_variation_with_verified_evidence()` — tipo *e2e*.  
+**Resultado esperado:** variação do EBITDA% vira hipótese, o AG-RES pede o detalhe ao AG-CUS e a explicação aponta o centro do gabarito  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_variation_hypothesis_falls_back_to_history_when_the_cost_agent_goes_offline
+:id: TEST-205
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: PROT-QRY
+
+`test_variation_hypothesis_falls_back_to_history_when_the_cost_agent_goes_offline()` — tipo *e2e*.  
+**Resultado esperado:** plano de detalhe falha por timeout e o AG-RES replaneja para a conferência no histórico  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_results_agent_replans_when_a_specialist_is_silent_and_decides_by_size_and_criticality
+:id: TEST-206
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F04
+:derived_from: PROT-QRY
+
+`test_results_agent_replans_when_a_specialist_is_silent_and_decides_by_size_and_criticality()` — tipo *e2e*.  
+**Resultado esperado:** duas consultas perdidas: média consolida com ressalva, grande falha explicitamente, básico aborta o fechamento  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_missing_critical_input_never_becomes_a_partial_result
+:id: TEST-207
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F04
+:derived_from: ROLE-RES
+
+`test_missing_critical_input_never_becomes_a_partial_result()` — tipo *e2e*.  
+**Resultado esperado:** sem custos não há DRE parcial em nenhum porte: falha explícita  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_cost_agent_picks_an_allocation_criterion_when_the_driver_is_unusable
+:id: TEST-208
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F02
+:derived_from: ROLE-CUS
+
+`test_cost_agent_picks_an_allocation_criterion_when_the_driver_is_unusable()` — tipo *e2e*.  
+**Resultado esperado:** direcionador inconsistente: plano padrão falha, critério proporcional à receita escolhido, conta igual ao gabarito, motivo registrado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_cost_criterion_depends_on_company_size_and_on_what_is_wrong_with_the_driver
+:id: TEST-209
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F02
+:derived_from: ROLE-CUS
+
+`test_cost_criterion_depends_on_company_size_and_on_what_is_wrong_with_the_driver()` — tipo *e2e*.  
+**Resultado esperado:** microempresa divide em partes iguais; tabela ausente reusa a última aprovada; sem problema, critério padrão  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_report_agent_chooses_structure_by_findings_and_audience
+:id: TEST-210
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F06
+:derived_from: ROLE-REL
+
+`test_report_agent_chooses_structure_by_findings_and_audience()` — tipo *e2e*.  
+**Resultado esperado:** relatório de exceção com veto corrigido, sumário quando conforme, relatório completo para conselho e auditoria  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_exception_report_orders_caveats_and_keeps_only_verified_insights
+:id: TEST-211
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F06
+:derived_from: ROLE-REL
+
+`test_exception_report_orders_caveats_and_keeps_only_verified_insights()` — tipo *e2e*.  
+**Resultado esperado:** waiver primeiro nas ressalvas; hipótese arquivada não é reproduzida, só contada  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_model_text_goes_to_the_end_of_the_report_labelled_and_never_inside_template_sentences
+:id: TEST-212
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S03, REQ-F06
+:derived_from: NORM-05
+
+`test_model_text_goes_to_the_end_of_the_report_labelled_and_never_inside_template_sentences()` — tipo *seguranca*.  
+**Resultado esperado:** texto de modelo ao fim do relatório, rotulado; corpo igual ao do template; AG-CUS recusa LLM  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_deliberation_and_grounding_metrics_are_read_from_the_trace
+:id: TEST-213
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F21
+:derived_from: SVC-AUD
+
+`test_deliberation_and_grounding_metrics_are_read_from_the_trace()` — tipo *observabilidade*.  
+**Resultado esperado:** MET-30 e MET-31 calculadas só do trace: replanejamentos, insistências, crenças sem fonte, citações incompletas  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_rule_confidence_follows_refutations_and_changes_what_the_agent_does
+:id: TEST-214
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-20
+
+`test_rule_confidence_follows_refutations_and_changes_what_the_agent_does()` — tipo *e2e*.  
+**Resultado esperado:** duas refutações levam a confiança de 0,80 a 0,40 e a hipótese deixa de justificar nova consulta  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_rule_confidence_rises_with_confirmations
+:id: TEST-215
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-20
+
+`test_rule_confidence_rises_with_confirmations()` — tipo *e2e*.  
+**Resultado esperado:** confirmações em meses seguidos elevam a confiança de 0,80 a 0,87 e 0,90  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_only_verified_evidence_counts_for_learning
+:id: TEST-216
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-S03
+:derived_from: NORM-20
+
+`test_only_verified_evidence_counts_for_learning()` — tipo *seguranca*.  
+**Resultado esperado:** hipótese arquivada, origem LLM e observação sem fonte determinística não contam  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_results_agent_rules_learn_too
+:id: TEST-217
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-20
+
+`test_results_agent_rules_learn_too()` — tipo *e2e*.  
+**Resultado esperado:** a regra de custo fixo do AG-RES registra a confirmação com a fonte da evidência  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_three_commitment_strategies_differ_on_the_same_situation
+:id: TEST-218
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: ROLE-ORC
+
+`test_three_commitment_strategies_differ_on_the_same_situation()` — tipo *e2e*.  
+**Resultado esperado:** aberto replaneja e abandona o alerta (gabarito); obstinado mantém o alerta; cego insiste no plano; três traces distintos  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_open_commitment_is_the_default_and_reproduces_previous_behaviour
+:id: TEST-219
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-NF01
+:derived_from: ROLE-ORC
+
+`test_open_commitment_is_the_default_and_reproduces_previous_behaviour()` — tipo *reprodutibilidade*.  
+**Resultado esperado:** compromisso aberto explícito produz o mesmo trace, byte a byte, dos cenários existentes  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_blind_commitment_stops_insisting_at_the_cap_and_costs_the_deadline
+:id: TEST-220
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-F01
+:derived_from: PROT-DEL
+
+`test_blind_commitment_stops_insisting_at_the_cap_and_costs_the_deadline()` — tipo *e2e*.  
+**Resultado esperado:** falha permanente: o cego insiste duas vezes, estoura o prazo e a solicitação falha; o aberto entrega com ressalva  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_commitment_applies_to_the_new_bdi_specialists
+:id: TEST-221
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: ROLE-CUS
+
+`test_commitment_applies_to_the_new_bdi_specialists()` — tipo *e2e*.  
+**Resultado esperado:** AG-CUS cego relê o direcionador inconsistente duas vezes antes de trocar de critério  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_budget_agent_reads_approved_memory_and_avoids_a_false_deviation
+:id: TEST-222
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07, REQ-F20
+:derived_from: NORM-08
+
+`test_budget_agent_reads_approved_memory_and_avoids_a_false_deviation()` — tipo *e2e*.  
+**Resultado esperado:** correção aprovada em agosto vira hipótese de reincidência em setembro, o AG-CIN confirma e o falso desvio some  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_memory_corroboration_raises_the_confidence_of_an_existing_hypothesis
+:id: TEST-223
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07, REQ-F20
+:derived_from: NORM-11
+
+`test_memory_corroboration_raises_the_confidence_of_an_existing_hypothesis()` — tipo *e2e*.  
+**Resultado esperado:** observação e memória apontam a mesma causa: hipótese corroborada, com confiança maior  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_memory_read_access_is_by_type_and_denials_are_audited
+:id: TEST-224
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07, REQ-S04
+:derived_from: SVC-MEM
+
+`test_memory_read_access_is_by_type_and_denials_are_audited()` — tipo *seguranca*.  
+**Resultado esperado:** correção legível por ORC, RES e REL; waiver e bloqueio só pelo AG-CIN; leitura negada fica no trace  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_report_and_results_agents_cite_previous_approved_corrections
+:id: TEST-225
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07
+:derived_from: NORM-08
+
+`test_report_and_results_agents_cite_previous_approved_corrections()` — tipo *e2e*.  
+**Resultado esperado:** o relatório de exceção e a explicação do AG-RES citam a correção anterior com o id da memória  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_search_returns_the_expected_passage_first_with_provenance
+:id: TEST-226
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F21
+:derived_from: NORM-21
+
+`test_search_returns_the_expected_passage_first_with_provenance()` — tipo *e2e*.  
+**Resultado esperado:** top-k esperado para oito consultas de referência, com documento, trecho e versão  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_search_without_evidence_returns_nothing
+:id: TEST-227
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F21, REQ-S01
+:derived_from: NORM-21
+
+`test_search_without_evidence_returns_nothing()` — tipo *seguranca*.  
+**Resultado esperado:** assunto fora do corpus devolve lista vazia; a tool é negada fora da allowlist  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_finding_cites_the_passage_that_grounds_it
+:id: TEST-228
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F21, REQ-F05
+:derived_from: NORM-21
+
+`test_finding_cites_the_passage_that_grounds_it()` — tipo *e2e*.  
+**Resultado esperado:** achado de SoD cita COSO-SEGREGACAO com a versão do corpus; no básico não há busca nem campo novo  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_no_evidence_is_declared_and_never_filled
+:id: TEST-229
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F21, REQ-F05
+:derived_from: NORM-21
+
+`test_no_evidence_is_declared_and_never_filled()` — tipo *seguranca*.  
+**Resultado esperado:** duplicidade sai marcada sem evidência, sem documento nem trecho; o veto segue pela regra interna  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_cli_checks_every_new_scenario_against_the_invariants
+:id: TEST-230
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-O01
+:derived_from: SVC-AUD
+
+`test_cli_checks_every_new_scenario_against_the_invariants()` — tipo *integracao*.  
+**Resultado esperado:** cenarios --verificar aprova os cenários novos: resposta explícita, invariantes e repetição  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_cli_shows_deliberation_of_the_new_bdi_specialists
+:id: TEST-231
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-O01
+:derived_from: SVC-AUD
+
+`test_cli_shows_deliberation_of_the_new_bdi_specialists()` — tipo *integracao*.  
+**Resultado esperado:** a trilha no terminal mostra deliberação, falha de plano, hipótese e compromisso por parâmetro  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_cli_searches_the_normative_base_and_reports_missing_evidence
+:id: TEST-232
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F21
+:derived_from: NORM-21
+
+`test_cli_searches_the_normative_base_and_reports_missing_evidence()` — tipo *integracao*.  
+**Resultado esperado:** fin-mas normas devolve o trecho com proveniência e sai com código 1 quando não há evidência  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_learning_persists_between_runs_in_a_sealed_file
+:id: TEST-233
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-20
+
+`test_learning_persists_between_runs_in_a_sealed_file()` — tipo *integracao*.  
+**Resultado esperado:** arquivo selado guarda a observação; a execução seguinte usa a confiança aprendida; reprocessar não conta duas vezes  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_tampered_learning_file_fails_closed
+:id: TEST-234
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20, REQ-S04
+:derived_from: NORM-20
+
+`test_tampered_learning_file_fails_closed()` — tipo *seguranca*.  
+**Resultado esperado:** arquivo adulterado desliga o aprendizado, as regras voltam à confiança inicial e nada é gravado  
+**Execução:** DSM4 (status atual: executado).
+````

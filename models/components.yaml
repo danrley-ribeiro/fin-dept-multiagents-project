@@ -16,7 +16,7 @@ items:
   - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: src/fin_mas/services/politica.py, entrega: DSM3, status: implementado}
   - {id: COMP-RED, titulo: Redaction fail-closed e trace com hash encadeado, realiza: [SVC-AUD], caminho: src/fin_mas/services/redacao.py, entrega: DSM3, status: implementado}
   - {id: COMP-SCH, titulo: Validação de envelope e esquema das mensagens A2A, realiza: [SVC-A2A], caminho: src/fin_mas/core/schema.py, entrega: DSM3, status: implementado}
-  - {id: COMP-BDI, titulo: Núcleo BDI (crenças, desejos, planos, intenções), realiza: [AG-ORC, AG-CIN], caminho: src/fin_mas/core/bdi.py, entrega: DSM2, status: implementado}
+  - {id: COMP-BDI, titulo: "Núcleo BDI (crenças, desejos, planos, intenções, estratégias de compromisso)", realiza: [AG-ORC, AG-CIN, AG-RES, AG-CUS, AG-REL], caminho: src/fin_mas/core/bdi.py, entrega: DSM2, status: implementado}
   - {id: COMP-OBS, titulo: Execução ao vivo, servidor e dashboard do escritório, realiza: [SVC-AUD], caminho: web/src/App.tsx, entrega: DSM2, status: implementado}
   - {id: COMP-XLS, titulo: Modelos Excel e servidor MCP de Excel (empresa sem ERP), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/excel_server.py, entrega: DSM3, status: implementado}
   - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}
@@ -26,7 +26,15 @@ items:
   - {id: COMP-TRI, titulo: Trilha de acesso encadeada, realiza: [SVC-IAM], caminho: src/fin_mas/services/trilha.py, entrega: DSM3, status: implementado}
   - {id: COMP-CLA, titulo: Linha de comando de acesso e implantação, realiza: [SVC-IAM], caminho: src/fin_mas/cli_acesso.py, entrega: DSM3, status: implementado}
   - {id: COMP-PRV, titulo: Provedores de LLM (mocks, Claude, GPT, Gemini, compatível OpenAI), realiza: [SVC-MOD], caminho: src/fin_mas/services/provedores.py, entrega: DSM3, status: implementado}
-  - {id: COMP-INF, titulo: Hipóteses (proposta, validação e estados), realiza: [AG-ORC], caminho: src/fin_mas/core/inferencia.py, entrega: DSM3, status: implementado}
-  - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
+  - {id: COMP-INF, titulo: Hipóteses (proposta, validação e estados), realiza: [AG-ORC, AG-RES], caminho: src/fin_mas/core/inferencia.py, entrega: DSM3, status: implementado}
+  - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC, AG-RES], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  # ---- DSM4: especialistas cognitivos, aprendizado, perfil cognitivo e conhecimento normativo (ADR-010) ----
+  - {id: COMP-RESB, titulo: Agente de Resultados cognitivo (variante BDI), realiza: [AG-RES], caminho: src/fin_mas/agents/res_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CUSB, titulo: Agente de Custos cognitivo (variante BDI), realiza: [AG-CUS], caminho: src/fin_mas/agents/cus_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-RELB, titulo: Agente de Relatórios cognitivo (variante BDI), realiza: [AG-REL], caminho: src/fin_mas/agents/rel_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-APD, titulo: Registro selado de aprendizado das regras locais, realiza: [SVC-APD], caminho: src/fin_mas/services/aprendizado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PCG, titulo: "Perfil cognitivo por porte (pesos, público, compromisso, limiares)", realiza: [AG-RES, AG-CUS, AG-REL], caminho: src/fin_mas/cognicao/perfis.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CON, titulo: Base de conhecimento normativo com busca lexical (BM25), realiza: [SVC-MCP], caminho: src/fin_mas/conhecimento/base.py, entrega: DSM4, status: implementado}
+  - {id: COMP-MCG, titulo: Métricas da cognição dos especialistas (MET-30 e MET-31), realiza: [SVC-AUD], caminho: src/fin_mas/metricas_cognicao.py, entrega: DSM4, status: implementado}

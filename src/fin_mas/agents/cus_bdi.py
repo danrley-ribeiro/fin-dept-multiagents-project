@@ -27,9 +27,9 @@ valer), e aí o porte decide: quem pesa precisão rateia pela receita, quem pesa
 (microempresa) divide em partes iguais. O critério usado e o motivo vão para a proveniência,
 para a decisão registrada e, quando não é o padrão, para uma ressalva do fechamento.
 
-A apostila sugere precisão x tempestividade. Aqui todos os critérios se calculam no mesmo
-instante, então tempo não distingue nada; o custo real do critério mais fiel é depender de
-dado e de manutenção, e por isso o segundo desejo se chama simplicidade.
+O desenho inicial previa precisão x tempestividade. Aqui todos os critérios se calculam no
+mesmo instante, então tempo não distingue nada; o custo real do critério mais fiel é depender
+de dado e de manutenção, e por isso o segundo desejo se chama simplicidade.
 
 Sem LLM (NORM-07): nenhum texto deste agente vem de modelo.
 """

@@ -144,3 +144,24 @@ items:
     mede: [REQ-F08]
     entrega: DSM3
     status: implementado
+
+  - id: MET-30
+    titulo: Deliberação efetiva dos especialistas
+    formula: >-
+      por agente BDI e cenário, lidos do trace (`metricas_cognicao.medir_deliberacao`): deliberações com mais
+      de um plano aplicável, deliberações em que as crenças tornaram um plano não aplicável, replanejamentos após
+      falha, insistências e intenções mantidas (compromisso cego e obstinado), crenças sem fonte determinística
+    alvo: "0 crenças sem fonte; reportar por agente e comparar o resultado com o nível básico (experimento da DSM4)"
+    mede: [REQ-F20]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-31
+    titulo: Citações normativas com proveniência
+    formula: >-
+      achados e exceções fundamentados com documento, trecho e versão; declarados sem evidência; citações
+      incompletas (`metricas_cognicao.medir_fundamentacao`)
+    alvo: "0 citações incompletas; 100% dos achados com fundamento ou com 'sem evidência' declarado"
+    mede: [REQ-F21]
+    entrega: DSM4
+    status: implementado

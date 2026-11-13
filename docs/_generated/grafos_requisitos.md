@@ -12,6 +12,13 @@
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 
+### Funcional: REQ-F20 a REQ-F21
+
+```{needflow}
+:filter: id in ["NORM-02", "NORM-07", "NORM-08", "NORM-11", "NORM-20", "NORM-21", "PROT-CMP", "PROT-DEL", "PROT-QRY", "REQ-F20", "REQ-F21", "ROLE-CIN", "ROLE-CUS", "ROLE-ORC", "ROLE-REL", "ROLE-RES"]
+:link_types: assigned_to, uses_protocol, constrained_by
+```
+
 ### Segurança: REQ-S01 a REQ-S03
 
 ```{needflow}

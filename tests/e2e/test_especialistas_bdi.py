@@ -338,3 +338,25 @@ def test_model_text_goes_to_the_end_of_the_report_labelled_and_never_inside_temp
     assert not [r for r in e.audit.records if r["kind"] == "belief" and r["fonte"].startswith("llm:")]
     with pytest.raises(Exception, match="NORM-07"):  # AG-CUS segue sem LLM
         run_scenario("cus_rateio_alternativo", cognicao="llm", llm={"AG-CUS": {"provedor": "mock", "modelo": "mock-narrador"}})
+
+
+# ---- métricas (MET-30 e MET-31), lidas só do trace -------------------------------------------------
+def test_deliberation_and_grounding_metrics_are_read_from_the_trace():
+    from fin_mas import metricas_cognicao
+    rateio = metricas_cognicao.medir_deliberacao(run_scenario("cus_rateio_alternativo"))
+    assert rateio["AG-CUS"]["replanejamentos"] == 1 and rateio["AG-CUS"]["com_alternativa"] >= 2
+    assert rateio["AG-RES"]["com_recusa"] >= 1 and rateio["AG-REL"]["deliberacoes"] == 1
+    assert all(m["crencas_sem_fonte"] == 0 for m in rateio.values())
+    insumo = metricas_cognicao.medir_deliberacao(run_scenario("res_insumo_faltante"))
+    assert insumo["AG-RES"]["replanejamentos"] == 2
+    basico = metricas_cognicao.medir_deliberacao(run_scenario("cus_rateio_alternativo", cognicao="basico"))
+    assert not set(basico) & set(BDI_NOVOS)  # no braço básico esses três não deliberam
+    cego = metricas_cognicao.medir_deliberacao(run_scenario("compromisso_cego"))["AG-ORC"]
+    aberto = metricas_cognicao.medir_deliberacao(run_scenario("compromisso_aberto"))["AG-ORC"]
+    assert (cego["insistencias"], cego["mantidas"], cego["abandonadas"]) == (1, 1, 0)
+    assert (aberto["insistencias"], aberto["mantidas"], aberto["abandonadas"]) == (0, 0, 1)
+    com = metricas_cognicao.medir_fundamentacao(run_scenario("normas_fundamentam_achado"))
+    sem = metricas_cognicao.medir_fundamentacao(run_scenario("normas_sem_evidencia"))
+    assert com["fundamentados"] >= 2 and com["citacoes_incompletas"] == 0 and com["buscas"] >= 2
+    assert sem["sem_evidencia"] >= 2 and sem["citacoes_incompletas"] == 0
+    assert metricas_cognicao.medir_fundamentacao(run_scenario("normas_sem_evidencia", cognicao="basico"))["buscas"] == 0

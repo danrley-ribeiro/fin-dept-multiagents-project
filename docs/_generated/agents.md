@@ -48,28 +48,31 @@
 :pursues: G-02
 :uses_resource: ENV-ERP, ENV-BD
 
-**Cognição:** Deliberativo determinístico (regras de rateio + cálculo)  
+**Cognição:** Dois níveis (ADR-010). Básico: reativo determinístico (rateio fixo + cálculo), mantido como braço de comparação. Local e llm: BDI, com crenças sobre o direcionador de rateio do período (ok, ausente, inconsistente) e a receita por unidade, desejo de definir o critério de rateio e quatro planos alternativos (padrão, última tabela aprovada, proporcional à receita, igualitário) escolhidos pela utilidade de precisão e simplicidade do porte; o plano padrão falha ao perceber um direcionador inutilizável e o agente replaneja  
 **LLM:** nao_permitido
 
 **Percepções**
 
 - Request de apuração (competência, entidade, dimensão)
-- Query-ref do Agente de Resultados
+- Query-ref do Agente de Resultados (custos por UN; custos fixos por centro, na variante BDI)
 - Balancete e lançamentos via MCP
+- Direcionadores de rateio do período e perfil cognitivo do porte via MCP (só na variante BDI)
 
 **Estado interno (crenças)**
 
 - Custos apurados do período e versão do rateio aplicado
 - Pendências de dados de origem
+- Crenças sobre o direcionador, critério de rateio adotado e motivo (variante BDI)
 
 **Conhecimento**
 
 - Critérios de rateio e classificação fixo/variável
-- Memória aprovada de ciclos anteriores
+- Última tabela de rateio aprovada (rateio-v1) e pesos dos desejos permanentes (precisão, simplicidade)
 
 **Ações**
 
 - Calcular margem de contribuição e rentabilidade
+- Escolher o critério de rateio e registrar o critério e o motivo (proveniência, decisão e ressalva)
 - Responder inform com proveniência
 - Responder failure com dado ausente
 
@@ -97,6 +100,8 @@
 - Timeout da própria consulta
 - Texto livre da planilha de orçamento e histórico mensal por conta (só com cognição local ou LLM)
 - Resposta do Orquestrador a uma proposta de prazo
+- Correções aprovadas de competências anteriores (SVC-MEM, só leitura; só com cognição local ou LLM)
+- Confiança aprendida de cada regra local (SVC-APD)
 
 **Estado interno (crenças)**
 
@@ -132,29 +137,34 @@
 :pursues: G-04
 :uses_resource: ENV-ERP, ENV-API, ENV-TOK
 
-**Cognição:** Determinístico (DRE, EBITDA, DFC, KPIs) com comentário LLM opcional  
-**LLM:** flag — Comentário analítico sobre a variação dos indicadores
+**Cognição:** Dois níveis (ADR-010). Básico: reativo determinístico (DRE, EBITDA, KPIs), mantido como braço de comparação. Local e llm: BDI, com crenças sobre a situação de cada insumo e sobre a variação do EBITDA% contra o histórico; desejos de obter insumo, explicar variação relevante e consolidar; replanejamento quando um especialista não responde (consultar de novo, dar por indisponível) e escolha entre consolidar com ressalva e falhar explicitamente pela criticidade do insumo e pelo porte; hipóteses de regras locais sobre a causa da variação, verificadas com o AG-CUS ou no histórico antes de virar explicação  
+**LLM:** flag — Comentário analítico sobre os indicadores, rotulado como texto de modelo e conferido contra os números
 
 **Percepções**
 
 - Request de consolidação de resultado
-- Inform de custos (AG-CUS) e de orçamento (AG-ORC)
+- Inform de custos (AG-CUS) e de orçamento (AG-ORC); timeout, recusa ou falha das consultas
 - Índices de mercado via MCP
+- Histórico de resultado e perfil cognitivo do porte via MCP (só na variante BDI)
+- Correções aprovadas de competências anteriores (SVC-MEM, só leitura, na variante BDI)
 
 **Estado interno (crenças)**
 
 - DRE e KPIs em construção e pendências de insumos
+- Crenças, desejos, intenções e hipóteses sobre a variação (variante BDI)
 
 **Conhecimento**
 
 - Estrutura da DRE gerencial e fórmulas de KPIs
-- Memória aprovada de fechamentos anteriores
+- Memória aprovada de fechamentos anteriores (correções)
+- Biblioteca de planos e pesos dos desejos permanentes (completude, tempestividade, explicabilidade)
 
 **Ações**
 
-- Enviar query-ref a AG-CUS e AG-ORC
-- Consolidar DRE, EBITDA, DFC e KPIs
-- Informar resultado ao Orquestrador
+- Enviar query-ref a AG-CUS e AG-ORC, e repetir a consulta que expirou se couber no prazo
+- Pedir ao AG-CUS o detalhe de custos fixos por centro para verificar uma hipótese
+- Consolidar DRE, EBITDA, DFC e KPIs, com ressalva quando falta insumo não crítico
+- Informar resultado ao Orquestrador ou falhar explicitamente
 
 **Por que é agente:** Depende de informação de outros agentes (dependência de informação) e decide quando o resultado está completo.
 ````
@@ -176,10 +186,12 @@
 - Request de verificação do pacote de fechamento
 - Lançamentos, aprovadores e conciliações via MCP
 - Waiver ou correção informados pelo Orquestrador
+- Trechos da base normativa com documento, trecho e versão (tool normas.buscar; fora do nível básico)
 
 **Estado interno (crenças)**
 
 - Crenças sobre conformidade de cada lançamento e correções percebidas
+- Fundamento normativo de cada regra violada, ou a declaração de que não há evidência
 - Intenções ativas e suspensas (aprovar, apontar, vetar com correção, vetar)
 
 **Conhecimento**
@@ -193,6 +205,7 @@
 - Sugerir correções (reaprovar, estornar, reclassificar)
 - Responder query-ref sobre lançamentos irregulares por conta
 - Reavaliar após correção
+- Citar o trecho da base normativa que fundamenta cada achado, ou declarar "sem evidência"
 
 **Por que é agente:** Autonomia de veto — sua decisão muda o espaço de opções do Orquestrador e do Agente de Relatórios.
 ````
@@ -204,28 +217,33 @@
 :llm: flag
 :realizes: ROLE-REL
 :pursues: G-06
-:uses_resource: ENV-TOK, ENV-UI
+:uses_resource: ENV-TOK, ENV-UI, ENV-NRM
 
-**Cognição:** Template determinístico + LLM opcional (híbrido)  
-**LLM:** flag — Síntese executiva e insights orientados à decisão (números vindos do núcleo)
+**Cognição:** Dois níveis (ADR-010). Básico: template determinístico único + LLM opcional, mantido como braço de comparação. Local e llm: BDI, com crenças sobre o que o período teve (correções, waivers, ressalvas, desvios, insights) e sobre o público; desejo de comunicar e três planos de estrutura (relatório de exceção, sumário executivo, relatório completo) escolhidos pela utilidade de clareza, completude e concisão do porte. O texto continua saindo de template determinístico  
+**LLM:** flag — Síntese executiva ao fim do relatório, rotulada como texto de modelo (números vindos do núcleo)
 
 **Percepções**
 
 - Request de relatório com resultados consolidados e parecer de conformidade
-- Memória aprovada relevante
+- Memória aprovada relevante (correções de competências anteriores, só leitura, na variante BDI)
+- Perfil cognitivo do porte e trechos da base normativa via MCP (só na variante BDI)
 
 **Estado interno (crenças)**
 
 - Rascunho do relatório e versão do template
+- Crenças sobre os achados do período, público e base normativa das exceções (variante BDI)
 
 **Conhecimento**
 
-- Templates de relatório executivo
-- Memória aprovada (embeddings e grafo)
+- Templates de relatório executivo, de exceção e de sumário
+- Memória aprovada (correções)
+- Pesos dos desejos permanentes (clareza, completude, concisão)
 
 **Ações**
 
+- Escolher a estrutura do relatório, a ordem das ressalvas e os insights a incluir
 - Gerar relatório por template
+- Citar a base normativa de cada exceção ou declarar que não há evidência
 - Gerar narrativa LLM (se flag ativa) e validar números
 - Propor publicação (restrita)
 

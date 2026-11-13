@@ -54,19 +54,22 @@ from fin_mas.env.dataset import Dataset
 from fin_mas.env.empresa import EMPRESA, LOGO_SVG
 from fin_mas.env.portes import PORTES, perfil
 from fin_mas.env.scenarios import CENARIOS
+from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, ficha
 from fin_mas.exportar import agentes_info, empresa_info
 from fin_mas.fontes import planilha
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
+from fin_mas.recursos import web_dist
 from fin_mas.services import consulta, explicacao, provedores
 from fin_mas.services.audit import formatar
 from fin_mas.services.iam import AcessoNegado, criar_demo
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
 
 MODELOS = {"modelo_controladoria_em_branco.xlsx": None, **{f"exemplo_{p}.xlsx": p for p in PORTES}}
+MODELOS_SEGMENTO = {f"exemplo_{s}.xlsx": s for s in SEGMENTOS if s != SEGMENTO_PADRAO}  # DSM4: média empresa
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 LIMITE_UPLOAD = 5 * 1024 * 1024
 
-WEB_DIST = Path(__file__).resolve().parents[2] / "web" / "dist"
+WEB_DIST = web_dist()  # build do dashboard: o do pacote instalado ou, no checkout, web/dist
 LOOPBACK = {"127.0.0.1", "localhost"}
 LEITURA_SEGUNDOS = 5  # tempo máximo para receber o corpo de um POST
 DESCARTE_MAXIMO = 64 * 1024  # corpo de requisição recusada que ainda é lido e descartado
@@ -98,7 +101,10 @@ def tratar(sim: Simulacao, metodo: str, caminho: str, corpo: bytes = b"") -> tup
                                        "norma_contabil": perfil(p)["norma_contabil"]} for p in PORTES]})
     if metodo == "GET" and rota == "/api/modelos":
         return _json(200, {"modelos": [{"arquivo": a, "porte": p, "descricao": "modelo em branco" if p is None
-                                        else f"exemplo preenchido ({perfil(p)['titulo']})"} for a, p in MODELOS.items()]})
+                                        else f"exemplo preenchido ({perfil(p)['titulo']})"} for a, p in MODELOS.items()]
+                           + [{"arquivo": a, "porte": "media", "segmento": seg,
+                               "descricao": f"exemplo preenchido ({ficha(seg)['titulo']}, média empresa)"}
+                              for a, seg in MODELOS_SEGMENTO.items()]})
     if metodo == "GET" and rota.startswith("/api/modelos/"):
         return _modelo(rota.rsplit("/", 1)[-1])
     if metodo == "GET" and rota == "/api/dados":
@@ -120,12 +126,12 @@ def tratar(sim: Simulacao, metodo: str, caminho: str, corpo: bytes = b"") -> tup
 
 
 def _modelo(arquivo) -> tuple[int, dict, bytes]:
-    if arquivo not in MODELOS:
+    if arquivo not in MODELOS and arquivo not in MODELOS_SEGMENTO:
         return _json(404, {"erro": f"modelo desconhecido: {arquivo}"})
-    porte = MODELOS[arquivo]
+    porte, seg = MODELOS.get(arquivo, "media"), MODELOS_SEGMENTO.get(arquivo, SEGMENTO_PADRAO)
     with tempfile.TemporaryDirectory() as tmp:
-        caminho = planilha.gerar_modelo(f"{tmp}/{arquivo}",
-                                        exemplo=Dataset(seed=42, porte=porte, plantar=("competencia",)) if porte else None)
+        exemplo = Dataset(seed=42, porte=porte, segmento=seg, plantar=("competencia",)) if porte else None
+        caminho = planilha.gerar_modelo(f"{tmp}/{arquivo}", exemplo=exemplo)
         conteudo = caminho.read_bytes()
     return 200, {"Content-Type": XLSX, "Content-Disposition": f'attachment; filename="{arquivo}"'}, conteudo
 
@@ -304,7 +310,9 @@ def tratar_protegidas(sim: Simulacao, acesso, sessao, metodo: str, caminho: str)
                                "custos": custos, "cognicao": sim.controle()["cognicao"],
                                "nao_permitidos": ["AG-ORQ", "AG-CUS", "AG-CIN"]})
         if rota == "/api/portes":
-            return _json(200, {"atual": sim.porte, "portes": {p: perfil(p) for p in PORTES}})
+            return _json(200, {"atual": sim.porte, "portes": {p: perfil(p) for p in PORTES},
+                               "segmento_atual": getattr(sim, "segmento", None),
+                               "segmentos": {seg: ficha(seg) for seg in SEGMENTOS}})
         if rota == "/api/solicitacoes":
             return _json(200, {"solicitacoes": _solicitacoes(sim)})
         if rota == "/api/aprovacoes":
@@ -632,7 +640,12 @@ class _Servidor(ThreadingHTTPServer):
 
 
 def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pasta_dados="dados/empresa",
-           pasta_acesso="dados/acesso", demo=False, cognicao=None, porte=None) -> None:
+           pasta_acesso="dados/acesso", demo=False, cognicao=None, porte=None, host="127.0.0.1",
+           segmento=None) -> None:
+    """`host`: 127.0.0.1 por padrão. `0.0.0.0` só DENTRO do contêiner (o Docker publica a porta só em
+    127.0.0.1 do hospedeiro); a checagem de `Host`/`Origin` de loopback continua valendo, então o navegador
+    entra por http://localhost e o serviço não fica aberto à rede. Exposição em rede ou nuvem está fora do
+    escopo do produto (decisão do dono do produto; ver docs/dsm4/implantacao.md)."""
     from fin_mas.services.iam import SENHA_DEMO, Acesso
     acesso = criar_demo(pasta_acesso) if demo else Acesso(pasta_acesso)
     if acesso.vazio():
@@ -640,11 +653,12 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
                          f"`python -m fin_mas acesso iniciar --acesso {pasta_acesso}` ou suba com --demo")
     sim = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick, pasta_dados=pasta_dados, acesso=acesso,
                     cognicao=cognicao)
-    if porte and porte != sim.porte:  # instalação com porte escolhido: os agentes já sobem com as regras dele
-        sim._montar(cenario, seed, True, porte=porte)
+    if (porte and porte != sim.porte) or segmento:  # instalação com porte e segmento escolhidos
+        sim._montar(cenario, seed, True, porte=porte, segmento=segmento)
     sim.iniciar()
-    servidor = criar_servidor(sim, porta=porta, acesso=acesso)
-    print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)")
+    servidor = criar_servidor(sim, host=host, porta=porta, acesso=acesso)
+    print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)"
+          + (f"  [escutando em {host} dentro do contêiner]" if host != "127.0.0.1" else ""), flush=True)
     if demo:
         print(f"contas de demonstração (senha {SENHA_DEMO}): avaliador (tudo menos administrar), admin, operador, "
               "auditor, controller, elisa, carla, diego, ana, bruno")

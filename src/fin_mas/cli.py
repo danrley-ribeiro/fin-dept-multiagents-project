@@ -15,14 +15,17 @@
   python -m fin_mas run --scenario ataque_decisao_forjada            # ataques ao Approval Gate (DSM3)
   python -m fin_mas verificar trace.jsonl                            # confere a cadeia de hashes do trace
   python -m fin_mas run --scenario fechar_mes --llm mock-narrador    # síntese por LLM (offline), validada
+  python -m fin_mas run --scenario fechar_mes --porte mei --segmento comercio   # portes novos e segmento (DSM4)
+  python -m fin_mas backup --pasta dados --para backup.zip           # backup, restaurar e migrar (DSM4)
 """
 import argparse
 import sys
 
-from fin_mas import cli_acesso, implantacao
+from fin_mas import cli_acesso, implantacao, manutencao
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES
 from fin_mas.env.scenarios import CENARIOS, run_scenario
+from fin_mas.env.segmentos import SEGMENTOS
 from fin_mas.fontes.planilha import ModeloInvalido
 from fin_mas.services.audit import AuditLog, TraceAdulterado
 from fin_mas.services.modelos import USOS_POR_AGENTE, ConfiguracaoInvalida
@@ -67,7 +70,7 @@ def _run(args) -> int:
         return 2
     try:
         execucao = run_scenario(args.scenario, args.seed, porte=args.porte, pasta=args.pasta, memoria=args.memoria,
-                                llm=_config_llm(args), cognicao=args.cognicao)
+                                llm=_config_llm(args), cognicao=args.cognicao, segmento=args.segmento)
     except ModeloInvalido as e:
         print("planilha inválida:\n  " + "\n  ".join(e.erros), file=sys.stderr)
         return 2
@@ -77,6 +80,8 @@ def _run(args) -> int:
     sc = execucao.scenario
     ds = execucao.system.dataset
     print(f"cenário: {sc.nome} | seed: {args.seed if args.seed is not None else sc.seed} | {sc.descricao}")
+    if getattr(ds, "segmento", None) and ds.segmento != "software_servicos":
+        print(f"segmento: {ds.perfil_segmento['titulo']} | rateio: {ds.perfil_segmento['rateio']['direcionador']}")
     print(f"empresa: {getattr(ds, 'razao_social', '') or 'SMA'} | porte: {ds.perfil['titulo']} | "
           f"{'ERP' if ds.perfil['tem_erp'] else 'sem ERP (planilhas)'}"
           f"{' | planilha: ' + str(ds.arquivo) if hasattr(ds, 'arquivo') else ''}")
@@ -174,11 +179,12 @@ def _serve(args) -> int:
         from fin_mas.implantacao import ler_instalacao
         c = ler_instalacao(args.instalacao)
         base = Path(args.instalacao)
-        servir(c["cenario"], args.seed, c["porta"], args.ms_por_tick, str(base / "empresa"), str(base / "acesso"),
-               False, c["cognicao"], porte=c["porte"])
+        servir(c["cenario"], args.seed, args.porta if args.porta_definida else c["porta"], args.ms_por_tick,
+               str(base / "empresa"), str(base / "acesso"), False, c["cognicao"], porte=c["porte"], host=args.host,
+               segmento=args.segmento or c.get("segmento"))
         return 0
     servir(args.scenario, args.seed, args.porta, args.ms_por_tick, args.pasta_dados, args.pasta_acesso, args.demo,
-           args.cognicao)
+           args.cognicao, host=args.host, segmento=args.segmento)
     return 0
 
 
@@ -320,6 +326,8 @@ def main(argv=None) -> int:
     run.add_argument("--trace", help="grava o trace JSONL neste arquivo")
     run.add_argument("--verbose", action="store_true", help="inclui as entregas de mensagem")
     run.add_argument("--porte", choices=PORTES, default=None, help="porte da empresa (regras de models/portes.yaml)")
+    run.add_argument("--segmento", choices=SEGMENTOS, default=None,
+                     help="segmento: plano de contas, custos e rateio (models/segmentos.yaml)")
     run.add_argument("--pasta", default=None, help="pasta (ou arquivo .xlsx) com a planilha preenchida")
     run.add_argument("--memoria", default=None, help="arquivo JSON do SVC-MEM (persiste entre execuções)")
     run.add_argument("--llm", default=None, metavar="MODELO | PROVEDOR:MODELO",
@@ -351,7 +359,10 @@ def main(argv=None) -> int:
     rel.add_argument("--seed", type=int, default=None)
     rel.add_argument("--out", default="saidas")
     srv = sub.add_parser("serve", help="executa o SMA ao vivo e serve a API do dashboard")
-    srv.add_argument("--porta", type=int, default=8765)
+    srv.add_argument("--porta", type=int, default=None)
+    srv.add_argument("--host", default="127.0.0.1",
+                     help="endereço de escuta; 0.0.0.0 só dentro do contêiner (Host/Origin seguem restritos a loopback)")
+    srv.add_argument("--segmento", choices=SEGMENTOS, default=None, help="segmento da empresa simulada")
     srv.add_argument("--scenario", default="expediente_sma")
     srv.add_argument("--seed", type=int, default=None)
     srv.add_argument("--ms-por-tick", type=int, default=350)
@@ -362,6 +373,7 @@ def main(argv=None) -> int:
     srv.add_argument("--instalacao", default=None, metavar="PASTA", help="sobe a partir da pasta criada pelo `instalar`")
     cli_acesso.configurar(sub)
     implantacao.configurar(sub)
+    manutencao.configurar(sub)
     aud = sub.add_parser("auditoria", help="recorte de um trace JSONL com os filtros do dashboard")
     aud.add_argument("trace")
     for filtro in ("agente", "competencia", "tarefa", "tipo", "q"):
@@ -399,6 +411,8 @@ def main(argv=None) -> int:
     ava.add_argument("--consentimento", action="store_true", help="autoriza enviar os casos a um provedor externo")
     ava.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
+    if args.comando == "serve":  # --porta explícita vence a da instalação (contêiner publica a 8765)
+        args.porta_definida, args.porta = args.porta is not None, args.porta or 8765
     if args.comando == "list":
         for sc in CENARIOS.values():
             print(f"{sc.nome:<24} seed={sc.seed:<5} {sc.descricao}")
@@ -407,7 +421,8 @@ def main(argv=None) -> int:
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
                 "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
                 "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,
-                "instalar": implantacao.instalar, "doctor": implantacao.doctor}
+                "instalar": implantacao.instalar, "doctor": implantacao.doctor, "backup": manutencao.executar,
+                "restaurar": manutencao.executar, "migrar": manutencao.executar}
     return comandos[args.comando](args)
 
 

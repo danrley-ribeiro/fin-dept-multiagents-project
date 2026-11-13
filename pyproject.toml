@@ -18,6 +18,11 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["fin_mas._dados*"]
+
+[tool.setuptools.package-data]
+# só existe no diretório de build do `make wheel` (tools/empacotar_wheel.py); nunca versionado
+fin_mas = ["_dados/models/*.yaml", "_dados/web/*", "_dados/web/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

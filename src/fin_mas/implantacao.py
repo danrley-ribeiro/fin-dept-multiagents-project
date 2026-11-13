@@ -1,6 +1,6 @@
 """Implantação local: assistente de primeiro uso (`instalar`) e diagnóstico (`doctor`).
 
-    python -m fin_mas instalar            perguntas no terminal: porte, administrador, pasta de dados
+    python -m fin_mas instalar            perguntas no terminal: porte, segmento, administrador, pasta de dados
     python -m fin_mas instalar --demo     contas de demonstração, sem perguntas (avaliação e aula)
     python -m fin_mas doctor              confere o ambiente e o que já foi instalado
 
@@ -9,7 +9,12 @@
     <pasta>/acesso/      cadastro selado de contas e sessões e a trilha de acesso (SVC-IAM)
     <pasta>/empresa/     onde o dashboard grava a planilha da empresa
     <pasta>/modelos/     planilha modelo em branco e o exemplo preenchido do porte escolhido
-    <pasta>/instalacao.json   porte, cognição e porta escolhidos (o `serve --instalacao` lê daqui)
+    <pasta>/instalacao.json   porte, segmento, cognição e porta escolhidos (o `serve --instalacao` lê daqui)
+
+DSM4: o porte pode ser também `mei` (microempreendedor individual) ou `media_ii` (Média empresa II
+do BNDES), e o segmento (`software_servicos`, `comercio`, `servicos`, `industria`) define o plano de
+contas, a estrutura de custos e o rateio (models/segmentos.yaml). Backup, restauração e migração da
+pasta: `fin-mas backup | restaurar | migrar` (fin_mas/manutencao.py).
 
 As chaves de integridade ficam fora dessa pasta (`FIN_MAS_DIR_CHAVES` ou `~/.fin_mas/chaves`):
 copiar a pasta de dados para outra máquina não leva as chaves junto, e o cadastro copiado é
@@ -27,6 +32,8 @@ from pathlib import Path
 from fin_mas import __version__
 from fin_mas.cognicao import NIVEIS
 from fin_mas.env.portes import PORTES, perfil
+from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, ficha
+from fin_mas.recursos import models_dir, origem, web_dist
 from fin_mas.services import provedores
 from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
 from fin_mas.services.selado import pasta_de_chaves
@@ -38,6 +45,7 @@ def configurar(sub) -> None:
     ins = sub.add_parser("instalar", help="assistente de primeiro uso: pasta de dados, porte e administrador")
     ins.add_argument("--pasta", default=PASTA_PADRAO, help="pasta de dados (padrão: dados)")
     ins.add_argument("--porte", choices=PORTES, default=None)
+    ins.add_argument("--segmento", choices=SEGMENTOS, default=None, help="comércio, serviços, indústria ou o padrão")
     ins.add_argument("--cognicao", choices=NIVEIS, default=None)
     ins.add_argument("--porta", type=int, default=8765)
     ins.add_argument("--usuario", default=None, help="usuário do administrador de acesso")
@@ -64,6 +72,9 @@ def instalar(args) -> int:
     if not args.porte and sys.stdin.isatty():
         print("Portes: " + "; ".join(f"{p} = {perfil(p)['titulo']}" for p in PORTES))
     porte = args.porte or _perguntar("Porte da empresa", "media", PORTES)
+    if not args.segmento and sys.stdin.isatty():
+        print("Segmentos: " + "; ".join(f"{s} = {ficha(s)['titulo']}" for s in SEGMENTOS))
+    segmento = args.segmento or _perguntar("Segmento da empresa", SEGMENTO_PADRAO, SEGMENTOS)
     cognicao = args.cognicao or _perguntar("Nível de cognição dos agentes (basico, local, llm)", "local", NIVEIS)
     for sub in ("acesso", "empresa", "modelos"):
         (pasta / sub).mkdir(parents=True, exist_ok=True)
@@ -95,13 +106,16 @@ def instalar(args) -> int:
     from fin_mas.env.dataset import Dataset
     from fin_mas.fontes.planilha import gerar_modelo
     gerar_modelo(pasta / "modelos" / "modelo_controladoria_em_branco.xlsx")
-    gerar_modelo(pasta / "modelos" / f"exemplo_{porte}.xlsx", exemplo=Dataset(seed=42, porte=porte, plantar=("competencia",)))
+    gerar_modelo(pasta / "modelos" / f"exemplo_{porte}.xlsx",
+                 exemplo=Dataset(seed=42, porte=porte, segmento=segmento, plantar=("competencia",)))
     p = perfil(porte)
-    cenario = {"micro": "fechamento_micro", "pequena": "fechamento_pequena", "grande": "fechamento_grande"}.get(porte, "expediente_sma")
+    cenario = {"mei": "fechamento_mei", "micro": "fechamento_micro", "pequena": "fechamento_pequena",
+               "media_ii": "fechamento_media_ii", "grande": "fechamento_grande"}.get(porte, "expediente_sma")
     config = {"versao": __version__, "porte": porte, "cognicao": cognicao, "porta": args.porta, "cenario": cenario,
-              "tem_erp": p["tem_erp"], "fonte_primaria": p["fonte_primaria"]}
+              "tem_erp": p["tem_erp"], "fonte_primaria": p["fonte_primaria"], "segmento": segmento}
     (pasta / "instalacao.json").write_text(json.dumps(config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"  porte: {p['titulo']} ({'com ERP' if p['tem_erp'] else 'sem ERP: use a planilha modelo'}); cognição: {cognicao}")
+    print(f"  segmento: {ficha(segmento)['titulo']} (rateio: {ficha(segmento)['rateio']['direcionador']})")
     print(f"  modelos de planilha em {pasta / 'modelos'}")
     print("\nPronto. Para subir o escritório:")
     print(f"  python -m fin_mas serve --instalacao {pasta}")
@@ -132,10 +146,10 @@ def diagnosticar(pasta) -> list[dict]:
         tem = importlib.util.find_spec(modulo) is not None
         itens.append(_item(f"biblioteca {modulo}", "ok" if tem else ("aviso" if opcional else "erro"),
                            "instalada" if tem else f"ausente ({'opcional; ' if opcional else ''}{para})"))
-    from fin_mas.core.fsm import models_dir
     modelos = sorted(models_dir().glob("*.yaml"))
-    itens.append(_item("modelos YAML", "ok" if len(modelos) >= 14 else "erro", f"{len(modelos)} arquivo(s) em {models_dir()}"))
-    dist = Path(__file__).resolve().parents[2] / "web" / "dist" / "index.html"
+    itens.append(_item("modelos YAML", "ok" if len(modelos) >= 14 else "erro",
+                       f"{len(modelos)} arquivo(s) em {models_dir()} ({origem()})"))
+    dist = web_dist() / "index.html"
     itens.append(_item("dashboard construído", "ok" if dist.exists() else "aviso",
                        str(dist.parent) if dist.exists() else "ausente: rode `cd web && bun install && bun run build`"))
     chaves = pasta_de_chaves()
@@ -150,7 +164,8 @@ def diagnosticar(pasta) -> list[dict]:
     instalacao = pasta / "instalacao.json"
     if instalacao.exists():
         c = json.loads(instalacao.read_text(encoding="utf-8"))
-        itens.append(_item("instalação", "ok", f"porte {c['porte']}, cognição {c['cognicao']}, porta {c['porta']}"))
+        itens.append(_item("instalação", "ok", f"porte {c['porte']}, cognição {c['cognicao']}, porta {c['porta']}, "
+                                               f"segmento {c.get('segmento', SEGMENTO_PADRAO)}"))
         with socket.socket() as s:
             livre = s.connect_ex(("127.0.0.1", c["porta"])) != 0
         itens.append(_item("porta", "ok" if livre else "aviso",

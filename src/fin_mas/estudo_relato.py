@@ -10,7 +10,8 @@ from fin_mas.estudo import ABLACAO, BRACOS, CONDICOES_A, INTENCOES, ROTULOS
 CORES = dict(zip(BRACOS, ("#2a78d6", "#eb6834", "#1baf7a", "#eda100")))
 FUNDO, TEXTO, TEXTO_2, GRADE = "#fcfcfb", "#0b0b0b", "#52514e", "#d6d5d0"
 NOMES = {
-    "classificacao_correta": "Classificação correta", "conformidade_correta": "Conformidade correta",
+    "classificacao_correta": "Classificação correta", "sinalizacao_correta": "Sinalização correta (exploratória)",
+    "conformidade_correta": "Conformidade correta",
     "dre_correta": "DRE correta", "criticas_publicadas_sem_tratamento": "Críticas publicadas sem tratamento",
     "concluida": "Conclusão", "resposta_explicita": "Resposta explícita", "execucao_correta": "Execução correta",
     "degradacao_segura": "Degradação segura", "mensagens": "Mensagens", "mensagens_coordenacao": "Mensagens de coordenação",
@@ -25,7 +26,7 @@ NOMES = {
     "hipoteses_arquivadas": "Hipóteses arquivadas", "consultas_de_verificacao": "Consultas de verificação",
     "recuperacao_ticks": "Recuperação (ticks)",
 }
-FRACOES = {"classificacao_correta", "conformidade_correta", "dre_correta", "concluida", "resposta_explicita",
+FRACOES = {"classificacao_correta", "sinalizacao_correta", "conformidade_correta", "dre_correta", "concluida", "resposta_explicita",
            "execucao_correta", "degradacao_segura"}
 
 

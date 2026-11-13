@@ -69,7 +69,7 @@ CONDICOES_C = ("nominal", "perda_media", "consulta_instavel")
 CONDICOES_D = ("nominal", "combinadas_ataque")
 CHAVE = ("bloco", "braco", "condicao", "porte", "intencao", "seed", "variante")
 CAMPOS = [*CHAVE, "plantios", "perfil_aprovador", "status", "concluida", "resposta_explicita",
-          "classificacao_correta", "falsos_desvios", "desvios_omitidos", "conformidade_correta", "dre_correta",
+          "classificacao_correta", "sinalizacao_correta", "falsos_desvios", "desvios_omitidos", "conformidade_correta", "dre_correta",
           "criticas_publicadas_sem_tratamento", "criticas_corrigidas", "resultado_igual_ao_nominal",
           "execucao_correta", "degradacao_segura", "mensagens", "mensagens_coordenacao", "latencia_ticks",
           "decisoes", "distribuicao_decisoria", "reconsideracoes", "intervencoes_humanas", "aprovacoes_expiradas",
@@ -200,10 +200,12 @@ def _lista(valores) -> str:
 
 def _classificacao(sinalizadas, atribuidas, gold) -> dict:
     if sinalizadas is None:
-        return {"classificacao_correta": None, "falsos_desvios": None, "desvios_omitidos": None,
+        return {"classificacao_correta": None, "sinalizacao_correta": None, "falsos_desvios": None, "desvios_omitidos": None,
                 "sinalizadas": SEM_AVALIACAO, "atribuidas": SEM_AVALIACAO}
     sinalizadas, atribuidas = sorted(sinalizadas), sorted(atribuidas or [])
+    # `sinalizacao_correta` (só as contas sinalizadas, a definição da DSM3) não está no pré-registro: é exploratória
     return {"classificacao_correta": int(sinalizadas == gold["desvios"] and atribuidas == gold["desvios_atribuidos"]),
+            "sinalizacao_correta": int(sinalizadas == gold["desvios"]),
             "falsos_desvios": len(set(sinalizadas) - set(gold["desvios"])),
             "desvios_omitidos": len(set(gold["desvios"]) - set(sinalizadas)),
             "sinalizadas": _lista(sinalizadas), "atribuidas": _lista(atribuidas)}
@@ -486,7 +488,7 @@ def analisar(linhas) -> dict:
 
     tabelas, testes = {}, []
     # RQ1: qualidade na condição nominal
-    qualidade = ("classificacao_correta", "conformidade_correta", "dre_correta", "criticas_publicadas_sem_tratamento",
+    qualidade = ("classificacao_correta", "sinalizacao_correta", "conformidade_correta", "dre_correta", "criticas_publicadas_sem_tratamento",
                  "concluida", "resposta_explicita")
     tabelas["rq1_qualidade_nominal"] = {b: {m: descrever(a(braco=b, condicao="nominal"), m) for m in qualidade}
                                         for b in bracos}
@@ -615,7 +617,7 @@ def analisar(linhas) -> dict:
                                    "combinadas_ataque", "combinadas"))
     # RQ7: cognição local x básica
     cognicao = ("classificacao_correta", "execucao_correta", "mensagens_coordenacao", "latencia_ticks",
-                "hipoteses_confirmadas", "hipoteses_refutadas", "hipoteses_arquivadas", "consultas_de_verificacao")
+                "sinalizacao_correta", "hipoteses_confirmadas", "hipoteses_refutadas", "hipoteses_arquivadas", "consultas_de_verificacao")
     tabelas["rq7_cognicao"] = {c: {b: {m: descrever(a(braco=b, condicao=c), m) for m in cognicao}
                                    for b in ("sma_basico", "sma_local")} for c in condicoes}
     for c in ("nominal", *perdas, "combinadas"):
@@ -639,7 +641,8 @@ def analisar(linhas) -> dict:
                                "sma_local", "sma_basico"))
     # ablação (bloco C)
     C = selecionar(linhas, bloco="C")
-    ablacao = ("execucao_correta", "resposta_explicita", "concluida", "classificacao_correta", "criticas_corrigidas",
+    ablacao = ("execucao_correta", "resposta_explicita", "concluida", "classificacao_correta", "sinalizacao_correta",
+               "criticas_corrigidas",
                "publicacoes_do_periodo", "efeitos_falhos", "mensagens_coordenacao", "latencia_ticks", "reenvios",
                "negociacoes_de_prazo", "hipoteses_confirmadas")
     tabelas["ablacao"] = {v: {c: {i: {m: descrever(selecionar(C, variante=v, condicao=c, intencao=i), m) for m in ablacao}

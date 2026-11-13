@@ -30,3 +30,10 @@ items:
   - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  # ---- DSM4 (experimento redesenhado) ----
+  - {id: COMP-CAO, titulo: Modelo de falhas aleatórias por seed, realiza: [SVC-A2A], caminho: src/fin_mas/caos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PAR, titulo: Parâmetros de coordenação injetáveis, realiza: [AG-ORQ], caminho: src/fin_mas/parametros.py, entrega: DSM4, status: implementado}
+  - {id: COMP-WEQ, titulo: Workflow centralizado funcionalmente equivalente (linha de base), realiza: [SVC-POL], caminho: src/fin_mas/baseline_eq.py, entrega: DSM4, status: implementado}
+  - {id: COMP-EST, titulo: Estatística do experimento com a biblioteca padrão, realiza: [SVC-AUD], caminho: src/fin_mas/estatistica.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ESU, titulo: Experimento em blocos (desenho, medição e análise), realiza: [SVC-AUD], caminho: src/fin_mas/estudo.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ESR, titulo: Tabelas e figuras do experimento, realiza: [SVC-AUD], caminho: src/fin_mas/estudo_relato.py, entrega: DSM4, status: implementado}

@@ -187,8 +187,8 @@ IA implementou, em commits locais.
 
 ### Verificação (13/11/2026)
 
-- `python -m pytest`: 431 testes passam, offline (249 na tag `dsm3-base`).
-- `python tools/trace.py --check`: 312 objetos, 21 requisitos, 153 de 153 testes modelados executados, 0 erros.
+- `python -m pytest`: 436 testes passam, offline (249 na tag `dsm3-base`).
+- `python tools/trace.py --check`: 313 objetos, 21 requisitos, 153 de 154 testes modelados executados, 0 erros.
 - `python -m fin_mas cenarios --verificar`: 37 de 37 cenários em ordem.
 - `python -m fin_mas run --scenario ataque_acesso`: 15 de 15 ataques recusados;
   `ataque_decisao_forjada`: 14 de 14, âncora `2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e`.

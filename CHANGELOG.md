@@ -33,13 +33,15 @@ Registro por entrega.
 - Ficha do porte em `models/portes.yaml` (regime, obrigações, estrutura, calendário, papéis de acesso); as regras lidas
   pelos agentes não mudaram (normas-v2).
 - Rastreabilidade: REQ-S05, REQ-F08, NORM-11 a NORM-13, SVC-IAM, componentes novos, MET-17 e MET-18, TEST-19 e
-  TEST-91 a TEST-153 executados (312 objetos, 21 requisitos, 153 testes modelados, 0 erros).
+  TEST-91 a TEST-154 executados (313 objetos, 21 requisitos, 154 testes modelados, 0 erros).
 - Correção simulada da v0.5.0 (4ª rodada): registro do barramento fechado depois da montagem; validação do texto
   de LLM endurecida e texto de modelo rotulado como não verificado; chave de API só para destinos confiáveis
   (`FIN_MAS_LLM_URLS_CONFIAVEIS`); prazo só pelo iniciador da conversa; falha explícita para resposta malformada de
   especialista; 400 para corpo HTTP inválido; bloqueio por tentativas sem derrubar sessões; SVC-LCK com credencial;
   invariantes INV-01, 02 e 03 corrigidos (TEST-141 a 153).
-- Testes: 431 no pytest (eram 249 na tag `dsm3-base`), todos e2e, de integração ou de interface (TUI pelo Pilot do
+- Mensagem perdida depois da abertura da conversa (resposta final de especialista, parecer, correção): o barramento
+  avisa o iniciador, que reenvia uma vez ou falha de forma explícita (achado do experimento da DSM4; TEST-154).
+- Testes: 436 no pytest (eram 249 na tag `dsm3-base`), todos e2e, de integração ou de interface (TUI pelo Pilot do
   Textual); nenhum unitário novo. Playwright: 29 roteiros (9 de acesso e 6 das áreas de trabalho, novos). `make
   cenarios`, `make diagramas`, `make cobertura`, `make verificar-tudo`; `requirements-lock.txt`.
 - Diagramas novos em `entregas/dsm3/`: login e sessão, decisão atestada, ciclo de hipóteses, PROT-DEL com

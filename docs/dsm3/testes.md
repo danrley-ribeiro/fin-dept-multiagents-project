@@ -1,8 +1,8 @@
 # Testes e evidências
 
 ```bash
-python -m pytest                       # 431 testes, offline (249 na tag dsm3-base; 157 na DSM2)
-python tools/trace.py --check          # rastreabilidade: 0 erros; 153 de 153 testes modelados executados
+python -m pytest                       # 436 testes, offline (249 na tag dsm3-base; 157 na DSM2)
+python tools/trace.py --check          # rastreabilidade: 0 erros; 153 de 154 testes modelados executados
 python -m fin_mas cenarios --verificar # 37 de 37 cenários: resposta explícita, 8 invariantes, repetível
 cd web && bun run test && bun run test:e2e   # vitest (12) e Playwright no Chrome (29 roteiros)
 ```
@@ -12,12 +12,12 @@ Contagem pela coleta do pytest (13/11/2026, `python -m pytest --co`):
 | Pasta | Testes | Na tag `dsm3-base` |
 |---|---|---|
 | `tests/unit/` | 95 | 95 |
-| `tests/e2e/` | 254 | 141 |
+| `tests/e2e/` | 259 | 141 |
 | `tests/integration/` | 62 | 13 |
 | `tests/tui/` | 20 | — |
-| **Total** | **431** | **249** |
+| **Total** | **436** | **249** |
 
-A execução completa (`python -m pytest`) terminou com os 431 passando e código de saída 0. O
+A execução completa (`python -m pytest`) terminou com os 436 passando e código de saída 0. O
 catálogo de todos os cenários e roteiros, com o resultado esperado de cada um, está em
 {doc}`cenarios-de-teste`.
 
@@ -31,7 +31,7 @@ mesmos 95 da tag `dsm3-base`. O motivo é o mesmo da DSM2 revisada: o que import
 comportamento observável do sistema (mensagens, decisões, trace, respostas HTTP, telas), não a
 função isolada.
 
-## Novos na v0.5.0 (182 a mais que na tag `dsm3-base`)
+## Novos na v0.5.0 (187 a mais que na tag `dsm3-base`)
 
 | Arquivo | Testes | O que cobre |
 |---|---|---|
@@ -53,7 +53,7 @@ No dashboard: `web/e2e/acesso.spec.ts` (9 roteiros) e `web/e2e/areas.spec.ts` (6
 roteiros de uso real, mais 12 testes vitest (reducer e regra da justificativa).
 
 Rastreabilidade: TEST-19 (dashboard autenticado com filtros, especificado na DSM1) passou a
-`executado`; TEST-91 a TEST-153 são novos, todos `executado`, cada um ligado a uma função pytest
+`executado`; TEST-91 a TEST-154 são novos, todos `executado`, cada um ligado a uma função pytest
 ou a um roteiro do Playwright ou da TUI que `tools/trace.py` confere.
 
 ## Novos na primeira versão da DSM3 (histórico)

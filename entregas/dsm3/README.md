@@ -37,7 +37,7 @@ A resposta a cada ponto do feedback está em [`docs/dsm3/revisao.md`](../../docs
 | Protocolo de interação documentado | seis FSMs + [`modelos-editaveis/`](modelos-editaveis/) (validação, PROT-APR, decisão atestada, login, PROT-DEL com negociação, ciclo de hipóteses) |
 | Coordenação, negociação, cooperação ou planejamento | [`docs/dsm3/coordenacao.md`](../../docs/dsm3/coordenacao.md), [`docs/dsm3/cognicao.md`](../../docs/dsm3/cognicao.md); negociação de prazo e ação epistêmica ORC→CIN |
 | Tratamento de conflito, falha ou alternativa | [`docs/dsm3/seguranca.md`](../../docs/dsm3/seguranca.md) (modelo de ameaças, invariantes); reenvio, replanejamento, prazo, negação, reincidência, hipótese arquivada, extensão recusada, fallback de LLM |
-| Testes integrados ou cenários automatizados | `codigo/tests/` (431 testes) e `codigo/web/e2e/` (29 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
+| Testes integrados ou cenários automatizados | `codigo/tests/` (436 testes) e `codigo/web/e2e/` (29 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
 | Evidências de comportamento coletivo | traces dos 37 cenários, `docs/dsm3/resultados/` (10 seeds), cenários `ataque_decisao_forjada` e `ataque_acesso` |
 | Segurança e acesso | [`docs/dsm3/acesso.md`](../../docs/dsm3/acesso.md), [`docs/dsm3/dashboard.md`](../../docs/dsm3/dashboard.md) |
 | Implantação | [`docs/dsm3/implantacao.md`](../../docs/dsm3/implantacao.md) |
@@ -55,8 +55,8 @@ internet em tempo de execução. Para o dashboard, use o comando único descrito
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e . -r requirements-dev.txt            # Windows: .venv\Scripts\pip
-.venv/bin/python -m pytest                                     # 431 testes, offline (unit 95, e2e 254, integração 62, TUI 20)
-.venv/bin/python tools/trace.py --check                        # 312 objetos, 21 requisitos, 153 de 153 testes executados, 0 erros
+.venv/bin/python -m pytest                                     # 436 testes, offline (unit 95, e2e 259, integração 62, TUI 20)
+.venv/bin/python tools/trace.py --check                        # 313 objetos, 21 requisitos, 154 de 154 testes executados, 0 erros
 .venv/bin/python -m fin_mas cenarios --verificar               # 37 de 37 cenários em ordem
 cd web && bun run test && bun run test:e2e                     # vitest (12) e Playwright no Chrome (29)
 make verificar-tudo                                            # tudo acima e a documentação, parando no primeiro erro

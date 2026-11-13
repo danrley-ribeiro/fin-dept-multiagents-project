@@ -45,7 +45,7 @@ demonstração** (abaixo). Para outro modo, passe o nome dele: `.\iniciar.ps1 te
 | `ao-vivo` (padrão) | servidor Python (`serve --demo`) + dashboard com login: agentes executando agora; pausar, desligar agentes, pedir, decidir vetos, logs, LLM, trocar porte, enviar planilha, conforme os papéis da conta |
 | `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline, sem login), em `http://127.0.0.1:4173` |
 | `dev` | servidor Python (8765) + Vite com recarga automática (`http://127.0.0.1:5173`), para desenvolver o dashboard |
-| `testes` | pytest (431: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 29 roteiros de uso real no Chrome |
+| `testes` | pytest (436: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 29 roteiros de uso real no Chrome |
 | `docs` | gera a documentação Sphinx em `docs/_build/html` |
 | `cli` | roda um cenário no terminal: `--cenario veto_correcao --porte micro` |
 | `instalar` | só prepara o ambiente |
@@ -120,8 +120,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM3, v0.5.0): **21/21 requisitos (100%) com cadeia completa**, 312 objetos rastreados,
-153 testes modelados (153 **executados**), 18 métricas, 0 erros.
+Situação atual (DSM3, v0.5.0): **21/21 requisitos (100%) com cadeia completa**, 313 objetos rastreados,
+154 testes modelados (154 **executados**), 18 métricas, 0 erros.
 
 ## Como executar o protótipo (DSM3)
 
@@ -134,7 +134,7 @@ python -m fin_mas run --scenario ataque_acesso                    # 15 ataques a
 python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
-python -m pytest                                                  # 431 testes (make test)
+python -m pytest                                                  # 436 testes (make test)
 ```
 
 **Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),

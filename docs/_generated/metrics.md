@@ -177,3 +177,73 @@
 **Fórmula:** crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo  
 **Alvo:** 0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens
 ````
+
+````{metric} Robustez sob falha
+:id: MET-41
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F01
+
+**Fórmula:** execuções com resposta explícita, sem crítica publicada sem tratamento e com o mesmo resultado (status, DRE, contas sinalizadas e atribuídas, correções) da execução sem falha da mesma seed / execuções, por braço e condição  
+**Alvo:** reportar por braço e condição, com IC de 95%; comparar SMA x workflow equivalente
+````
+
+````{metric} Recuperação
+:id: MET-42
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F01
+
+**Fórmula:** ticks entre a primeira falha que atingiu a solicitação (mensagem perdida ou prazo esgotado) e a resposta final; fração das execuções atingidas que termina com o resultado da execução sem falha, e fração sem resposta  
+**Alvo:** reportar mediana e fração recuperada por condição; 0 execuções sem resposta
+````
+
+````{metric} Custo de coordenação frente ao workflow equivalente
+:id: MET-43
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F01, REQ-F04
+
+**Fórmula:** mensagens de coordenação por solicitação (todas menos as do PROT-SOL) e latência lógica em ticks, SMA x workflow centralizado funcionalmente equivalente, nas mesmas seeds  
+**Alvo:** reportar a diferença pareada por condição, com IC de 95% e tamanho de efeito
+````
+
+````{metric} Equivalência funcional da linha de base
+:id: MET-44
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F03, REQ-F05
+
+**Fórmula:** pares (porte, intenção, seed) em que o workflow equivalente e o SMA básico diferem em status, DRE, contas sinalizadas, contas atribuídas ou correções, sem falhas / pares  
+**Alvo:** 0 pares diferentes
+````
+
+````{metric} Ganho da cognição local
+:id: MET-45
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F08
+
+**Fórmula:** classificação correta com cognição local menos com cognição básica, pareada por seed, por condição e no subgrupo com desvio irregular e pista na planilha; mensagens a mais por solicitação  
+**Alvo:** reportar a diferença com IC de 95%; 0 na condição sem falhas
+````
+
+````{metric} Ataques aceitos sob falha
+:id: MET-46
+:entrega: DSM4
+:status: implementado
+:measures: REQ-S04, REQ-S05
+
+**Fórmula:** ataques ao Approval Gate e ao controle de acesso aceitos / tentados, com perda, atraso, indisponibilidade e humano lento ao mesmo tempo; à parte, os aceitos em que a premissa do ataque não vale nos dados sorteados  
+**Alvo:** 0 aceitos indevidamente
+````
+
+````{metric} Violações de invariantes sob falha
+:id: MET-47
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F01, REQ-O01
+
+**Fórmula:** execuções do SMA em que o verificador de invariantes acusa violação, por invariante e por condição do experimento  
+**Alvo:** 0 (o experimento mede a frequência do INV-07 sob perda de mensagens)
+````

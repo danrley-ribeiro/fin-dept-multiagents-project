@@ -458,11 +458,17 @@ def comparar_grupos(familia, rotulo, metrica, a, b, nome_a, nome_b) -> dict:
 
 
 def ajustar(testes) -> list[dict]:
-    """Holm dentro de cada família; testes sem p (sem pares) ficam fora da correção."""
+    """Holm dentro de cada família.
+
+    Ficam fora da correção as comparações sem pares e as idênticas em todos os pares: pelo plano de
+    análise, sem nenhuma diferença o teste não se aplica (o resultado é relatado como identidade).
+    """
     por_familia: dict[str, list] = {}
     for t in testes:
-        if t.get("p") is not None:
+        if t.get("p") is not None and t.get("pares_diferentes") != 0:
             por_familia.setdefault(t["familia"], []).append(t)
+        else:
+            t["p_holm"], t["significativo"] = None, False
     for grupo in por_familia.values():
         for t, p in zip(grupo, estatistica.holm([t["p"] for t in grupo])):
             t["p_holm"], t["significativo"] = round(p, 6), p < ALFA

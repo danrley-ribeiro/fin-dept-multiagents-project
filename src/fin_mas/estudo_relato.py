@@ -142,7 +142,8 @@ def testes_md(resumo) -> str:
     out = ["<!-- gerado por `python -m fin_mas experimento`; não editar à mão -->",
            "Testes bilaterais sobre a média por seed (Wilcoxon pareado) ou sobre execuções (Mann-Whitney). "
            "`p (Holm)` é o p ajustado dentro da família; `sig.` marca p (Holm) < 0,05. A diferença é a − b. "
-           "Efeito: delta de Cliff (desprezível < 0,147; pequeno < 0,33; médio < 0,474; grande acima).", ""]
+           "Efeito: delta de Cliff (desprezível < 0,147; pequeno < 0,33; médio < 0,474; grande acima). Comparações "
+           "idênticas em todos os pares não são testadas nem entram na correção.", ""]
     familias = list(dict.fromkeys(t["familia"] for t in resumo["testes"]))
     for familia in familias:
         out += [f"**Família {familia}**", ""]

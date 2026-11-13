@@ -107,7 +107,7 @@ def test_summary_and_tests_are_recomputed_from_the_raw_rows(rodadas):
     x, y = [sma[s] for s in sorted(sma)], [wf[s] for s in sorted(wf)]
     assert teste["media_a"] == round(sum(x) / len(x), 4) and teste["media_b"] == round(sum(y) / len(y), 4)
     assert teste["p"] == round(estatistica.wilcoxon_pareado(x, y)["p"], 6) and teste["cliff"] == round(estatistica.cliff(x, y), 4)
-    familia = [t for t in gravado["testes"] if t["familia"] == "RQ2" and t["p"] is not None]
+    familia = [t for t in gravado["testes"] if t["familia"] == "RQ2" and t["p"] is not None and t["pares_diferentes"]]
     assert [t["p_holm"] for t in familia] == [round(p, 6) for p in estatistica.holm([t["p"] for t in familia])]
     # o workflow não troca mensagens entre componentes: sob perda, o resultado é o da execução sem falha
     assert all(v == 1 for v in wf.values())

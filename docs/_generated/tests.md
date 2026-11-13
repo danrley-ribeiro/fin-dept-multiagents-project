@@ -1593,3 +1593,159 @@
 **Resultado esperado:** configurar o LLM pela interface, ver a hipótese corroborada e o uso  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_equivalent_workflow_matches_the_mas_on_the_comparable_scenarios
+:id: TEST-201
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03, REQ-F05, REQ-S01
+:derived_from: SVC-POL
+
+`test_equivalent_workflow_matches_the_mas_on_the_comparable_scenarios()` — tipo *e2e*.  
+**Resultado esperado:** sem falhas, workflow equivalente e SMA básico dão o mesmo status, DRE, classificação, correções e decisões nos 11 cenários comparáveis  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_equivalent_workflow_matches_the_mas_on_drawn_workloads
+:id: TEST-202
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03, REQ-F05
+:derived_from: SVC-POL
+
+`test_equivalent_workflow_matches_the_mas_on_drawn_workloads()` — tipo *e2e*.  
+**Resultado esperado:** a mesma igualdade nas cargas sorteadas do experimento, nos quatro portes e nas duas intenções  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_equivalent_workflow_has_one_controller_and_only_approval_messages
+:id: TEST-203
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S01
+:derived_from: PROT-APR
+
+`test_equivalent_workflow_has_one_controller_and_only_approval_messages()` — tipo *e2e*.  
+**Resultado esperado:** um só componente decide; as únicas mensagens são as do Approval Gate; correção só com aprovação  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_equivalence_stops_where_messages_can_be_lost_and_the_minimal_workflow_never_was_equivalent
+:id: TEST-204
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F01, REQ-F05
+:derived_from: PROT-DEL
+
+`test_equivalence_stops_where_messages_can_be_lost_and_the_minimal_workflow_never_was_equivalent()` — tipo *e2e*.  
+**Resultado esperado:** com perda de mensagens o SMA falha e o workflow publica; o workflow mínimo publica a crítica que os outros vetam  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_chaos_and_parameters_change_nothing_by_default
+:id: TEST-205
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-A2A
+
+`test_chaos_and_parameters_change_nothing_by_default()` — tipo *e2e*.  
+**Resultado esperado:** sem modelo de falhas e com os parâmetros padrão, o hash do trace é o de sempre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_same_seed_repeats_the_run_and_each_factor_has_its_own_draw
+:id: TEST-206
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-A2A
+
+`test_same_seed_repeats_the_run_and_each_factor_has_its_own_draw()` — tipo *e2e*.  
+**Resultado esperado:** mesma seed, mesmo trace; ligar uma falha não muda plantios, perfil do aprovador nem os dados  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_random_loss_and_outages_reach_the_bus_and_every_silence_is_flagged
+:id: TEST-207
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F01, REQ-O01
+:derived_from: SVC-A2A
+
+`test_random_loss_and_outages_reach_the_bus_and_every_silence_is_flagged()` — tipo *e2e*.  
+**Resultado esperado:** perdas e indisponibilidades chegam ao barramento; solicitação sem resposta é acusada pelo INV-07  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_slow_or_absent_approver_lets_the_ticket_expire_and_nothing_is_published
+:id: TEST-208
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S01, REQ-F05
+:derived_from: PROT-APR
+
+`test_slow_or_absent_approver_lets_the_ticket_expire_and_nothing_is_published()` — tipo *e2e*.  
+**Resultado esperado:** aprovador lento ou ausente: o ticket expira, a publicação fica bloqueada e nenhuma crítica sai  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_attacks_during_combined_failures_are_all_rejected
+:id: TEST-209
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-APR
+
+`test_attacks_during_combined_failures_are_all_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** ataques ao Approval Gate sob perda, atraso, indisponibilidade e humano lento: nenhum aceito  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_injected_parameters_change_the_coordination_they_control
+:id: TEST-210
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F01, REQ-S02, REQ-NF02
+:derived_from: PROT-DEL
+
+`test_injected_parameters_change_the_coordination_they_control()` — tipo *e2e*.  
+**Resultado esperado:** tentativas, correções, extensão de prazo, reserva, prazos e limiar mudam o comportamento e ficam no trace  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_quick_experiment_writes_every_output_and_repeats_byte_for_byte
+:id: TEST-211
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-AUD
+
+`test_quick_experiment_writes_every_output_and_repeats_byte_for_byte()` — tipo *integracao*.  
+**Resultado esperado:** o comando do experimento grava os 12 arquivos e os reproduzíveis saem idênticos numa segunda execução  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_pipeline_statistics_match_hand_computed_references
+:id: TEST-212
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-AUD
+
+`test_pipeline_statistics_match_hand_computed_references()` — tipo *integracao*.  
+**Resultado esperado:** Wilcoxon, Mann-Whitney, Cliff, Holm e descritivas gravados pelo pipeline batem com valores calculados à mão  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_summary_and_tests_are_recomputed_from_the_raw_rows
+:id: TEST-213
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01, REQ-O01
+:derived_from: SVC-AUD
+
+`test_summary_and_tests_are_recomputed_from_the_raw_rows()` — tipo *integracao*.  
+**Resultado esperado:** a análise refeita só com o execucoes.csv dá o mesmo resumo e os mesmos testes  
+**Execução:** DSM4 (status atual: executado).
+````

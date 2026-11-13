@@ -14564,7 +14564,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14588,7 +14588,7 @@
       "metrica": "conformidade_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14612,7 +14612,7 @@
       "metrica": "criticas_publicadas_sem_tratamento",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14636,7 +14636,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000427,
+      "p_holm": 0.000122,
       "pares_diferentes": 17,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14660,7 +14660,7 @@
       "metrica": "conformidade_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14684,7 +14684,7 @@
       "metrica": "criticas_publicadas_sem_tratamento",
       "n": 30,
       "p": 3e-06,
-      "p_holm": 2.7e-05,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 28,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14708,7 +14708,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000427,
+      "p_holm": 0.000122,
       "pares_diferentes": 17,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14732,7 +14732,7 @@
       "metrica": "conformidade_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14756,7 +14756,7 @@
       "metrica": "criticas_publicadas_sem_tratamento",
       "n": 30,
       "p": 3e-06,
-      "p_holm": 2.7e-05,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 28,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14780,7 +14780,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 0.001953,
-      "p_holm": 0.005859,
+      "p_holm": 0.003906,
       "pares_diferentes": 10,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14828,7 +14828,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 1e-06,
-      "p_holm": 8e-06,
+      "p_holm": 7e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14852,7 +14852,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 0.0625,
-      "p_holm": 0.125,
+      "p_holm": 0.0625,
       "pares_diferentes": 5,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14876,7 +14876,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -14900,7 +14900,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000427,
+      "p_holm": 0.000366,
       "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14924,7 +14924,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000427,
+      "p_holm": 0.000366,
       "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14948,7 +14948,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 0.000137,
-      "p_holm": 0.000548,
+      "p_holm": 0.000411,
       "pares_diferentes": 17,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14972,7 +14972,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000427,
+      "p_holm": 0.000366,
       "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14996,7 +14996,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 1.2e-05,
+      "p_holm": 6e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15020,7 +15020,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 1e-06,
-      "p_holm": 7e-06,
+      "p_holm": 4e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15044,7 +15044,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 1.2e-05,
+      "p_holm": 6e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15068,7 +15068,7 @@
       "metrica": "latencia_ticks",
       "n": 28,
       "p": 1.2e-05,
-      "p_holm": 4.8e-05,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 26,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15092,7 +15092,7 @@
       "metrica": "mensagens",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15116,7 +15116,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15140,7 +15140,7 @@
       "metrica": "registros_trace",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15206,7 +15206,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 0.000122,
-      "p_holm": 0.001464,
+      "p_holm": 0.000976,
       "pares_diferentes": 14,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15254,7 +15254,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 0.000122,
-      "p_holm": 0.001464,
+      "p_holm": 0.000976,
       "pares_diferentes": 14,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15302,7 +15302,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 0.000122,
-      "p_holm": 0.001464,
+      "p_holm": 0.000976,
       "pares_diferentes": 14,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15350,7 +15350,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15374,7 +15374,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15398,7 +15398,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15446,7 +15446,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15494,7 +15494,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 0.007812,
-      "p_holm": 0.03906,
+      "p_holm": 0.031248,
       "pares_diferentes": 8,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15518,7 +15518,7 @@
       "metrica": "latencia_ticks",
       "n": 28,
       "p": 6.1e-05,
-      "p_holm": 0.000366,
+      "p_holm": 0.000305,
       "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15542,7 +15542,7 @@
       "metrica": "concluida",
       "n": 30,
       "p": 0.25,
-      "p_holm": 0.5,
+      "p_holm": 0.25,
       "pares_diferentes": 3,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15566,7 +15566,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15590,7 +15590,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 0.03125,
-      "p_holm": 0.125,
+      "p_holm": 0.09375,
       "pares_diferentes": 6,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15614,7 +15614,7 @@
       "metrica": "concluida",
       "n": 30,
       "p": 0.125,
-      "p_holm": 0.375,
+      "p_holm": 0.25,
       "pares_diferentes": 4,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15638,7 +15638,7 @@
       "metrica": "criticas_corrigidas",
       "n": 30,
       "p": 3e-06,
-      "p_holm": 2.1e-05,
+      "p_holm": 1.8e-05,
       "pares_diferentes": 27,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15662,7 +15662,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15686,7 +15686,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15710,7 +15710,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15734,7 +15734,7 @@
       "metrica": "classificacao_correta",
       "n": 29,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15878,7 +15878,7 @@
       "metrica": "execucao_correta",
       "n": 30,
       "p": 0.0625,
-      "p_holm": 0.1875,
+      "p_holm": 0.125,
       "pares_diferentes": 5,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15926,7 +15926,7 @@
       "metrica": "criticas_corrigidas",
       "n": 30,
       "p": 1e-06,
-      "p_holm": 4e-06,
+      "p_holm": 3e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15950,7 +15950,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 1.0,
-      "p_holm": 1.0,
+      "p_holm": null,
       "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
@@ -15974,7 +15974,7 @@
       "metrica": "classificacao_correta",
       "n": 30,
       "p": 0.25,
-      "p_holm": 0.5,
+      "p_holm": 0.25,
       "pares_diferentes": 3,
       "significativo": false,
       "tipo": "Wilcoxon pareado"

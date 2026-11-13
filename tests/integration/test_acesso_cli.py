@@ -182,3 +182,25 @@ def test_verify_with_anchor_on_unchained_trace_returns_three(cli, tmp_path):
     assert cli("verificar", str(sem_cadeia), acesso=False).returncode == 1
     r = cli("verificar", str(sem_cadeia), "--ancora", "0" * 64, acesso=False)
     assert r.returncode == 3 and "não pode ser conferida" in r.stderr
+
+
+def test_revoked_or_demoted_actor_cannot_keep_administering(tmp_path, monkeypatch):
+    """Quem guarda o objeto da sessão em memória não age depois de revogado; e valem os papéis de agora."""
+    from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
+    monkeypatch.setenv("FIN_MAS_DIR_CHAVES", str(tmp_path / "chaves"))
+    a = criar_demo(tmp_path / "acesso", custo_scrypt=10)
+    adm, _ = a.autenticar("admin", SENHA_DEMO, "console")
+    outro = Acesso(tmp_path / "acesso", custo_scrypt=10)  # outro processo
+    adm2, _ = outro.autenticar("admin", SENHA_DEMO, "terminal")
+    outro.criar_conta(adm2, "segundo", "Segundo Administrador", "Outra-Senha-2026-xy", ["ROLE-ADM"], trocar_senha=False)
+    assert adm.id in outro.revogar_usuario(adm2, "admin") and adm2.id not in outro.revogar_usuario(adm2, "admin")
+    with pytest.raises(AcessoNegado, match="IAM-04"):
+        a.bloquear(adm, "bruno")  # a sessão antiga foi revogada no outro processo
+    assert a.conta("bruno")["estado"] == "ativa"
+    # rebaixado: perde o papel de administrador e, com ele, o poder de administrar, na mesma sessão
+    seg, _ = a.autenticar("segundo", "Outra-Senha-2026-xy", "console")
+    outro.atribuir_papeis(adm2, "segundo", ["ROLE-AUD"])
+    with pytest.raises(AcessoNegado, match="IAM-05"):
+        a.bloquear(seg, "bruno")
+    negadas = [(r["ator"], r["regra"]) for r in a.trilha.ler() if r["evento"] == "permissao" and r["resultado"] == "negado"]
+    assert negadas == [("admin", "IAM-04"), ("segundo", "IAM-05")]

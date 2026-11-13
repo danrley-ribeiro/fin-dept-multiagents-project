@@ -159,3 +159,84 @@ Componente implementado em `src/fin_mas/mcp/excel_server.py`.
 
 Componente implementado em `src/fin_mas/services/locks.py`.
 ````
+
+````{comp} Serviço de identidade e acesso
+:id: COMP-IAM
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/iam.py`.
+````
+
+````{comp} Arquivo selado com trava entre processos
+:id: COMP-SEL
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/selado.py`.
+````
+
+````{comp} Trilha de acesso encadeada
+:id: COMP-TRI
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/trilha.py`.
+````
+
+````{comp} Linha de comando de acesso e implantação
+:id: COMP-CLA
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/cli_acesso.py`.
+````
+
+````{comp} Provedores de LLM (mocks
+:id: COMP-PRV
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-MOD
+
+Componente implementado em `src/fin_mas/services/provedores.py`.
+````
+
+````{comp} Hipóteses (proposta
+:id: COMP-INF
+:entrega: DSM3
+:status: implementado
+:realizes: AG-ORC
+
+Componente implementado em `src/fin_mas/core/inferencia.py`.
+````
+
+````{comp} Motor local de hipóteses (regras offline)
+:id: COMP-COG
+:entrega: DSM3
+:status: implementado
+:realizes: AG-ORC
+
+Componente implementado em `src/fin_mas/cognicao/regras.py`.
+````
+
+````{comp} Verificador de invariantes do trace
+:id: COMP-INV
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/invariantes.py`.
+````
+
+````{comp} Explicação de decisões e diagrama de sequência
+:id: COMP-EXP
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/services/explicacao.py`.
+````

@@ -20,3 +20,13 @@ items:
   - {id: COMP-OBS, titulo: Execução ao vivo, servidor e dashboard do escritório, realiza: [SVC-AUD], caminho: web/src/App.tsx, entrega: DSM2, status: implementado}
   - {id: COMP-XLS, titulo: Modelos Excel e servidor MCP de Excel (empresa sem ERP), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/excel_server.py, entrega: DSM3, status: implementado}
   - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}
+  # ---- DSM3 (v0.5.0): identidade e acesso, cognição assistida, provedores de LLM, auditoria ----
+  - {id: COMP-IAM, titulo: Serviço de identidade e acesso, realiza: [SVC-IAM], caminho: src/fin_mas/services/iam.py, entrega: DSM3, status: implementado}
+  - {id: COMP-SEL, titulo: Arquivo selado com trava entre processos, realiza: [SVC-IAM], caminho: src/fin_mas/services/selado.py, entrega: DSM3, status: implementado}
+  - {id: COMP-TRI, titulo: Trilha de acesso encadeada, realiza: [SVC-IAM], caminho: src/fin_mas/services/trilha.py, entrega: DSM3, status: implementado}
+  - {id: COMP-CLA, titulo: Linha de comando de acesso e implantação, realiza: [SVC-IAM], caminho: src/fin_mas/cli_acesso.py, entrega: DSM3, status: implementado}
+  - {id: COMP-PRV, titulo: Provedores de LLM (mocks, Claude, GPT, Gemini, compatível OpenAI), realiza: [SVC-MOD], caminho: src/fin_mas/services/provedores.py, entrega: DSM3, status: implementado}
+  - {id: COMP-INF, titulo: Hipóteses (proposta, validação e estados), realiza: [AG-ORC], caminho: src/fin_mas/core/inferencia.py, entrega: DSM3, status: implementado}
+  - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
+  - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
+  - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}

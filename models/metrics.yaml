@@ -124,3 +124,23 @@ items:
     mede: [REQ-S01]
     entrega: DSM3
     status: implementado
+
+  - id: MET-17
+    titulo: Acessos indevidos aceitos
+    formula: >-
+      ataques ao controle de acesso aceitos / tentados (cenário ataque_acesso e testes de integração do
+      dashboard e da CLI); toda negação precisa aparecer no trace (`rejected`) ou na trilha de acesso
+    alvo: "0 aceitos; 100% das negações com a regra aplicada"
+    mede: [REQ-S05]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-18
+    titulo: Disciplina das hipóteses
+    formula: >-
+      crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as
+      verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo
+    alvo: "0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens"
+    mede: [REQ-F08]
+    entrega: DSM3
+    status: implementado

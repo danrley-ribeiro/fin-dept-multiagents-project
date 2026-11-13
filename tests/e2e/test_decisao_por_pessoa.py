@@ -7,6 +7,7 @@ import json
 
 import pytest
 
+from fin_mas import metricas
 from fin_mas.env.scenarios import CENARIOS, run_scenario
 
 pytestmark = pytest.mark.e2e
@@ -85,6 +86,9 @@ def test_access_attacks_are_all_rejected_and_nothing_is_published():
     assert regras["administrador de acesso acumula o papel de aprovador"] == "IAM-06"
     assert regras["administrador remove o último administrador (ele mesmo)"] == "IAM-06"
     assert {r.split(":")[0] for r in regras.values()} == {"POL-02", "POL-03", "POL-09", "POL-13", "IAM-05", "IAM-06"}
+    m = metricas.medir_acesso(e)  # MET-17
+    assert (m["ataques_tentados"], m["ataques_aceitos"], m["decisoes_aceitas"]) == (15, 0, 0)
+    assert m["decisoes_negadas_por_regra"] == {"POL-02": 2, "POL-03": 1, "POL-09": 8, "POL-13": 1}
     t = ticket(e)
     assert t["estado"] == "expirado" and t["aprovado_por"] is None and not e.system.dataset.correcoes
     assert e.resposta.performative == "failure" and e.resposta.content["publicado"] is False

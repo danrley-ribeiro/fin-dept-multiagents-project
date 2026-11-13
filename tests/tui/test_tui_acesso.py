@@ -141,12 +141,13 @@ def test_invalid_login_shows_the_error_and_stays_out(demo):
     async def roteiro(pilot):
         await entrar(pilot, "admin", "senha-errada-123", teclado=True)
         assert isinstance(pilot.app.screen, TelaEntrada) and pilot.app.sessao is None
-        assert "IAM-03" in texto(pilot, "#erro-entrada") and "usuário ou senha inválidos" in texto(pilot, "#erro-entrada")
+        assert texto(pilot, "#erro-entrada") == "acesso negado: IAM-03: usuário ou senha inválidos"
         await entrar(pilot, "ninguem", SENHA_DEMO, teclado=True)
         assert isinstance(pilot.app.screen, TelaEntrada) and "IAM-03" in texto(pilot, "#erro-entrada")
     no_console(demo, roteiro)
     negadas = [r for r in servidor(demo).trilha.ler() if r["evento"] == "entrada" and r["resultado"] == "negado"]
-    assert [(r["ator"], r["regra"], r["origem"]) for r in negadas] == [("admin", "IAM-03", "tui"), ("ninguem", "IAM-03", "tui")]
+    assert [(r["ator"], r["regra"], r["origem"]) for r in negadas] == [("admin", "IAM-03", "tui"),
+                                                                       ("ninguem", "IAM-03", "tui")]
     assert not [s for s in servidor(demo).sessoes() if s["viva"]]
 
 
@@ -180,7 +181,8 @@ def test_administrator_login_opens_the_console_and_quitting_ends_the_session(dem
         assert texto(pilot, "#status") == f"admin — Administração de Acesso [ROLE-ADM] · cadastro: {demo}"
         assert pilot.app.screen.abas == ("aba-usuarios", "aba-papeis", "aba-sessoes", "aba-trilha", "aba-traces")
         assert tabela(pilot, "#tabela-usuarios").row_count == 10 and pilot.app.focused is tabela(pilot, "#tabela-usuarios")
-        assert linha(pilot, "#tabela-usuarios", "carla")[:6] == ["carla", "Carla Mendes", "ativa", "ROLE-APR", "gerente", "carla"]
+        assert linha(pilot, "#tabela-usuarios", "carla")[:6] == ["carla", "Carla Mendes", "ativa", "ROLE-APR", "gerente",
+                                                                 "carla"]
         assert "n nova conta" in texto(pilot, "#atalhos")
         vivas = [s for s in servidor(demo).sessoes() if s["viva"]]
         assert [(s["usuario"], s["origem"]) for s in vivas] == [("admin", "tui")]
@@ -323,7 +325,8 @@ def test_blocking_an_account_drops_its_session_and_its_login(demo):
             web.autenticar("bruno", SENHA_DEMO, "web")
         await pilot.press("d")  # desbloquear não pede confirmação
         await pilot.pause()
-        assert "conta bruno desbloqueada" in texto(pilot, "#mensagem") and linha(pilot, "#tabela-usuarios", "bruno")[2] == "ativa"
+        assert "conta bruno desbloqueada" in texto(pilot, "#mensagem")
+        assert linha(pilot, "#tabela-usuarios", "bruno")[2] == "ativa"
         assert web.autenticar("bruno", SENHA_DEMO, "web")[0].usuario == "bruno"
         await pilot.press("x")
         await pilot.pause()
@@ -507,7 +510,8 @@ def test_access_trail_filters_export_integrity_and_tampering(demo, tmp_path):
         await pilot.pause()
         await pilot.press(*recorte.name, "enter")  # o campo do arquivo já vem com o foco e o padrão selecionado
         await pilot.pause()
-        assert isinstance(pilot.app.screen, TelaConsole) and "9 registro(s) exportados para recorte.jsonl" in texto(pilot, "#mensagem")
+        assert isinstance(pilot.app.screen, TelaConsole)
+        assert "9 registro(s) exportados para recorte.jsonl" in texto(pilot, "#mensagem")
         exportados = [json.loads(x) for x in recorte.read_text(encoding="utf-8").splitlines()]
         assert [r["seq"] for r in exportados] == list(range(3, 12)) and {r["evento"] for r in exportados} == {"conta_criada"}
         await pilot.press("e")  # não sobrescreve um arquivo que já existe
@@ -572,7 +576,8 @@ def test_open_a_recorded_trace_filter_explain_and_export(demo, tmp_path):
         await pilot.press("f5", "a")
         await pilot.press(*caminho.name, "enter")
         await pilot.pause()
-        assert texto(pilot, "#trace-estado").startswith(f"ÍNTEGRO — a cadeia de hashes e o selo conferem: {len(registros)} registro(s)")
+        assert texto(pilot, "#trace-estado").startswith(
+            f"ÍNTEGRO — a cadeia de hashes e o selo conferem: {len(registros)} registro(s)")
         assert texto(pilot, "#invariantes") == "invariantes: 8 conferidos, nenhuma violação"
         assert tabela(pilot, "#tabela-trace").row_count == len(registros)
         await digitar(pilot, "#trace-tipo", "decision")

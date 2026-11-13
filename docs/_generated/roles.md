@@ -5,6 +5,7 @@
 :llm: nao_aplicavel
 :played_by: STK-01
 :uses_protocol: PROT-SOL
+:grants: PERM-SIM-VER, PERM-SOL-CRIAR, PERM-DAD-VER
 
 **Responsabilidades (Resp)**
 
@@ -28,6 +29,7 @@
 :llm: nao_aplicavel
 :played_by: STK-02
 :uses_protocol: PROT-APR
+:grants: PERM-SIM-VER, PERM-APR-DECIDIR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER
 
 **Responsabilidades (Resp)**
 
@@ -42,6 +44,84 @@
 **Obrigações (Obl)**
 
 - Registrar justificativa da decisão
+````
+
+````{role} Operador da plataforma (humano)
+:id: ROLE-OPE
+:entrega: DSM3
+:status: especificado
+:llm: nao_aplicavel
+:plataforma: sim
+:played_by: STK-06
+:grants: PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-MOD-VER, PERM-AUD-VER
+
+**Responsabilidades (Resp)**
+
+- Acompanhar a execução dos agentes
+- Operar a simulação e as fontes de dados
+
+**Permissões (Perm)**
+
+- Pausar e retomar a execução
+- Ligar e desligar especialistas
+- Enviar planilhas validadas
+
+**Obrigações (Obl)**
+
+- Agir só pela interface autenticada
+- Não decidir no Approval Gate sem o papel de aprovador
+````
+
+````{role} Auditor (humano)
+:id: ROLE-AUD
+:entrega: DSM3
+:status: especificado
+:llm: nao_aplicavel
+:plataforma: sim
+:played_by: STK-04
+:grants: PERM-SIM-VER, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-MOD-VER, PERM-DAD-VER
+
+**Responsabilidades (Resp)**
+
+- Examinar decisões
+- aprovações e acessos
+- Verificar a integridade das trilhas
+
+**Permissões (Perm)**
+
+- Consultar e exportar o trace e a trilha de acesso
+- Ver a configuração de modelos
+
+**Obrigações (Obl)**
+
+- Não alterar dados nem operar a simulação
+````
+
+````{role} Administrador de acesso (humano)
+:id: ROLE-ADM
+:entrega: DSM3
+:status: especificado
+:llm: nao_aplicavel
+:plataforma: sim
+:played_by: STK-05
+:grants: PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER
+
+**Responsabilidades (Resp)**
+
+- Manter contas
+- papéis e sessões
+- Zelar pela trilha de acesso
+
+**Permissões (Perm)**
+
+- Criar e bloquear contas
+- Atribuir papéis
+- Revogar sessões
+
+**Obrigações (Obl)**
+
+- Não acumular o papel de aprovador
+- Manter ao menos um administrador ativo
 ````
 
 ````{role} Orquestrador

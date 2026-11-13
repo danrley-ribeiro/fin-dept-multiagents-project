@@ -86,10 +86,10 @@
 :id: ENV-UI
 :entrega: DSM1
 :status: especificado
-:accessed_via: SVC-POL
+:accessed_via: SVC-IAM, SVC-POL
 
 **Observabilidade:** Recebe solicitações e decisões de aprovação humanas  
 **Acionabilidade:** Exibe resultado final, pedidos de aprovação e dashboard  
 **Exclusividade:** Não exclusiva  
-**Autoridade:** Usuários autenticados (STK-01, STK-02, STK-04)
+**Autoridade:** Pessoas com conta e papel (STK-01, STK-02, STK-04, STK-05, STK-06), cada uma sob as suas permissões
 ````

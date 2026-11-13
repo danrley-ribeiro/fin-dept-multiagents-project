@@ -85,8 +85,8 @@
 :pursues: G-03
 :uses_resource: ENV-PLN, ENV-ERP, ENV-TOK
 
-**Cognição:** BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença; narrativa LLM opcional  
-**LLM:** flag — Narrativa explicativa dos desvios (sem gerar números)
+**Cognição:** BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença. Desde a DSM3, com cognição local ou LLM, recebe hipóteses validadas sobre a causa dos desvios e busca a evidência que as confirma ou refuta (desejo epistêmico verificar_hipotese), negociando prazo se preciso  
+**LLM:** flag — Propostas de hipótese (validadas e verificadas antes de mudar qualquer crença) e narrativa dos desvios (sem gerar números)
 
 **Percepções**
 
@@ -95,6 +95,8 @@
 - Orçado e realizado via MCP (planilha e ERP)
 - Inform do Agente de Controles Internos sobre lançamentos contestados
 - Timeout da própria consulta
+- Texto livre da planilha de orçamento e histórico mensal por conta (só com cognição local ou LLM)
+- Resposta do Orquestrador a uma proposta de prazo
 
 **Estado interno (crenças)**
 
@@ -113,6 +115,8 @@
 - Sinalizar desvio acima do limiar
 - Consultar o Agente de Controles Internos (query-ref)
 - Reclassificar desvio como problema de controle
+- Verificar uma hipótese (nova consulta, cálculo sobre o histórico) ou arquivá-la
+- Propor extensão de prazo ao Orquestrador
 - Projetar forecast
 - Propor alteração de orçamento (restrita)
 

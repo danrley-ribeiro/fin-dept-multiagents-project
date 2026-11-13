@@ -97,6 +97,6 @@ items:
     observabilidade: Recebe solicitações e decisões de aprovação humanas
     acionabilidade: Exibe resultado final, pedidos de aprovação e dashboard
     exclusividade: Não exclusiva
-    autoridade: Usuários autenticados (STK-01, STK-02, STK-04)
-    acesso: SVC-POL
+    autoridade: Pessoas com conta e papel (STK-01, STK-02, STK-04, STK-05, STK-06), cada uma sob as suas permissões
+    acesso: [SVC-IAM, SVC-POL]
     entrega: DSM1

@@ -133,7 +133,7 @@ Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é execut
 ````{req} Autenticidade e integridade das interações (feedback da DSM2)
 :id: REQ-S04
 :entrega: DSM3
-:status: pendente
+:status: especificado
 :categoria: Segurança
 :prioridade: Must
 :satisfies: G-09, G-05
@@ -238,10 +238,10 @@ Registrar tokens de entrada e saída, modelo e custo estimado por chamada, agreg
 :prioridade: Could
 :satisfies: G-07
 :addresses: PROB-06
-:assigned_to: ROLE-APR, ROLE-SOL
-:constrained_by: NORM-06
+:assigned_to: ROLE-APR, ROLE-SOL, ROLE-OPE, ROLE-AUD
+:constrained_by: NORM-06, NORM-12
 
-Dashboard web, mobile e desktop autenticado com filtros por agente, período, tarefa e custo sobre os logs de auditoria. Especificado na DSM1; implementação em entrega futura.
+Dashboard web autenticado, com filtros por agente, período, tarefa e custo sobre os logs de auditoria. Especificado na DSM1 e implementado na DSM3: login por pessoa, permissões por papel, aba de logs com exportação, explicação de decisões e sequência das conversas. Mobile e desktop nativos ficam fora do escopo (o dashboard web é responsivo).
 
 **Evidência observável de aceite:** Cada filtro retorna exatamente os registros do recorte em base de teste; acesso sem autenticação é negado.
 ````
@@ -309,4 +309,38 @@ O núcleo executa sem rede e sem API paga, com MCP mocks, dados sintéticos e se
 Templates de prompt, regras de conformidade e configurações de modelo têm ID e versão, registrados em cada log de decisão e de prompt.
 
 **Evidência observável de aceite:** Todo registro de log contém as versões vigentes; mudança de versão aparece no trace seguinte.
+````
+
+````{req} Identidade, sessão e autorização por pessoa
+:id: REQ-S05
+:entrega: DSM3
+:status: especificado
+:categoria: Segurança
+:prioridade: Must
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-APR, ROLE-OPE, ROLE-AUD, ROLE-SOL
+:uses_protocol: PROT-APR
+:constrained_by: NORM-10, NORM-12, NORM-13
+
+Quem usa a plataforma é uma pessoa com conta: entra com senha, recebe uma sessão com prazo, só executa o que os papéis dela permitem (negado por padrão) e tem cada comando e cada decisão registrados no seu nome. A decisão no Approval Gate vale pela pessoa autenticada (atestado de sessão), confere o cargo e a segregação de funções contra a pessoa real, e quem fez a solicitação não decide sobre ela.
+
+**Evidência observável de aceite:** Sem sessão a API responde 401; sem a permissão, 403 com a regra; decisão sem atestado, com atestado forjado, de sessão revogada, repetido, de cargo sem alçada, de pessoa envolvida ou do próprio solicitante é rejeitada e auditada; sessão revogada deixa de valer na requisição seguinte; cadastro adulterado não deixa ninguém entrar.
+````
+
+````{req} Cognição assistida por hipóteses verificáveis (local e LLM opcional)
+:id: REQ-F08
+:entrega: DSM3
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-03, G-07
+:addresses: PROB-03, PROB-06
+:assigned_to: ROLE-ORC
+:uses_protocol: PROT-QRY, PROT-DEL
+:constrained_by: NORM-05, NORM-07, NORM-11
+
+O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, se a flag estiver ligada, de um LLM. Cada proposta é validada por regras; a aceita vira hipótese, separada das crenças, e gera uma ação epistêmica (buscar a evidência, negociando prazo se preciso). Só a evidência de fonte determinística revisa a crença e muda a avaliação.
+
+**Evidência observável de aceite:** Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito; propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
 ````

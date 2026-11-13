@@ -95,3 +95,41 @@ items:
     decisao: DENY
     imposta_por: [SVC-POL]
     entrega: DSM3
+
+  - id: NORM-11
+    titulo: Proposta não é crença; só a evidência determinística muda o que o agente acredita
+    escopo: Hipóteses propostas por regras locais ou por LLM aos agentes cognitivos (AG-ORC)
+    condicao: >-
+      Proposta com tipo ou alvo fora da lista fechada, sem evidência que o agente tenha, com número ou ação no
+      texto, ou resposta de LLM fora do formato; hipótese sem evidência de outro agente, de uma tool ou de um cálculo
+    consequencia: >-
+      Proposta rejeitada e registrada com o motivo; hipótese aceita só pode gerar ação epistêmica, dentro do
+      prazo do solicitante e do teto por tarefa; sem evidência, é arquivada e a avaliação não muda
+    decisao: DENY
+    imposta_por: [SVC-MOD]
+    entrega: DSM3
+
+  - id: NORM-12
+    titulo: Acesso por pessoa autenticada, negado por padrão
+    escopo: Toda rota da API, todo comando do dashboard e toda operação de administração (SVC-IAM)
+    condicao: >-
+      Requisição sem sessão viva, sem o token CSRF da sessão, sem a permissão do papel, com papéis
+      incompatíveis, com cadastro comprometido ou após cinco senhas erradas
+    consequencia: >-
+      401 sem sessão, 403 sem permissão, com a regra IAM aplicada; conta bloqueada por 15 minutos; cadastro
+      comprometido não deixa ninguém entrar; nada é executado
+    decisao: DENY
+    imposta_por: [SVC-IAM]
+    entrega: DSM3
+
+  - id: NORM-13
+    titulo: Todo comando e toda decisão humana têm autor, e a trilha de acesso é íntegra
+    escopo: Comandos do operador, pedidos, decisões no Approval Gate e eventos de acesso
+    condicao: Ação humana sem pessoa identificada; trilha de acesso alterada, truncada ou com a cabeça inválida
+    consequencia: >-
+      O comando leva o ator no trace (registro operador) e a decisão leva a pessoa e a sessão no ticket;
+      entradas, falhas, bloqueios, revogações e mudanças de papel vão para a trilha com cadeia de hash, e a
+      verificação acusa qualquer adulteração
+    decisao: OBRIGACAO
+    imposta_por: [SVC-IAM, SVC-AUD]
+    entrega: DSM3

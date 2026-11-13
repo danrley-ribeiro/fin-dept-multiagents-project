@@ -94,7 +94,8 @@ LIMITE_LINHAS = 3000  # linhas desenhadas por tabela; o recorte exportado é sem
 # aba -> (título, permissão que dá a aba, tabela principal, atalhos mostrados em `#atalhos`)
 ABAS = {
     "aba-usuarios": ("F1 Usuários", "PERM-IAM-USUARIOS", "tabela-usuarios",
-                     "n nova conta · p papéis · v vínculo · s redefinir senha · b bloquear · d desbloquear · x desativar"),
+                     "n nova conta · p papéis · v vínculo · s redefinir senha · b bloquear · d desbloquear · "
+                     "x desativar"),
     "aba-papeis": ("F2 Papéis × permissões", "PERM-IAM-PAPEIS", "tabela-matriz",
                    "somente leitura: models/roles.yaml e models/permissions.yaml"),
     "aba-sessoes": ("F3 Sessões", "PERM-IAM-SESSOES", "tabela-sessoes",
@@ -362,7 +363,8 @@ class TelaConsole(Screen):
                 self._avisar(descrever(erro), negado=True)
                 return False
         papeis = ", ".join(sessao.papeis) or "sem papel"
-        self.query_one("#status", Static).update(f"{sessao.usuario} — {sessao.nome} [{papeis}] · cadastro: {self.app.pasta}")
+        self.query_one("#status", Static).update(f"{sessao.usuario} — {sessao.nome} [{papeis}] · "
+                                                 f"cadastro: {self.app.pasta}")
         return True
 
     def _carregar_contas(self, sessao) -> None:
@@ -385,7 +387,8 @@ class TelaConsole(Screen):
             estado = "" if c["estado"] == "ativa" else f" (conta {c['estado']})"
             par = permissoes.incompatibilidade(c["papeis"])
             if par:
-                linhas.append(f"IAM-06  {u}{estado} acumula {' e '.join(sorted(par))}: papéis que a mesma conta não pode ter")
+                linhas.append(f"IAM-06  {u}{estado} acumula {' e '.join(sorted(par))}: papéis que a mesma conta "
+                              f"não pode ter")
         for u, c in self._contas.items():
             estado = "" if c["estado"] == "ativa" else f" (conta {c['estado']})"
             if SOLICITA_E_APROVA <= set(c["papeis"]):
@@ -610,7 +613,8 @@ class TelaConsole(Screen):
         conta = self._conta_alvo("PERM-IAM-USUARIOS")
         if conta is not None:
             u = conta["usuario"]
-            self._confirmar(f"Desativar a conta {u} ({conta['nome']})? Ela deixa de entrar e as sessões abertas caem agora.",
+            self._confirmar(f"Desativar a conta {u} ({conta['nome']})? Ela deixa de entrar e as sessões abertas caem "
+                            f"agora.",
                             lambda ator: self.app.acesso.desativar(ator, u), f"conta {u} desativada")
 
     def action_minha_senha(self) -> None:
@@ -623,7 +627,8 @@ class TelaConsole(Screen):
                 self._feito("senha trocada")(True)
                 self.action_tabela()
             elif obrigatoria:
-                self.app.voltar_a_entrada("acesso negado: IAM-02: a senha temporária precisa ser trocada para usar o console")
+                self.app.voltar_a_entrada("acesso negado: IAM-02: a senha temporária precisa ser trocada para usar "
+                                          "o console")
         titulo = "Sua senha é temporária: troque para continuar (IAM-02)" if obrigatoria else "Trocar a própria senha"
         self.app.push_screen(FormTrocarSenha(lambda atual, nova: self.app.acesso.trocar_senha(self._vivo(), atual, nova),
                                              titulo), ao_fechar)
@@ -664,7 +669,8 @@ class TelaConsole(Screen):
         def revogar_todas(ator) -> None:
             for sid in vivas:
                 self.app.acesso.revogar(ator, sid)
-        self._confirmar(f"Revogar {len(vivas)} sessão(ões) viva(s) de {usuario}? A sessão deste console não entra na conta.",
+        self._confirmar(f"Revogar {len(vivas)} sessão(ões) viva(s) de {usuario}? A sessão deste console não entra "
+                        f"na conta.",
                         revogar_todas, f"{len(vivas)} sessão(ões) de {usuario} revogada(s)")
 
     # ---- ações: trilha e traces --------------------------------------------------------------
@@ -685,7 +691,7 @@ class TelaConsole(Screen):
             return
         caminho = self._texto("trace-caminho")
         if not caminho:
-            self._avisar("informe o caminho de um trace JSONL (ex.: o gravado por `python -m fin_mas run --trace`)", negado=True)
+            self._avisar("informe o caminho de um trace JSONL gravado pela simulação", negado=True)
             return
         self._trace, texto, violacoes = None, "", None
         try:
@@ -762,8 +768,8 @@ class TelaConsole(Screen):
             self._avisar(f"não foi possível explicar o registro {seq}: {erro}", negado=True)
             return
         resumo = ", ".join(f"{papel} × {n}" for papel, n in e["resumo"].items()) or "nenhum registro anterior do agente"
-        linhas = [f"por que: {e['alvo']['texto']}", f"agente {e['agente']} | conversa {e['conversa']} | tarefa {e['tarefa']}",
-                  f"cadeia: {resumo}", ""]
+        linhas = [f"por que: {e['alvo']['texto']}",
+                  f"agente {e['agente']} | conversa {e['conversa']} | tarefa {e['tarefa']}", f"cadeia: {resumo}", ""]
         linhas += [f"[{item['papel']}] {item['texto']}" for item in e["cadeia"]]
         self.query_one("#explicacao", Static).update("\n".join(linhas))
         self._avisar(f"registro {seq} explicado: {len(e['cadeia'])} registro(s) na cadeia")
@@ -781,7 +787,8 @@ class TelaConsole(Screen):
         else:
             registros, fonte, filtros = list(self._trilha_visiveis), "trilha", self._filtros_da_trilha()
             linha = lambda r: json.dumps(r, ensure_ascii=False, sort_keys=True)  # noqa: E731  (formato da CLI)
-            ressalva = "" if self._trilha_integra else " — ATENÇÃO: a trilha está ADULTERADA; o recorte é evidência, não prova"
+            ressalva = "" if self._trilha_integra else \
+                " — ATENÇÃO: a trilha está ADULTERADA; o recorte é evidência, não prova"
 
         def gravar(caminho: str):
             if not caminho:
@@ -798,7 +805,8 @@ class TelaConsole(Screen):
                                       filtros=filtros, arquivo=destino.name, origem="tui")
             return destino
         self.app.push_screen(
-            FormArquivo(gravar, f"Exportar {len(registros)} registro(s) do recorte ({fonte}) em JSONL", f"{fonte}-recorte.jsonl"),
+            FormArquivo(gravar, f"Exportar {len(registros)} registro(s) do recorte ({fonte}) em JSONL",
+                        f"{fonte}-recorte.jsonl"),
             self._feito(lambda destino: f"{len(registros)} registro(s) exportados para {destino}{ressalva}"))
 
 

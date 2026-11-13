@@ -66,3 +66,14 @@ items:
       rejeitando reservas sobrepostas.
     por_que_nao_agente: Invariante de exclusão mútua é melhor garantido por serviço simples.
     entrega: DSM1
+
+  - id: SVC-IAM
+    titulo: Identidade e Acesso
+    camada: Governança
+    responsabilidade: >-
+      Mantém contas, senhas (scrypt), sessões com prazo e revogação, papéis e permissões lidos dos modelos e a
+      trilha de acesso íntegra; emite e confere o atestado de sessão que vincula a decisão humana à pessoa.
+    por_que_nao_agente: >-
+      Autenticar e autorizar é fronteira de política, não decisão com objetivo próprio: precisa ser determinístico,
+      negado por padrão e igual para todos.
+    entrega: DSM3

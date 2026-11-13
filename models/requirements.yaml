@@ -264,17 +264,18 @@ items:
     tipo: Observabilidade
     titulo: Interface de observabilidade segura
     descricao: >-
-      Dashboard web, mobile e desktop autenticado com filtros por agente, período,
-      tarefa e custo sobre os logs de auditoria. Especificado na DSM1;
-      implementação em entrega futura.
+      Dashboard web autenticado, com filtros por agente, período, tarefa e custo sobre os logs de
+      auditoria. Especificado na DSM1 e implementado na DSM3: login por pessoa, permissões por papel,
+      aba de logs com exportação, explicação de decisões e sequência das conversas. Mobile e desktop
+      nativos ficam fora do escopo (o dashboard web é responsivo).
     evidencia: >-
       Cada filtro retorna exatamente os registros do recorte em base de teste;
       acesso sem autenticação é negado.
     objetivos: [G-07]
     problemas: [PROB-06]
-    papeis: [ROLE-APR, ROLE-SOL]
+    papeis: [ROLE-APR, ROLE-SOL, ROLE-OPE, ROLE-AUD]
     protocolos: []
-    normas: [NORM-06]
+    normas: [NORM-06, NORM-12]
     prioridade: Could
     entrega: DSM1
 
@@ -351,3 +352,45 @@ items:
     normas: [NORM-07]
     prioridade: Should
     entrega: DSM1
+
+  # ---------------- DSM3: identidade de pessoas e cognição assistida ----------------
+  - id: REQ-S05
+    tipo: Segurança
+    titulo: Identidade, sessão e autorização por pessoa
+    descricao: >-
+      Quem usa a plataforma é uma pessoa com conta: entra com senha, recebe uma sessão com prazo, só executa o
+      que os papéis dela permitem (negado por padrão) e tem cada comando e cada decisão registrados no seu nome.
+      A decisão no Approval Gate vale pela pessoa autenticada (atestado de sessão), confere o cargo e a
+      segregação de funções contra a pessoa real, e quem fez a solicitação não decide sobre ela.
+    evidencia: >-
+      Sem sessão a API responde 401; sem a permissão, 403 com a regra; decisão sem atestado, com atestado
+      forjado, de sessão revogada, repetido, de cargo sem alçada, de pessoa envolvida ou do próprio solicitante
+      é rejeitada e auditada; sessão revogada deixa de valer na requisição seguinte; cadastro adulterado não
+      deixa ninguém entrar.
+    objetivos: [G-07, G-09]
+    problemas: [PROB-06, PROB-08]
+    papeis: [ROLE-ADM, ROLE-APR, ROLE-OPE, ROLE-AUD, ROLE-SOL]
+    protocolos: [PROT-APR]
+    normas: [NORM-10, NORM-12, NORM-13]
+    prioridade: Must
+    entrega: DSM3
+
+  - id: REQ-F08
+    tipo: Funcional
+    titulo: Cognição assistida por hipóteses verificáveis (local e LLM opcional)
+    descricao: >-
+      O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, se a flag estiver ligada,
+      de um LLM. Cada proposta é validada por regras; a aceita vira hipótese, separada das crenças, e gera uma
+      ação epistêmica (buscar a evidência, negociando prazo se preciso). Só a evidência de fonte determinística
+      revisa a crença e muda a avaliação.
+    evidencia: >-
+      Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito;
+      propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é
+      idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
+    objetivos: [G-03, G-07]
+    problemas: [PROB-03, PROB-06]
+    papeis: [ROLE-ORC]
+    protocolos: [PROT-QRY, PROT-DEL]
+    normas: [NORM-05, NORM-07, NORM-11]
+    prioridade: Should
+    entrega: DSM3

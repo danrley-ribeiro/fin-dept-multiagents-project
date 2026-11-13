@@ -112,3 +112,46 @@ def medir_baseline(res: ResultadoBaseline, ds) -> dict:
         "mensagens_rejeitadas": 0,
         "trace_completo": 0,
     }
+
+
+def medir_cognicao(execucao) -> dict:
+    """MET-18: disciplina das hipóteses e custo da ação epistêmica, lidos do trace."""
+    reg = execucao.audit.records
+    eventos = [r for r in reg if r["kind"] == "hipotese"]
+    estados = {}
+    for r in eventos:
+        if r.get("hipotese") and r["evento"] in ("confirmada", "refutada", "arquivada"):
+            estados[r["hipotese"]] = r["evento"]
+    return {
+        "propostas": sum(1 for r in eventos if r["evento"] in ("aceita", "rejeitada")),
+        "propostas_rejeitadas": sum(1 for r in eventos if r["evento"] == "rejeitada"),
+        "hipoteses": sum(1 for r in eventos if r["evento"] == "aceita"),
+        "confirmadas": sum(1 for e in estados.values() if e == "confirmada"),
+        "refutadas": sum(1 for e in estados.values() if e == "refutada"),
+        "arquivadas": sum(1 for e in estados.values() if e == "arquivada"),
+        "crencas_com_fonte_de_proponente": sum(1 for r in reg if r["kind"] == "belief"
+                                               and str(r.get("fonte", "")).startswith(("local:", "llm:"))),
+        "consultas_de_verificacao": sum(1 for r in reg if r["kind"] == "link"
+                                        and str(r.get("subtarefa", "")).startswith("verificar hipótese")),
+        "negociacoes_de_prazo": sum(1 for r in reg if r["kind"] == "send" and r.get("performative") == "propose"),
+        "chamadas_llm": sum(1 for r in reg if r["kind"] == "llm_prompt"),
+        "fallbacks_llm": sum(1 for r in reg if r["kind"] == "llm_fallback"),
+    }
+
+
+def medir_acesso(execucao) -> dict:
+    """MET-17: ataques ao controle de acesso aceitos, decisões negadas por regra e decisões com pessoa."""
+    reg = execucao.audit.records
+    ataques = [x for r in reg if r["kind"] == "ataques" for x in r["resultados"]]
+    negadas = {}
+    for r in reg:
+        if r["kind"] == "rejected" and r.get("etapa") == "politica":
+            regra = str(r.get("motivo", "")).split(":")[0]
+            negadas[regra] = negadas.get(regra, 0) + 1
+    decididas = [r for r in reg if r["kind"] == "politica" and r.get("evento") == "decidido"]
+    return {
+        "ataques_tentados": len(ataques), "ataques_aceitos": sum(1 for x in ataques if x["aceito"]),
+        "decisoes_negadas_por_regra": dict(sorted(negadas.items())),
+        "decisoes_aceitas": len(decididas),
+        "decisoes_com_pessoa_e_sessao": sum(1 for r in decididas if (r.get("aprovado_por") or {}).get("sessao")),
+    }

@@ -216,14 +216,14 @@
 
 ````{test} test_dashboard_filters_and_auth
 :id: TEST-19
-:entrega: FUTURA
-:status: planejado
+:entrega: DSM3
+:status: executado
 :verifies: REQ-O04
 :derived_from: SVC-AUD
 
 `test_dashboard_filters_and_auth()` — tipo *integracao*.  
 **Resultado esperado:** filtros retornam o recorte exato; acesso anônimo negado  
-**Execução:** FUTURA (status atual: planejado).
+**Execução:** DSM3 (status atual: executado).
 ````
 
 ````{test} test_model_swap_without_redeploy
@@ -1075,5 +1075,521 @@
 
 `test_dashboard_authenticates_before_reading_the_body()` — tipo *seguranca*.  
 **Resultado esperado:** POST sem token com corpo enorme declarado ou token não-ASCII recebe 403 sem ler o corpo nem gerar exceção  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_local_hypothesis_triggers_verification_and_reclassifies
+:id: TEST-91
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: NORM-11
+
+`test_local_hypothesis_triggers_verification_and_reclassifies()` — tipo *e2e*.  
+**Resultado esperado:** a observação vira hipótese, o AG-ORC consulta de novo o AG-CIN e o desvio bate com o gabarito  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_hypothesis_never_writes_a_belief
+:id: TEST-92
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08, REQ-S03
+:derived_from: NORM-11
+
+`test_hypothesis_never_writes_a_belief()` — tipo *seguranca*.  
+**Resultado esperado:** nenhuma crença tem regra local ou LLM como fonte, em nenhum cenário cognitivo  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_false_alarm_hypothesis_is_refuted_without_extra_messages
+:id: TEST-93
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: NORM-11
+
+`test_false_alarm_hypothesis_is_refuted_without_extra_messages()` — tipo *e2e*.  
+**Resultado esperado:** hipótese refutada pela resposta que o AG-CIN já deu; nenhuma mensagem a mais  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_hypothesis_without_evidence_is_archived_and_changes_nothing
+:id: TEST-94
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: NORM-11
+
+`test_hypothesis_without_evidence_is_archived_and_changes_nothing()` — tipo *e2e*.  
+**Resultado esperado:** sem evidência a hipótese é arquivada e o resultado é igual ao do nível básico  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_calendar_pattern_is_confirmed_by_history_not_by_the_rule
+:id: TEST-95
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: NORM-11
+
+`test_calendar_pattern_is_confirmed_by_history_not_by_the_rule()` — tipo *e2e*.  
+**Resultado esperado:** padrão de calendário confirmado pelo cálculo sobre o histórico; o desvio segue sinalizado, com ressalva  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_epistemic_action_respects_requester_deadline
+:id: TEST-96
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: PROT-DEL
+
+`test_epistemic_action_respects_requester_deadline()` — tipo *e2e*.  
+**Resultado esperado:** a verificação que não cabe no prazo não é feita: o agente negocia ou arquiva e responde no prazo  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_basic_cognition_has_no_hypotheses_and_no_extra_perception
+:id: TEST-97
+:entrega: DSM3
+:status: executado
+:verifies: REQ-NF01
+:derived_from: NORM-11
+
+`test_basic_cognition_has_no_hypotheses_and_no_extra_perception()` — tipo *reprodutibilidade*.  
+**Resultado esperado:** os cenários revisados não ganham registro novo no nível básico  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_llm_hypothesis_is_verified_before_changing_the_outcome
+:id: TEST-98
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08, REQ-S03
+:derived_from: NORM-11
+
+`test_llm_hypothesis_is_verified_before_changing_the_outcome()` — tipo *e2e*.  
+**Resultado esperado:** proposta do LLM (mock) só muda a avaliação depois de o AG-CIN confirmar  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_rejected_llm_proposals_leave_the_result_identical
+:id: TEST-99
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S03
+:derived_from: NORM-11
+
+`test_rejected_llm_proposals_leave_the_result_identical()` — tipo *seguranca*.  
+**Resultado esperado:** cinco propostas inválidas rejeitadas, cada uma por uma regra; resultado idêntico ao básico  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_injected_note_cannot_change_classification
+:id: TEST-100
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S03
+:derived_from: NORM-11
+
+`test_injected_note_cannot_change_classification()` — tipo *seguranca*.  
+**Resultado esperado:** instrução embutida no texto livre é obedecida pelo modelo e recusada pela validação  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_provider_outage_opens_the_circuit_breaker_and_results_are_deterministic
+:id: TEST-101
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01
+:derived_from: SVC-MOD
+
+`test_provider_outage_opens_the_circuit_breaker_and_results_are_deterministic()` — tipo *e2e*.  
+**Resultado esperado:** duas falhas do provedor, disjuntor aberto e avaliações iguais às sem LLM  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_external_provider_without_consent_sends_nothing
+:id: TEST-102
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01
+:derived_from: NORM-06
+
+`test_external_provider_without_consent_sends_nothing()` — tipo *seguranca*.  
+**Resultado esperado:** provedor externo sem consentimento: fallback e nenhum prompt enviado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_prompt_is_pseudonymized_and_insight_restores_real_names
+:id: TEST-103
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01
+:derived_from: NORM-06
+
+`test_prompt_is_pseudonymized_and_insight_restores_real_names()` — tipo *seguranca*.  
+**Resultado esperado:** o prompt registrado leva pseudônimos; o insight volta com os nomes reais  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_true_number_under_the_wrong_label_is_rejected
+:id: TEST-104
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S03
+:derived_from: NORM-05
+
+`test_true_number_under_the_wrong_label_is_rejected()` — tipo *seguranca*.  
+**Resultado esperado:** valor verdadeiro sob a grandeza errada ou rótulo adulterado reprova o texto  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_openai_compatible_local_server_feeds_a_verified_hypothesis
+:id: TEST-105
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01
+:derived_from: SVC-MOD
+
+`test_openai_compatible_local_server_feeds_a_verified_hypothesis()` — tipo *integracao*.  
+**Resultado esperado:** provedor por HTTP em loopback propõe, o agente valida e o AG-CIN confirma  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_openai_provider_sends_key_in_header_and_never_in_the_trace
+:id: TEST-106
+:entrega: DSM3
+:status: executado
+:verifies: REQ-P01, REQ-C01
+:derived_from: NORM-06
+
+`test_openai_provider_sends_key_in_header_and_never_in_the_trace()` — tipo *integracao*.  
+**Resultado esperado:** a chave vai no cabeçalho e não aparece no trace; o corpo sai com pseudônimos  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_anthropic_sdk_request_shape_and_served_model
+:id: TEST-107
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01, REQ-O03
+:derived_from: SVC-MOD
+
+`test_anthropic_sdk_request_shape_and_served_model()` — tipo *integracao*.  
+**Resultado esperado:** requisição do SDK com saída estruturada e fallback; custo pelo modelo que serviu  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_provider_failures_fall_back_to_the_deterministic_path
+:id: TEST-108
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01
+:derived_from: SVC-MOD
+
+`test_provider_failures_fall_back_to_the_deterministic_path()` — tipo *integracao*.  
+**Resultado esperado:** 429, 500, resposta inválida, cortada ou recusada caem no fallback, sem vazar segredo  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_cli_benchmark_table_with_mock_and_with_a_local_server
+:id: TEST-109
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01
+:derived_from: SVC-MOD
+
+`test_cli_benchmark_table_with_mock_and_with_a_local_server()` — tipo *integracao*.  
+**Resultado esperado:** bancada de avaliação de LLM pela linha de comando, com mock e por HTTP  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_involved_approver_is_refused_and_another_person_decides
+:id: TEST-110
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05, REQ-S01
+:derived_from: NORM-10
+
+`test_involved_approver_is_refused_and_another_person_decides()` — tipo *e2e*.  
+**Resultado esperado:** quem criou o lançamento vetado é recusada (POL-03) e outra pessoa decide  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_requester_cannot_approve_their_own_request
+:id: TEST-111
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-10
+
+`test_requester_cannot_approve_their_own_request()` — tipo *e2e*.  
+**Resultado esperado:** quem fez a solicitação é recusada na decisão (POL-13)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_position_limits_which_decisions_a_person_can_take
+:id: TEST-112
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-10
+
+`test_position_limits_which_decisions_a_person_can_take()` — tipo *e2e*.  
+**Resultado esperado:** analista não concede waiver (POL-02); gerente concede  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_single_person_company_uses_the_registered_compensating_control
+:id: TEST-113
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-10
+
+`test_single_person_company_uses_the_registered_compensating_control()` — tipo *e2e*.  
+**Resultado esperado:** na microempresa a mesma pessoa pede e decide, com o controle compensatório anotado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_access_attacks_are_all_rejected_and_nothing_is_published
+:id: TEST-114
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05, REQ-S04
+:derived_from: NORM-12
+
+`test_access_attacks_are_all_rejected_and_nothing_is_published()` — tipo *seguranca*.  
+**Resultado esperado:** 15 ataques ao controle de acesso rejeitados; nada publicado; nenhum token no trace  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_each_role_can_only_do_what_its_permissions_allow
+:id: TEST-115
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_each_role_can_only_do_what_its_permissions_allow()` — tipo *integracao*.  
+**Resultado esperado:** matriz papel x comando pelo HTTP: 202 só para quem tem a permissão  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_decision_is_bound_to_the_logged_in_person
+:id: TEST-116
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-13
+
+`test_decision_is_bound_to_the_logged_in_person()` — tipo *integracao*.  
+**Resultado esperado:** a decisão pelo dashboard fica no ticket, no trace e na trilha com a pessoa  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_revoked_session_stops_at_once_and_closes_the_event_stream
+:id: TEST-117
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_revoked_session_stops_at_once_and_closes_the_event_stream()` — tipo *integracao*.  
+**Resultado esperado:** sessão revogada por outro processo: 401 na requisição seguinte e fluxo de eventos encerrado  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_login_lockout_and_generic_errors
+:id: TEST-118
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_login_lockout_and_generic_errors()` — tipo *seguranca*.  
+**Resultado esperado:** mesma resposta para usuário inexistente e senha errada; cinco erros bloqueiam  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_tampered_account_store_locks_everyone_out
+:id: TEST-119
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_tampered_account_store_locks_everyone_out()` — tipo *seguranca*.  
+**Resultado esperado:** cadastro alterado fora do sistema: ninguém entra  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_full_account_lifecycle_from_the_terminal
+:id: TEST-120
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_full_account_lifecycle_from_the_terminal()` — tipo *integracao*.  
+**Resultado esperado:** bootstrap, contas, papéis incompatíveis, último administrador, bloqueio e sessões pela CLI  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_access_trail_is_listed_verified_and_tampering_is_detected
+:id: TEST-121
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05, REQ-O01
+:derived_from: NORM-13
+
+`test_access_trail_is_listed_verified_and_tampering_is_detected()` — tipo *seguranca*.  
+**Resultado esperado:** trilha de acesso íntegra é aprovada; alterada ou truncada é acusada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_concurrent_writers_do_not_lose_updates
+:id: TEST-122
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_concurrent_writers_do_not_lose_updates()` — tipo *integracao*.  
+**Resultado esperado:** seis processos gravando ao mesmo tempo: nenhuma conta perdida  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_invariant_checker_flags_a_forged_trace
+:id: TEST-123
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04, REQ-O01
+:derived_from: SVC-AUD
+
+`test_invariant_checker_flags_a_forged_trace()` — tipo *seguranca*.  
+**Resultado esperado:** publicação sobre veto, efeito sem aprovação e crença de modelo são acusados  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_work_area_routes_reports_approvals_explanations_and_sequence
+:id: TEST-124
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04, REQ-O01
+:derived_from: SVC-AUD
+
+`test_work_area_routes_reports_approvals_explanations_and_sequence()` — tipo *integracao*.  
+**Resultado esperado:** relatórios, aprovações, explicação de decisão e sequência pela API  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_specialist_negotiates_deadline_and_orchestrator_accepts
+:id: TEST-125
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01
+:derived_from: PROT-DEL
+
+`test_specialist_negotiates_deadline_and_orchestrator_accepts()` — tipo *protocolo-nominal*.  
+**Resultado esperado:** propose e accept-proposal: prazo estendido, hipótese confirmada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_orchestrator_refuses_extension_when_the_period_is_reserved
+:id: TEST-126
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01, REQ-S02
+:derived_from: PROT-DEL
+
+`test_orchestrator_refuses_extension_when_the_period_is_reserved()` — tipo *protocolo-nominal*.  
+**Resultado esperado:** reject-proposal no fechamento com período reservado; entrega no prazo original  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_extended_deadline_replaces_the_original_timer
+:id: TEST-127
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01
+:derived_from: PROT-DEL
+
+`test_extended_deadline_replaces_the_original_timer()` — tipo *protocolo-nominal*.  
+**Resultado esperado:** trabalho além do prazo original, dentro do estendido, não expira  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_protocol_rejects_negotiation_out_of_order_or_by_the_wrong_role
+:id: TEST-128
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-DEL
+
+`test_protocol_rejects_negotiation_out_of_order_or_by_the_wrong_role()` — tipo *protocolo-negativo*.  
+**Resultado esperado:** proposta fora de ordem, pelo papel errado ou malformada é rejeitada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_install_creates_a_ready_data_folder_and_doctor_approves_it
+:id: TEST-129
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_install_creates_a_ready_data_folder_and_doctor_approves_it()` — tipo *integracao*.  
+**Resultado esperado:** instalação numa pasta limpa e diagnóstico sem erros  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} a decisão é da pessoa: a gerente envolvida é impedida e outro gerente decide
+:id: TEST-130
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05, REQ-O04
+:derived_from: NORM-10
+
+`a decisão é da pessoa: a gerente envolvida é impedida e outro gerente decide()` — tipo *interface*.  
+**Resultado esperado:** no navegador, a gerente envolvida vê o impedimento e outro gerente decide  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} sessão revogada pelo administrador no terminal devolve o dashboard ao login
+:id: TEST-131
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`sessão revogada pelo administrador no terminal devolve o dashboard ao login()` — tipo *interface*.  
+**Resultado esperado:** revogar pela CLI devolve o navegador à tela de login  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} logs: filtros por agente e tipo, busca, por quê e sequência da conversa
+:id: TEST-132
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O04
+:derived_from: SVC-AUD
+
+`logs: filtros por agente e tipo, busca, por quê e sequência da conversa()` — tipo *interface*.  
+**Resultado esperado:** filtros, explicação e sequência pela aba Logs  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} LLM opcional pelo dashboard: ligar o mock no AG-ORC, corroborar a hipótese e ver o custo
+:id: TEST-133
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01, REQ-F08
+:derived_from: SVC-MOD
+
+`LLM opcional pelo dashboard: ligar o mock no AG-ORC, corroborar a hipótese e ver o custo()` — tipo *interface*.  
+**Resultado esperado:** configurar o LLM pela interface, ver a hipótese corroborada e o uso  
 **Execução:** DSM3 (status atual: executado).
 ````

@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+from fin_mas import metricas
 from fin_mas.agents.cin import AgenteControlesInternos
 from fin_mas.agents.orc import AgenteOrcamento
 from fin_mas.cognicao.regras import ProponenteLocal
@@ -64,6 +65,10 @@ def test_local_hypothesis_triggers_verification_and_reclassifies():
     assert "Insight: " + conta in r["relatorio"]
     confirmada = _eventos(local, "hipotese")[-1]
     assert confirmada["fonte"] == "AG-CIN (QRY-002)"
+    # MET-18: uma hipótese, confirmada, com uma consulta a mais e nenhuma crença vinda do proponente
+    m = metricas.medir_cognicao(local)
+    assert (m["hipoteses"], m["confirmadas"], m["consultas_de_verificacao"], m["crencas_com_fonte_de_proponente"]) == (1, 1, 1, 0)
+    assert metricas.medir_cognicao(basico)["propostas"] == 0
 
 
 @pytest.mark.parametrize("nome", COGNITIVOS)

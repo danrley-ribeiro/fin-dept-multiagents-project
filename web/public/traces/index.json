@@ -1,5 +1,5 @@
 {
- "versao": "0.4.0",
+ "versao": "0.5.0",
  "cenarios": [
   {
    "nome": "fechar_mes",
@@ -85,6 +85,106 @@
    "nome": "reincidencia_waiver",
    "descricao": "Mesma violação de alçada em dois meses: o waiver de agosto vira memória; em setembro o AG-CIN cita a memória, a política nega novo waiver e o humano corrige",
    "registros": 289
+  },
+  {
+   "nome": "orc_hipotese_local",
+   "descricao": "Mesma perda de `orc_sem_cin`, com cognição local: a observação da planilha gera a hipótese de causa de controle, o AG-ORC consulta de novo o AG-CIN e o desvio é reclassificado",
+   "registros": 136
+  },
+  {
+   "nome": "hipotese_refutada",
+   "descricao": "Desvio orçamentário legítimo com um alarme falso na planilha: a hipótese de controle é conferida com a resposta que o AG-CIN já deu e refutada; o desvio segue sinalizado",
+   "registros": 145
+  },
+  {
+   "nome": "hipotese_arquivada",
+   "descricao": "AG-CIN não responde a nenhuma das duas consultas: a hipótese fica sem evidência, é arquivada e a avaliação sai igual à da cognição básica",
+   "registros": 128
+  },
+  {
+   "nome": "negociacao_prazo",
+   "descricao": "Duas consultas ao AG-CIN se perdem e a terceira não cabe no prazo: o AG-ORC negocia mais prazo com o Orquestrador, que aceita; a hipótese é confirmada e o desvio reclassificado",
+   "registros": 153
+  },
+  {
+   "nome": "negociacao_recusada",
+   "descricao": "No fechamento com período reservado o Orquestrador recusa a extensão de prazo: o AG-ORC arquiva a hipótese e entrega no prazo; o AG-CIN veta a NF duplicada depois e o estorno é aprovado",
+   "registros": 215
+  },
+  {
+   "nome": "historico_calendario",
+   "descricao": "Gasto concentrado no início do trimestre: a hipótese de efeito de calendário é conferida em todos os trimestres do histórico e entra no relatório como insight",
+   "registros": 117
+  },
+  {
+   "nome": "fechamento_hipotese_local",
+   "descricao": "Fechamento do mês com a consulta ao AG-CIN perdida: a hipótese leva o AG-ORC a consultar de novo, o AG-CIN veta a NF duplicada e o estorno aprovado destrava o fechamento",
+   "registros": 213
+  },
+  {
+   "nome": "decisao_por_pessoa",
+   "descricao": "SoD plantado por uma gerente: ela tenta decidir sobre o próprio lançamento e a política recusa (POL-03); outro gerente decide e o fechamento é publicado",
+   "registros": 154
+  },
+  {
+   "nome": "solicitante_nao_aprova",
+   "descricao": "A diretora que pediu o fechamento tenta aprovar a correção do veto: recusada (POL-13); o controller decide",
+   "registros": 154
+  },
+  {
+   "nome": "waiver_exige_cargo",
+   "descricao": "Uma analista com papel de aprovadora tenta conceder waiver: o cargo dela só corrige ou bloqueia (POL-02); a gerente concede",
+   "registros": 140
+  },
+  {
+   "nome": "micro_controle_compensatorio",
+   "descricao": "Microempresa: a mesma pessoa pede e decide. A POL-13 cede ao controle compensatório do porte, que fica anotado na decisão",
+   "registros": 150
+  },
+  {
+   "nome": "ataque_acesso",
+   "descricao": "Veto pendente sob ataque de quem controla a caixa APR mas não é a pessoa certa: sem atestado, atestado forjado, de outra decisão, de sessão revogada, replay, cargo sem alçada, aprovador envolvido, solicitante decidindo e escalada de privilégio. Tudo recusado; nada é publicado",
+   "registros": 138
+  },
+  {
+   "nome": "orc_hipotese_llm",
+   "descricao": "A planilha descreve o lançamento repetido com outras palavras: as regras locais não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
+   "registros": 139
+  },
+  {
+   "nome": "llm_hipotese_rejeitada",
+   "descricao": "O LLM (mock) devolve propostas com número inventado, alvo inexistente, tipo fora da lista, ação e evidência que o agente não tem: todas rejeitadas, nada muda",
+   "registros": 99
+  },
+  {
+   "nome": "llm_nota_injetada",
+   "descricao": "A observação da planilha traz uma instrução para o modelo; o LLM (mock) obedece e a proposta é rejeitada: texto livre é dado, não instrução",
+   "registros": 141
+  },
+  {
+   "nome": "llm_json_invalido",
+   "descricao": "O LLM (mock) responde fora do formato: fallback registrado e avaliação determinística",
+   "registros": 125
+  },
+  {
+   "nome": "llm_provedor_fora",
+   "descricao": "Provedor de LLM fora do ar em dois meses seguidos: cada chamada cai no fallback, o disjuntor abre na terceira e as avaliações saem pelo caminho determinístico",
+   "registros": 276
+  },
+  {
+   "nome": "llm_sem_consentimento",
+   "descricao": "Provedor externo configurado sem consentimento para enviar dados: nada sai da máquina e o agente segue no caminho determinístico",
+   "registros": 123
+  },
+  {
+   "nome": "llm_pseudonimos",
+   "descricao": "Envio com pseudônimos: o prompt registrado troca fornecedor e documento por rótulos e o insight volta com os nomes reais",
+   "registros": 139
+  },
+  {
+   "nome": "llm_textos_validados",
+   "descricao": "Fechamento com os três textos opcionais: narrativa do AG-ORC, comentário do AG-RES e síntese do AG-REL (mocks), cada um conferido contra os números do seu agente",
+   "registros": 185
   }
  ],
  "agentes": {
@@ -109,7 +209,7 @@
   "AG-ORC": {
    "id": "AG-ORC",
    "titulo": "Agente de Orçamento",
-   "cognicao": "BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença; narrativa LLM opcional",
+   "cognicao": "BDI deliberativo: crenças por conta e fonte, desejos gerados das crenças (fonte confiável, explicar desvio, alertar, encaminhar a controle, forecast, consolidar), biblioteca de planos com utilidade, replanejamento na falha e reconsideração por revisão de crença. Desde a DSM3, com cognição local ou LLM, recebe hipóteses validadas sobre a causa dos desvios e busca a evidência que as confirma ou refuta (desejo epistêmico verificar_hipotese), negociando prazo se preciso",
    "papeis": [
     "ROLE-ORC"
    ],

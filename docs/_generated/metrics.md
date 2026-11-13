@@ -157,3 +157,23 @@
 **Fórmula:** mensagens A2A e latência (ticks) da solicitação com e sem a decisão humana pelo PROT-APR, por cenário com veto; aprovações expiradas por solicitação  
 **Alvo:** reportar por cenário (DSM3 x DSM2); +2 mensagens por decisão humana
 ````
+
+````{metric} Acessos indevidos aceitos
+:id: MET-17
+:entrega: DSM3
+:status: implementado
+:measures: REQ-S05
+
+**Fórmula:** ataques ao controle de acesso aceitos / tentados (cenário ataque_acesso e testes de integração do dashboard e da CLI); toda negação precisa aparecer no trace (`rejected`) ou na trilha de acesso  
+**Alvo:** 0 aceitos; 100% das negações com a regra aplicada
+````
+
+````{metric} Disciplina das hipóteses
+:id: MET-18
+:entrega: DSM3
+:status: implementado
+:measures: REQ-F08
+
+**Fórmula:** crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo  
+**Alvo:** 0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens
+````

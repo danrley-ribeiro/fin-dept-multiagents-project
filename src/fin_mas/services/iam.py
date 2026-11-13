@@ -33,6 +33,7 @@ formada, vinda da caixa `APR`, não basta.
 em lote: o atestado e as regras POL valem do mesmo jeito, de forma determinística.
 """
 import base64
+import contextlib
 import hashlib
 import hmac
 import secrets
@@ -41,7 +42,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fin_mas.core import permissoes
-from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado
+from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada
 from fin_mas.services.trilha import TrilhaAcesso
 
 VERSAO = 1
@@ -140,6 +141,18 @@ class Acesso:
             self._auditar("cadastro_comprometido", None, "negado", regra="IAM-07", motivo=str(erro))
             raise AcessoNegado("IAM-07", f"cadastro de sessões comprometido: {erro}") from None
 
+    @contextlib.contextmanager
+    def _tx(self, arquivo):
+        """Transação num arquivo selado; integridade quebrada ou trava presa viram negação IAM-07 (falha fechada)."""
+        try:
+            with arquivo.transacao() as dados:
+                yield dados
+        except ArquivoComprometido as erro:
+            self._auditar("cadastro_comprometido", None, "negado", regra="IAM-07", motivo=str(erro))
+            raise AcessoNegado("IAM-07", f"cadastro comprometido: {erro}") from None
+        except TravaOcupada as erro:
+            raise AcessoNegado("IAM-07", f"cadastro em uso por outro processo, tente de novo: {erro}") from None
+
     def vazio(self) -> bool:
         return not self._ler_contas()
 
@@ -189,7 +202,7 @@ class Acesso:
         """IAM-01: cria o primeiro administrador; só funciona com o cadastro vazio."""
         self._validar_usuario(usuario)
         self._validar_senha(usuario, senha)
-        with self._contas.transacao() as dados:
+        with self._tx(self._contas) as dados:
             if dados["contas"]:
                 self._auditar("bootstrap", usuario, "negado", regra="IAM-01")
                 raise AcessoNegado("IAM-01", "já existe conta cadastrada: o primeiro administrador só é criado uma vez")
@@ -210,7 +223,7 @@ class Acesso:
         papeis = self._validar_papeis(papeis)
         if cargo is not None and cargo not in permissoes.cargos():
             raise AcessoNegado("IAM-05", f"cargo desconhecido: {cargo} (use {', '.join(permissoes.cargos())})")
-        with self._contas.transacao() as dados:
+        with self._tx(self._contas) as dados:
             if usuario in dados["contas"]:
                 raise AcessoNegado("IAM-02", f"o usuário {usuario} já existe")
             dados["contas"][usuario] = self._nova(usuario, nome, papeis, senha, pessoa_erp, cargo, trocar_senha)
@@ -219,7 +232,7 @@ class Acesso:
 
     def _alterar(self, ator: Sessao, usuario: str, permissao: str, evento: str, mudar, **campos) -> dict:
         self.exigir(ator, permissao)
-        with self._contas.transacao() as dados:
+        with self._tx(self._contas) as dados:
             conta = dados["contas"].get(usuario)
             if conta is None:
                 raise AcessoNegado("IAM-05", f"conta inexistente: {usuario}")
@@ -269,7 +282,7 @@ class Acesso:
 
     def trocar_senha(self, sessao: Sessao, atual: str, nova: str) -> None:
         self._validar_senha(sessao.usuario, nova)
-        with self._contas.transacao() as dados:
+        with self._tx(self._contas) as dados:
             conta = dados["contas"][sessao.usuario]
             if not conta["senha"] or not _confere_senha(atual, conta["senha"]):
                 self._auditar("senha_trocada", sessao.usuario, "negado", regra="IAM-02")
@@ -317,7 +330,7 @@ class Acesso:
         registro = {"id": sid, "usuario": usuario, "hash": _sha(token), "csrf": secrets.token_urlsafe(18),
                     "criada_em": round(agora, 3), "vista_em": round(agora, 3), "expira_em": round(agora + TTL_SESSAO_S, 3),
                     "origem": str(origem)[:80], "revogada": None}
-        with self._sessoes.transacao() as dados:
+        with self._tx(self._sessoes) as dados:
             for antigo in [k for k, s in dados["sessoes"].items() if s["expira_em"] < agora - 24 * 3600]:
                 del dados["sessoes"][antigo]  # limpeza: expiradas há mais de um dia
             dados["sessoes"][sid] = registro
@@ -330,7 +343,7 @@ class Acesso:
         except ArquivoComprometido as erro:
             self._auditar("cadastro_comprometido", None, "negado", regra="IAM-07", motivo=str(erro))
             raise AcessoNegado("IAM-07", f"cadastro de contas comprometido: {erro}") from None
-        return self._contas.transacao()
+        return self._tx(self._contas)
 
     @staticmethod
     def _sessao(registro: dict, conta: dict) -> Sessao:
@@ -361,7 +374,7 @@ class Acesso:
             return None
         self._vista[registro["id"]] = agora
         if agora - registro["vista_em"] > PERSISTIR_VISTA_S and not self.simulado:
-            with self._sessoes.transacao() as dados:
+            with self._tx(self._sessoes) as dados:
                 if registro["id"] in dados["sessoes"]:
                     dados["sessoes"][registro["id"]]["vista_em"] = round(agora, 3)
         return self._sessao(registro, conta)
@@ -370,6 +383,12 @@ class Acesso:
         """IAM-05: negado por padrão."""
         if sessao is None:
             raise AcessoNegado("IAM-04", "sessão ausente, expirada ou revogada")
+        atual = self.sessao_por_id(sessao.id)  # relê o cadastro: sessão revogada ou conta bloqueada não age mais,
+        if atual is None:                      # mesmo que alguém ainda guarde o objeto em memória
+            self._auditar("permissao", sessao.usuario, "negado", regra="IAM-04", permissao=permissao,
+                          motivo="sessão encerrada")
+            raise AcessoNegado("IAM-04", "sessão expirada ou revogada")
+        sessao = atual                         # e valem os papéis de agora, não os de quando entrou
         if not sessao.pode(permissao):
             self._auditar("permissao", sessao.usuario, "negado", regra="IAM-05", permissao=permissao)
             titulo = permissoes.catalogo().get(permissao, {}).get("titulo", permissao)
@@ -395,6 +414,16 @@ class Acesso:
         self._revogar([sid], f"revogada por {ator.usuario}")
         self._auditar("sessao_revogada", ator.usuario, sessao=sid)
 
+    def revogar_usuario(self, ator: Sessao, usuario: str) -> list[str]:
+        """Revoga todas as sessões vivas de um usuário de uma vez (menos a do próprio ator); devolve os ids."""
+        self.exigir(ator, "PERM-IAM-SESSOES")
+        ids = [s["id"] for s in self._ler_sessoes().values()
+               if s["usuario"] == usuario and not s["revogada"] and s["id"] != ator.id]
+        if ids:
+            self._revogar(ids, f"revogada por {ator.usuario}")
+            self._auditar("sessoes_revogadas", ator.usuario, alvo=usuario, sessoes=ids, motivo="revogação pelo administrador")
+        return ids
+
     def _revogar_de(self, usuario: str, ator: str, motivo: str) -> None:
         ids = [s["id"] for s in self._ler_sessoes().values() if s["usuario"] == usuario and not s["revogada"]]
         if ids:
@@ -402,7 +431,7 @@ class Acesso:
             self._auditar("sessoes_revogadas", ator, alvo=usuario, sessoes=ids, motivo=motivo)
 
     def _revogar(self, ids, motivo: str) -> None:
-        with self._sessoes.transacao() as dados:
+        with self._tx(self._sessoes) as dados:
             for sid in ids:
                 if sid in dados["sessoes"] and not dados["sessoes"][sid]["revogada"]:
                     dados["sessoes"][sid]["revogada"] = motivo

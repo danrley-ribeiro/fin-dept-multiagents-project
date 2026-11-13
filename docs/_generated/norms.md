@@ -97,7 +97,7 @@
 ````{norm} Só mensagem autêntica, do papel certo e bem formada muda o estado de uma conversa
 :id: NORM-09
 :entrega: DSM3
-:status: pendente
+:status: especificado
 :enforced_by: SVC-A2A
 
 **Escopo:** Toda mensagem A2A e toda transição local de FSM (SVC-A2A)  
@@ -109,11 +109,47 @@
 ````{norm} Decisão humana vinculada, com política explícita e de uso único
 :id: NORM-10
 :entrega: DSM3
-:status: pendente
+:status: especificado
 :enforced_by: SVC-POL
 
 **Escopo:** Liberação de veto (waiver) e correção no ERP (Approval Gate, SVC-POL)  
 **Condição:** Decisão sem ticket do SVC-POL, de outro aprovador, com hash de veto diferente, fora do prazo, fora das opções abertas, sem justificativa, por pessoa envolvida no lançamento, reutilizada ou repetida após waiver anterior do mesmo padrão  
 **Consequência:** Decisão rejeitada no barramento; o veto continua valendo; sem decisão válida no prazo, bloqueio  
 **Decisão:** `DENY`
+````
+
+````{norm} Proposta não é crença; só a evidência determinística muda o que o agente acredita
+:id: NORM-11
+:entrega: DSM3
+:status: especificado
+:enforced_by: SVC-MOD
+
+**Escopo:** Hipóteses propostas por regras locais ou por LLM aos agentes cognitivos (AG-ORC)  
+**Condição:** Proposta com tipo ou alvo fora da lista fechada, sem evidência que o agente tenha, com número ou ação no texto, ou resposta de LLM fora do formato; hipótese sem evidência de outro agente, de uma tool ou de um cálculo  
+**Consequência:** Proposta rejeitada e registrada com o motivo; hipótese aceita só pode gerar ação epistêmica, dentro do prazo do solicitante e do teto por tarefa; sem evidência, é arquivada e a avaliação não muda  
+**Decisão:** `DENY`
+````
+
+````{norm} Acesso por pessoa autenticada, negado por padrão
+:id: NORM-12
+:entrega: DSM3
+:status: especificado
+:enforced_by: SVC-IAM
+
+**Escopo:** Toda rota da API, todo comando do dashboard e toda operação de administração (SVC-IAM)  
+**Condição:** Requisição sem sessão viva, sem o token CSRF da sessão, sem a permissão do papel, com papéis incompatíveis, com cadastro comprometido ou após cinco senhas erradas  
+**Consequência:** 401 sem sessão, 403 sem permissão, com a regra IAM aplicada; conta bloqueada por 15 minutos; cadastro comprometido não deixa ninguém entrar; nada é executado  
+**Decisão:** `DENY`
+````
+
+````{norm} Todo comando e toda decisão humana têm autor, e a trilha de acesso é íntegra
+:id: NORM-13
+:entrega: DSM3
+:status: especificado
+:enforced_by: SVC-IAM, SVC-AUD
+
+**Escopo:** Comandos do operador, pedidos, decisões no Approval Gate e eventos de acesso  
+**Condição:** Ação humana sem pessoa identificada; trilha de acesso alterada, truncada ou com a cabeça inválida  
+**Consequência:** O comando leva o ator no trace (registro operador) e a decisão leva a pessoa e a sessão no ticket; entradas, falhas, bloqueios, revogações e mudanças de papel vão para a trilha com cadeia de hash, e a verificação acusa qualquer adulteração  
+**Decisão:** `OBRIGACAO`
 ````

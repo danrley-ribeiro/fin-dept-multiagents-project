@@ -35,9 +35,9 @@ stateDiagram-v2
 :status: especificado
 :participants: ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL
 
-**Propósito:** Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by.  
+**Propósito:** Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by. Desde a DSM3 o especialista pode negociar o prazo: em vez de estourar o tempo, propõe uma extensão justificada (propose) e o Orquestrador aceita, com o novo prazo, ou recusa, e o especialista segue com o que tem.  
 **Meio:** SVC-A2A  
-**Performativos:** request, agree, refuse, inform, failure
+**Performativos:** request, agree, refuse, inform, failure, propose, accept-proposal, reject-proposal
 
 **Diagrama: Máquina de estados PROT-DEL** (`entregas/dsm1/modelos-editaveis/protocols_fsm_PROT-DEL.mmd`)
 
@@ -51,6 +51,10 @@ stateDiagram-v2
     EM_EXECUCAO --> CONCLUIDA: inform
     EM_EXECUCAO --> FALHOU: failure
     EM_EXECUCAO --> EXPIRADA: timeout
+    EM_EXECUCAO --> NEGOCIANDO: propose
+    NEGOCIANDO --> EM_EXECUCAO: accept-proposal
+    NEGOCIANDO --> EM_EXECUCAO: reject-proposal
+    NEGOCIANDO --> EXPIRADA: timeout
     CONCLUIDA --> [*]
     FALHOU --> [*]
     RECUSADA --> [*]
@@ -61,6 +65,9 @@ stateDiagram-v2
 
 - `AGUARDANDO` + `inform` → rejeitar (resultado antes de agree)
 - `EXPIRADA` + `inform` → rejeitar (resposta após reply_by é descartada)
+- `AGUARDANDO` + `propose` → rejeitar (proposta de prazo antes de agree)
+- `NEGOCIANDO` + `inform` → rejeitar (resultado com proposta de prazo ainda sem resposta)
+- `NEGOCIANDO` + `propose` → rejeitar (segunda proposta antes da resposta à primeira)
 ````
 
 ````{prot} Consulta entre especialistas (FIPA-Query-Ref via A2A)
@@ -157,7 +164,7 @@ stateDiagram-v2
 ````{prot} Approval Gate (human-in-the-loop)
 :id: PROT-APR
 :entrega: DSM3
-:status: pendente
+:status: especificado
 :participants: ROLE-ORQ, ROLE-APR, SVC-POL
 
 **Propósito:** Reter ações restritas (waiver de veto, correção no ERP) até decisão humana explícita, vinculada à solicitação, ao veto (hash dos achados), à identidade do aprovador e a um prazo; cada aprovação é de uso único.  

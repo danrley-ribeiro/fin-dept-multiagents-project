@@ -103,6 +103,9 @@ A 4ª rodada da correção simulada ({doc}`revisao`) deixou estes pontos sem cor
 - **POL-04 é léxica.** Uma justificativa de waiver sem sentido, mas com palavras diferentes, é aceita.
 - **Redação.** Não reconhece chave no formato `AIza…`, `senha=…` em texto livre nem token de sessão
   em texto; o token CSRF fica em claro em `sessoes.json`; respostas 501 saem sem os cabeçalhos de segurança.
+- **Resposta final ao solicitante.** Se a resposta do Orquestrador ao solicitante (PROT-SOL) se perde
+  na entrega, ninguém é avisado: quem pediu precisa consultar de novo. Nos protocolos entre agentes a
+  perda é avisada ao iniciador.
 - **AG-CUS e AG-REL** continuam reativos, e o `tools/trace.py` confere a existência do teste pelo
   nome, não o que ele verifica.
 

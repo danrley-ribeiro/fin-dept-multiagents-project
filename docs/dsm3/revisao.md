@@ -150,6 +150,15 @@ nova avaliação depois das correções**, então a nota não foi refeita.
 | m1: operador sem a permissão de modelos reiniciava com outro nível de cognição; agente inexistente aceito no comando (menor) | o reinício com mudança de cognição exige `PERM-MOD-CONFIG`; agente desconhecido devolve 400 | TEST-153 |
 | m2: identificador não textual ou conteúdo não copiável levantava exceção sem registro (menor) | rejeição com registro `rejected` | TEST-152 |
 
+Depois da rodada, o experimento da DSM4 (perda aleatória de mensagens) mostrou um defeito que
+nenhum cenário da DSM3 exercitava e que o avaliador não encontrou: a máquina de estados avança no
+envio, então a **resposta final** de um especialista perdida na entrega (ou uma mensagem do meio do
+PROT-CMP) deixava o Orquestrador esperando para sempre e o solicitante sem resposta. Corrigido
+nesta entrega: o barramento avisa o iniciador da conversa (PROT-DEL, PROT-CMP, PROT-QRY), que
+reenvia uma vez ou falha de forma explícita, e o INV-01 reconhece o veto reavaliado numa conversa
+posterior (`test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer`,
+TEST-154). A perda da resposta final ao próprio solicitante (PROT-SOL) continua sem aviso.
+
 Continuam em aberto, declarados em {doc}`limitacoes`: o prazo compartilhado entre solicitantes no
 AG-ORC; o pedido (`solicitado_por`) sem atestado no barramento (M7); o fluxo de eventos ao vivo
 visível a quem vê a simulação (M9, assumido e descrito em `PERM-SIM-VER`); o baseline sem as

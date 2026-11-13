@@ -96,6 +96,7 @@ class Bus:
         self.offline: set[str] = set()  # agentes fora de operação: o que chega a eles se perde
         self.prazos: dict[str, int] = {}  # conversa -> prazo vigente (uma resposta com novo reply_by o estende)
         self.registro_fechado = False  # sistema montado: só identidades do diretório (ver fechar_registro)
+        self._nao_entregues: set[str] = set()  # conversas com mensagem perdida na entrega, ainda sem aviso
 
     # ---- identidades ------------------------------------------------------------
     def register(self, agent, papel: str | None = None) -> str:
@@ -351,14 +352,35 @@ class Bus:
             self.offline.add(agente)
         self.audit.record(self.now, "agente", agente=agente, evento="ligado" if online else "desligado")
 
+    # Protocolos em que o iniciador é avisado quando uma mensagem da conversa se perde depois da abertura.
+    AVISO_DE_PERDA = frozenset({"PROT-DEL", "PROT-CMP", "PROT-QRY"})
+
+    def _perdida(self, msg: Message) -> None:
+        """Mensagem que não chegou: garante que o iniciador da conversa não fique esperando para sempre.
+
+        A FSM avança no envio. Se a resposta final de um especialista se perde na entrega, a conversa já está
+        encerrada e o temporizador do prazo não avisava ninguém: o Orquestrador esperava sem fim e o solicitante
+        ficava sem resposta (achado do experimento da DSM4). O barramento, que é o transporte e sabe da perda,
+        agenda um aviso de `timeout` ao iniciador para o prazo da conversa (ou para o tick seguinte, se o prazo
+        já passou). A perda do pedido de abertura continua coberta pelo temporizador normal.
+        """
+        conv = self.conversations.get(msg.conversation_id)
+        if conv is None or conv.protocol.id not in self.AVISO_DE_PERDA or len(conv.history) <= 1:
+            return
+        self._nao_entregues.add(msg.conversation_id)
+        if self.prazos.get(msg.conversation_id, self.now) <= self.now:
+            self._push(self.now + 1, "timer", msg.conversation_id)
+
     def _deliver(self, msg: Message, digest: str) -> None:
         for falha in self.faults:
             if falha.matches(msg):
                 falha.times -= 1
                 self.audit.record(self.now, "drop", motivo="falha injetada", **_campos(msg))
+                self._perdida(msg)
                 return
         if msg.receiver in self.offline:
             self.audit.record(self.now, "drop", motivo="agente fora de operação", **_campos(msg))
+            self._perdida(msg)
             return
         try:
             integro = digest_conteudo(msg.content) == digest
@@ -369,6 +391,9 @@ class Bus:
                               **_campos(msg, seguro=True))
             return
         self.audit.record(self.now, "deliver", **_campos(msg))
+        conv = self.conversations.get(msg.conversation_id)
+        if conv is not None and msg.receiver == conv.initiator and conv.is_final:
+            self._nao_entregues.discard(msg.conversation_id)  # a resposta final chegou: não há o que avisar
         self._entregar(self.agents[msg.receiver], replace(msg, content=copy.deepcopy(msg.content)))
 
     def _entregar(self, agente, msg: Message) -> None:
@@ -393,8 +418,14 @@ class Bus:
         conv = self.conversations[conversation_id]
         if self.prazos.get(conversation_id, self.now) > self.now:
             return  # o prazo foi estendido depois deste temporizador: vale o novo
+        perdida = conversation_id in self._nao_entregues
+        self._nao_entregues.discard(conversation_id)
         if conv.can("timeout"):
             antes, depois = conv.step("timeout")
+        elif perdida:
+            # uma mensagem da conversa se perdeu na entrega (ex.: a resposta final): a FSM não muda, mas o
+            # iniciador é avisado para reenviar ou falhar de forma explícita
+            antes = depois = conv.state
         elif len(conv.history) == 1 and not conv.is_final:
             # protocolo sem transição de timeout (PROT-CMP) e contraparte ainda sem resposta:
             # avisa o iniciador sem mexer na FSM

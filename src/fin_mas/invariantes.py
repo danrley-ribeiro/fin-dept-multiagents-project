@@ -31,6 +31,7 @@ SEGREDO = re.compile(r"\b(sk|pk|rk)-[A-Za-z0-9_-]{16,}\b|Bearer\s+[A-Za-z0-9._~+
 def _inv01(reg):
     pendente = {}  # CMP -> veto ainda sem tratamento
     intencao = {}  # SOL -> intenção do pedido
+    vetada_em, favoravel_em = {}, {}  # CMP -> seq do veto e do parecer favorável
     for r in reg:
         cid = r.get("conversation_id")
         if r["kind"] == "open" and r.get("protocol") == "PROT-SOL":
@@ -38,14 +39,19 @@ def _inv01(reg):
         if r.get("protocol") == "PROT-CMP" and r["kind"] in ("open", "send"):
             if r["performative"] == "veto":
                 pendente[cid] = True
+                vetada_em[cid] = r["seq"]
             elif r["performative"] in ("conforme", "nao_conforme_nao_critico", "waiver_humano"):
                 pendente[cid] = False
+                favoravel_em[cid] = r["seq"]
         elif r.get("protocol") == "PROT-CMP" and r["kind"] == "advance" and r.get("evento") == "publicar" and pendente.get(cid):
             yield f"INV-01: publicação em {cid} (#{r['seq']}) com veto sem tratamento"
         elif (r["kind"] == "send" and r.get("protocol") == "PROT-SOL" and r["performative"] == "inform"
               and str((r.get("content") or {}).get("status", "")).startswith("publicado")):
             parentes = familia(reg, cid)
-            vetadas = sorted(c for c in parentes if pendente.get(c))
+            # um veto também está tratado quando o AG-CIN reavaliou o mesmo pedido depois dele, numa conversa
+            # nova, e deu parecer favorável (reenvio do pedido de parecer após mensagem perdida)
+            reavaliado = max((favoravel_em[c] for c in parentes if c in favoravel_em), default=-1)
+            vetadas = sorted(c for c in parentes if pendente.get(c) and vetada_em.get(c, 0) > reavaliado)
             if vetadas:
                 yield f"INV-01: {cid} publicada (#{r['seq']}) com veto sem tratamento em {', '.join(vetadas)}"
             if intencao.get(cid) == "fechar_mes" and not any(c in pendente for c in parentes):

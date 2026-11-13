@@ -1833,3 +1833,15 @@
 **Resultado esperado:** mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer
+:id: TEST-154
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer()` — tipo *robustez*.  
+**Resultado esperado:** resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita  
+**Execução:** DSM3 (status atual: executado).
+````

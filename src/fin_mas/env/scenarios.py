@@ -20,6 +20,7 @@ from fin_mas.core.bus import Bus, Fault
 from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
 from fin_mas.env.empresa import EMPRESA, PESSOAS
 from fin_mas.env.portes import PORTE_PADRAO
+from fin_mas.env.segmentos import SEGMENTO_PADRAO
 from fin_mas.mcp.gateway import MCPGateway
 from fin_mas.services.iam import CONTAS_DEMO, Acesso
 from fin_mas.services.locks import LockService
@@ -192,7 +193,8 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
-                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None) -> System:
+                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None,
+                 segmento=SEGMENTO_PADRAO) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
@@ -201,11 +203,13 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     `llm` (regras locais e o LLM do agente, se a flag dele estiver ligada no SVC-MOD). Ver ADR-008.
     `acesso`: SVC-IAM (`services/iam.py`); `"simulado"` cria as contas de demonstração em memória, com
     o relógio lógico (cenários em lote); None = sem contas (lote da primeira versão da DSM3). Ver ADR-009.
+    `segmento`: comércio, serviços ou indústria (models/segmentos.yaml); o padrão é a SMA de sempre (DSM4).
     """
     if cognicao not in NIVEIS:
         raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
-    amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
+    amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte,
+                                                           segmento=segmento)
     ds = amb.dataset()
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
     if acesso == "simulado":
@@ -221,6 +225,8 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": AgenteRelatorios(bus, gw)}
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
+    if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:  # DSM4: direcionador de rateio do segmento
+        agentes["AG-CUS"].conhecimento.update(rateio=dict(ds.rateio), versao_rateio=ds.versao_rateio)
     pessoas = [*ds.perfil["pessoas"], *(nome for nome, _ in PESSOAS.values())]
     modelos = RegistroModelos(bus.audit, lambda: bus.now, pessoas=pessoas)
     for agente in ("AG-REL", "AG-RES", "AG-ORC"):  # os três em que a NORM-07 permite LLM
@@ -259,6 +265,7 @@ class Scenario:
     solicitante: str | None = None  # conta que faz os pedidos, nos cenários com acesso
     ataques_acesso: bool = False  # dispara env/ataques_acesso.py enquanto o veto aguarda o aprovador
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
+    segmento: str = SEGMENTO_PADRAO  # DSM4: comércio, serviços, indústria (models/segmentos.yaml)
 
 
 CENARIOS = {c.nome: c for c in [
@@ -419,6 +426,31 @@ CENARIOS = {c.nome: c for c in [
                   ("AG-RES", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("comentario",)))),
                   ("AG-REL", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("sintese",))))),
              esperado="três chamadas de LLM registradas, uma por agente; nenhum número fora do texto-base"),
+    # ---- DSM4: portes novos (MEI e Média empresa II) e segmentos (models/segmentos.yaml) ----
+    Scenario("fechamento_mei", "MEI: uma pessoa só, sem ERP; toda a segregação é impossível e vira controle "
+             "compensatório; a NF duplicada é vetada e estornada, a competência errada fica como ressalva",
+             "fechar_mes", porte="mei", plantar=("duplicidade", "competencia"), decisao_aprovador="corrigir",
+             cognicao="local",
+             esperado="veto só da duplicidade (crítica); estorno aprovado; SoD e competência viram ressalvas; "
+                      "realizado da planilha"),
+    Scenario("fechamento_media_ii", "Média empresa II (BNDES, R$ 90 a 300 milhões): alçadas e materialidade da "
+             "faixa de cima; alçada violada é reaprovada e os desvios orçamentários entram no relatório",
+             "fechar_mes", porte="media_ii", plantar=("alcada", "desvio_orcamentario"), decisao_aprovador="corrigir",
+             cognicao="local",
+             esperado="veto da alçada com reaprovação; dois desvios acima de 7% e de R$ 20 mil; publicado"),
+    Scenario("fechamento_comercio", "Comércio: CMV pelo estoque, lojas física e virtual e rateio por área ocupada; "
+             "NF duplicada de fornecedor vetada e estornada", "fechar_mes", segmento="comercio",
+             plantar=("duplicidade",), decisao_aprovador="corrigir", cognicao="local",
+             esperado="AG-CUS rateia por m² (80/20); estorno aprovado; relatório publicado"),
+    Scenario("fechamento_servicos", "Serviços profissionais: mão de obra direta como custo variável e rateio por "
+             "horas trabalhadas; a gerente aprova o próprio lançamento (SoD) e outro aprovador reaprova",
+             "fechar_mes", segmento="servicos", plantar=("sod",), decisao_aprovador="corrigir", cognicao="local",
+             esperado="AG-CUS rateia por horas (65/35); SoD vetado e reaprovado; relatório publicado"),
+    Scenario("fechamento_industria", "Indústria: custo de produção e rateio dos custos fixos por horas-máquina; NF "
+             "lançada duas vezes na conta de marketing infla o desvio; o AG-CIN veta e o estorno destrava",
+             "fechar_mes", segmento="industria", plantar=("desvio_irregular",), decisao_aprovador="corrigir",
+             cognicao="local",
+             esperado="AG-CUS rateia por horas-máquina (70/30); desvio atribuído a controle; estorno aprovado"),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -446,7 +478,7 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None, acesso=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None, segmento=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -456,9 +488,13 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
-                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None))
+                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None),
+                           segmento=segmento or sc.segmento)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
+    if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:  # só fora do padrão: traces antigos intactos
+        extras["segmento"] = {"segmento": ds.segmento, "titulo": ds.perfil_segmento["titulo"] if hasattr(
+            ds, "perfil_segmento") else ds.segmento, "versao_rateio": getattr(ds, "versao_rateio", None)}
     outros = {a: sistema.modelos.situacao(a) for a in ("AG-ORC", "AG-RES") if sistema.modelos.config(a)["llm"]}
     if outros:
         extras["llm_agentes"] = outros
@@ -490,8 +526,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,
+                 segmento=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao,
+                           segmento=segmento)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

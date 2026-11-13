@@ -20,8 +20,57 @@
 # continua normas-v2). Regimes e obrigações estão resumidos: cada empresa confirma os seus com a contabilidade.
 #   - LC 123/2006: Simples Nacional para ME e EPP (opção, com vedações).
 #   - Lei 9.718/1998, arts. 13 e 14: Lucro Presumido até R$ 78 milhões de receita no ano anterior; acima, Lucro Real.
+#
+# Portes novos (DSM4), acrescentados sem mudar nenhum valor dos quatro acima nem a versão das normas
+# (a versão entra no trace; os cenários revisados continuam com o mesmo hash). Fontes conferidas em 12/11/2026:
+#   - MEI: LC 123/2006, art. 18-A, § 1º (redação da LC 188/2021): receita bruta no ano-calendário anterior
+#     de até R$ 81.000,00; art. 18-C: um único empregado. https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm
+#     A LC 238/2026 (https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp238.htm) eleva o limite para
+#     R$ 110.000,00 no ano-calendário de 2027 (art. 2º) e R$ 140.000,00 com efeitos a partir de 1º/1/2028
+#     (art. 10, I), condicionado à lei orçamentária (art. 3º), e admite até 2 empregados a partir de
+#     1º/1/2027 (art. 10, II). A competência simulada é 2026-09: vale R$ 81 mil.
+#   - Média empresa I e II: página "Porte de empresa" do BNDES
+#     (https://www.bndes.gov.br/wps/portal/site/home/financiamento/guia/porte-de-empresa): Média Empresa I
+#     de mais de R$ 4,8 milhões a R$ 90 milhões; Média Empresa II de mais de R$ 90 milhões a R$ 300 milhões
+#     de receita operacional bruta anual. O porte `media` continua com o teto legal da média (R$ 300 milhões)
+#     e, na classificação por receita, cede a faixa de R$ 90 a 300 milhões à subdivisão `media_ii`
+#     (campo `subdivide`).
+#   - O MEI é enquadramento por opção (SIMEI), não só faixa de receita: `porte_por_receita` só devolve `mei`
+#     quando a empresa é optante (campo `exige_opcao`). Uma ME com receita abaixo de R$ 81 mil continua ME.
+#   - Escalas, alçadas, materialidade, pesos BDI e ciclos de correção dos portes novos são PARÂMETROS DA
+#     SIMULAÇÃO (como nos quatro portes de antes), não números de lei.
 versao: normas-v2
 portes:
+  mei:
+    titulo: Microempreendedor individual (MEI)
+    receita_bruta_anual_max: 8100000           # R$ 81 mil (LC 123/2006, art. 18-A, § 1º; LC 188/2021)
+    exige_opcao: SIMEI                          # enquadramento por opção: porte_por_receita(..., mei=True)
+    norma_contabil: sem escrituração contábil completa; controle de receitas e despesas do titular
+    tem_erp: false                              # caderno ou planilha: usa os modelos Excel
+    fonte_primaria: planilha
+    escala: 0.02                                # parâmetro: receita anual simulada sempre abaixo de R$ 81 mil
+    escala_orcamento: 0.05
+    escala_lancamentos: 0.05
+    pessoas: {elisa: titular}                   # uma pessoa só: quem lança é quem aprova
+    aprovadores: [titular]
+    limites_alcada: {titular: null}             # o titular responde por tudo; não há a quem delegar
+    severidade: {alcada: critica, sod: nao_critica, duplicidade: critica, competencia: nao_critica}
+    controle_compensatorio:
+      sod: sem segunda pessoa a segregação é impossível; revisão mensal dos extratos e das notas pelo titular, conferida pelo contador (controle compensatório, COSO 2013)
+    limiar_desvio: {percentual: 20, absoluto: 20000}    # R$ 200
+    pesos_cin: {conformidade: 10, prazo: 9}             # o titular não pode parar o negócio para fechar o mês
+    pesos_orc: {precisao: 1, tempestividade: 2}
+    max_ciclos_correcao: 2
+    regime_tributario: SIMEI (recolhimento mensal em valor fixo, dentro do Simples Nacional)
+    obrigacoes: [recolhimento mensal do DAS-MEI, declaração anual do MEI (DASN-SIMEI), relatório mensal das receitas brutas (a confirmar com a contabilidade)]
+    estrutura: {pessoas: 1, descricao: o titular faz tudo; no máximo um empregado (art. 18-C); contador externo opcional}
+    volume: {lancamentos_mes: poucas dezenas, contas_orcamento: 5, centros_de_custo: 1}
+    calendario_fechamento: fechamento simples até o dia 20, antes do vencimento do DAS
+    politica_aprovacao: o titular decide tudo; a segregação de funções é substituída por controle compensatório registrado
+    papeis_de_acesso: {titular: [ROLE-SOL, ROLE-APR], administrador_de_acesso: o próprio titular em outra conta ou o contador}
+    fonte_de_dados: planilha modelo (dados/modelos), enviada pelo dashboard a cada competência
+    cognicao_padrao: local
+
   micro:
     titulo: Microempresa (ME)
     receita_bruta_anual_max: 36000000          # R$ 360 mil (LC 123/2006, art. 3º, I)
@@ -105,6 +154,36 @@ portes:
     politica_aprovacao: gerente até a alçada dele, diretor acima; segregação de funções obrigatória
     papeis_de_acesso: {diretor: [ROLE-SOL, ROLE-APR], gerente: [ROLE-APR], analista: [ROLE-SOL], operacao: [ROLE-OPE], auditoria: [ROLE-AUD], ti: [ROLE-ADM]}
     fonte_de_dados: ERP como fonte primária; planilha de orçamento reconciliada com o ERP
+    cognicao_padrao: local
+
+  media_ii:
+    titulo: Média empresa II (BNDES)
+    subdivide: media                            # faixa de cima da média: R$ 90 a 300 milhões (BNDES)
+    receita_bruta_anual_min: 9000000000         # mais de R$ 90 milhões (BNDES, Média Empresa II)
+    receita_bruta_anual_max: 30000000000        # até R$ 300 milhões (BNDES)
+    norma_contabil: CPCs completos (recomendado; obrigatório só para sociedade de grande porte, Lei 11.638/2007)
+    tem_erp: true
+    fonte_primaria: ERP
+    escala: 105.0                               # parâmetro: receita anual simulada entre R$ 90 e 300 milhões
+    escala_orcamento: 8.0
+    escala_lancamentos: 1.5
+    pessoas: {ana: analista, bruno: analista, carla: gerente, diego: gerente, elisa: diretor}
+    aprovadores: [gerente, diretor]
+    limites_alcada: {analista: 1500000, gerente: 7500000, diretor: 30000000}
+    severidade: {alcada: critica, sod: critica, duplicidade: critica, competencia: nao_critica}
+    controle_compensatorio: {}
+    limiar_desvio: {percentual: 7, absoluto: 2000000}   # R$ 20 mil
+    pesos_cin: {conformidade: 10, prazo: 4}
+    pesos_orc: {precisao: 4, tempestividade: 1}
+    max_ciclos_correcao: 1
+    regime_tributario: Lucro Real (receita acima do teto de R$ 78 milhões do Lucro Presumido)
+    obrigacoes: [escrituração contábil e fiscal digitais (ECD, ECF), apurações do Lucro Real, demonstrações pelos CPCs, auditoria independente quando exigida por credores ou pelo contrato social]
+    estrutura: {pessoas: 5 ou mais, descricao: diretor, gerentes por área e analistas; controladoria e controles internos separados do financeiro}
+    volume: {lancamentos_mes: milhares a dezenas de milhares, contas_orcamento: 5, centros_de_custo: 3 ou mais}
+    calendario_fechamento: fechamento até o dia 4 útil, com parecer de controles internos e revisão da controladoria
+    politica_aprovacao: alçadas por valor em três níveis; segregação de funções obrigatória
+    papeis_de_acesso: {diretor: [ROLE-SOL, ROLE-APR], gerente: [ROLE-APR], analista: [ROLE-SOL], operacao: [ROLE-OPE], auditoria: [ROLE-AUD], ti: [ROLE-ADM]}
+    fonte_de_dados: ERP como fonte primária; integrações por conector
     cognicao_padrao: local
 
   grande:

@@ -17,13 +17,14 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from fin_mas.env.dataset import RATEIO, mes_no_trimestre
-from fin_mas.env.empresa import CONTAS, EMPRESA, PESSOAS
+from fin_mas.env.empresa import EMPRESA, PESSOAS
 from fin_mas.env.portes import PORTES, perfil
+from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, segmento as perfil_segmento
 
 VERSAO_MODELO = "modelo-controladoria-v1"
 FORMATO_BRL = '"R$" #,##0.00'
 SITUACOES = ("ativo", "estornado")
-CARGOS = ("assistente", "analista", "gerente", "diretor", "socio")
+CARGOS = ("assistente", "analista", "gerente", "diretor", "socio", "titular")  # titular: MEI (DSM4)
 
 # aba -> [(chave, título da coluna, tipo, obrigatório)]; tipo: texto | inteiro | reais | competencia
 ABAS = {
@@ -46,7 +47,8 @@ ABAS = {
                     ("situacao", "Situação", "texto", False)],
 }
 CAMPOS_EMPRESA = [("razao_social", "Razão social"), ("sigla", "Sigla"), ("porte", "Porte"),
-                  ("competencia", "Competência do fechamento (AAAA-MM)"), ("tem_erp", "Possui ERP? (sim/não)")]
+                  ("competencia", "Competência do fechamento (AAAA-MM)"), ("tem_erp", "Possui ERP? (sim/não)"),
+                  ("segmento", "Segmento (opcional)")]  # DSM4; ausente = software_servicos
 
 LEIA_ME = [
     "Modelo de dados da controladoria para empresas sem ERP (ou que preferem planilha).",
@@ -88,6 +90,7 @@ def gerar_modelo(caminho, exemplo=None) -> Path:
     emp.column_dimensions["A"].width, emp.column_dimensions["B"].width = 40, 36
     _lista(emp, "B4", PORTES)
     _lista(emp, "B6", ("sim", "não"))
+    _lista(emp, "B7", SEGMENTOS)
 
     linhas = _linhas_exemplo(exemplo)
     for aba, colunas in ABAS.items():
@@ -106,8 +109,9 @@ def gerar_modelo(caminho, exemplo=None) -> Path:
                     ws.cell(row=r, column=k).number_format = FORMATO_BRL
         ws.freeze_panes = "A2"
     _lista(wb["Pessoas"], "C2:C200", CARGOS)
-    _lista(wb["Produtos"], "C2:C200", tuple(RATEIO))
-    _lista(wb["Orcamento"], "A2:A200", tuple(CONTAS) + ("C-3005 Eventos",), restrito=False)
+    seg = perfil_segmento(getattr(exemplo, "segmento", SEGMENTO_PADRAO))
+    _lista(wb["Produtos"], "C2:C200", tuple(seg["rateio_pct"]))
+    _lista(wb["Orcamento"], "A2:A200", tuple(seg["contas"]) + (seg["conta_chamariz"],), restrito=False)
     _lista(wb["Lancamentos"], "I2:I2000", SITUACOES)
     caminho = Path(caminho)
     caminho.parent.mkdir(parents=True, exist_ok=True)
@@ -116,13 +120,17 @@ def gerar_modelo(caminho, exemplo=None) -> Path:
 
 
 def gerar_modelos(pasta) -> list[Path]:
-    """Modelo em branco e um exemplo preenchido por porte."""
+    """Modelo em branco, um exemplo preenchido por porte e um por segmento (média empresa)."""
     from fin_mas.env.dataset import Dataset
     pasta = Path(pasta)
     arquivos = [gerar_modelo(pasta / "modelo_controladoria_em_branco.xlsx")]
     for porte in PORTES:
         ds = Dataset(seed=42, porte=porte, plantar=("competencia",))
         arquivos.append(gerar_modelo(pasta / f"exemplo_{porte}.xlsx", exemplo=ds))
+    for seg in SEGMENTOS:
+        if seg != SEGMENTO_PADRAO:
+            ds = Dataset(seed=42, segmento=seg, plantar=("competencia",))
+            arquivos.append(gerar_modelo(pasta / f"exemplo_{seg}.xlsx", exemplo=ds))
     return arquivos
 
 
@@ -144,8 +152,11 @@ def _lista(ws, faixa, opcoes, restrito=True):
 def _empresa_exemplo(ds) -> dict:
     if ds is None:
         return {"porte": "micro", "competencia": date.today().strftime("%Y-%m"), "tem_erp": "não"}
-    return {"razao_social": EMPRESA["razao_social"], "sigla": EMPRESA["sigla"], "porte": ds.porte,
-            "competencia": ds.competencia, "tem_erp": "não"}
+    valores = {"razao_social": EMPRESA["razao_social"], "sigla": EMPRESA["sigla"], "porte": ds.porte,
+               "competencia": ds.competencia, "tem_erp": "não"}
+    if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:
+        valores["segmento"] = ds.segmento
+    return valores
 
 
 def _reais(centavos):
@@ -156,9 +167,10 @@ def _linhas_exemplo(ds) -> dict:
     if ds is None:
         return {}
     from fin_mas.env.empresa import PRODUTOS
+    nomes = {**PRODUTOS, **{p["id"]: p["nome"] for p in perfil_segmento(getattr(ds, "segmento", SEGMENTO_PADRAO))["produtos"]}}
     return {
         "Pessoas": [{"usuario": u, "nome": PESSOAS[u][0], "cargo": c} for u, c in ds.perfil["pessoas"].items()],
-        "Produtos": [{"id": p["id"], "nome": PRODUTOS.get(p["id"]), "un": p["un"], "qtd": p["qtd"],
+        "Produtos": [{"id": p["id"], "nome": nomes.get(p["id"]), "un": p["un"], "qtd": p["qtd"],
                       "preco": _reais(p["preco"]), "custo_variavel_unit": _reais(p["custo_variavel_unit"])}
                      for p in ds.produtos],
         "CustosFixos": [{"centro": c["centro"], "valor": _reais(c["valor"])} for c in ds.custos_fixos],
@@ -239,6 +251,9 @@ def ler(pasta_ou_arquivo) -> "DatasetPlanilha":
     if porte not in PORTES:
         erros.append(f"Empresa: porte inválido {empresa.get('porte')!r} (use {', '.join(PORTES)})")
     competencia = _converter(empresa.get("competencia"), "competencia", "Empresa: competência", erros)
+    seg = str(empresa.get("segmento") or SEGMENTO_PADRAO).strip().lower()
+    if seg not in SEGMENTOS:
+        erros.append(f"Empresa: segmento inválido {empresa.get('segmento')!r} (use {', '.join(SEGMENTOS)})")
     dados = {}
     for aba, colunas in ABAS.items():
         cab = set(abas[aba][0]) if abas[aba] else {c[1] for c in colunas}
@@ -263,16 +278,17 @@ def ler(pasta_ou_arquivo) -> "DatasetPlanilha":
         if aba in dados and not dados[aba]:
             erros.append(f"{aba}: nenhuma linha preenchida")
     if not erros:
-        _validar_referencias(dados, porte, erros)
+        _validar_referencias(dados, porte, erros, seg)
     if erros:
         raise ModeloInvalido(erros)
     return DatasetPlanilha(arquivo=arquivo, porte=porte, competencia=competencia,
                            razao_social=str(empresa.get("razao_social") or ""),
                            entidade=str(empresa.get("sigla") or "EMPRESA"),
-                           tem_erp=str(empresa.get("tem_erp") or "não").strip().lower() == "sim", dados=dados)
+                           tem_erp=str(empresa.get("tem_erp") or "não").strip().lower() == "sim", dados=dados,
+                           segmento=seg)
 
 
-def _validar_referencias(dados, porte, erros):
+def _validar_referencias(dados, porte, erros, seg=SEGMENTO_PADRAO):
     pessoas = {p["usuario"]: p["cargo"] for p in dados["Pessoas"]}
     limites = perfil(porte)["limites_alcada"]
     for p in dados["Pessoas"]:
@@ -288,9 +304,10 @@ def _validar_referencias(dados, porte, erros):
             erros.append(f"Lancamentos linha {lanc['_linha']}: conta {lanc['conta']!r} não está na aba Orcamento")
         if (lanc.get("situacao") or "ativo") not in SITUACOES:
             erros.append(f"Lancamentos linha {lanc['_linha']}: situação {lanc['situacao']!r} (use ativo ou estornado)")
+    unidades = perfil_segmento(seg)["rateio_pct"] if seg != SEGMENTO_PADRAO else RATEIO
     for p in dados["Produtos"]:
-        if p["un"] not in RATEIO:
-            erros.append(f"Produtos linha {p['_linha']}: unidade {p['un']!r} (use {', '.join(RATEIO)})")
+        if p["un"] not in unidades:
+            erros.append(f"Produtos linha {p['_linha']}: unidade {p['un']!r} (use {', '.join(unidades)})")
 
 
 @dataclass
@@ -307,8 +324,11 @@ class DatasetPlanilha:
     seed: int = 0
     plantar: tuple = ()
     correcoes: list = field(default_factory=list)
+    segmento: str = SEGMENTO_PADRAO  # DSM4: define unidades e o direcionador de rateio do AG-CUS
 
     def __post_init__(self):
+        seg = perfil_segmento(self.segmento)
+        self.rateio, self.versao_rateio, self.perfil_segmento = dict(seg["rateio_pct"]), seg["rateio"]["versao"], seg
         self.perfil = {**perfil(self.porte), "tem_erp": self.tem_erp}
         self.perfil["pessoas"] = {p["usuario"]: p["cargo"] for p in self.dados["Pessoas"]}
         self.perfil["fonte_primaria"] = "ERP" if self.tem_erp else "planilha"

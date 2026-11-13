@@ -7,8 +7,9 @@ reimplementação das regras dos agentes.
 import random
 from dataclasses import dataclass, field
 
-from fin_mas.env.empresa import CONTAS, EMPRESA, PESSOAS
+from fin_mas.env.empresa import CONTAS, EMPRESA, PESSOAS  # noqa: F401  (CONTAS: nomes do segmento padrão)
 from fin_mas.env.portes import PORTE_PADRAO, limite, perfil
+from fin_mas.env.segmentos import SEGMENTO_PADRAO, segmento as perfil_segmento
 
 ENTIDADE = EMPRESA["sigla"]
 COMPETENCIA = "2026-09"
@@ -64,6 +65,7 @@ class Dataset:
     competencia: str = COMPETENCIA
     plantar: tuple = ()
     porte: str = PORTE_PADRAO
+    segmento: str = SEGMENTO_PADRAO  # DSM4: comércio, serviços, indústria (models/segmentos.yaml)
     produtos: list = field(default_factory=list)
     custos_fixos: list = field(default_factory=list)
     orcamento: list = field(default_factory=list)
@@ -78,33 +80,72 @@ class Dataset:
             raise ValueError(f"plantios desconhecidos: {sorted(desconhecidos)}")
         self.perfil = perfil(self.porte)
         self.tem_erp = self.perfil["tem_erp"]
+        self._aplicar_segmento()  # não consome o gerador: no segmento padrão, tudo igual à DSM3
         rng = random.Random(self.seed)
         self._gerar_custos(rng)
         self._gerar_orcamento(rng)
         self._gerar_lancamentos(rng)
         self._gerar_observacoes()  # não consome o gerador: os dados acima não mudam
+        self._gerar_estrutura_custos()  # gerador próprio, só fora do segmento padrão
         self._historico = None
+
+    # ---- segmento (DSM4): nomes, faixas e rateio; mesma ordem de consumo do gerador -------
+    def _aplicar_segmento(self):
+        s = self.perfil_segmento = perfil_segmento(self.segmento)
+        self.contas = list(s["contas"])
+        self.conta_chamariz = s["conta_chamariz"]
+        self.conta_irregular, self.conta_divergente, self.conta_sazonal = self.contas[1:4]
+        self.rateio = dict(s["rateio_pct"])
+        self.versao_rateio = s["rateio"]["versao"]
+
+    def _gerar_estrutura_custos(self):
+        """Composição do custo variável e o que o segmento tem de próprio (gabarito informativo).
+
+        Comércio: CMV pelo estoque (estoque inicial + compras - estoque final = CMV). Serviços: horas de
+        mão de obra direta. Indústria: custo de produção (MP, MOD, CIF variáveis e CIF fixos dos centros de
+        produção). Usa um gerador derivado da seed: nada do que os agentes leem muda.
+        """
+        if self.segmento == SEGMENTO_PADRAO:
+            return
+        s, cv = self.perfil_segmento, self.gold["dre"]["custos_variaveis"]
+        estrutura = {"custo_variavel_total": cv, "composicao": ratear(cv, s["composicao_custo_variavel"])}
+        rng = random.Random(f"{self.seed}:segmento")
+        if "estoque" in s:
+            giro = s["estoque"]["giro_meses"]
+            inicial, final = int(cv * rng.uniform(*giro)), int(cv * rng.uniform(*giro))
+            estrutura["estoque"] = {"inicial": inicial, "compras": cv + final - inicial, "final": final, "cmv": cv}
+        if "custo_hora_mod" in s:
+            mod = estrutura["composicao"]["mao_de_obra_direta"]
+            estrutura["horas_mod"] = mod // s["custo_hora_mod"]
+        if "centros_producao" in s:
+            cif_fixos = sum(c["valor"] for c in self.custos_fixos if c["centro"] in s["centros_producao"])
+            estrutura["custo_producao"] = {"variavel": cv, "cif_fixos": cif_fixos, "total": cv + cif_fixos,
+                                           "rateio_cif_fixos": ratear(cif_fixos, self.rateio)}
+        self.gold["estrutura_custos"] = estrutura
 
     # ---- custos e receita -------------------------------------------------
     def _gerar_custos(self, rng):
         escala = self.perfil["escala"]
-        for i, un in enumerate(["UN-A", "UN-A", "UN-B", "UN-B"], start=1):
+        seg = self.perfil_segmento
+        cv_min, cv_max = seg["custo_variavel_pct"]
+        for produto in seg["produtos"]:
             preco = rng.randint(80_00, 200_00)
             qtd = rng.randint(100, 400)
             self.produtos.append({
-                "id": f"P-{i}", "un": un, "qtd": max(1, int(qtd * escala)), "preco": preco,
-                "custo_variavel_unit": int(preco * rng.uniform(0.40, 0.65)),
+                "id": produto["id"], "un": produto["un"], "qtd": max(1, int(qtd * escala)), "preco": preco,
+                "custo_variavel_unit": int(preco * rng.uniform(cv_min, cv_max)),
             })
-        for cc in ("CC-ADM", "CC-COM", "CC-OPS"):
-            self.custos_fixos.append({"centro": cc, "valor": int(rng.randint(5_000_00, 15_000_00) * escala)})
+        fixo_min, fixo_max = seg["custo_fixo_faixa"]
+        for cc in seg["centros_custo"]:
+            self.custos_fixos.append({"centro": cc, "valor": int(rng.randint(fixo_min, fixo_max) * escala)})
         margens = {}
         for p in self.produtos:
             receita, cv = p["preco"] * p["qtd"], p["custo_variavel_unit"] * p["qtd"]
             margens[p["id"]] = {"receita": receita, "custo_variavel": cv, "margem": receita - cv}
         fixo_total = sum(c["valor"] for c in self.custos_fixos)
-        fixo_un = ratear(fixo_total, RATEIO)
+        fixo_un = ratear(fixo_total, self.rateio)
         por_un = {}
-        for un in RATEIO:
+        for un in self.rateio:
             ids = [p["id"] for p in self.produtos if p["un"] == un]
             margem = sum(margens[i]["margem"] for i in ids)
             por_un[un] = {"margem": margem, "custo_fixo_rateado": fixo_un[un], "resultado": margem - fixo_un[un]}
@@ -121,7 +162,7 @@ class Dataset:
     def _gerar_orcamento(self, rng):
         idx = mes_no_trimestre(self.competencia)
         limiar = self.perfil["limiar_desvio"]
-        for conta in CONTAS:
+        for conta in self.contas:
             orcado_tri = int(rng.randint(30_000_00, 90_000_00) * self.perfil["escala_orcamento"]) // 3 * 3
             acum = orcado_tri * idx // 3
             self.orcamento.append({
@@ -132,7 +173,7 @@ class Dataset:
         base_chamariz = limiar["absoluto"] * 6 // 3 * 3
         pct_chamariz = min(limiar["percentual"] + 2, 15)
         self.orcamento.append({
-            "conta": "C-3005 Eventos", "orcado_trimestre": base_chamariz,
+            "conta": self.conta_chamariz, "orcado_trimestre": base_chamariz,
             "orcado_acumulado": base_chamariz * idx // 3,
             "realizado_acumulado": base_chamariz * idx // 3 * (100 + pct_chamariz) // 100,
         })
@@ -144,23 +185,23 @@ class Dataset:
         self.gold["sazonais"] = []
         if "desvio_sazonal" in self.plantar:
             # gasto adiantado no trimestre: acima do orçado acumulado nos dois primeiros meses, no orçado ao final
-            linha = self._linha(CONTA_SAZONAL)
+            linha = self._linha(self.conta_sazonal)
             acumulado = sum(PADRAO_SAZONAL[:idx])
             linha["realizado_acumulado"] = linha["orcado_acumulado"] * acumulado // (100 * idx)
             desvio = linha["realizado_acumulado"] - linha["orcado_acumulado"]
             if desvio * 100 >= linha["orcado_acumulado"] * limiar["percentual"] and desvio >= limiar["absoluto"]:
-                plantados.append(CONTA_SAZONAL)
-            self.gold["sazonais"] = [CONTA_SAZONAL]
-        self._desvios_plantados = [c for c in plantados if c != CONTA_SAZONAL]
+                plantados.append(self.conta_sazonal)
+            self.gold["sazonais"] = [self.conta_sazonal]
+        self._desvios_plantados = [c for c in plantados if c != self.conta_sazonal]
         self.gold["desvios"] = sorted(plantados)
         self.gold["meses_decorridos"] = idx
         self.realizado_erp = {linha["conta"]: linha["realizado_acumulado"] for linha in self.orcamento}
         self.gold["divergencias"] = []
         if "divergencia_fonte" in self.plantar:
-            linha = self._linha(CONTA_DIVERGENTE)
+            linha = self._linha(self.conta_divergente)
             # a planilha foi digitada com 20% a mais: pela planilha haveria desvio; pelo ERP, não
             linha["realizado_acumulado"] += max(linha["orcado_acumulado"] * 20 // 100, limiar["absoluto"] * 16 // 10)
-            self.gold["divergencias"] = [CONTA_DIVERGENTE]
+            self.gold["divergencias"] = [self.conta_divergente]
         self.gold["desvios_atribuidos"] = []
 
     def _linha(self, conta):
@@ -186,7 +227,7 @@ class Dataset:
             valor = min(int(rng.randint(1_000_00, 9_000_00) * escala), self._limite(aprovador))
             lanc = {"id": f"L-{n:03d}", "fornecedor": f"F-{rng.randint(10, 99)}", "documento": f"NF-{1000 + n}",
                     "valor": valor, "criador": criador, "aprovador": aprovador, "competencia": self.competencia,
-                    "conta": CONTAS[(n - 1) % len(CONTAS)]}
+                    "conta": self.contas[(n - 1) % len(self.contas)]}
             self.lancamentos.append(lanc)
             if criador == aprovador:
                 nc.append({"regra": "sod", "lancamento": lanc["id"], "severidade": sev["sod"]})
@@ -200,9 +241,11 @@ class Dataset:
             return lanc
 
         base = self.lancamentos[0]
-        junior = next(u for u in nomes if self._cargo(u) not in p["aprovadores"])  # menor alçada
+        junior = next((u for u in nomes if self._cargo(u) not in p["aprovadores"]), None)  # menor alçada
         topo = aprovadores[-1]
         if "alcada" in self.plantar:
+            if junior is None:  # MEI: uma pessoa só, sem alçada abaixo da dela
+                raise ValueError(f"plantio alcada impossível no porte {self.porte}: não há quem tenha alçada menor")
             criador = next(u for u in nomes if u != junior)
             lanc = novo(base, documento="NF-2001", aprovador=junior, criador=criador,
                         valor=int(self._limite(junior) * 3 // 2))
@@ -225,18 +268,18 @@ class Dataset:
                 nc.append({"regra": "sod", "lancamento": lanc["id"], "severidade": sev["sod"]})
         if "desvio_irregular" in self.plantar:
             # uma NF lançada duas vezes infla o realizado da conta acima do limiar; sem a cópia, não há desvio
-            linha = self._linha(CONTA_IRREGULAR)
+            linha = self._linha(self.conta_irregular)
             base_desvio = linha["realizado_acumulado"] - linha["orcado_acumulado"]
             valor = (max(linha["orcado_acumulado"] * 15 // 100, p["limiar_desvio"]["absoluto"] * 12 // 10)
                      - min(base_desvio, 0))
-            criador = "carla" if "carla" in nomes else next(u for u in nomes if u != topo)
-            original = novo(base, documento="NF-3001", fornecedor="F-77", valor=valor, conta=CONTA_IRREGULAR,
+            criador = "carla" if "carla" in nomes else next((u for u in nomes if u != topo), topo)
+            original = novo(base, documento="NF-3001", fornecedor="F-77", valor=valor, conta=self.conta_irregular,
                             criador=criador, aprovador=topo)
             copia = novo(original)
             linha["realizado_acumulado"] += valor
-            self.realizado_erp[CONTA_IRREGULAR] += valor
+            self.realizado_erp[self.conta_irregular] += valor
             nc.append({"regra": "duplicidade", "lancamento": copia["id"], "severidade": sev["duplicidade"]})
-            self.gold["desvios_atribuidos"] = [CONTA_IRREGULAR]
+            self.gold["desvios_atribuidos"] = [self.conta_irregular]
         self.gold["nao_conformidades"] = sorted(nc, key=lambda x: (x["regra"], x["lancamento"]))
 
     # ---- texto livre e histórico (percepções da cognição, DSM3) -----------------
@@ -254,9 +297,9 @@ class Dataset:
         if "nota_injetada" in self.plantar and self._desvios_plantados:
             obs[self._desvios_plantados[0]] += OBS_INJETADA
         if "desvio_irregular" in self.plantar:
-            obs[CONTA_IRREGULAR] = OBS_PARAFRASEADA if "observacao_parafraseada" in self.plantar else OBS_DUPLICIDADE
+            obs[self.conta_irregular] = OBS_PARAFRASEADA if "observacao_parafraseada" in self.plantar else OBS_DUPLICIDADE
         if "desvio_sazonal" in self.plantar:
-            obs[CONTA_SAZONAL] = OBS_SAZONAL
+            obs[self.conta_sazonal] = OBS_SAZONAL
         self.observacoes = obs
 
     def historico(self) -> dict:
@@ -271,7 +314,7 @@ class Dataset:
             self._historico = {}
             for linha in self.orcamento:
                 mensal = linha["orcado_trimestre"] // 3
-                sazonal = "desvio_sazonal" in self.plantar and linha["conta"] == CONTA_SAZONAL
+                sazonal = "desvio_sazonal" in self.plantar and linha["conta"] == self.conta_sazonal
                 self._historico[linha["conta"]] = [
                     {"competencia": m, "mes_no_trimestre": mes_no_trimestre(m), "orcado": mensal,
                      "realizado": int(mensal * (PADRAO_SAZONAL[mes_no_trimestre(m) - 1] if sazonal else 100) / 100
@@ -325,15 +368,18 @@ def semente(seed: int, competencia: str) -> int:
 class Ambiente:
     """Conjunto de datasets por competência da SMA (agenda de plantios por mês)."""
 
-    def __init__(self, seed: int = 42, plantar=(), agenda: dict | None = None, porte: str = PORTE_PADRAO):
+    def __init__(self, seed: int = 42, plantar=(), agenda: dict | None = None, porte: str = PORTE_PADRAO,
+                 segmento: str = SEGMENTO_PADRAO):
         self.seed = seed
         self.porte = porte
+        self.segmento = segmento
         self.agenda = dict(agenda) if agenda else {COMPETENCIA: tuple(plantar)}
         self._ds: dict[str, Dataset] = {}
 
     @classmethod
     def de_dataset(cls, ds: Dataset) -> "Ambiente":
-        amb = cls(ds.seed, agenda={ds.competencia: ds.plantar}, porte=ds.porte)
+        amb = cls(ds.seed, agenda={ds.competencia: ds.plantar}, porte=ds.porte,
+                  segmento=getattr(ds, "segmento", SEGMENTO_PADRAO))
         amb._ds[ds.competencia] = ds
         return amb
 
@@ -342,7 +388,7 @@ class Ambiente:
         """Empresa real sem ERP: a planilha preenchida da pasta é a única competência."""
         from fin_mas.fontes.planilha import ler
         ds = ler(pasta)
-        amb = cls(0, agenda={ds.competencia: ()}, porte=ds.porte)
+        amb = cls(0, agenda={ds.competencia: ()}, porte=ds.porte, segmento=ds.segmento)
         amb._ds[ds.competencia] = ds
         amb.pasta = pasta
         return amb
@@ -359,5 +405,5 @@ class Ambiente:
             raise LookupError(f"a planilha da pasta é da competência {self.principal}, não de {c}")
         if c not in self._ds:
             self._ds[c] = Dataset(seed=semente(self.seed, c), competencia=c, plantar=tuple(self.agenda.get(c, ())),
-                                  porte=self.porte)
+                                  porte=self.porte, segmento=self.segmento)
         return self._ds[c]

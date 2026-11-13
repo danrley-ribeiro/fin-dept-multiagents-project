@@ -62,7 +62,7 @@ cd web && bun run test && bun run test:e2e                     # vitest (12) e P
 make verificar-tudo                                            # tudo acima e a documentação, parando no primeiro erro
 ```
 
-Cobertura da suíte pytest (`make cobertura`): 87% de 7.285 instruções; subprocessos da CLI
+Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subprocessos da CLI
 (`python -m fin_mas ...` chamados pelos testes) não entram na medição.
 
 ### Roteiro de demonstração

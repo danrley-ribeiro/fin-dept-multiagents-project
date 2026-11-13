@@ -154,7 +154,7 @@ todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (vê e faz tudo,
 | `fin-mas run ... --cognicao basico\|local\|llm`, `--llm PROVEDOR:MODELO --llm-agentes --llm-usos --llm-consentimento` | nível de cognição e LLM opcional |
 
 `fin-mas` é o mesmo que `python -m fin_mas` (instalado pelo `pip install -e .`). Alvos do `make`: `cenarios`,
-`diagramas`, `cobertura` (87% de 7.285 instruções, sem contar subprocessos da CLI) e `verificar-tudo`
+`diagramas`, `cobertura` (87% de 7.401 instruções, sem contar subprocessos da CLI) e `verificar-tudo`
 (rastreabilidade, pytest, cenários, vitest, Playwright e documentação, parando no primeiro erro).
 
 Roteiro de demonstração e mapa feedback → correção: [entregas/dsm3/README.md](entregas/dsm3/README.md);

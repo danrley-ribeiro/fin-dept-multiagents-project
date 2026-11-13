@@ -59,7 +59,8 @@ class Aprovador(Agent):
     rejeita; "nenhuma" não responde e o prazo do ticket esgota. Opção que a política não
     abriu vira silêncio (corrigir) ou rejeição (waiver) no modo em lote; no dashboard, o waiver
     não oferecido não é enviado e a pendência continua (não vira bloqueio sem o humano saber).
-    Uma sequência é consumida aviso a aviso (a última se repete). No modo interativo a decisão vem do dashboard (`decidir`).
+    Uma sequência é consumida aviso a aviso (a última se repete). No modo interativo a decisão
+    vem do dashboard (`decidir`).
     """
 
     PAPEL = "ROLE-APR"

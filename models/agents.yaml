@@ -36,7 +36,7 @@ items:
     cognicao: Deliberativo determinístico (regras de rateio + cálculo)
     llm: nao_permitido
     objetivos: [G-02]
-    recursos: [ENV-ERP, ENV-BD]
+    recursos: [ENV-ERP, ENV-BD, ENV-SEG]  # ENV-SEG: direcionador de rateio do segmento (DSM4)
     percepcoes:
       - Request de apuração (competência, entidade, dimensão)
       - Query-ref do Agente de Resultados

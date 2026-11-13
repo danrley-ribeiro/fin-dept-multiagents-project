@@ -30,3 +30,8 @@ items:
   - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
   - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
   - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  # ---- DSM4: portes novos, segmentos e implantação ----
+  - {id: COMP-SEG, titulo: Eixo segmento (plano de contas, custos e rateio por direcionador), realiza: [AG-CUS], caminho: src/fin_mas/env/segmentos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-BKP, titulo: Backup, restauração e migração da pasta de dados, realiza: [SVC-IAM], caminho: src/fin_mas/manutencao.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PKG, titulo: Pacote instalável com modelos YAML e dashboard embutidos, realiza: [SVC-MCP], caminho: src/fin_mas/recursos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CTN, titulo: Contêiner (Dockerfile e compose) publicado só em loopback, realiza: [SVC-IAM], caminho: Dockerfile, entrega: DSM4, status: implementado}

@@ -240,3 +240,66 @@ Componente implementado em `src/fin_mas/invariantes.py`.
 
 Componente implementado em `src/fin_mas/services/explicacao.py`.
 ````
+
+````{comp} Conectores de fonte (interface
+:id: COMP-CNX
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/base.py`.
+````
+
+````{comp} Cliente MCP por stdio e conector MCP
+:id: COMP-MCC
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/mcp_cliente.py`.
+````
+
+````{comp} ERP de demonstração em loopback (API JSON com token e escrita)
+:id: COMP-ERD
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/erp_demo.py`.
+````
+
+````{comp} Entendimento determinístico de fontes (OpenAPI
+:id: COMP-ENT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/fontes/entendimento.py`.
+````
+
+````{comp} Cofre selado de credenciais
+:id: COMP-COF
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/cofre.py`.
+````
+
+````{comp} Cadastro de fontes e rotas da aba Fontes de dados
+:id: COMP-FNT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/fontes/registro.py`.
+````
+
+````{comp} Aba Fontes de dados no dashboard
+:id: COMP-FNW
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `web/src/components/Fontes.tsx`.
+````

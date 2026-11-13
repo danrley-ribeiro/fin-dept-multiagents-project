@@ -177,3 +177,13 @@
 **Fórmula:** crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo  
 **Alvo:** 0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens
 ````
+
+````{metric} Acerto do entendimento automático de fontes
+:id: MET-30
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F20, REQ-S20
+
+**Fórmula:** campos canônicos sugeridos corretamente / campos do gabarito, por fonte (OpenAPI do ERP de demonstração, planilha fora do modelo, tools MCP); fechamento sobre o conector igual ao da fonte de referência  
+**Alvo:** 100% nas fontes de demonstração; 0 credenciais expostas; 0 chamadas a host externo sem liberação
+````

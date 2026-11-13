@@ -28,7 +28,7 @@
 :status: especificado
 :accessed_via: SVC-MCP
 
-**Observabilidade:** Leitura via MCP (séries históricas, fechamentos anteriores)  
+**Observabilidade:** Leitura via MCP (séries históricas, fechamentos anteriores). Desde a DSM4 (ADR-011) é real: o recurso canônico Historico vem de qualquer conector (API REST, servidor MCP, planilha) pelo mapeamento confirmado e alimenta a tool erp.historico  
 **Acionabilidade:** Nenhuma (somente leitura)  
 **Exclusividade:** Não exclusiva  
 **Autoridade:** TI do cliente (STK-05)
@@ -40,7 +40,7 @@
 :status: especificado
 :accessed_via: SVC-MCP
 
-**Observabilidade:** Leitura via MCP; pode falhar ou atrasar  
+**Observabilidade:** Leitura via MCP; pode falhar ou atrasar. Desde a DSM4 (ADR-011) há o conector REST JSON genérico (contrato OpenAPI ou amostras, autenticação por cabeçalho, Bearer ou chave, tempo limite, erros redigidos), exercitado contra o ERP de demonstração em loopback; host externo só com liberação de um administrador (NORM-22)  
 **Acionabilidade:** Nenhuma  
 **Exclusividade:** Não exclusiva (cota de chamadas)  
 **Autoridade:** Provedor externo

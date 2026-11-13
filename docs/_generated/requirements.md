@@ -344,3 +344,37 @@ O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, s
 
 **Evidência observável de aceite:** Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito; propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
 ````
+
+````{req} Fonte de dados por conector genérico e entendimento automático sem IA generativa
+:id: REQ-F20
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-01, G-07
+:addresses: PROB-01, PROB-06
+:assigned_to: ROLE-OPE, ROLE-ORQ
+:uses_protocol: PROT-DEL
+:constrained_by: NORM-02, NORM-20, NORM-21
+
+A empresa liga a SMA à própria fonte sem conector de fornecedor: ERP simulado, pasta de planilhas (várias competências), API REST JSON qualquer (contrato OpenAPI ou amostras) ou servidor MCP por stdio. O entendimento da fonte é determinístico (nomes, sinônimos pt/en, tipos e conteúdo): estrutura, sugestão de mapeamento para o modelo canônico com confiança e motivo, relatório de qualidade e prévia redigida. LLM só sugere, se ligado, e passa pela mesma validação; o mapeamento só vale confirmado por uma pessoa.
+
+**Evidência observável de aceite:** Fechamento sobre o ERP de demonstração em loopback igual ao do ERP simulado na mesma seed; planilha fora do modelo e tools MCP entendidas com o gabarito de mapeamento e o mesmo fechamento da leitura canônica; fonte fora do ar termina em falha explícita, sem travar; sugestão inválida do LLM rejeitada com o motivo.
+````
+
+````{req} Credencial de conector selada e rede só em loopback salvo liberação do administrador
+:id: REQ-S20
+:entrega: DSM4
+:status: especificado
+:categoria: Segurança
+:prioridade: Must
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-OPE
+:uses_protocol: PROT-APR
+:constrained_by: NORM-06, NORM-12, NORM-22
+
+A credencial de um conector vai para o cofre selado e nunca volta pela API, pelo trace nem pela trilha; só é enviada ao host a que foi vinculada no cadastro. Host fora do loopback exige liberação explícita de uma pessoa com PERM-DAD-REDE; redirecionamentos não são seguidos. A escrita na fonte (correção) continua só com o ticket aprovado no Approval Gate.
+
+**Evidência observável de aceite:** O token não aparece em resposta, trace, trilha nem no arquivo do cofre; host externo negado sem liberação e o operador não consegue liberar; trocar a URL desvincula a credencial; correção sem aprovação não chega ao ERP.
+````

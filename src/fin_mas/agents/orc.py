@@ -24,6 +24,8 @@ epistêmico `verificar_hipotese(conta)`:
 
   P-CONFERIR-EVIDENCIA      o AG-CIN já respondeu: a resposta confirma ou refuta, sem mensagem nova
   P-VERIFICAR-COM-CIN       a consulta normal se perdeu: nova consulta, se couber no prazo e no teto
+  P-NEGOCIAR-PRAZO          não cabe no prazo: pede uma extensão ao Orquestrador (PROT-DEL, propose);
+                            aceita, consulta o AG-CIN; recusada, o plano falha e resta arquivar
   P-VERIFICAR-NO-HISTORICO  confere o padrão de calendário em todos os trimestres do histórico
   P-ARQUIVAR-HIPOTESE       sem evidência disponível: a hipótese é arquivada e nada muda
 
@@ -240,6 +242,30 @@ def _continuar_verificar_cin(a, i, msg):
                         else f"AG-CIN não contesta lançamentos de {conta}")
 
 
+def _ctx_negociar(a, d):
+    h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
+    t = a.tarefa(c)
+    if h.tipo != "causa_controle" or a.crencas.get(_k("explicacao", c, conta)) != "indisponível":
+        return False, "só para hipótese de causa de controle sem resposta do AG-CIN"
+    if "AG-CIN" not in a.bus.agents or t["verificacoes"] >= MAX_VERIFICACOES:
+        return False, "AG-CIN fora do diretório ou teto de verificações atingido"
+    if t["prazo"] is None or a.bus.now + PRAZO_CONSULTA + FOLGA_RESPOSTA <= t["prazo"]:
+        return False, "a verificação cabe no prazo: não há o que negociar"
+    if t.get("negociou") or len(t["solicitantes"]) != 1 or t["solicitantes"][0][2] != "PROT-DEL":
+        return False, "prazo já negociado ou solicitante sem negociação (só o Orquestrador, por PROT-DEL)"
+    return True, f"a verificação não cabe no prazo (t={t['prazo']}): pede extensão ao Orquestrador"
+
+
+def _corpo_negociar(a, i):
+    h, c = _hip(a, i.desejo), i.desejo.params["c"]
+    t = a.tarefa(c)
+    t["negociou"] = True
+    destino, cid, _ = t["solicitantes"][0]
+    a.send(destino, "propose", "PROT-DEL", cid, {"tipo": "mais_prazo", "prazo_extra": PRAZO_CONSULTA + FOLGA_RESPOSTA,
+                                                  "motivo": f"verificar a hipótese {h.id} com o AG-CIN antes de classificar"})
+    a.suspender(i, "neg:" + cid, f"aguarda o Orquestrador sobre o prazo para verificar {h.id}")
+
+
 def _ctx_historico(a, d):
     h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
     if h.tipo != "efeito_temporal":
@@ -297,6 +323,8 @@ PLANOS = [
           ("precisao", "tempestividade"), _ctx_conferir, _corpo_conferir, preferencia=2),
     Plano("P-VERIFICAR-COM-CIN", "verificar_hipotese", "consultar de novo o AG-CIN para confirmar ou refutar a hipótese",
           ("precisao",), _ctx_verificar_cin, _corpo_verificar_cin, _continuar_verificar_cin, preferencia=1),
+    Plano("P-NEGOCIAR-PRAZO", "verificar_hipotese", "negociar mais prazo com o Orquestrador e então consultar o AG-CIN",
+          ("precisao",), _ctx_negociar, _corpo_negociar, _continuar_verificar_cin),
     Plano("P-VERIFICAR-NO-HISTORICO", "verificar_hipotese", "conferir o padrão de calendário no histórico mensal",
           ("precisao",), _ctx_historico, _corpo_historico, preferencia=1),
     Plano("P-ARQUIVAR-HIPOTESE", "verificar_hipotese", "arquivar a hipótese sem evidência (nada muda)",
@@ -356,6 +384,23 @@ class AgenteOrcamento(AgenteBDI):
             self.iniciar(msg.content.get("competencia"), (msg.sender, msg.conversation_id, "PROT-QRY"), msg.reply_by)
         elif msg.protocol == "PROT-QRY":  # resposta (ou timeout) de uma consulta que o AG-ORC fez
             self.entregar_resposta(msg)
+        elif msg.protocol == "PROT-DEL" and msg.performative in ("accept-proposal", "reject-proposal"):
+            self._resposta_da_negociacao(msg)
+
+    def _resposta_da_negociacao(self, msg) -> None:
+        """O Orquestrador respondeu ao pedido de prazo: aceito, o plano segue para a consulta; recusado, falha."""
+        i = self.intencao_aguardando("neg:" + msg.conversation_id)
+        if i is None:
+            return
+        i.estado, i.aguardando = "ativa", None
+        self._registrar("intention", i.desejo.cid, intencao=i.id, desejo=i.desejo.id, plano=i.plano.id,
+                        evento="retomada", motivo=f"{msg.performative} em {msg.conversation_id}")
+        if msg.performative == "accept-proposal":
+            self.tarefa(i.desejo.params["c"])["prazo"] = msg.content["prazo"]
+            _corpo_verificar_cin(self, i)
+        else:
+            self._falhar(i, f"prazo recusado pelo Orquestrador: {msg.content['motivo']}")
+        self.ciclo()
 
     def iniciar(self, competencia, solicitante, prazo=None) -> None:
         c = competencia or self.gw.ambiente.principal

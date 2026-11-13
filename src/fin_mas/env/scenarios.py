@@ -321,8 +321,18 @@ CENARIOS = {c.nome: c for c in [
     Scenario("hipotese_arquivada", "AG-CIN não responde a nenhuma das duas consultas: a hipótese fica sem evidência, "
              "é arquivada e a avaliação sai igual à da cognição básica",
              "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 3},),
+             esperado="três consultas perdidas (uma delas com prazo negociado); hipótese arquivada; ressalva de AG-CIN indisponível"),
+    Scenario("negociacao_prazo", "Duas consultas ao AG-CIN se perdem e a terceira não cabe no prazo: o AG-ORC negocia "
+             "mais prazo com o Orquestrador, que aceita; a hipótese é confirmada e o desvio reclassificado",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local",
              faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 2},),
-             esperado="hipótese arquivada; desvio sinalizado com a ressalva de AG-CIN indisponível"),
+             esperado="propose e accept-proposal no PROT-DEL; QRY-003 respondida; sem falso desvio; nenhum timeout da subtarefa"),
+    Scenario("negociacao_recusada", "No fechamento com período reservado o Orquestrador recusa a extensão de prazo: o "
+             "AG-ORC arquiva a hipótese e entrega no prazo; o AG-CIN veta a NF duplicada depois e o estorno é aprovado",
+             "fechar_mes", plantar=("desvio_irregular",), cognicao="local", decisao_aprovador="corrigir",
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 2},),
+             esperado="propose e reject-proposal (período reservado); hipótese arquivada; fechamento publicado após a correção"),
     Scenario("historico_calendario", "Gasto concentrado no início do trimestre: a hipótese de efeito de calendário "
              "é conferida em todos os trimestres do histórico e entra no relatório como insight",
              "avaliar_orcamento", cognicao="local", agenda=(("2026-07", ("desvio_sazonal",)),),

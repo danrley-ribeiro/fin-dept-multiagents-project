@@ -94,6 +94,7 @@ class Bus:
         self._seq = 0
         self._ids: dict[str, int] = {}
         self.offline: set[str] = set()  # agentes fora de operação: o que chega a eles se perde
+        self.prazos: dict[str, int] = {}  # conversa -> prazo vigente (uma resposta com novo reply_by o estende)
 
     # ---- identidades ------------------------------------------------------------
     def register(self, agent, papel: str | None = None) -> str:
@@ -209,6 +210,9 @@ class Bus:
             self._validar_dominio(msg, conv)
             antes, depois = conv.step(msg.performative)
             self.audit.record(self.now, "send", de=antes, para=depois, **_campos(msg))
+            if msg.reply_by is not None:  # prazo renegociado (PROT-DEL, accept-proposal): o temporizador antigo perde efeito
+                self.prazos[msg.conversation_id] = msg.reply_by
+                self._push(msg.reply_by, "timer", msg.conversation_id)
         self._push(self.now + delay, "msg", (msg, digest))
 
     def _validar_dominio(self, msg: Message, conv) -> None:
@@ -230,6 +234,7 @@ class Bus:
             conv.step(msg.performative)
         self.audit.record(self.now, "open", de=antes, para=conv.state, **_campos(msg))
         if msg.reply_by is not None:
+            self.prazos[msg.conversation_id] = msg.reply_by
             self._push(msg.reply_by, "timer", msg.conversation_id)
         return conv
 
@@ -358,6 +363,8 @@ class Bus:
 
     def _timer(self, conversation_id: str) -> None:
         conv = self.conversations[conversation_id]
+        if self.prazos.get(conversation_id, self.now) > self.now:
+            return  # o prazo foi estendido depois deste temporizador: vale o novo
         if conv.can("timeout"):
             antes, depois = conv.step("timeout")
         elif len(conv.history) == 1 and not conv.is_final:

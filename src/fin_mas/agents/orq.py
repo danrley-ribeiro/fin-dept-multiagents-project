@@ -21,6 +21,7 @@ from fin_mas.services.politica import PoliticaAprovacao
 PRAZO_SUBTAREFA = 30  # ticks lógicos de reply_by por delegação
 MAX_TENTATIVAS = 2  # envio original + um reenvio
 MAX_CORRECOES = 2  # teto de segurança; quem oferece (ou não) a correção é o AG-CIN, conforme o porte
+MAX_EXTENSAO = 20  # ticks a mais que uma subtarefa pode negociar, uma única vez (PROT-DEL, propose)
 
 
 def _no(agente, tarefa, depende=(), protocolo="PROT-DEL"):
@@ -184,6 +185,9 @@ class Orquestrador(Agent):
         p = msg.performative
         if p == "agree":
             return
+        if p == "propose":
+            self._negociar_prazo(sol, nome, msg)
+            return
         if p == "inform" or p in ("conforme", "nao_conforme_nao_critico"):
             self._parecer_ou_resultado(sol, nome, msg)
         elif p == "veto":
@@ -191,6 +195,34 @@ class Orquestrador(Agent):
         else:  # failure, refuse ou timeout
             motivo = msg.content.get("motivo") or p
             self._falha(sol, nome, p, motivo)
+
+    def _negociar_prazo(self, sol, nome, msg) -> None:
+        """O especialista pede mais prazo em vez de estourar o tempo. Regras de quem coordena:
+
+        só prazo é negociável (resultado parcial não); uma extensão por subtarefa, até `MAX_EXTENSAO`;
+        e nenhuma extensão num fechamento com período reservado, porque a reserva tem prazo e outros
+        pedidos esperam por ela.
+        """
+        no, c = sol["nos"][nome], msg.content
+        motivo = None
+        if c["tipo"] != "mais_prazo":
+            motivo = "só o prazo é negociável: resultado parcial não é aceito"
+        elif sol["reserva"]:
+            motivo = "período reservado para o fechamento: a subtarefa precisa caber no prazo original"
+        elif no.get("extensoes"):
+            motivo = "esta subtarefa já teve uma extensão de prazo"
+        elif not 0 < c["prazo_extra"] <= MAX_EXTENSAO:
+            motivo = f"extensão de {c['prazo_extra']} ticks fora do teto de {MAX_EXTENSAO}"
+        entradas = {"subtarefa": nome, "prazo_extra": c["prazo_extra"], "motivo_do_pedido": c["motivo"]}
+        if motivo:
+            self.decide(sol["id"], "negociação de prazo (PROT-DEL): proposta recusada", entradas, motivo)
+            self.send(msg.sender, "reject-proposal", "PROT-DEL", msg.conversation_id, {"motivo": motivo})
+            return
+        no["extensoes"] = 1
+        novo = self.bus.prazos[msg.conversation_id] + c["prazo_extra"]
+        self.decide(sol["id"], "negociação de prazo (PROT-DEL): uma extensão por subtarefa, dentro do teto", entradas,
+                    {"novo_prazo": novo})
+        self.send(msg.sender, "accept-proposal", "PROT-DEL", msg.conversation_id, {"prazo": novo}, reply_by=novo)
 
     def _parecer_ou_resultado(self, sol, nome, msg):
         if msg.performative == "nao_conforme_nao_critico":

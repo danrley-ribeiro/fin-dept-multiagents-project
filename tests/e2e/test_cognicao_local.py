@@ -95,7 +95,8 @@ def test_hypothesis_without_evidence_is_archived_and_changes_nothing():
     local = run_scenario("hipotese_arquivada")
     basico = run_scenario("hipotese_arquivada", cognicao="basico")
     assert [h[0] for h in _hipoteses(local)] == ["aceita", "em_verificacao", "arquivada"]
-    assert [c.state for c in _consultas_ao_cin(local)] == ["EXPIRADA", "EXPIRADA"]
+    # três consultas perdidas: a normal, a de verificação e a feita depois de negociar mais prazo
+    assert [c.state for c in _consultas_ao_cin(local)] == ["EXPIRADA", "EXPIRADA", "EXPIRADA"]
     for campo in ("resultado", "ressalvas", "status"):
         assert local.resposta.content[campo] == basico.resposta.content[campo]
     assert any("AG-CIN indisponível" in x for x in local.resposta.content["ressalvas"])
@@ -139,11 +140,28 @@ def test_full_closing_with_local_cognition_reaches_approved_correction():
     assert [c["acao"] for c in e.system.dataset.correcoes] == ["estornar"]
 
 
-def _orcamento_isolado(prazo, faltas=1):
-    bus = Bus(faults=[Fault(receiver="AG-CIN", performative="query-ref", times=faltas)])
+class ClienteQueNegocia(Cliente):
+    """Solicitante de teste que responde às propostas de prazo como o Orquestrador responderia."""
+
+    def __init__(self, agent_id, bus, aceita):
+        super().__init__(agent_id, bus)
+        self.aceita = aceita
+
+    def on_message(self, msg):
+        super().on_message(msg)
+        if msg.performative == "propose":
+            if self.aceita:
+                novo = self.bus.prazos[msg.conversation_id] + msg.content["prazo_extra"]
+                self.send(msg.sender, "accept-proposal", "PROT-DEL", msg.conversation_id, {"prazo": novo}, reply_by=novo)
+            else:
+                self.send(msg.sender, "reject-proposal", "PROT-DEL", msg.conversation_id, {"motivo": "sem folga"})
+
+
+def _orcamento_isolado(prazo, aceita=False):
+    bus = Bus(faults=[Fault(receiver="AG-CIN", performative="query-ref", times=1)])
     ds = Dataset(seed=42, plantar=("desvio_irregular",))
     gw = MCPGateway(ds, bus.audit, bus)
-    cliente, orc = Cliente("CLI", bus), AgenteOrcamento(bus, gw)
+    cliente, orc = ClienteQueNegocia("CLI", bus, aceita), AgenteOrcamento(bus, gw)
     AgenteControlesInternos(bus, gw)
     orc.proponentes.append(ProponenteLocal())
     cliente.send("AG-ORC", "request", "PROT-DEL", "DEL-001",
@@ -154,18 +172,28 @@ def _orcamento_isolado(prazo, faltas=1):
 
 
 def test_epistemic_action_respects_requester_deadline():
-    """Prazo curto do solicitante: a nova consulta não cabe, a hipótese é arquivada e a resposta sai no prazo."""
+    """Prazo curto: a nova consulta não cabe. O agente pede prazo; recusado, arquiva e responde no prazo original."""
     bus, cliente, orc = _orcamento_isolado(prazo=20)
     delib = next(r for r in bus.audit.records if r["kind"] == "deliberation"
                  and r["desejo"].startswith("verificar_hipotese"))
     motivos = {o["plano"]: o["motivo"] for o in delib["opcoes"]}
-    assert delib["escolhido"] == "P-ARQUIVAR-HIPOTESE"
+    assert delib["escolhido"] == "P-NEGOCIAR-PRAZO"
     assert motivos["P-VERIFICAR-COM-CIN"].startswith("não cabe no prazo do solicitante")
     assert next(iter(orc.hipoteses.values())).estado == "arquivada"
-    assert cliente.por_performativo("inform", "DEL-001") and bus.conversations["DEL-001"].state == "CONCLUIDA"
-    # com prazo folgado, a mesma situação leva à verificação
+    (entrega,) = cliente.por_performativo("inform", "DEL-001")
+    assert bus.conversations["DEL-001"].state == "CONCLUIDA"
+    assert next(r["t"] for r in bus.audit.records if r["kind"] == "send" and r["performative"] == "inform"
+                and r["conversation_id"] == "DEL-001") < 20
+    assert any("AG-CIN indisponível" in x for x in entrega.content["ressalvas"])
+    assert len([c for c in bus.conversations.values() if c.protocol.id == "PROT-QRY"]) == 1  # nenhuma consulta fora do prazo
+    # com prazo folgado, a mesma situação leva direto à verificação, sem negociar
     bus2, _, orc2 = _orcamento_isolado(prazo=60)
     assert next(iter(orc2.hipoteses.values())).estado == "confirmada"
+    assert not [r for r in bus2.audit.records if r.get("performative") == "propose"]
+    # prazo curto e solicitante que aceita: a consulta acontece dentro do prazo estendido
+    bus3, cliente3, orc3 = _orcamento_isolado(prazo=20, aceita=True)
+    assert next(iter(orc3.hipoteses.values())).estado == "confirmada"
+    assert bus3.conversations["DEL-001"].state == "CONCLUIDA" and cliente3.por_performativo("inform", "DEL-001")
 
 
 @pytest.mark.parametrize("nome", BASICOS)

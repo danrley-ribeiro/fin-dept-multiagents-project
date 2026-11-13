@@ -37,10 +37,13 @@ items:
 
   - id: PROT-DEL
     titulo: Delegação de subtarefa (FIPA-Request via A2A)
-    proposito: Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by.
+    proposito: >-
+      Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by. Desde a DSM3 o
+      especialista pode negociar o prazo: em vez de estourar o tempo, propõe uma extensão justificada
+      (propose) e o Orquestrador aceita, com o novo prazo, ou recusa, e o especialista segue com o que tem.
     participantes: [ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
     meio: SVC-A2A
-    performativos: [request, agree, refuse, inform, failure]
+    performativos: [request, agree, refuse, inform, failure, propose, accept-proposal, reject-proposal]
     estado_inicial: CRIADA
     estados_finais: [CONCLUIDA, FALHOU, RECUSADA, EXPIRADA]
     transicoes:
@@ -51,20 +54,33 @@ items:
       - [EM_EXECUCAO, inform, CONCLUIDA]
       - [EM_EXECUCAO, failure, FALHOU]
       - [EM_EXECUCAO, timeout, EXPIRADA]
+      - [EM_EXECUCAO, propose, NEGOCIANDO]
+      - [NEGOCIANDO, accept-proposal, EM_EXECUCAO]
+      - [NEGOCIANDO, reject-proposal, EM_EXECUCAO]
+      - [NEGOCIANDO, timeout, EXPIRADA]
     invalidas:
       - [AGUARDANDO, inform, "resultado antes de agree"]
       - [EXPIRADA, inform, "resposta após reply_by é descartada"]
+      - [AGUARDANDO, propose, "proposta de prazo antes de agree"]
+      - [NEGOCIANDO, inform, "resultado com proposta de prazo ainda sem resposta"]
+      - [NEGOCIANDO, propose, "segunda proposta antes da resposta à primeira"]
     emissores:
       request: [ROLE-ORQ]
       agree: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       refuse: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       inform: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       failure: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      propose: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      accept-proposal: [ROLE-ORQ]
+      reject-proposal: [ROLE-ORQ]
     esquemas:
       request: {tarefa: str, entidade: str, competencia: aaaa-mm}
       refuse: {motivo: str}
       inform: {}
       failure: {motivo: str}
+      propose: {tipo: str, prazo_extra: int, motivo: str}
+      accept-proposal: {prazo: int}
+      reject-proposal: {motivo: str}
     entrega: DSM1
 
   - id: PROT-QRY

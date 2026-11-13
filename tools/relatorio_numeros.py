@@ -37,6 +37,7 @@ RES = RAIZ / "docs" / "dsm4" / "resultados"
 DOC = RAIZ / "entregas" / "dsm4" / "documentacao"
 CATALOGO = RAIZ / "docs" / "dsm4" / "cenarios-de-teste.md"
 TAG_DSM3 = "dsm3-v0.5.0"  # catálogo de cenários e testes entregues na DSM3
+RODADA1 = "cfa6b6f"       # commit com os dados da primeira rodada do experimento (antes da correção)
 sys.path.insert(0, str(RAIZ / "src"))
 
 CONDICOES = ("perda_baixa", "perda_media", "perda_alta", "indisponibilidade", "humano_lento", "combinadas",
@@ -274,7 +275,7 @@ class Macros:
     def escrever(self, destino: Path, cabecalho: str):
         out = [f"% {cabecalho}", "% Gerado por tools/relatorio_numeros.py; não edite à mão.",
                "\\providecommand{\\V}[1]{\\ifcsname V@#1\\endcsname\\csname V@#1\\endcsname"
-               "\\else\\textbf{??#1??}\\PackageWarning{numeros}{chave indefinida: #1}\\fi}"]
+               "\\else\\textbf{??\\detokenize{#1}??}\\PackageWarning{numeros}{chave indefinida: #1}\\fi}"]
         for k in sorted(self.v):
             out.append(f"\\expandafter\\newcommand\\csname V@{k}\\endcsname{{{self.v[k]}}}")
         for nome in sorted(self.tabelas):
@@ -395,6 +396,7 @@ def numeros_experimento(M: Macros, E: Experimento):
         r = t["rq4_recuperacao"]["sma_basico"][c]
         frac = r["mesmo_resultado"] / r["atingidas"] if r["atingidas"] else None
         M[f"rq4.{c}.atingidas"] = r["atingidas"]
+        M[f"rq4.{c}.execucoes"] = r["execucoes"]
         M[f"rq4.{c}.mesmo"] = r["mesmo_resultado"]
         M[f"rq4.{c}.mesmo.pct"] = pct(frac, 0) if frac is not None else "---"
         M[f"rq4.{c}.degradacao"] = r["degradacao_segura"]
@@ -493,17 +495,17 @@ def numeros_experimento(M: Macros, E: Experimento):
     for c in ("perda_baixa", "perda_media", "perda_alta", "combinadas"):
         x = E.teste("RQ7", f"sma_local x sma_basico, {c}", "classificacao_correta")
         r = t["rq7_cognicao"][c]
-        M[f"rq7.{c}.p"], M[f"rq7.{c}.seeds"] = pval(x["p_holm"] if x["p_holm"] is not None else x["p"]), x["pares_diferentes"]
+        M[f"rq7.{c}.p"], M[f"rq7.{c}.seeds"] = pval(x["p_holm"]), x["pares_diferentes"]
         linhas.append(f"{COND_ROTULO[c]} & {pct(r['sma_basico']['classificacao_correta']['media'])}"
                       f" & {pct(r['sma_local']['classificacao_correta']['media'])} & {x['pares_diferentes']}"
-                      f" & {pval(x['p_holm'] if x['p_holm'] is not None else x['p'])} \\\\")
+                      f" & {pval(x['p_holm'])} \\\\")
     sub = t["rq7_subgrupo_com_pista"]
     x = E.teste("RQ7", "sma_local x sma_basico, perda (3 níveis), desvio irregular com pista na planilha", "classificacao_correta")
     M["rq7.sub.basico"], M["rq7.sub.local"] = pct(sub["sma_basico"]["classificacao_correta"]["media"]), pct(sub["sma_local"]["classificacao_correta"]["media"])
     M["rq7.sub.n"], M["rq7.sub.seeds"] = sub["sma_local"]["classificacao_correta"]["n"], x["pares_diferentes"]
     linhas.append(f"subgrupo registrado (desvio irregular com pista, sob perda; {sub['sma_local']['classificacao_correta']['n']} seeds)"
                   f" & {M.v['rq7.sub.basico']} & {M.v['rq7.sub.local']} & {x['pares_diferentes']}"
-                  f" & {pval(x['p_holm'] if x['p_holm'] is not None else x['p'])} \\\\")
+                  f" & {pval(x['p_holm'])} \\\\")
     M.tabela("TabRQsete", linhas)
     x = E.teste("RQ7", "sma_local x sma_basico, perda_media", "mensagens_coordenacao")
     M["rq7.msg.dif"], M["rq7.msg.dif.ic"], M["rq7.msg.p"] = num(x["diferenca_media"], 2), ic_num(x["ic95_diferenca"], 2), pval(x["p_holm"])
@@ -556,6 +558,69 @@ def numeros_experimento(M: Macros, E: Experimento):
         familias[x["familia"]] = familias.get(x["familia"], 0) + 1
     M["exp.testes"] = len(E.resumo["testes"])
     M["exp.familias"] = len(familias)
+
+
+def numeros_rodada1(M: Macros, E: Experimento):
+    """Primeira rodada (antes da correção do barramento), lida do histórico do git, ao lado da segunda."""
+    def git_json(caminho):
+        r = rodar(["git", "show", f"{RODADA1}:{caminho}"])
+        if r.returncode != 0:
+            raise SystemExit(f"não consegui ler {caminho} no commit {RODADA1}: {r.stderr}")
+        return json.loads(r.stdout)
+    r1 = git_json("docs/dsm4/resultados/resumo.json")
+    m1 = git_json("docs/dsm4/resultados/manifesto.json")
+    M["r1.commit"], M["r2.commit"] = RODADA1, rodar(["git", "log", "-1", "--format=%h", "--", "docs/dsm4/resultados/execucoes.csv"]).stdout.strip()
+    M["r1.sha"] = m1["arquivos"]["execucoes.csv"]["sha256"][:8]
+    t1, t2 = r1["tabelas"], E.t
+    linhas = []
+
+    def linha(rotulo, f, extra="---"):
+        linhas.append(f"{rotulo} & {f(t1)} & {f(t2)} & {extra} \\\\")
+    linha("pares diferentes do workflow, sem falhas (RQ1)",
+          lambda t: f"{(r1 if t is t1 else E.resumo)['identidade']['sma_basico_x_wf_equivalente']['diferentes']} de "
+                    f"{(r1 if t is t1 else E.resumo)['identidade']['sma_basico_x_wf_equivalente']['pares']}")
+    for c in ("perda_baixa", "perda_media", "perda_alta", "indisponibilidade", "humano_lento", "combinadas"):
+        linha(f"execução correta, {COND_ROTULO[c]}", lambda t, c=c: pct(t["rq2_robustez"][c]["sma_basico"]["execucao_correta"]["media"]),
+              pct(t2["rq2_robustez"][c]["wf_equivalente"]["execucao_correta"]["media"]))
+        M[f"r1.rq2.{c}"] = pct(t1["rq2_robustez"][c]["sma_basico"]["execucao_correta"]["media"])
+        M[f"r1.rq2.{c}.resposta"] = pct(t1["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"])
+    linha("resposta explícita, perda de 5\\% / 15\\% / 30\\%",
+          lambda t: " / ".join(pct(t["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"])
+                               for c in ("perda_baixa", "perda_media", "perda_alta")), "100\\%")
+    linha("execuções do SMA com invariante violado",
+          lambda t: f"{inteiro(t['invariantes']['execucoes_com_violacao'])} de {inteiro(t['invariantes']['execucoes_do_sma'])}"
+                    + (" (" + ", ".join(t["invariantes"]["execucoes_por_invariante"]) + ")" if t["invariantes"]["execucoes_por_invariante"] else ""),
+          "não se aplica")
+    linha("mensagens de coordenação, sem falhas", lambda t: num(t["rq3_custo"]["nominal"]["sma_basico"]["mensagens_coordenacao"]["media"], 2),
+          num(t2["rq3_custo"]["nominal"]["wf_equivalente"]["mensagens_coordenacao"]["media"], 2))
+    linha("latência sem falhas (ticks)", lambda t: num(t["rq3_custo"]["nominal"]["sma_basico"]["latencia_ticks"]["media"], 1),
+          num(t2["rq3_custo"]["nominal"]["wf_equivalente"]["latencia_ticks"]["media"], 1))
+    lat1 = t1["rq3_custo"]["combinadas"]["sma_basico"]["latencia_ticks"]
+    linhas.append(f"latência, combinadas (ticks) & {num(lat1['media'], 1)} (só as {lat1['n']} seeds com resposta)"
+                  f" & {num(t2['rq3_custo']['combinadas']['sma_basico']['latencia_ticks']['media'], 1)}"
+                  f" & {num(t2['rq3_custo']['combinadas']['wf_equivalente']['latencia_ticks']['media'], 1)} \\\\")
+    M["r1.lat.combinadas"], M["r1.lat.combinadas.n"] = num(lat1["media"], 1), lat1["n"]
+    linha("críticas publicadas sem tratamento (SMA)", lambda t: inteiro(sum(
+        t["rq2_robustez"][c][b]["criticas_publicadas_sem_tratamento"]["media"] for c in t["rq2_robustez"]
+        for b in ("sma_basico", "sma_local"))), "0")
+    linha("ataques aceitos indevidamente",
+          lambda t: f"0 de {inteiro(t['invariantes']['ataques_tentados'])}" if t["invariantes"]["ataques_aceitos"]
+          == t["invariantes"]["ataques_sem_premissa"] else "ver CSV", "não atacado")
+    def abl(r):
+        x = [y for y in r["testes"] if y["familia"] == "Ablação" and y["comparacao"].startswith("sem_reenvio")][0]
+        return f"{pct(x['media_b'])} $\\times$ {pct(x['media_a'])} (p ajustado {pval(x['p_holm'])})"
+    linhas.append(f"ablação do reenvio, perda de 15\\% (com $\\times$ sem) & {abl(r1)} & {abl(E.resumo)} & --- \\\\")
+    M.tabela("TabDuasRodadas", linhas)
+    inv1 = t1["invariantes"]
+    M["r1.violacoes"], M["r1.inv03"] = inteiro(inv1["execucoes_com_violacao"]), inteiro(inv1["avisos_de_prazo_sem_transicao"])
+    M["r1.ataques"] = inteiro(inv1["ataques_tentados"])
+    for c in ("perda_baixa", "perda_media", "perda_alta", "indisponibilidade", "combinadas"):
+        M[f"r1.rq4.{c}.sem_resposta"] = t1["rq4_recuperacao"]["sma_basico"][c]["sem_resposta"]
+        r = t1["rq4_recuperacao"]["sma_basico"][c]
+        M[f"r1.rq4.{c}.mesmo.pct"] = pct(r["mesmo_resultado"] / r["atingidas"], 0)
+    x = [y for y in r1["testes"] if y["familia"] == "Ablação" and y["comparacao"].startswith("sem_reenvio")][0]
+    M["r1.abl.reenvio.com"], M["r1.abl.reenvio.sem"] = pct(x["media_b"]), pct(x["media_a"])
+    M["r1.rq6.atacadas"] = t1["rq6_ataques"]["bloco A: ataques ao Approval Gate"]["execucoes_atacadas"]
 
 
 def numeros_sistema(M: Macros, suite: bool):
@@ -725,6 +790,7 @@ def main() -> int:
     M = Macros()
     E = Experimento()
     numeros_experimento(M, E)
+    numeros_rodada1(M, E)
     verif, resumo_verif, antigos = numeros_sistema(M, args.suite)
     commit = rodar(["git", "rev-parse", "--short", "HEAD"]).stdout.strip() or "?"
     M["gerado.commit"] = commit

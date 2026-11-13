@@ -1,6 +1,6 @@
-% commit 66b9a52, 13/11/2026
+% commit 3a84fc4, 13/11/2026
 % Gerado por tools/relatorio_numeros.py; não edite à mão.
-\providecommand{\V}[1]{\ifcsname V@#1\endcsname\csname V@#1\endcsname\else\textbf{??#1??}\PackageWarning{numeros}{chave indefinida: #1}\fi}
+\providecommand{\V}[1]{\ifcsname V@#1\endcsname\csname V@#1\endcsname\else\textbf{??\detokenize{#1}??}\PackageWarning{numeros}{chave indefinida: #1}\fi}
 \expandafter\newcommand\csname V@abl.sem_cognicao_local.com\endcsname{50,0\%}
 \expandafter\newcommand\csname V@abl.sem_cognicao_local.dif\endcsname{$-$10,0 pp}
 \expandafter\newcommand\csname V@abl.sem_cognicao_local.p\endcsname{0,250}
@@ -70,7 +70,7 @@
 \expandafter\newcommand\csname V@exp.sma.execucoes\endcsname{6.480}
 \expandafter\newcommand\csname V@exp.testes\endcsname{60}
 \expandafter\newcommand\csname V@exp.violacoes\endcsname{0}
-\expandafter\newcommand\csname V@gerado.commit\endcsname{66b9a52}
+\expandafter\newcommand\csname V@gerado.commit\endcsname{3a84fc4}
 \expandafter\newcommand\csname V@gerado.data\endcsname{13/11/2026}
 \expandafter\newcommand\csname V@invariantes\endcsname{8}
 \expandafter\newcommand\csname V@modelos.agents\endcsname{6}
@@ -80,6 +80,39 @@
 \expandafter\newcommand\csname V@modelos.protocols\endcsname{6}
 \expandafter\newcommand\csname V@modelos.roles\endcsname{11}
 \expandafter\newcommand\csname V@modelos.services\endcsname{9}
+\expandafter\newcommand\csname V@r1.abl.reenvio.com\endcsname{40,0\%}
+\expandafter\newcommand\csname V@r1.abl.reenvio.sem\endcsname{28,3\%}
+\expandafter\newcommand\csname V@r1.ataques\endcsname{1.735}
+\expandafter\newcommand\csname V@r1.commit\endcsname{cfa6b6f}
+\expandafter\newcommand\csname V@r1.inv03\endcsname{165}
+\expandafter\newcommand\csname V@r1.lat.combinadas\endcsname{43,7}
+\expandafter\newcommand\csname V@r1.lat.combinadas.n\endcsname{28}
+\expandafter\newcommand\csname V@r1.rq2.combinadas\endcsname{45,4\%}
+\expandafter\newcommand\csname V@r1.rq2.combinadas.resposta\endcsname{83,3\%}
+\expandafter\newcommand\csname V@r1.rq2.humano_lento\endcsname{75,8\%}
+\expandafter\newcommand\csname V@r1.rq2.humano_lento.resposta\endcsname{100\%}
+\expandafter\newcommand\csname V@r1.rq2.indisponibilidade\endcsname{92,1\%}
+\expandafter\newcommand\csname V@r1.rq2.indisponibilidade.resposta\endcsname{95,0\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_alta\endcsname{22,5\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_alta.resposta\endcsname{52,9\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_baixa\endcsname{80,0\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_baixa.resposta\endcsname{88,8\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_media\endcsname{48,8\%}
+\expandafter\newcommand\csname V@r1.rq2.perda_media.resposta\endcsname{73,8\%}
+\expandafter\newcommand\csname V@r1.rq4.combinadas.mesmo.pct\endcsname{26\%}
+\expandafter\newcommand\csname V@r1.rq4.combinadas.sem_resposta\endcsname{40}
+\expandafter\newcommand\csname V@r1.rq4.indisponibilidade.mesmo.pct\endcsname{67\%}
+\expandafter\newcommand\csname V@r1.rq4.indisponibilidade.sem_resposta\endcsname{12}
+\expandafter\newcommand\csname V@r1.rq4.perda_alta.mesmo.pct\endcsname{15\%}
+\expandafter\newcommand\csname V@r1.rq4.perda_alta.sem_resposta\endcsname{113}
+\expandafter\newcommand\csname V@r1.rq4.perda_baixa.mesmo.pct\endcsname{54\%}
+\expandafter\newcommand\csname V@r1.rq4.perda_baixa.sem_resposta\endcsname{27}
+\expandafter\newcommand\csname V@r1.rq4.perda_media.mesmo.pct\endcsname{35\%}
+\expandafter\newcommand\csname V@r1.rq4.perda_media.sem_resposta\endcsname{63}
+\expandafter\newcommand\csname V@r1.rq6.atacadas\endcsname{97}
+\expandafter\newcommand\csname V@r1.sha\endcsname{c5a4e032}
+\expandafter\newcommand\csname V@r1.violacoes\endcsname{807}
+\expandafter\newcommand\csname V@r2.commit\endcsname{ab4cc3a}
 \expandafter\newcommand\csname V@rq1.min.cliff\endcsname{0,33}
 \expandafter\newcommand\csname V@rq1.min.criticas.cliff\endcsname{$-$0,93}
 \expandafter\newcommand\csname V@rq1.min.dif\endcsname{+38,3 pp}
@@ -313,12 +346,14 @@
 \expandafter\newcommand\csname V@rq3.perda_media.wf_equivalente.msg\endcsname{0,88}
 \expandafter\newcommand\csname V@rq4.combinadas.atingidas\endcsname{176}
 \expandafter\newcommand\csname V@rq4.combinadas.degradacao\endcsname{118}
+\expandafter\newcommand\csname V@rq4.combinadas.execucoes\endcsname{240}
 \expandafter\newcommand\csname V@rq4.combinadas.mediana\endcsname{54}
 \expandafter\newcommand\csname V@rq4.combinadas.mesmo\endcsname{58}
 \expandafter\newcommand\csname V@rq4.combinadas.mesmo.pct\endcsname{33\%}
 \expandafter\newcommand\csname V@rq4.combinadas.sem_resposta\endcsname{0}
 \expandafter\newcommand\csname V@rq4.indisponibilidade.atingidas\endcsname{57}
 \expandafter\newcommand\csname V@rq4.indisponibilidade.degradacao\endcsname{7}
+\expandafter\newcommand\csname V@rq4.indisponibilidade.execucoes\endcsname{240}
 \expandafter\newcommand\csname V@rq4.indisponibilidade.mediana\endcsname{33}
 \expandafter\newcommand\csname V@rq4.indisponibilidade.mesmo\endcsname{50}
 \expandafter\newcommand\csname V@rq4.indisponibilidade.mesmo.pct\endcsname{88\%}
@@ -329,6 +364,7 @@
 \expandafter\newcommand\csname V@rq4.local.p\endcsname{0,0314}
 \expandafter\newcommand\csname V@rq4.perda_alta.atingidas\endcsname{220}
 \expandafter\newcommand\csname V@rq4.perda_alta.degradacao\endcsname{162}
+\expandafter\newcommand\csname V@rq4.perda_alta.execucoes\endcsname{240}
 \expandafter\newcommand\csname V@rq4.perda_alta.falhas\endcsname{162}
 \expandafter\newcommand\csname V@rq4.perda_alta.mediana\endcsname{59}
 \expandafter\newcommand\csname V@rq4.perda_alta.mesmo\endcsname{58}
@@ -336,12 +372,14 @@
 \expandafter\newcommand\csname V@rq4.perda_alta.sem_resposta\endcsname{0}
 \expandafter\newcommand\csname V@rq4.perda_baixa.atingidas\endcsname{105}
 \expandafter\newcommand\csname V@rq4.perda_baixa.degradacao\endcsname{14}
+\expandafter\newcommand\csname V@rq4.perda_baixa.execucoes\endcsname{240}
 \expandafter\newcommand\csname V@rq4.perda_baixa.mediana\endcsname{28}
 \expandafter\newcommand\csname V@rq4.perda_baixa.mesmo\endcsname{91}
 \expandafter\newcommand\csname V@rq4.perda_baixa.mesmo.pct\endcsname{87\%}
 \expandafter\newcommand\csname V@rq4.perda_baixa.sem_resposta\endcsname{0}
 \expandafter\newcommand\csname V@rq4.perda_media.atingidas\endcsname{189}
 \expandafter\newcommand\csname V@rq4.perda_media.degradacao\endcsname{90}
+\expandafter\newcommand\csname V@rq4.perda_media.execucoes\endcsname{240}
 \expandafter\newcommand\csname V@rq4.perda_media.mediana\endcsname{46}
 \expandafter\newcommand\csname V@rq4.perda_media.mesmo\endcsname{99}
 \expandafter\newcommand\csname V@rq4.perda_media.mesmo.pct\endcsname{52\%}
@@ -516,7 +554,7 @@
 \expandafter\newcommand\csname V@rq7.perda_alta.sma_local.execucao_correta\endcsname{40,4\%}
 \expandafter\newcommand\csname V@rq7.perda_alta.sma_local.msg\endcsname{13,26}
 \expandafter\newcommand\csname V@rq7.perda_alta.sma_local.refutadas\endcsname{0,03}
-\expandafter\newcommand\csname V@rq7.perda_baixa.p\endcsname{1,000}
+\expandafter\newcommand\csname V@rq7.perda_baixa.p\endcsname{---}
 \expandafter\newcommand\csname V@rq7.perda_baixa.seeds\endcsname{0}
 \expandafter\newcommand\csname V@rq7.perda_baixa.sma_basico.classificacao_correta\endcsname{75,0\%}
 \expandafter\newcommand\csname V@rq7.perda_baixa.sma_basico.confirmadas\endcsname{0,00}
@@ -572,6 +610,23 @@ veto com correção & críticas corrigidas por fechamento & 2,00 & 0,00 & 30 & $
 negociação de prazo & classificação correta, consulta instável & 50,0\% & 50,0\% & 0 & --- \\
 cognição local & classificação correta, consulta instável & 50,0\% & 40,0\% & 3 & 0,250 \\%
 }
+\newcommand{\TabDuasRodadas}{%
+pares diferentes do workflow, sem falhas (RQ1) & 0 de 240 & 0 de 240 & --- \\
+execução correta, perda de 5\% & 80,0\% & 94,2\% & 100\% \\
+execução correta, perda de 15\% & 48,8\% & 62,5\% & 100\% \\
+execução correta, perda de 30\% & 22,5\% & 32,5\% & 100\% \\
+execução correta, indisponibilidade & 92,1\% & 97,1\% & 100\% \\
+execução correta, humano lento & 75,8\% & 75,8\% & 75,8\% \\
+execução correta, combinadas & 45,4\% & 50,8\% & 75,8\% \\
+resposta explícita, perda de 5\% / 15\% / 30\% & 88,8\% / 73,8\% / 52,9\% & 100\% / 100\% / 100\% & 100\% \\
+execuções do SMA com invariante violado & 807 de 6.480 (INV-07) & 0 de 6.480 & não se aplica \\
+mensagens de coordenação, sem falhas & 15,75 & 15,75 & 0,88 \\
+latência sem falhas (ticks) & 15,9 & 15,9 & 12,7 \\
+latência, combinadas (ticks) & 43,7 (só as 28 seeds com resposta) & 49,2 & 18,1 \\
+críticas publicadas sem tratamento (SMA) & 0 & 0 & 0 \\
+ataques aceitos indevidamente & 0 de 1.735 & 0 de 2.227 & não atacado \\
+ablação do reenvio, perda de 15\% (com $\times$ sem) & 40,0\% $\times$ 28,3\% (p ajustado 0,1875) & 61,7\% $\times$ 31,7\% (p ajustado $<$\,0,001) & --- \\%
+}
 \newcommand{\TabRQcinco}{%
 máximo de tentativas & combinadas & execução correta & 1: 36,7\%; \textbf{2}: 51,7\%; 3: 63,3\% \\
 prazo de subtarefa & combinadas & latência (ticks) & 15: 36,6; \textbf{30}: 48,7; 60: 70,1 \\
@@ -597,7 +652,7 @@ indisponibilidade & 57 de 240 & 50 (88\%) & 7 & 0 & 33 \\
 combinadas & 176 de 240 & 58 (33\%) & 118 & 0 & 54 \\%
 }
 \newcommand{\TabRQsete}{%
-perda de 5\% & 75,0\% & 75,0\% & 0 & 1,000 \\
+perda de 5\% & 75,0\% & 75,0\% & 0 & --- \\
 perda de 15\% & 72,5\% & 75,3\% & 2 & 1,000 \\
 perda de 30\% & 69,8\% & 73,7\% & 2 & 1,000 \\
 combinadas & 78,6\% & 79,5\% & 2 & 1,000 \\

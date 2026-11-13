@@ -91,7 +91,7 @@ class Controlador(Agent):
 
     # ---- fluxo ------------------------------------------------------------------------
     def executar(self, intencao: str) -> ResultadoEq:
-        ds, fechar = self.ds, intencao == "fechar_mes"
+        fechar = intencao == "fechar_mes"
         custos = self._custos() if fechar else None
         orc = self._orcamento()
         ressalvas, notas = list(orc["ressalvas"]), []

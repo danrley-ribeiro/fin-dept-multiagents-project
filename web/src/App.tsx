@@ -26,6 +26,7 @@ import {
 import { aoEncerrarSessao, pode, sair, saude, sessaoAtual, type Saude, type Sessao } from "./api/sessao";
 import { Ajuda } from "./components/Ajuda";
 import { Aprovacoes, ConfigLLM, FichaPorte, Logs, Solicitacoes } from "./components/AreasDeTrabalho";
+import { Fontes } from "./components/Fontes";
 import { Login, TrocarSenha } from "./components/Login";
 import { Comparacao } from "./components/Comparacao";
 import { DadosEmpresaDialog, FonteDialog, PeriodosDialog } from "./components/Dialogos";
@@ -39,7 +40,7 @@ import type { Controle, FonteDados, Registro, Solicitacao, ViewState } from "./t
 import { criarTema, type ModoTema } from "./theme";
 
 type Modo = "carregando" | "login" | "senha" | "aovivo" | "replay";
-type AbaPrincipal = "escritorio" | "solicitacoes" | "aprovacoes" | "logs" | "llm" | "porte" | "comparacao";
+type AbaPrincipal = "escritorio" | "solicitacoes" | "aprovacoes" | "logs" | "llm" | "porte" | "fontes" | "comparacao";
 
 function lerPreferencia(chave: string): string | null {
   try { return localStorage.getItem(chave); } catch { return null; }
@@ -261,6 +262,7 @@ function AoVivo(p: TelaProps) {
         : aba === "logs" && s ? <Logs sessao={s} />
         : aba === "llm" && s ? <ConfigLLM sessao={s} aoComando={cmd} cenario={controle?.cenario ?? "fechar_mes"} />
         : aba === "porte" ? <FichaPorte />
+        : aba === "fontes" && s ? <Fontes sessao={s} fonteAtual={controle?.fonte} />
         : <Box sx={{ px: 2 }}><Comparacao resumo={p.comparacao} /></Box>}
       {pendencia && (
         <DecisaoHumana pendencia={pendencia} interativo={(controle?.interativo ?? true) && decide}
@@ -474,6 +476,7 @@ function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes,
           {logado && pode(sessao, "PERM-AUD-VER") && <Tab value="logs" label="Logs" />}
           {logado && pode(sessao, "PERM-MOD-VER") && <Tab value="llm" label="Agentes e LLM" />}
           {logado && <Tab value="porte" label="Porte" />}
+          {logado && pode(sessao, "PERM-DAD-VER") && <Tab value="fontes" label="Fontes de dados" />}
           <Tab value="comparacao" label="SMA × workflow" />
         </Tabs>
         <Stack direction="row" spacing={0.5} alignItems="center">

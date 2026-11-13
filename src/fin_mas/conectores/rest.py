@@ -61,11 +61,14 @@ class ConectorREST(ConectorMapeado):
     tipo = "rest"
 
     def __init__(self, id: str, config: dict, segredo: str | None = None, mapeamento: dict | None = None,
-                 politica: PoliticaRede | None = None):
+                 politica: PoliticaRede | None = None, host_credencial: str | None = None):
+        """`host_credencial`: host:porta a que a credencial foi vinculada quando foi guardada (padrão: o da
+        `url_base`). A credencial só vai para esse host; mudou a URL, é preciso informá-la de novo."""
         super().__init__(id, mapeamento, porte=config.get("porte"))
         self.config = config
         self.__segredo = segredo
         self.politica = politica or PoliticaRede()
+        self.host_credencial = (host_credencial or urlsplit(str(config.get("url_base") or "")).netloc).lower()
         auth = (config.get("autenticacao") or {}).get("tipo", "nenhuma")
         if auth not in AUTENTICACOES:
             raise ValueError(f"autenticação desconhecida: {auth} (use {', '.join(AUTENTICACOES)})")
@@ -86,22 +89,36 @@ class ConectorREST(ConectorMapeado):
         return {**super().descricao(), "recursos": sorted(self.config.get("recursos") or {})}
 
     # ---- HTTP --------------------------------------------------------------------------------
+    def _credencial_para(self, url: str) -> str | None:
+        """O segredo só acompanha pedidos ao host a que foi vinculado (nunca a outro destino)."""
+        if not self.__segredo or urlsplit(url).netloc.lower() != self.host_credencial:
+            return None
+        return self.__segredo
+
+    @property
+    def credencial_vinculada(self) -> bool:
+        return bool(self.__segredo) and urlsplit(self.config["url_base"]).netloc.lower() == self.host_credencial
+
     def _url(self, caminho: str, extra: dict | None = None) -> str:
         base = self.config["url_base"].rstrip("/")
+        if "://" in caminho or caminho.startswith("//"):
+            raise RespostaInvalida("caminho de recurso precisa ser relativo à URL base")
         partes = urlsplit(base + "/" + caminho.lstrip("/"))
         q = parse_qsl(partes.query, keep_blank_values=True) + list((extra or {}).items())
         auth = self.config.get("autenticacao") or {}
-        if auth.get("tipo") == "query" and self.__segredo:
-            q.append((auth.get("parametro") or "api_key", self.__segredo))
+        segredo = self._credencial_para(base)
+        if auth.get("tipo") == "query" and segredo:
+            q.append((auth.get("parametro") or "api_key", segredo))
         return urlunsplit((partes.scheme, partes.netloc, partes.path, urlencode(q), ""))
 
-    def _cabecalhos(self) -> dict:
+    def _cabecalhos(self, url: str) -> dict:
         h = {"Accept": "application/json", "User-Agent": "fin-mas-conector"}
         auth = self.config.get("autenticacao") or {}
-        if self.__segredo and auth.get("tipo") == "bearer":
-            h["Authorization"] = f"Bearer {self.__segredo}"
-        elif self.__segredo and auth.get("tipo") == "cabecalho":
-            h[auth.get("cabecalho") or "X-API-Key"] = self.__segredo
+        segredo = self._credencial_para(url)
+        if segredo and auth.get("tipo") == "bearer":
+            h["Authorization"] = f"Bearer {segredo}"
+        elif segredo and auth.get("tipo") == "cabecalho":
+            h[auth.get("cabecalho") or "X-API-Key"] = segredo
         return h
 
     def _erro(self, classe, mensagem):
@@ -114,7 +131,7 @@ class ConectorREST(ConectorMapeado):
         self.politica.verificar(url)
         rotulo = rotulo or urlsplit(caminho).path
         dados = None if corpo is None else json.dumps(corpo, ensure_ascii=False).encode("utf-8")
-        cab = self._cabecalhos() | ({"Content-Type": "application/json"} if dados is not None else {})
+        cab = self._cabecalhos(url) | ({"Content-Type": "application/json"} if dados is not None else {})
         pedido = urllib.request.Request(url, data=dados, method=metodo, headers=cab)
         try:
             with _ABRIDOR.open(pedido, timeout=self.tempo_limite) as r:  # noqa: S310 (host conferido acima)
@@ -189,6 +206,9 @@ class ConectorREST(ConectorMapeado):
             etapas.append(etapa("rede", True, "endereço permitido (loopback ou liberado por um administrador)"))
         except ErroConector as e:
             return {**diagnostico([etapa("rede", False, str(e))]), "rede_bloqueada": True}
+        if self.__segredo and not self.credencial_vinculada:
+            etapas.append(etapa("credencial", False, "a credencial guardada foi vinculada a outro endereço e não é "
+                                                     "enviada a este: informe-a de novo"))
         if self.config.get("openapi"):
             try:
                 spec = self.contrato()

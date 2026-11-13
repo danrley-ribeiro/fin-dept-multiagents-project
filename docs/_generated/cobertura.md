@@ -1,7 +1,7 @@
 | Indicador | Valor |
 |---|---|
-| Requisitos DSM1 | 21 |
-| Requisitos com cadeia completa (até teste planejado e métrica) | 21/21 (100%) |
-| Objetos rastreados (total) | 312 |
+| Requisitos DSM1 | 23 |
+| Requisitos com cadeia completa (até teste planejado e métrica) | 23/23 (100%) |
+| Objetos rastreados (total) | 360 |
 | Testes e componentes ainda sem evidência | 0 |
-| Testes executados | 153 de 153 |
+| Testes executados | 187 de 187 |

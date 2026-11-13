@@ -77,3 +77,13 @@
 **Responsabilidade:** Mantém contas, senhas (scrypt), sessões com prazo e revogação, papéis e permissões lidos dos modelos e a trilha de acesso íntegra; emite e confere o atestado de sessão que vincula a decisão humana à pessoa.  
 **Por que não é agente:** Autenticar e autorizar é fronteira de política, não decisão com objetivo próprio: precisa ser determinístico, negado por padrão e igual para todos.
 ````
+
+````{svc} Registro de Aprendizado das regras locais
+:id: SVC-APD
+:entrega: DSM4
+:status: especificado
+
+**Camada:** Memória  
+**Responsabilidade:** Conta, por agente e por regra local de hipótese, quantas hipóteses foram confirmadas ou refutadas por evidência determinística e devolve a confiança da regra para as competências seguintes. Arquivo selado próprio (não é o SVC-MEM: estatística de regra não é decisão humana aprovada).  
+**Por que não é agente:** É uma contagem com proveniência, sem objetivo próprio; quem decide com ela é o agente.
+````

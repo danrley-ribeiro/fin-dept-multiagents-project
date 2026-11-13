@@ -153,3 +153,27 @@
 **Consequência:** O comando leva o ator no trace (registro operador) e a decisão leva a pessoa e a sessão no ticket; entradas, falhas, bloqueios, revogações e mudanças de papel vão para a trilha com cadeia de hash, e a verificação acusa qualquer adulteração  
 **Decisão:** `OBRIGACAO`
 ````
+
+````{norm} Só evidência verificada conta no aprendizado das regras
+:id: NORM-20
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-APD
+
+**Escopo:** Registro de aprendizado das regras locais de hipótese (SVC-APD) e seu uso por AG-ORC e AG-RES  
+**Condição:** Hipótese arquivada, sem fonte de evidência, com fonte de proponente (regra local ou LLM), de origem LLM, já contada para a mesma competência, ou arquivo do registro com selo inválido  
+**Consequência:** A observação é recusada e registrada; a confiança da regra numa competência vem só de competências anteriores; com o arquivo comprometido o aprendizado se desliga e as regras voltam à confiança inicial. Confiança aprendida não é crença: só restringe os planos epistêmicos que custam mensagem  
+**Decisão:** `DENY`
+````
+
+````{norm} Citação normativa tem proveniência; ausência de evidência é declarada, nunca preenchida
+:id: NORM-21
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-MCP
+
+**Escopo:** Tool `normas.buscar` (base de conhecimento normativo) e os agentes que citam norma (AG-CIN, AG-REL)  
+**Condição:** Consulta sem trecho que cubra pelo menos metade do peso informativo dos seus termos; citação sem documento, trecho ou versão  
+**Consequência:** A busca devolve lista vazia e o agente registra `sem evidência` com a versão do corpus; o achado segue valendo pela regra interna do porte e nenhum trecho aproximado é citado no lugar  
+**Decisão:** `OBRIGACAO`
+````

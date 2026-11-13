@@ -124,11 +124,11 @@ Componente implementado em `src/fin_mas/services/redacao.py`.
 Componente implementado em `src/fin_mas/core/schema.py`.
 ````
 
-````{comp} Núcleo BDI (crenças
+````{comp} Núcleo BDI (crenças, desejos, planos, intenções, estratégias de compromisso)
 :id: COMP-BDI
 :entrega: DSM2
 :status: implementado
-:realizes: AG-ORC, AG-CIN
+:realizes: AG-ORC, AG-CIN, AG-RES, AG-CUS, AG-REL
 
 Componente implementado em `src/fin_mas/core/bdi.py`.
 ````
@@ -209,7 +209,7 @@ Componente implementado em `src/fin_mas/services/provedores.py`.
 :id: COMP-INF
 :entrega: DSM3
 :status: implementado
-:realizes: AG-ORC
+:realizes: AG-ORC, AG-RES
 
 Componente implementado em `src/fin_mas/core/inferencia.py`.
 ````
@@ -218,7 +218,7 @@ Componente implementado em `src/fin_mas/core/inferencia.py`.
 :id: COMP-COG
 :entrega: DSM3
 :status: implementado
-:realizes: AG-ORC
+:realizes: AG-ORC, AG-RES
 
 Componente implementado em `src/fin_mas/cognicao/regras.py`.
 ````
@@ -257,4 +257,67 @@ Componente implementado em `src/fin_mas/tui/app.py`.
 :realizes: SVC-IAM
 
 Componente implementado em `src/fin_mas/implantacao.py`.
+````
+
+````{comp} Agente de Resultados cognitivo (variante BDI)
+:id: COMP-RESB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-RES
+
+Componente implementado em `src/fin_mas/agents/res_bdi.py`.
+````
+
+````{comp} Agente de Custos cognitivo (variante BDI)
+:id: COMP-CUSB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-CUS
+
+Componente implementado em `src/fin_mas/agents/cus_bdi.py`.
+````
+
+````{comp} Agente de Relatórios cognitivo (variante BDI)
+:id: COMP-RELB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-REL
+
+Componente implementado em `src/fin_mas/agents/rel_bdi.py`.
+````
+
+````{comp} Registro selado de aprendizado das regras locais
+:id: COMP-APD
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-APD
+
+Componente implementado em `src/fin_mas/services/aprendizado.py`.
+````
+
+````{comp} Perfil cognitivo por porte (pesos, público, compromisso, limiares)
+:id: COMP-PCG
+:entrega: DSM4
+:status: implementado
+:realizes: AG-RES, AG-CUS, AG-REL
+
+Componente implementado em `src/fin_mas/cognicao/perfis.py`.
+````
+
+````{comp} Base de conhecimento normativo com busca lexical (BM25)
+:id: COMP-CON
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conhecimento/base.py`.
+````
+
+````{comp} Métricas da cognição dos especialistas (MET-30 e MET-31)
+:id: COMP-MCG
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/metricas_cognicao.py`.
 ````

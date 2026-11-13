@@ -33,9 +33,12 @@ A hipótese nunca classifica um desvio: quem muda a classificação é a crença
 evidência (a resposta do AG-CIN, o cálculo sobre o histórico), pelos planos de sempre.
 """
 from fin_mas.core.bdi import AgenteBDI, Plano
+from fin_mas.cognicao.perfis import limiares
 from fin_mas.core.inferencia import EsquemaHipoteses
-from fin_mas.env.dataset import LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, brl
+from fin_mas.env.dataset import EFEITO_ORCAMENTARIO, LIMIAR_ABSOLUTO, LIMIAR_PERCENTUAL, brl
 from fin_mas.mcp.gateway import ToolIndisponivel
+
+CONFIANCA_MINIMA_CONSULTA = limiares()["confianca_minima_consulta"]  # models/cognicao.yaml (ADR-010)
 
 PRAZO_CONSULTA = 10  # ticks lógicos até a expiração da query-ref ao AG-CIN
 TOLERANCIA_FONTE = 1_00  # R$ 1,00: abaixo disso planilha e ERP são considerados iguais
@@ -186,6 +189,14 @@ def _sem_atribuicao(conta) -> str:
     return f"desvio de {conta} sinalizado sem atribuição: AG-CIN indisponível"
 
 
+def _confianca_baixa(h) -> str | None:
+    """Motivo para não gastar mensagem com a hipótese: a confiança (inicial ou aprendida) ficou abaixo do mínimo."""
+    if h.confianca is None or h.confianca >= CONFIANCA_MINIMA_CONSULTA:
+        return None
+    return (f"confiança {h.confianca:.2f} da hipótese abaixo de {CONFIANCA_MINIMA_CONSULTA}: "
+            f"não justifica nova consulta (só conferência sem custo)")
+
+
 def _ctx_conferir(a, d):
     h, c, conta = _hip(a, d), d.params["c"], d.params["conta"]
     if h.tipo != "causa_controle":
@@ -210,6 +221,8 @@ def _ctx_verificar_cin(a, d):
         return False, "a consulta normal ao AG-CIN não falhou"
     if "AG-CIN" not in a.bus.agents:
         return False, "AG-CIN fora do diretório de agentes"
+    if _confianca_baixa(h):  # DSM4 (ADR-010): regra que errou muito não justifica o custo de outra consulta
+        return False, _confianca_baixa(h)
     t = a.tarefa(c)
     if t["verificacoes"] >= MAX_VERIFICACOES:
         return False, f"teto de {MAX_VERIFICACOES} verificações por tarefa atingido"
@@ -249,6 +262,8 @@ def _ctx_negociar(a, d):
         return False, "só para hipótese de causa de controle sem resposta do AG-CIN"
     if "AG-CIN" not in a.bus.agents or t["verificacoes"] >= MAX_VERIFICACOES:
         return False, "AG-CIN fora do diretório ou teto de verificações atingido"
+    if _confianca_baixa(h):
+        return False, _confianca_baixa(h)
     if t["prazo"] is None or a.bus.now + PRAZO_CONSULTA + FOLGA_RESPOSTA <= t["prazo"]:
         return False, "a verificação cabe no prazo: não há o que negociar"
     if t.get("negociou") or len(t["solicitantes"]) != 1 or t["solicitantes"][0][2] != "PROT-DEL":
@@ -482,6 +497,11 @@ class AgenteOrcamento(AgenteBDI):
                     chaves["historico"] = _k("historico", c, conta)
                     x["historico"] = self.crencas.get(chaves["historico"])
                     valores[chaves["historico"]] = f"dos {len(x['historico'])} meses anteriores"
+                if _k("reincidencia", c, conta) in self.crencas:  # DSM4: memória aprovada lida pelo AG-ORC
+                    chaves["reincidencia"] = _k("reincidencia", c, conta)
+                    x["reincidencia"] = self.crencas.get(chaves["reincidencia"])
+                    valores[chaves["reincidencia"]] = (f"{x['reincidencia']['memoria']} (correção aprovada em "
+                                                       f"{x['reincidencia']['competencia']})")
                 contas.append(x)
             evidencias = tuple(sorted({k for x in contas for k in x["chaves"].values()}))
             t["valores_hipoteses"] = valores
@@ -498,6 +518,7 @@ class AgenteOrcamento(AgenteBDI):
         for conta, texto in obs["dados"]["observacoes"].items():
             if conta in contas:
                 self.crencas.revisar(_k("observacao", c, conta), texto, obs["proveniencia"]["fonte"], cid)
+        self._perceber_memoria(c, cid, contas)
         try:
             hist = self.ferramenta("erp.historico", cid, competencia=c)
         except ToolIndisponivel:
@@ -505,6 +526,21 @@ class AgenteOrcamento(AgenteBDI):
         for conta, serie in hist["dados"]["historico"].items():
             if conta in contas and serie:
                 self.crencas.revisar(_k("historico", c, conta), serie, hist["proveniencia"]["fonte"], cid)
+
+    def _perceber_memoria(self, c, cid, contas) -> None:
+        """DSM4: correção aprovada por humano, em competência anterior, de lançamento que inflava a mesma conta.
+
+        É memória com proveniência (SVC-MEM, NORM-08), não palpite: vira crença com o id da entrada como
+        fonte e alimenta a regra `R-MEM-REINCIDENCIA`, que propõe (ou corrobora) a hipótese de causa de controle.
+        """
+        if self.memoria is None or not self.memoria.integra:
+            return
+        for m in self.memoria.consultar("correcao", competencia_atual=c, cid=cid):
+            valor = m.get("valor") or {}
+            if valor.get("conta") in contas and set(valor.get("regras") or []) & EFEITO_ORCAMENTARIO:
+                self.crencas.revisar(_k("reincidencia", c, valor["conta"]),
+                                     {"memoria": m["id"], "competencia": m["competencia"], "acao": valor.get("acao")},
+                                     f"SVC-MEM {m['id']}", cid)
 
     def concluir_hipotese(self, i, h, confirmada: bool, fonte: str, motivo: str) -> None:
         self.marcar_hipotese(h, "confirmada" if confirmada else "refutada", motivo, fonte)

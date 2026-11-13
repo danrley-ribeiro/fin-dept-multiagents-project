@@ -8,13 +8,19 @@ from dataclasses import dataclass, field
 from fin_mas import __version__
 from fin_mas.agents.cin import AgenteControlesInternos
 from fin_mas.agents.cus import AgenteCustos
+from fin_mas.agents.cus_bdi import AgenteCustosBDI
 from fin_mas.agents.orc import AgenteOrcamento
 from fin_mas.agents.orq import Orquestrador
 from fin_mas.agents.rel import VERSAO_TEMPLATE, AgenteRelatorios
+from fin_mas.agents.rel_bdi import AgenteRelatoriosBDI
 from fin_mas.agents.res import AgenteResultados
+from fin_mas.agents.res_bdi import AgenteResultadosBDI
 from fin_mas.cognicao import NIVEIS
 from fin_mas.cognicao.llm import ProponenteLLM
-from fin_mas.cognicao.regras import ProponenteLocal
+from fin_mas.cognicao.perfis import COMPROMISSOS, compromisso_de, limiares
+from fin_mas.cognicao.regras import REGRAS_RES, ProponenteLocal
+from fin_mas.core.bdi import AgenteBDI
+from fin_mas.services.aprendizado import Aprendizado
 from fin_mas.core.agent import Agent
 from fin_mas.core.bus import Bus, Fault
 from fin_mas.env.dataset import COMPETENCIA, ENTIDADE, VERSAO_RATEIO, Ambiente, Dataset
@@ -185,6 +191,7 @@ class System:
     memoria: Memoria | None = None
     modelos: RegistroModelos | None = None
     acesso: object | None = None  # SVC-IAM (services/iam.py), quando ligado
+    aprendizado: object | None = None  # registro de aprendizado das regras locais (ADR-010), quando ligado
 
 
 PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão do dashboard
@@ -192,8 +199,15 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
-                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None) -> System:
+                 prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None, compromisso=None,
+                 aprendizado=None) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
+
+    DSM4 (ADR-010): fora do nível `basico`, AG-RES, AG-CUS e AG-REL são as variantes BDI; em `basico` são as
+    classes reativas de sempre. `compromisso`: estratégia de compromisso dos agentes BDI, um texto (vale para
+    todos) ou `{agente: estratégia}`; None = a do porte em models/cognicao.yaml (`aberto`). `aprendizado`:
+    None = registro em memória (só nos níveis cognitivos); False = desligado; caminho = arquivo selado
+    persistente entre execuções.
 
     `memoria`: caminho do arquivo do SVC-MEM (persistente entre execuções); None = só em memória.
     `aprovadores`: cadastro do SVC-POL (quem decide o quê); None = controller com todas as decisões.
@@ -217,9 +231,11 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     mem = Memoria(bus.audit, lambda: bus.now, politica=politica, caminho=memoria)
     gw = MCPGateway(amb, bus.audit, bus, politica=politica)
     locks = LockService(bus.audit, lambda: bus.now, ttl=ttl, autenticar=bus.autenticar)
-    agentes = {"AG-CUS": AgenteCustos(bus, gw), "AG-ORC": AgenteOrcamento(bus, gw),
-               "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
-               "AG-REL": AgenteRelatorios(bus, gw)}
+    cognitivo = cognicao != "basico"  # ADR-010: as classes reativas são o braço `basico` do experimento
+    agentes = {"AG-CUS": (AgenteCustosBDI if cognitivo else AgenteCustos)(bus, gw), "AG-ORC": AgenteOrcamento(bus, gw),
+               "AG-RES": (AgenteResultadosBDI if cognitivo else AgenteResultados)(bus, gw),
+               "AG-CIN": AgenteControlesInternos(bus, gw),
+               "AG-REL": (AgenteRelatoriosBDI if cognitivo else AgenteRelatorios)(bus, gw)}
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
     pessoas = [*ds.perfil["pessoas"], *(nome for nome, _ in PESSOAS.values())]
     modelos = RegistroModelos(bus.audit, lambda: bus.now, pessoas=pessoas)
@@ -229,14 +245,33 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     # (forma da primeira versão da DSM3); dicionário = configuração por agente (ADR-008).
     for agente, campos in ({"AG-REL": {"modelo": llm}} if isinstance(llm, str) else dict(llm or {})).items():
         modelos.configurar(agente, llm=True, **campos)
-    if cognicao != "basico":  # ADR-008: hipóteses propostas por regras locais (e por LLM, no nível `llm`)
+    registro = None
+    if cognitivo:  # ADR-008: hipóteses propostas por regras locais (e por LLM, no nível `llm`)
         agentes["AG-ORC"].proponentes.append(ProponenteLocal())
+        agentes["AG-RES"].proponentes.append(ProponenteLocal(REGRAS_RES))  # causa da variação de indicador (ADR-010)
+        agentes["AG-CIN"].base_normativa = True  # CP8: achados citam a base normativa (tool normas.buscar)
+        for agente in ("AG-ORC", "AG-RES", "AG-REL"):  # leitura da memória aprovada, por tipo (SVC-MEM)
+            agentes[agente].memoria = mem.visao(agente)
+        if aprendizado is not False:
+            registro = Aprendizado(bus.audit, lambda: bus.now, caminho=aprendizado if isinstance(aprendizado, str) else None,
+                                   peso_do_prior=limiares()["peso_do_prior"])
+            for agente in ("AG-ORC", "AG-RES"):
+                agentes[agente].aprendizado = registro
     if cognicao == "llm":
         agentes["AG-ORC"].proponentes.append(ProponenteLLM(modelos))
+    for nome, agente in agentes.items():  # estratégia de compromisso por agente e porte (ADR-010)
+        if not isinstance(agente, AgenteBDI):
+            continue
+        estrategia = (compromisso if isinstance(compromisso, str) else (compromisso or {}).get(nome)) \
+            or compromisso_de(ds.porte, nome)
+        if estrategia not in COMPROMISSOS:
+            raise ValueError(f"estratégia de compromisso desconhecida: {estrategia} (use {', '.join(COMPROMISSOS)})")
+        if estrategia != agente.compromisso:
+            agente.compromisso = estrategia
     orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
     sistema = System(bus, ds, gw, locks, orq, Solicitante(bus),
                      Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
-                     agentes, amb, politica, mem, modelos, acesso)
+                     agentes, amb, politica, mem, modelos, acesso, registro)
     bus.fechar_registro()  # ninguém fora do diretório entra depois de o sistema estar montado
     return sistema
 
@@ -261,6 +296,7 @@ class Scenario:
     solicitante: str | None = None  # conta que faz os pedidos, nos cenários com acesso
     ataques_acesso: bool = False  # dispara env/ataques_acesso.py enquanto o veto aguarda o aprovador
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
+    compromisso: tuple = ()  # ((agente, estratégia), ...): cego | obstinado | aberto (ADR-010); vazio = a do porte
 
 
 CENARIOS = {c.nome: c for c in [
@@ -421,6 +457,66 @@ CENARIOS = {c.nome: c for c in [
                   ("AG-RES", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("comentario",)))),
                   ("AG-REL", (("provedor", "mock"), ("modelo", "mock-narrador"), ("usos", ("sintese",))))),
              esperado="três chamadas de LLM registradas, uma por agente; nenhum número fora do texto-base"),
+    # ---- DSM4: todos os especialistas BDI, aprendizado, compromisso, memória lida e base normativa (ADR-010) ----
+    Scenario("res_explica_variacao", "Um centro de custo salta no mês e o EBITDA% cai contra o histórico: o AG-RES "
+             "recebe a hipótese de custo fixo, pede o detalhe ao AG-CUS e explica a variação com o centro responsável",
+             "fechar_mes", plantar=("variacao_custo_fixo",), cognicao="local",
+             esperado="hipótese causa_custo_fixo confirmada por cálculo sobre AG-CUS e histórico; explicação aponta CC-OPS; insight no relatório"),
+    Scenario("res_insumo_faltante", "O AG-ORC não responde a duas consultas do AG-RES: o plano de consulta falha, o "
+             "agente consulta de novo, dá o orçamento por indisponível e decide, pelo porte e pela criticidade, "
+             "consolidar a DRE com ressalva (na grande empresa a mesma situação termina em falha explícita)",
+             "fechar_mes", cognicao="local",
+             faults=({"receiver": "AG-ORC", "performative": "query-ref", "times": 2},),
+             esperado="P-CONSULTAR-ESPECIALISTA falha, P-CONSULTAR-DE-NOVO falha, P-DAR-POR-INDISPONIVEL; P-CONSOLIDAR-COM-RESSALVA; publicado com ressalva, sem reenvio do Orquestrador"),
+    Scenario("cus_rateio_alternativo", "O direcionador de rateio do período está inconsistente (soma 110): o plano "
+             "padrão do AG-CUS falha ao ler o dado e o agente escolhe outro critério conforme o porte, registrando "
+             "o critério e o motivo",
+             "fechar_mes", plantar=("direcionador_inconsistente",), cognicao="local",
+             esperado="P-RATEIO-PADRAO falha; P-RATEIO-PROPORCIONAL-RECEITA escolhido (média); resultado por UN igual ao gabarito do critério; ressalva no relatório"),
+    Scenario("rel_relatorio_de_excecao", "Veto de alçada corrigido por decisão humana: o AG-REL escolhe o relatório de "
+             "exceção, que abre pela correção aprovada e cita a base normativa; sem exceção ele escolhe o sumário",
+             "fechar_mes", plantar=("alcada",), decisao_aprovador="corrigir", cognicao="local",
+             esperado="P-RELATORIO-DE-EXCECAO escolhido; exceção antes dos indicadores; base normativa COSO-ALCADA; texto por template"),
+    Scenario("aprendizado_regra", "A regra da observação de duplicidade dá alarme falso em julho e em agosto: as duas "
+             "refutações baixam a confiança dela de 0,80 para 0,40; em setembro, com o AG-CIN sem responder, a "
+             "hipótese não justifica mais uma consulta nova e é arquivada",
+             "avaliar_orcamento", cognicao="local",
+             agenda=tuple((c, ("desvio_orcamentario", "observacao_alarme_falso")) for c in ("2026-07", "2026-08", "2026-09")),
+             pedidos=(("avaliar_orcamento", "2026-07", 1), ("avaliar_orcamento", "2026-08", 50),
+                      ("avaliar_orcamento", "2026-09", 100)),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 2, "competencia": "2026-09"},),
+             esperado="duas observações 'refutada' de local:R-OBS-REPETICAO; hipótese de setembro com confiança 0,40; P-VERIFICAR-COM-CIN não aplicável; uma consulta a menos que sem aprendizado"),
+    Scenario("compromisso_aberto", "Consulta ao AG-CIN perdida e, depois, resposta que derruba o motivo do alerta: com "
+             "compromisso aberto o AG-ORC replaneja na falha e abandona o alerta quando o motivo cai",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local", compromisso=(("AG-ORC", "aberto"),),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             esperado="P-CONSULTAR-CIN falha e é replanejado; P-SINALIZAR abandonada por reconsideração; conta atribuída a controle (igual ao gabarito)"),
+    Scenario("compromisso_obstinado", "Mesma situação com compromisso obstinado: o AG-ORC replaneja na falha, mas não "
+             "larga o alerta quando o motivo cai (a intenção ainda é possível) e sinaliza um falso desvio",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local", compromisso=(("AG-ORC", "obstinado"),),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             esperado="P-SINALIZAR 'mantida' e concluída; conta sinalizada como desvio orçamentário (diferente do gabarito)"),
+    Scenario("compromisso_cego", "Mesma situação com compromisso cego: o AG-ORC insiste na mesma consulta em vez de "
+             "replanejar e também não larga o alerta: falso desvio, por outro caminho",
+             "avaliar_orcamento", plantar=("desvio_irregular",), cognicao="local", compromisso=(("AG-ORC", "cego"),),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1},),
+             esperado="P-CONSULTAR-CIN 'insistida' (sem replanejar); P-SINALIZAR mantida; falso desvio"),
+    Scenario("memoria_reincidencia_orc", "Em agosto um estorno de NF duplicada em Marketing é aprovado e vira memória. "
+             "Em setembro a planilha não fala em duplicidade e a consulta ao AG-CIN se perde: o AG-ORC lê a memória "
+             "aprovada, levanta a hipótese de reincidência, consulta de novo e reclassifica o desvio",
+             "fechar_mes", cognicao="local", decisao_aprovador="corrigir",
+             agenda=(("2026-08", ("desvio_irregular",)), ("2026-09", ("desvio_irregular", "observacao_parafraseada"))),
+             pedidos=(("fechar_mes", "2026-08", 1), ("avaliar_orcamento", "2026-09", 100)),
+             faults=({"receiver": "AG-CIN", "performative": "query-ref", "times": 1, "competencia": "2026-09"},),
+             esperado="memória 'correcao' consultada pelo AG-ORC; hipótese de origem local:R-MEM-REINCIDENCIA confirmada pelo AG-CIN; sem falso desvio em setembro"),
+    Scenario("normas_fundamentam_achado", "SoD crítica vetada e liberada por waiver: o AG-CIN busca na base normativa o "
+             "trecho que fundamenta o achado e o cita com documento, trecho e versão",
+             "fechar_mes", plantar=("sod",), decisao_aprovador="waiver", cognicao="local",
+             esperado="achado de sod com fundamento COSO-2013, trecho COSO-SEGREGACAO (corpus-v1) no veto; o relatório de exceção cita a mesma base"),
+    Scenario("normas_sem_evidencia", "NF duplicada vetada e estornada: a base normativa não tem trecho sobre "
+             "duplicidade, a busca devolve vazio e o AG-CIN declara 'sem evidência' em vez de citar algo aproximado",
+             "fechar_mes", plantar=("duplicidade",), decisao_aprovador="corrigir", cognicao="local",
+             esperado="normas.buscar devolve zero trechos para duplicidade; achado marcado 'sem evidência'; o veto vale pela regra interna"),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -448,7 +544,7 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None, acesso=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None, compromisso=None, aprendizado=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -458,9 +554,15 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
-                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None))
+                           cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None),
+                           compromisso=compromisso or dict(sc.compromisso) or None, aprendizado=aprendizado)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
+    estrategias = {a: ag.compromisso for a, ag in sistema.agentes.items() if getattr(ag, "compromisso", "aberto") != "aberto"}
+    if estrategias:  # só aparece quando algum agente sai do compromisso aberto (ADR-010)
+        extras["compromisso"] = estrategias
+    if aprendizado is False and extras:
+        extras["aprendizado"] = "desligado"
     outros = {a: sistema.modelos.situacao(a) for a in ("AG-ORC", "AG-RES") if sistema.modelos.config(a)["llm"]}
     if outros:
         extras["llm_agentes"] = outros
@@ -492,8 +594,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
     return sistema, sids
 
 
-def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None) -> Execucao:
+def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,
+                 compromisso=None, aprendizado=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
-    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao)
+    sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao,
+                           compromisso=compromisso, aprendizado=aprendizado)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

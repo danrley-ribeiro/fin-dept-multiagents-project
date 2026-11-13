@@ -55,6 +55,7 @@ class Fault:
     performative: str
     times: int
     protocol: str | None = None
+    competencia: str | None = None  # só mensagens desta competência (cenários de vários meses); None = todas
 
     def matches(self, msg: Message) -> bool:
         return (
@@ -62,6 +63,8 @@ class Fault:
             and msg.receiver == self.receiver
             and msg.performative == self.performative
             and (self.protocol is None or msg.protocol == self.protocol)
+            and (self.competencia is None
+                 or (isinstance(msg.content, dict) and msg.content.get("competencia") == self.competencia))
         )
 
 

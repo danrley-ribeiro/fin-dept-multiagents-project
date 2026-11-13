@@ -394,3 +394,45 @@ items:
     normas: [NORM-05, NORM-07, NORM-11]
     prioridade: Should
     entrega: DSM3
+
+  # ---------------- DSM4: todos os especialistas cognitivos e conhecimento com proveniência ----------------
+  - id: REQ-F20
+    tipo: Funcional
+    titulo: Especialistas de Resultados, Custos e Relatórios com deliberação BDI
+    descricao: >-
+      Nos níveis de cognição local e llm, AG-RES, AG-CUS e AG-REL são agentes BDI: crenças com fonte, desejos
+      gerados das crenças, planos alternativos com contexto e utilidade pelos pesos do porte, falha de plano com
+      replanejamento e reconsideração. A estratégia de compromisso (cego, obstinado, aberto) é parâmetro por
+      agente e porte, e cada regra local de hipótese aprende com as confirmações e refutações verificadas. No
+      nível básico os três continuam sendo as classes reativas, que servem de braço de comparação.
+    evidencia: >-
+      O trace de cada cenário novo mostra deliberação com planos aplicáveis e não aplicáveis, a falha e o
+      replanejamento, e a escolha mudando com o porte; o resultado bate com o gabarito; o mesmo cenário no nível
+      básico não tem registro BDI desses agentes e os traces revisados da DSM3 não mudam.
+    objetivos: [G-02, G-04, G-06, G-08]
+    problemas: [PROB-01, PROB-02, PROB-05, PROB-07]
+    papeis: [ROLE-RES, ROLE-CUS, ROLE-REL, ROLE-ORC]
+    protocolos: [PROT-DEL, PROT-QRY]
+    normas: [NORM-07, NORM-08, NORM-11, NORM-20]
+    prioridade: Should
+    entrega: DSM4
+
+  - id: REQ-F21
+    tipo: Funcional
+    titulo: Conhecimento normativo com proveniência
+    descricao: >-
+      Uma base normativa versionada, com trechos curtos em paráfrase das normas já citadas pelo projeto, é
+      consultada por recuperação lexical offline. Cada resultado traz documento, trecho e versão. O AG-CIN cita
+      o trecho que fundamenta cada achado e o AG-REL cita a base de cada exceção; sem evidência, declaram
+      "sem evidência".
+    evidencia: >-
+      A busca devolve o trecho esperado em primeiro para as consultas de referência e lista vazia para assunto
+      fora do corpus; o achado de SoD cita COSO-SEGREGACAO com a versão; o de duplicidade sai marcado sem
+      evidência e nada é citado no lugar.
+    objetivos: [G-05, G-07]
+    problemas: [PROB-04, PROB-06]
+    papeis: [ROLE-CIN, ROLE-REL]
+    protocolos: [PROT-CMP]
+    normas: [NORM-02, NORM-21]
+    prioridade: Should
+    entrega: DSM4

@@ -244,6 +244,11 @@ def formatar(r: dict) -> str:
         alvo = r.get("memoria") or r.get("memorias") or r.get("chave") or ""
         motivo = f" ({r['motivo']})" if r.get("motivo") else ""
         return f"{cab} MEMORIA {r.get('evento')} {r.get('tipo', '')} {alvo}{motivo}".rstrip()
+    if k == "aprendizado":  # ADR-010: contagem de acertos e erros das regras locais
+        if r.get("evento") == "observada":
+            return (f"{cab} APRENDIZADO {r.get('agente')}: {r.get('regra')} {r.get('desfecho')} em {r.get('alvo')} "
+                    f"({r.get('confirmadas')} confirmada(s), {r.get('refutadas')} refutada(s))")
+        return f"{cab} APRENDIZADO {r.get('evento')} {r.get('motivo', '')}".rstrip()
     if k == "meta":
         return f"{cab} META {r.get('empresa', {}).get('razao_social', '')}"
     return f"{cab} {k}"

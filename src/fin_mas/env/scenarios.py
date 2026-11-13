@@ -200,7 +200,7 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
                  prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None, compromisso=None,
-                 aprendizado=None) -> System:
+                 aprendizado=None, parametros=None, caos=None) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     DSM4 (ADR-010): fora do nível `basico`, AG-RES, AG-CUS e AG-REL são as variantes BDI; em `basico` são as
@@ -215,12 +215,18 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     `llm` (regras locais e o LLM do agente, se a flag dele estiver ligada no SVC-MOD). Ver ADR-008.
     `acesso`: SVC-IAM (`services/iam.py`); `"simulado"` cria as contas de demonstração em memória, com
     o relógio lógico (cenários em lote); None = sem contas (lote da primeira versão da DSM3). Ver ADR-009.
+    `parametros`: `fin_mas.parametros.Parametros` (prazos, tentativas, correções, TTL da reserva, limiares de
+    desvio); None = os valores de sempre. `caos`: `fin_mas.caos.ModeloFalhas` (falhas sorteadas por seed);
+    None = nenhuma. Os dois existem para o experimento da DSM4 e não mudam nada por padrão.
     """
     if cognicao not in NIVEIS:
         raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
-    bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults])
+    bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults], caos=caos)
     amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte)
     ds = amb.dataset()
+    if parametros is not None:
+        ttl, prazo_aprovacao = parametros.ttl_reserva, parametros.prazo_aprovacao or prazo_aprovacao
+        parametros.aplicar_limiares(ds)
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
     if acesso == "simulado":
         acesso = Acesso.simulado_com({u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c}
@@ -268,10 +274,12 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
             raise ValueError(f"estratégia de compromisso desconhecida: {estrategia} (use {', '.join(COMPROMISSOS)})")
         if estrategia != agente.compromisso:
             agente.compromisso = estrategia
-    orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
+    orq = Orquestrador(bus, locks, politica=politica, gateway=gw, parametros=parametros)
     sistema = System(bus, ds, gw, locks, orq, Solicitante(bus),
                      Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
                      agentes, amb, politica, mem, modelos, acesso, registro)
+    if caos is not None:  # modelo de falhas do experimento (DSM4): instala antes de fechar o registro
+        caos.instalar(sistema)
     bus.fechar_registro()  # ninguém fora do diretório entra depois de o sistema estar montado
     return sistema
 
@@ -544,7 +552,8 @@ class Execucao:
 
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None, acesso=None, compromisso=None, aprendizado=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None, compromisso=None, aprendizado=None, parametros=None,
+           caos=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
@@ -555,7 +564,8 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
                            cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None),
-                           compromisso=compromisso or dict(sc.compromisso) or None, aprendizado=aprendizado)
+                           compromisso=compromisso or dict(sc.compromisso) or None, aprendizado=aprendizado,
+                           parametros=parametros, caos=caos)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
     estrategias = {a: ag.compromisso for a, ag in sistema.agentes.items() if getattr(ag, "compromisso", "aberto") != "aberto"}
@@ -568,6 +578,10 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
         extras["llm_agentes"] = outros
     if sistema.acesso is not None:
         extras["acesso"] = {"modo": "simulado" if sistema.acesso.simulado else "contas", "solicitante": sc.solicitante}
+    if parametros is not None and parametros.diferencas():  # só no experimento da DSM4
+        extras["parametros"] = parametros.diferencas()
+    if caos is not None:
+        extras["caos"] = caos.descricao()
     sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
@@ -595,9 +609,9 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
 
 
 def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,
-                 compromisso=None, aprendizado=None) -> Execucao:
+                 compromisso=None, aprendizado=None, parametros=None, caos=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
     sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao,
-                           compromisso=compromisso, aprendizado=aprendizado)
+                           compromisso=compromisso, aprendizado=aprendizado, parametros=parametros, caos=caos)
     sistema.bus.run()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

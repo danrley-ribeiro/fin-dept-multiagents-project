@@ -382,3 +382,30 @@ items:
      esperado: "arquivo selado guarda a observação; a execução seguinte usa a confiança aprendida; reprocessar não conta duas vezes", entrega: DSM4, status: executado}
   - {id: TEST-234, nome: test_tampered_learning_file_fails_closed, verifica: [REQ-F20, REQ-S04], derivado_de: NORM-20, tipo: seguranca,
      esperado: "arquivo adulterado desliga o aprendizado, as regras voltam à confiança inicial e nada é gravado", entrega: DSM4, status: executado}
+  # ---- DSM4 (experimento redesenhado): workflow equivalente, modelo de falhas e pipeline. IDs a partir de 201. ----
+  - {id: TEST-235, nome: test_equivalent_workflow_matches_the_mas_on_the_comparable_scenarios, verifica: [REQ-F03, REQ-F05, REQ-S01], derivado_de: SVC-POL, tipo: e2e,
+     esperado: "sem falhas, workflow equivalente e SMA básico dão o mesmo status, DRE, classificação, correções e decisões nos 11 cenários comparáveis", entrega: DSM4, status: executado}
+  - {id: TEST-236, nome: test_equivalent_workflow_matches_the_mas_on_drawn_workloads, verifica: [REQ-F03, REQ-F05], derivado_de: SVC-POL, tipo: e2e,
+     esperado: "a mesma igualdade nas cargas sorteadas do experimento, nos quatro portes e nas duas intenções", entrega: DSM4, status: executado}
+  - {id: TEST-237, nome: test_equivalent_workflow_has_one_controller_and_only_approval_messages, verifica: [REQ-S01], derivado_de: PROT-APR, tipo: e2e,
+     esperado: "um só componente decide; as únicas mensagens são as do Approval Gate; correção só com aprovação", entrega: DSM4, status: executado}
+  - {id: TEST-238, nome: test_equivalence_stops_where_messages_can_be_lost_and_the_minimal_workflow_never_was_equivalent, verifica: [REQ-F01, REQ-F05], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "com perda de mensagens o SMA falha e o workflow publica; o workflow mínimo publica a crítica que os outros vetam", entrega: DSM4, status: executado}
+  - {id: TEST-239, nome: test_chaos_and_parameters_change_nothing_by_default, verifica: [REQ-NF01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "sem modelo de falhas e com os parâmetros padrão, o hash do trace é o de sempre", entrega: DSM4, status: executado}
+  - {id: TEST-240, nome: test_same_seed_repeats_the_run_and_each_factor_has_its_own_draw, verifica: [REQ-NF01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "mesma seed, mesmo trace; ligar uma falha não muda plantios, perfil do aprovador nem os dados", entrega: DSM4, status: executado}
+  - {id: TEST-241, nome: test_random_loss_and_outages_reach_the_bus_and_every_silence_is_flagged, verifica: [REQ-F01, REQ-O01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "perdas e indisponibilidades chegam ao barramento; solicitação sem resposta é acusada pelo INV-07", entrega: DSM4, status: executado}
+  - {id: TEST-242, nome: test_slow_or_absent_approver_lets_the_ticket_expire_and_nothing_is_published, verifica: [REQ-S01, REQ-F05], derivado_de: PROT-APR, tipo: e2e,
+     esperado: "aprovador lento ou ausente: o ticket expira, a publicação fica bloqueada e nenhuma crítica sai", entrega: DSM4, status: executado}
+  - {id: TEST-243, nome: test_attacks_during_combined_failures_are_all_rejected, verifica: [REQ-S04], derivado_de: PROT-APR, tipo: seguranca,
+     esperado: "ataques ao Approval Gate sob perda, atraso, indisponibilidade e humano lento: nenhum aceito", entrega: DSM4, status: executado}
+  - {id: TEST-244, nome: test_injected_parameters_change_the_coordination_they_control, verifica: [REQ-F01, REQ-S02, REQ-NF02], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "tentativas, correções, extensão de prazo, reserva, prazos e limiar mudam o comportamento e ficam no trace", entrega: DSM4, status: executado}
+  - {id: TEST-245, nome: test_quick_experiment_writes_every_output_and_repeats_byte_for_byte, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "o comando do experimento grava os 12 arquivos e os reproduzíveis saem idênticos numa segunda execução", entrega: DSM4, status: executado}
+  - {id: TEST-246, nome: test_pipeline_statistics_match_hand_computed_references, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "Wilcoxon, Mann-Whitney, Cliff, Holm e descritivas gravados pelo pipeline batem com valores calculados à mão", entrega: DSM4, status: executado}
+  - {id: TEST-247, nome: test_summary_and_tests_are_recomputed_from_the_raw_rows, verifica: [REQ-NF01, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "a análise refeita só com o execucoes.csv dá o mesmo resumo e os mesmos testes", entrega: DSM4, status: executado}

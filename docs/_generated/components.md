@@ -321,3 +321,57 @@ Componente implementado em `src/fin_mas/conhecimento/base.py`.
 
 Componente implementado em `src/fin_mas/metricas_cognicao.py`.
 ````
+
+````{comp} Modelo de falhas aleatórias por seed
+:id: COMP-CAO
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-A2A
+
+Componente implementado em `src/fin_mas/caos.py`.
+````
+
+````{comp} Parâmetros de coordenação injetáveis
+:id: COMP-PAR
+:entrega: DSM4
+:status: implementado
+:realizes: AG-ORQ
+
+Componente implementado em `src/fin_mas/parametros.py`.
+````
+
+````{comp} Workflow centralizado funcionalmente equivalente (linha de base)
+:id: COMP-WEQ
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-POL
+
+Componente implementado em `src/fin_mas/baseline_eq.py`.
+````
+
+````{comp} Estatística do experimento com a biblioteca padrão
+:id: COMP-EST
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estatistica.py`.
+````
+
+````{comp} Experimento em blocos (desenho
+:id: COMP-ESU
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estudo.py`.
+````
+
+````{comp} Tabelas e figuras do experimento
+:id: COMP-ESR
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estudo_relato.py`.
+````

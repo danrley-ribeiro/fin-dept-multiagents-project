@@ -81,10 +81,11 @@ def digest_conteudo(content) -> str:
 
 class Bus:
     def __init__(self, audit: AuditLog | None = None, faults: list[Fault] | None = None,
-                 diretorio: dict | None = None, isolar_erros: bool = True):
+                 diretorio: dict | None = None, isolar_erros: bool = True, caos=None):
         self.audit = audit if audit is not None else AuditLog()
         self.protocols = load_protocols()
         self.faults = faults or []
+        self.caos = caos  # DSM4: modelo de falhas aleatórias por seed (`fin_mas.caos`); None = nenhum efeito
         self.now = 0
         self.agents: dict = {}
         self.papeis: dict[str, str] = {}  # identidade -> papel (agentes e serviços registrados)
@@ -162,6 +163,8 @@ class Bus:
     # ---- envio ---------------------------------------------------------------------
     def send(self, msg: Message, delay: int = 1, credencial: str | None = None) -> None:
         """Valida a mensagem (ver docstring do módulo) e a agenda para entrega em now + delay."""
+        if self.caos is not None:  # atraso de entrega sorteado (jitter); os prazos (reply_by) não mudam
+            delay += self.caos.atraso(msg)
         self.entrega_prevista = self.now + delay  # lido pelos validadores de domínio (prazo do ticket, POL-08)
         if isinstance(msg.content, dict):
             try:
@@ -381,6 +384,10 @@ class Bus:
                 self.audit.record(self.now, "drop", motivo="falha injetada", **_campos(msg))
                 self._perdida(msg)
                 return
+        if self.caos is not None and self.caos.perder(msg):
+            self.audit.record(self.now, "drop", motivo="perda aleatória (caos)", **_campos(msg))
+            self._perdida(msg)
+            return
         if msg.receiver in self.offline:
             self.audit.record(self.now, "drop", motivo="agente fora de operação", **_campos(msg))
             self._perdida(msg)

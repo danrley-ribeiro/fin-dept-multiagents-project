@@ -57,7 +57,8 @@ class Aprovador(Agent):
     "waiver" libera com ressalva; "corrigir" aprova as correções sugeridas pelo AG-CIN
     (o gateway as executa no ERP); "corrigir_parcial" aprova só a primeira; "bloquear"
     rejeita; "nenhuma" não responde e o prazo do ticket esgota. Opção que a política não
-    abriu vira silêncio (corrigir) ou rejeição (waiver). Uma sequência é consumida aviso a
+    abriu vira silêncio (corrigir) ou rejeição (waiver) no modo em lote; no dashboard, o waiver
+    não oferecido não é enviado e a pendência continua (não vira bloqueio sem o humano saber). Uma sequência é consumida aviso a
     aviso (a última se repete). No modo interativo a decisão vem do dashboard (`decidir`).
     """
 
@@ -100,6 +101,8 @@ class Aprovador(Agent):
             return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
+        if decisao == "waiver" and "waiver" not in msg.content["opcoes"]:
+            return False  # no dashboard, waiver negado pela política não vira bloqueio: a pendência continua
         texto = justificativa.strip() if isinstance(justificativa, str) else ""
         if not texto and decisao != "waiver":
             texto = self.SEM_JUSTIFICATIVA.get(decisao, "")

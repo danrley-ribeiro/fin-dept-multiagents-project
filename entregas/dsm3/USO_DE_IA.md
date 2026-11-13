@@ -43,7 +43,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 
 ## Verificação
 
-- `python -m pytest`: 249 testes passam, offline (157 na DSM2).
+- `python -m pytest`: 250 testes passam, offline (157 na DSM2).
 - `python tools/trace.py --check`: 0 erros; 89 de 90 testes modelados executados (TEST-19 é de
   entrega futura).
 - `python -m fin_mas run --scenario ataque_decisao_forjada`: 14 ataques, nenhum aceito.
@@ -136,3 +136,21 @@ gravado com o código antigo, setembro com o novo), escreveu a correção e os t
 arquivo em outra versão do formato deixa a memória comprometida e o waiver fica suspenso. Essa
 correção é dele; a IA só atualizou depois a contagem de testes (249) e o texto de
 [`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md), que ainda descrevia o comportamento antigo.
+
+## Teste exploratório no dashboard e na inicialização
+
+A pedido dos autores, a IA rodou o projeto como um usuário: `.\iniciar.ps1` no Windows PowerShell
+5.1 e uma sessão no dashboard com navegador real (Playwright), conferindo cada passo por captura
+de tela. Isso encontrou problemas que a suíte não pegava, todos corrigidos e com teste:
+
+| Problema | Correção | Teste |
+|---|---|---|
+| `iniciar.ps1` parava com erro em Windows sem Python 3.13 (o `py -3.13` ausente virava erro fatal no PowerShell 5.1) | a versão ausente é ignorada e a busca segue para 3.12 e 3.11 | rodado no PowerShell 5.1 da máquina dos autores |
+| `tools/iniciar.py` instalava as dependências da documentação (Sphinx 9, Python 3.12+) em todo modo, e falhava com Python 3.11 | só o modo `docs` as instala, e avisa se o Python for antigo | idem (modos `cli` e ao vivo) |
+| Na reincidência, o waiver negado pela política (POL-06) aparecia no diálogo e, ao ser escolhido, virava rejeição: o fechamento era bloqueado sem o aprovador saber | o botão fica desabilitado com a explicação; no servidor, o waiver não oferecido não é enviado e a pendência continua | `test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard`; teste de navegador "reincidência: a política nega o waiver" |
+| O aviso dizia "Simulação pausada por erro" mesmo quando a simulação não pausava (ex.: decisão recusada) | só diz "pausada" quando está pausada | sessão exploratória |
+
+Também foram corrigidas duas atribuições: a revisão da MET-01 e a tabela de `docs/dsm2/revisao.md`
+tratam do feedback da **DSM1** (o texto dizia DSM2).
+
+Verificação: 250 testes Python, 12 de 12 do dashboard e 15 de 15 de uso real no navegador.

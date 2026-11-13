@@ -4,7 +4,7 @@
 :status: especificado
 :measures: REQ-F01
 
-**Fórmula:** solicitações concluídas com inform / total (revisada após o feedback da DSM2: failure, refuse e not-understood não contam como conclusão; vão para a MET-13)  
+**Fórmula:** solicitações concluídas com inform / total (revisada na DSM2 após o feedback da DSM1: failure, refuse e not-understood não contam como conclusão; vão para a MET-13)  
 **Alvo:** >= 95% nos cenários sem veto nem falha injetada; reportar por cenário
 ````
 

@@ -22,7 +22,7 @@ resposta a cada ponto do feedback está em
 | Protocolo de interação documentado | seis FSMs + [`modelos-editaveis/`](modelos-editaveis/) (validação, FSM e sequência do PROT-APR) |
 | Coordenação, negociação, cooperação ou planejamento | [`docs/dsm3/coordenacao.md`](../../docs/dsm3/coordenacao.md) |
 | Tratamento de conflito, falha ou alternativa | [`docs/dsm3/seguranca.md`](../../docs/dsm3/seguranca.md); reenvio, replanejamento, prazo, negação, reincidência |
-| Testes integrados ou cenários automatizados | `codigo/tests/` (249 testes) e `codigo/web/e2e/`; [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md) |
+| Testes integrados ou cenários automatizados | `codigo/tests/` (250 testes) e `codigo/web/e2e/`; [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md) |
 | Evidências de comportamento coletivo | traces dos cenários, `docs/dsm3/resultados/` (10 seeds), cenário `ataque_decisao_forjada` |
 | Autoria e uso de IA | este arquivo e [`USO_DE_IA.md`](USO_DE_IA.md) |
 
@@ -37,7 +37,7 @@ comando único descrito no [README da raiz](../../README.md#um-comando).
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e . -r requirements-dev.txt            # Windows: .venv\Scripts\pip
-.venv/bin/python -m pytest                                     # 249 testes, offline
+.venv/bin/python -m pytest                                     # 250 testes, offline
 .venv/bin/python tools/trace.py --check                        # rastreabilidade: 0 erros
 ```
 
@@ -66,7 +66,7 @@ python -m fin_mas run --scenario fechar_mes --llm mock-narrador
 | transição local por identificador não autorizado | `advance` exige credencial, participação e papel autorizado em `eventos_locais` | `test_local_transition_by_unauthorized_identity_is_rejected` |
 | resposta a quem não participava da conversa | destinatário tem de ser a contraparte e ter papel participante | `test_reply_to_non_participant_receiver_is_rejected` |
 | `KeyError` por campo obrigatório ausente | esquema por performativo; erro de agente isolado e respondido | `test_malformed_request_does_not_crash_simulation` |
-| suíte não detectava as violações | 92 testes novos (falsificação, duplicidade, atraso, reutilização, papel, SoD, adulteração) | `docs/dsm3/testes.md` |
+| suíte não detectava as violações | 93 testes novos (falsificação, duplicidade, atraso, reutilização, papel, SoD, adulteração) | `docs/dsm3/testes.md` |
 | baseline sem veto/correção | ressalva registrada; workflow equivalente planejado para a DSM4 | `docs/dsm3/limitacoes.md` |
 
 ## Componentes novos

@@ -34,6 +34,9 @@ não seja `127.0.0.1`/`localhost` (DNS rebinding e páginas de outros sites). De
 - a sessão é conferida a cada requisição no cadastro selado: revogar pela TUI vale na hora, e o
   fluxo de eventos (SSE) se fecha quando a sessão morre;
 - toda resposta leva cabeçalhos de segurança (CSP, `nosniff`, sem embutir em outra página).
+
+DSM4 (ADR-012): login em dois passos, cofre e empresa ficam em `server_avancado.py`; aqui só o
+encaminhamento. Com empresas no cadastro, cada sessão fala com a simulação da sua empresa ativa.
 """
 import base64
 import hmac
@@ -49,6 +52,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from fin_mas import __version__
+from fin_mas import server_avancado as av
 from fin_mas.core.permissoes import decisoes_do_cargo
 from fin_mas.env.dataset import Dataset
 from fin_mas.env.empresa import EMPRESA, LOGO_SVG
@@ -59,7 +63,7 @@ from fin_mas.fontes import planilha
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.services import consulta, explicacao, provedores
 from fin_mas.services.audit import formatar
-from fin_mas.services.iam import AcessoNegado, criar_demo
+from fin_mas.services.iam import AcessoNegado, SegundoFatorPendente, criar_demo
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
 
 MODELOS = {"modelo_controladoria_em_branco.xlsx": None, **{f"exemplo_{p}.xlsx": p for p in PORTES}}
@@ -186,8 +190,8 @@ def _estatico(rota) -> tuple[int, dict, bytes]:
 
 # ---- autenticação e autorização (ADR-009) ------------------------------------------------------
 COOKIE = "sma_sessao"
-PUBLICAS = {("GET", "/api/saude"), ("POST", "/api/login")}
-SO_SESSAO = {("GET", "/api/sessao"), ("POST", "/api/logout"), ("POST", "/api/senha")}
+PUBLICAS = {("GET", "/api/saude"), ("POST", "/api/login"), ("POST", "/api/login/2fa")}
+SO_SESSAO = {("GET", "/api/sessao"), ("POST", "/api/logout"), ("POST", "/api/senha")} | av.SO_SESSAO
 PERMISSAO_ROTA = [  # (método, prefixo da rota, permissão); a primeira que casar vale; sem casar, a rota é negada
     ("GET", "/api/cenarios", "PERM-SIM-VER"), ("GET", "/api/estado", "PERM-SIM-VER"),
     ("GET", "/api/eventos", "PERM-SIM-VER"), ("GET", "/api/portes", "PERM-SIM-VER"),
@@ -197,6 +201,7 @@ PERMISSAO_ROTA = [  # (método, prefixo da rota, permissão); a primeira que cas
     ("GET", "/api/auditoria", "PERM-AUD-VER"), ("GET", "/api/acesso/trilha", "PERM-AUD-VER"),
     ("GET", "/api/llm", "PERM-MOD-VER"), ("GET", "/api/modelos", "PERM-DAD-VER"), ("GET", "/api/dados", "PERM-DAD-VER"),
     ("POST", "/api/dados/planilha", "PERM-DAD-ENVIAR"),
+    *av.PERMISSAO_ROTA,
 ]
 SEGURANCA = {  # cabeçalhos de toda resposta: o dashboard não carrega nada de fora nem é embutido em outra página
     "Content-Security-Policy": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
@@ -207,10 +212,10 @@ SEGURANCA = {  # cabeçalhos de toda resposta: o dashboard não carrega nada de 
 }
 
 
-def _cookie(valor: str | None) -> str | None:
+def _cookie(valor: str | None, cookie: str = COOKIE) -> str | None:
     for parte in (valor or "").split(";"):
         nome, _, conteudo = parte.strip().partition("=")
-        if nome == COOKIE and conteudo:
+        if nome == cookie and conteudo:
             return conteudo
     return None
 
@@ -396,8 +401,11 @@ def _relatorio(sim, sid: str, formato: str) -> tuple[int, dict, bytes]:
                                                                   "hipoteses")}})
 
 
-def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) -> ThreadingHTTPServer:
-    """Servidor do dashboard. `acesso` (SVC-IAM) é obrigatório: sem contas não há quem possa entrar."""
+def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fabrica=None) -> ThreadingHTTPServer:
+    """Servidor do dashboard. `acesso` (SVC-IAM) é obrigatório: sem contas não há quem possa entrar.
+
+    `fabrica(empresa) -> Simulacao`: com empresas no cadastro, a simulação de cada empresa (IAM-09)."""
+    simulacoes = av.Simulacoes(sim, acesso, fabrica)
     if acesso is None:
         raise ValueError("o servidor exige o SVC-IAM: use `acesso iniciar`, `acesso demo` ou `serve --demo`")
     if sim.acesso is None:
@@ -454,7 +462,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
             elif rota == "/api/eventos":
                 self._eventos(sessao)
             else:
-                self._responder(*(tratar_protegidas(sim, acesso, sessao, "GET", self.path) or tratar(sim, "GET", self.path)))
+                sim = simulacoes.de(sessao)
+                self._responder(*(av.tratar_get(acesso, sessao, rota) or tratar_protegidas(sim, acesso, sessao, "GET", self.path)
+                                  or tratar(sim, "GET", self.path)))
 
         def _ler(self, tamanho: int) -> bytes | None:
             """Lê o corpo com tempo limite: quem declara um tamanho e não envia não prende a thread."""
@@ -484,7 +494,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                 self._recusar(tamanho, 403, "origem não permitida: use http://127.0.0.1 ou http://localhost")
                 return
             sessao = None
-            if rota == "/api/login":
+            if rota in ("/api/login", "/api/login/2fa"):
                 if tamanho < 0 or tamanho > LIMITE_LOGIN:
                     self._recusar(-1, 413, "corpo ausente, inválido ou grande demais")
                     return
@@ -508,6 +518,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                 return
             if rota == "/api/login":
                 self._login(corpo)
+            elif rota == "/api/login/2fa":
+                self._responder(*av.login_2fa(acesso, corpo, _cookie(self.headers.get("Cookie"), av.COOKIE_PRE),
+                                              f"dashboard {self.client_address[0]}", COOKIE, CABECALHO_TOKEN))
             elif rota == "/api/logout":
                 acesso.sair(sessao)
                 self._responder(200, {"Content-Type": "application/json; charset=utf-8",
@@ -516,7 +529,14 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
             elif rota == "/api/senha":
                 self._senha(sessao, corpo)
             else:
-                self._protegido(sessao, rota, corpo)
+                negado = autorizar(acesso, sessao, "POST", rota) if rota.startswith("/api/segredos") else None
+                resposta = None if negado else av.tratar_post(acesso, sessao, rota, corpo)
+                if negado:
+                    self._erro(*negado)
+                elif resposta is not None:
+                    self._responder(*resposta)
+                else:
+                    self._protegido(sessao, rota, corpo)
 
         def _login(self, corpo):
             try:
@@ -525,6 +545,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                                                   origem=f"dashboard {self.client_address[0]}")
             except ValueError:
                 self._erro(400, "pedido inválido")
+                return
+            except SegundoFatorPendente as erro:  # IAM-08: senha certa; o código entra em /api/login/2fa
+                self._responder(*av.pendente(erro, CABECALHO_TOKEN))
                 return
             except AcessoNegado as erro:
                 self._erro(401, erro.motivo)
@@ -546,6 +569,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                 self._responder(*_json(200, {"ok": True}))
 
         def _protegido(self, sessao, rota, corpo):
+            sim = simulacoes.de(sessao)
             cmd = None
             if rota == "/api/comando":
                 try:
@@ -572,6 +596,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
             self._responder(*tratar(sim, "POST", self.path, corpo))
 
         def _eventos(self, sessao):
+            sim = simulacoes.de(sessao)
             fila: queue.Queue = queue.Queue()
             with sim.lock:  # histórico e assinatura atômicos: nenhum registro perdido ou duplicado
                 historico = [{"tipo": "reset", "geracao": sim.geracao, "cenario": sim.cenario.nome,
@@ -620,6 +645,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
     servidor = _Servidor((host, porta), Handler)
     servidor.daemon_threads = True
     servidor.acesso = acesso
+    servidor.simulacoes = simulacoes
     return servidor
 
 
@@ -643,7 +669,15 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
     if porte and porte != sim.porte:  # instalação com porte escolhido: os agentes já sobem com as regras dele
         sim._montar(cenario, seed, True, porte=porte)
     sim.iniciar()
-    servidor = criar_servidor(sim, porta=porta, acesso=acesso)
+    provedores.usar_cofre(acesso.cofre)  # chave de LLM definida pelo dashboard ou pela TUI (ambiente tem precedência)
+
+    def fabrica(empresa):  # IAM-09: dados, memória e trace de cada empresa em dados/<empresa>/
+        pasta = Path(pasta_dados) / empresa
+        nova = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick, pasta_dados=str(pasta),
+                         acesso=acesso, cognicao=cognicao, empresa=empresa, memoria=str(pasta / "memoria.json"))
+        nova.iniciar()
+        return nova
+    servidor = criar_servidor(sim, porta=porta, acesso=acesso, fabrica=fabrica)
     print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)")
     if demo:
         print(f"contas de demonstração (senha {SENHA_DEMO}): avaliador (tudo menos administrar), admin, operador, "
@@ -654,4 +688,5 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
         pass
     finally:
         sim.parar()
+        servidor.simulacoes.parar()
         servidor.server_close()

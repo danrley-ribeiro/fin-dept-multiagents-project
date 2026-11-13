@@ -16,7 +16,9 @@ rodou nem confia no que os agentes dizem de si. `verificar` devolve a lista de v
 - INV-05  nenhuma crença tem um proponente (regra local ou LLM) como fonte;
 - INV-06  hipótese só é confirmada ou refutada com a fonte da evidência registrada;
 - INV-07  toda solicitação recebe uma resposta explícita (resultado, recusa ou falha);
-- INV-08  nenhum segredo conhecido aparece no trace (token de atestado, chave de API).
+- INV-08  nenhum segredo conhecido aparece no trace (token de atestado, chave de API);
+- INV-09  (DSM4) liberação de ticket com dupla aprovação tem duas pessoas distintas: o aval e a aprovação;
+- INV-10  (DSM4) liberação aceita com a exposição informada cabe na alçada efetiva de quem decidiu.
 """
 import json
 import re
@@ -113,8 +115,30 @@ def _inv08(reg):
             yield f"INV-08: segredo em claro no registro #{r['seq']} ({r['kind']})"
 
 
+def _inv09(reg):
+    duplas = {r["conversation_id"] for r in reg if r["kind"] == "politica" and r.get("evento") == "emitido"
+              and r.get("dupla")}
+    for r in reg:
+        if r["kind"] == "politica" and r.get("evento") == "decidido" and r["conversation_id"] in duplas \
+                and r.get("decisao") in ("waiver", "corrigir"):
+            quem = r.get("aprovado_por") or {}
+            aval = (quem.get("aval") or {}).get("pessoa")
+            if not aval or aval in (quem.get("pessoa"), quem.get("por_delegacao_de")):
+                yield f"INV-09: liberação de {r['conversation_id']} (#{r['seq']}) sem duas pessoas distintas"
+
+
+def _inv10(reg):
+    for r in reg:
+        if r["kind"] == "politica" and r.get("evento") == "decidido" and r.get("decisao") in ("waiver", "corrigir") \
+                and isinstance(r.get("exposicao"), int) and "alcada" in r:
+            if r["alcada"] is not None and r["exposicao"] > r["alcada"]:
+                yield (f"INV-10: liberação de {r['conversation_id']} (#{r['seq']}) com exposição {r['exposicao']} acima "
+                       f"da alçada {r['alcada']}")
+
+
 INVARIANTES = (("INV-01", _inv01), ("INV-02", _inv02), ("INV-03", _inv03), ("INV-04", _inv04), ("INV-05", _inv05),
-               ("INV-06", _inv06), ("INV-07", _inv07), ("INV-08", _inv08))
+               ("INV-06", _inv06), ("INV-07", _inv07), ("INV-08", _inv08),
+               ("INV-09", _inv09), ("INV-10", _inv10))
 
 
 def verificar(registros, completo: bool = True) -> list[str]:

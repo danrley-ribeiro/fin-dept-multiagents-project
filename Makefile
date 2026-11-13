@@ -1,7 +1,7 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DSM1_DOC = entregas/dsm1/documentacao
 
-.PHONY: all trace check docs pdf pdf-v2 test demo comparar export serve web web-test modelos iniciar testes-tudo entrega-dsm2 entrega-dsm3 ataque clean
+.PHONY: all trace check docs pdf pdf-v2 test demo comparar experimento export serve web web-test modelos iniciar testes-tudo entrega-dsm2 entrega-dsm3 ataque clean
 
 all: trace docs pdf
 
@@ -22,6 +22,9 @@ demo:
 
 comparar:
 	PYTHONPATH=src $(PYTHON) -m fin_mas comparar --seeds 10 --out docs/dsm3/resultados
+
+experimento:
+	PYTHONPATH=src $(PYTHON) -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados
 
 export: comparar
 	PYTHONPATH=src $(PYTHON) -m fin_mas export --out web/public/traces

@@ -4,6 +4,7 @@
   python -m fin_mas run --scenario fechar_mes --seed 42 [--trace trace.jsonl] [--verbose]
   python -m fin_mas replay trace.jsonl SOL-001
   python -m fin_mas comparar [--seeds 10] [--out docs/dsm3/resultados]
+  python -m fin_mas experimento [--replicas 30] [--out docs/dsm4/resultados] [--rapido]   # DSM4
   python -m fin_mas export [--out web/public/traces]
   python -m fin_mas relatorio --scenario fechar_mes [--out saidas]
   python -m fin_mas serve [--porta 8765] [--scenario expediente_sma] [--pasta-dados dados/empresa]
@@ -145,6 +146,24 @@ def _comparar(args) -> int:
     experimentos.gravar(linhas, resumo, args.out)
     print(experimentos.tabela_md(resumo))
     print(f"dados brutos, resumo e figura em {args.out}")
+    return 0
+
+
+def _experimento(args) -> int:
+    """Experimento redesenhado da DSM4 (pré-registro em docs/dsm4/experimento.md)."""
+    from fin_mas import estudo
+
+    def progresso(feitas, total):
+        print(f"  {feitas}/{total} execuções", file=sys.stderr, flush=True)
+
+    r = estudo.rodar(args.out, replicas=args.replicas, rapido=args.rapido, progresso=progresso)
+    m, inv = r["manifesto"], r["resumo"]["tabelas"]["invariantes"]
+    print(f"{m['execucoes']} execuções em {len(m['seeds'])} seeds; dados brutos, resumo, testes e figuras em {args.out}")
+    print(f"execucoes.csv sha256: {m['arquivos']['execucoes.csv']['sha256']}")
+    print(f"ataques aceitos indevidamente: {inv['ataques_aceitos'] - inv['ataques_sem_premissa']} de "
+          f"{inv['ataques_tentados']} | execuções do SMA com violação de "
+          f"invariante: {inv['execucoes_com_violacao']} de {inv['execucoes_do_sma']} | execuções com erro: "
+          f"{inv['execucoes_com_erro']}")
     return 0
 
 
@@ -344,6 +363,10 @@ def main(argv=None) -> int:
     cmp_ = sub.add_parser("comparar", help="SMA x workflow centralizado sob as mesmas seeds")
     cmp_.add_argument("--seeds", type=int, default=10)
     cmp_.add_argument("--out", default="docs/dsm3/resultados")
+    est = sub.add_parser("experimento", help="experimento da DSM4: SMA x workflow equivalente sob falhas sorteadas")
+    est.add_argument("--replicas", type=int, default=30, help="seeds pareadas entre os braços (padrão: 30)")
+    est.add_argument("--out", default="docs/dsm4/resultados")
+    est.add_argument("--rapido", action="store_true", help="desenho reduzido (3 seeds), para conferir o aparato")
     exp = sub.add_parser("export", help="exporta os traces de todos os cenários para o replay do dashboard")
     exp.add_argument("--out", default="web/public/traces")
     rel = sub.add_parser("relatorio", help="grava o relatório final em HTML (com logo) e JSON")
@@ -403,7 +426,7 @@ def main(argv=None) -> int:
         for sc in CENARIOS.values():
             print(f"{sc.nome:<24} seed={sc.seed:<5} {sc.descricao}")
         return 0
-    comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export,
+    comandos = {"run": _run, "replay": _replay, "comparar": _comparar, "export": _export, "experimento": _experimento,
                 "relatorio": _relatorio, "serve": _serve, "modelos": _modelos, "mcp-excel": _mcp_excel,
                 "verificar": _verificar, "llm": _llm, "acesso": cli_acesso.executar, "auditoria": _auditoria,
                 "explicar": _explicar, "sequencia": _explicar, "cenarios": _cenarios, "invariantes": _invariantes,

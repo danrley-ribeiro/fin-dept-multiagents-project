@@ -95,6 +95,7 @@ class Bus:
         self._ids: dict[str, int] = {}
         self.offline: set[str] = set()  # agentes fora de operação: o que chega a eles se perde
         self.prazos: dict[str, int] = {}  # conversa -> prazo vigente (uma resposta com novo reply_by o estende)
+        self.registro_fechado = False  # sistema montado: só identidades do diretório (ver fechar_registro)
 
     # ---- identidades ------------------------------------------------------------
     def register(self, agent, papel: str | None = None) -> str:
@@ -107,6 +108,15 @@ class Bus:
         """Serviço que aplica transições locais (ex.: SVC-POL), sem caixa de entrada."""
         return self._registrar(servico_id, papel)
 
+    def fechar_registro(self) -> None:
+        """Sistema montado: daqui em diante só se registra identidade que consta no diretório.
+
+        Sem isso, um identificador qualquer se registrava com um papel privilegiado (ROLE-ORQ, ROLE-RES)
+        e passava a delegar e a consultar os especialistas (achado C1 da correção simulada da v0.5.0).
+        Barramentos de teste isolados, que não chamam este método, continuam aceitando clientes avulsos.
+        """
+        self.registro_fechado = True
+
     def _registrar(self, ident: str, papel: str | None) -> str:
         if not isinstance(ident, str) or not ident or ident == SISTEMA:
             raise ProtocolViolation(f"identidade inválida: {ident!r}")
@@ -116,6 +126,10 @@ class Bus:
             raise ProtocolViolation(f"{ident}: papel desconhecido {papel!r}")
         if ident in self.diretorio and papel not in self.diretorio[ident]:
             raise ProtocolViolation(f"{ident}: papel {papel} não consta no diretório ({sorted(self.diretorio[ident])})")
+        if self.registro_fechado and ident not in self.diretorio:
+            self.audit.record(self.now, "rejected", agente=ident, motivo=f"registro de identidade fora do diretório: "
+                              f"{ident} como {papel}", etapa="autenticacao")
+            raise ProtocolViolation(f"{ident}: identidade fora do diretório (registro fechado)")
         self.papeis[ident] = papel
         credencial = secrets.token_hex(16)
         self._credenciais[ident] = _hash_credencial(credencial)  # só o hash fica no barramento
@@ -146,7 +160,11 @@ class Bus:
         """Valida a mensagem (ver docstring do módulo) e a agenda para entrega em now + delay."""
         self.entrega_prevista = self.now + delay  # lido pelos validadores de domínio (prazo do ticket, POL-08)
         if isinstance(msg.content, dict):
-            msg = replace(msg, content=copy.deepcopy(msg.content))  # o remetente não altera o que já enviou
+            try:
+                msg = replace(msg, content=copy.deepcopy(msg.content))  # o remetente não altera o que já enviou
+            except (TypeError, RecursionError, ValueError) as erro:  # gerador, estrutura profunda demais…
+                msg = replace(msg, content={})
+                self._rejeitar(msg, f"conteúdo que não pode ser copiado ({type(erro).__name__})", "esquema")
         if not isinstance(msg.sender, str) or msg.sender not in self._credenciais:
             self._rejeitar(msg, f"remetente desconhecido: {msg.sender!r}", "autenticacao")
         if not self._autentico(msg.sender, credencial):
@@ -208,6 +226,11 @@ class Bus:
                     conv.protocol.next_state(conv.state, msg.performative)
                 except ProtocolViolation as erro:
                     self._rejeitar(msg, str(erro), "fsm")
+            if msg.reply_by is not None and msg.sender != conv.initiator:
+                # só quem abriu a conversa fixa ou estende o prazo dela (no PROT-DEL, pelo accept-proposal);
+                # sem isso, a contraparte estendia o próprio prazo sem negociar (correção simulada, M2)
+                self._rejeitar(msg, f"{msg.sender} não abriu {msg.conversation_id}: só o iniciador "
+                                    f"({conv.initiator}) define o prazo da conversa", "protocolo")
             self._validar_dominio(msg, conv)
             antes, depois = conv.step(msg.performative)
             self.audit.record(self.now, "send", de=antes, para=depois, **_campos(msg))
@@ -245,7 +268,11 @@ class Bus:
         Só o participante autenticado cujo papel consta em `eventos_locais` do protocolo
         pode aplicar o evento; qualquer outra tentativa é rejeitada e auditada.
         """
-        conv = self.conversations.get(conversation_id)
+        conv = self.conversations.get(conversation_id) if isinstance(conversation_id, str) else None
+        if not isinstance(conversation_id, str):
+            conversation_id = repr(conversation_id)[:64]
+        if not isinstance(event, str):
+            event = repr(event)[:64]
 
         def rejeitar(motivo, etapa):
             self.audit.record(self.now, "rejected", conversation_id=conversation_id, agente=actor, evento=event,

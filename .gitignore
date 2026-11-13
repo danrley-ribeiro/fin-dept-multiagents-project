@@ -72,3 +72,6 @@ entregas/dsm3/DSM3-entrega.zip
 # --- Cobertura (make cobertura) ---
 .coverage
 htmlcov/
+
+# --- Cópias de trabalho de agentes ---
+.claude/worktrees/

@@ -313,7 +313,9 @@ class Acesso:
             elif not isinstance(senha, str) or not _confere_senha(senha, conta["senha"]):
                 conta["falhas"] += 1
                 if conta["falhas"] >= MAX_FALHAS:
-                    conta.update(estado="bloqueada", bloqueada_ate=agora + BLOQUEIO_S, falhas=0)
+                    # bloqueio temporário só de novas entradas: a conta segue ativa e as sessões já abertas
+                    # continuam valendo (senão quem não tem conta derrubaria a sessão de qualquer pessoa — M5)
+                    conta.update(bloqueada_ate=agora + BLOQUEIO_S, falhas=0)
                     negacao = ("IAM-03", f"conta bloqueada por {MAX_FALHAS} senhas erradas: tente de novo em "
                                          f"{BLOQUEIO_S // 60} min", "senha errada (conta bloqueada por 15 min)")
                 else:

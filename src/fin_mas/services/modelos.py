@@ -30,7 +30,7 @@ import json
 import re
 from decimal import Decimal, InvalidOperation
 
-from fin_mas.core.inferencia import PropostaInvalida, ler_propostas
+from fin_mas.core.inferencia import PropostaInvalida, caractere_estranho, ler_propostas
 from fin_mas.services import provedores as prov
 from fin_mas.services.pseudonimos import Pseudonimizador
 
@@ -78,6 +78,9 @@ SISTEMA_HIPOTESES = (
 ACAO = re.compile(r"\b(aprov[ae]r?|aprove|estorn[ae]r?|estorne|execut[ae]r?|execute|lan[cç]ar|lance|liberar?|libere)\b",
                   re.IGNORECASE)
 NUMERO = re.compile(r"\d[\d.,]*")
+# Recomendação ou instrução ao leitor num texto que deveria só descrever (lista de proibições: reduz, não esgota).
+RECOMENDACAO = re.compile(r"\b(conv[eé]m|recomend\w*|sug[ei]r\w*|autoriz\w*|pag(ar|ue|uem)|distribu\w*|"
+                          r"desconsider\w*|ignor\w*|deve(m|mos|ria|riam)?\s+\w+r)\b|\bsem ouvir\b", re.IGNORECASE)
 
 
 class ConfiguracaoInvalida(ValueError):
@@ -249,8 +252,13 @@ class RegistroModelos:
         if estranhos:
             self._fallback(agente, cid, cfg, f"NORM-05: números ausentes do núcleo determinístico: {estranhos}")
             return None
-        if ACAO.search(texto):
-            self._fallback(agente, cid, cfg, f"NORM-05: o texto propõe uma ação ({ACAO.search(texto).group(0)})")
+        acao = ACAO.search(texto) or RECOMENDACAO.search(texto)
+        if acao:
+            self._fallback(agente, cid, cfg, f"NORM-05: o texto propõe uma ação ({acao.group(0)})")
+            return None
+        estranho = caractere_estranho(texto)
+        if estranho:
+            self._fallback(agente, cid, cfg, f"NORM-05: caractere fora do alfabeto aceito ({estranho})")
             return None
         return texto
 

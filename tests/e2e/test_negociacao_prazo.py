@@ -125,3 +125,20 @@ def test_protocol_rejects_negotiation_out_of_order_or_by_the_wrong_role():
         orc.send("AG-ORQ", "inform", "PROT-DEL", "DEL-001", {})
     rejeitadas = [r for r in bus.audit.records if r["kind"] == "rejected"]
     assert len(rejeitadas) == 5 and {r["etapa"] for r in rejeitadas} >= {"fsm", "papel", "esquema"}
+
+
+def test_counterpart_cannot_extend_its_own_deadline_without_negotiating():
+    """Correção simulada da v0.5.0 (M2): um `agree` com `reply_by` distante estendia o prazo da subtarefa."""
+    from fin_mas.core.bus import MensagemRejeitada
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system()
+    s.usuario.solicitar("avaliar_orcamento")
+    while s.bus.proximo_tempo() is not None and not [c for c in s.bus.conversations.values()
+                                                     if c.protocol.id == "PROT-DEL" and c.counterpart == "AG-ORC"]:
+        s.bus.step()
+    conv = next(c for c in s.bus.conversations.values() if c.protocol.id == "PROT-DEL" and c.counterpart == "AG-ORC")
+    prazo = s.bus.prazos[conv.conversation_id]
+    with pytest.raises(MensagemRejeitada, match="só o iniciador"):
+        s.agentes["AG-ORC"].send("AG-ORQ", "agree", "PROT-DEL", conv.conversation_id, {}, reply_by=s.bus.now + 100_000)
+    assert s.bus.prazos[conv.conversation_id] == prazo

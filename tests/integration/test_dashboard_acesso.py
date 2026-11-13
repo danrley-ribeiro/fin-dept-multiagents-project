@@ -411,3 +411,43 @@ def test_tampered_account_store_locks_everyone_out(servico, tmp_path):
     assert n.get("/api/estado")[0] == 401
     assert Navegador(porta).login("admin")[0] == 401
     assert Navegador(porta).get("/api/saude")[1]["acesso"]["integro"] is False
+
+
+def test_malformed_bodies_get_a_400_instead_of_a_dropped_connection(servico):
+    """Correção simulada da v0.5.0 (M4): corpo que não é objeto, ou campo de tipo errado, derrubava a conexão
+    sem resposta (exceção no handler), inclusive em rotas sem autenticação."""
+    _, _, porta = servico()
+    anonimo = Navegador(porta)
+    for corpo in (b"[]", b"null", b"123", b'"texto"'):
+        assert anonimo.pedir("POST", "/api/login", corpo)[0] == 400
+    assert anonimo.pedir("POST", "/api/login", {"usuario": ["a"], "senha": {"b": 1}})[0] == 401
+    operador = entrar(porta, "operador")
+    for rota, corpo in (("/api/comando", {"tipo": []}), ("/api/comando", {"tipo": {}}), ("/api/comando", b"[]"),
+                        ("/api/senha", b"[]"), ("/api/senha", {"atual": 1, "nova": []}),
+                        ("/api/dados/planilha", b"[]"), ("/api/dados/planilha", {"conteudo_base64": 123})):
+        status, dados = operador.pedir("POST", rota, corpo)
+        assert status in (400, 403), (rota, corpo, status, dados)
+    assert operador.get("/api/sessao")[0] == 200  # o servidor segue respondendo
+
+
+def test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_account(servico):
+    """Correção simulada da v0.5.0 (M5): cinco senhas erradas bloqueiam novas entradas por um tempo, mas a
+    sessão já aberta da pessoa continua valendo."""
+    _, acesso, porta = servico()
+    controller = entrar(porta, "controller")
+    estranho = Navegador(porta)
+    for _ in range(5):
+        assert estranho.login("controller", "senha-errada-12345")[0] == 401
+    assert controller.get("/api/sessao")[0] == 200  # a sessão viva não caiu
+    status, dados = estranho.login("controller")  # novas entradas ficam bloqueadas, mesmo com a senha certa
+    assert status == 401 and "bloqueada" in dados["erro"]
+    assert controller.get("/api/auditoria")[0] == 200
+
+
+def test_changing_the_cognition_level_on_restart_needs_the_model_permission(servico):
+    """Correção simulada da v0.5.0 (m1): o operador (sem PERM-MOD-CONFIG) reiniciava com `cognicao: llm`."""
+    sim, _, porta = servico()
+    operador = entrar(porta, "operador")
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cognicao": "llm"})[0] == 403
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cognicao": sim.cognicao or sim.cenario.cognicao})[0] == 202
+    assert operador.post("/api/comando", {"tipo": "agente", "agente": "AG-XYZ", "online": False})[0] == 400

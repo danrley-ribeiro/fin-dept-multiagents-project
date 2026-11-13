@@ -216,7 +216,7 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                                  controle_compensatorio=compensatorio)
     mem = Memoria(bus.audit, lambda: bus.now, politica=politica, caminho=memoria)
     gw = MCPGateway(amb, bus.audit, bus, politica=politica)
-    locks = LockService(bus.audit, lambda: bus.now, ttl=ttl)
+    locks = LockService(bus.audit, lambda: bus.now, ttl=ttl, autenticar=bus.autenticar)
     agentes = {"AG-CUS": AgenteCustos(bus, gw), "AG-ORC": AgenteOrcamento(bus, gw),
                "AG-RES": AgenteResultados(bus, gw), "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": AgenteRelatorios(bus, gw)}
@@ -234,9 +234,11 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     if cognicao == "llm":
         agentes["AG-ORC"].proponentes.append(ProponenteLLM(modelos))
     orq = Orquestrador(bus, locks, politica=politica, gateway=gw)
-    return System(bus, ds, gw, locks, orq, Solicitante(bus),
-                  Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
-                  agentes, amb, politica, mem, modelos, acesso)
+    sistema = System(bus, ds, gw, locks, orq, Solicitante(bus),
+                     Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
+                     agentes, amb, politica, mem, modelos, acesso)
+    bus.fechar_registro()  # ninguém fora do diretório entra depois de o sistema estar montado
+    return sistema
 
 
 @dataclass(frozen=True)

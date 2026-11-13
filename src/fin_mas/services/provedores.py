@@ -59,6 +59,30 @@ class RespostaLLM:
     modelo: str  # o modelo que de fato respondeu (pode diferir do pedido)
 
 
+VARIAVEL_URLS = "FIN_MAS_LLM_URLS_CONFIAVEIS"
+
+
+def destino_confiavel(base_url: str | None, padrao: str | None) -> bool:
+    """A chave do servidor só segue para a URL padrão do provedor ou para uma URL fixada no ambiente.
+
+    `base_url` chega por configuração (inclusive pelo dashboard, de quem tem PERM-MOD-CONFIG): sem esta
+    conferência, quem configura o modelo apontava o provedor para um endereço seu e recebia a chave de API
+    do servidor no cabeçalho (correção simulada da v0.5.0, M1). A lista de URLs confiáveis vem da variável
+    `FIN_MAS_LLM_URLS_CONFIAVEIS` (separadas por vírgula), definida por quem instala, não por comando.
+    """
+    if not base_url:
+        return True
+    alvo = base_url.rstrip("/")
+    if padrao and alvo == padrao.rstrip("/"):
+        return True
+    return alvo in {u.strip().rstrip("/") for u in os.environ.get(VARIAVEL_URLS, "").split(",") if u.strip()}
+
+
+def _recusar_destino(provedor: str):
+    raise ErroProvedor(f"{provedor}: a URL configurada não é a do provedor nem está em {VARIAVEL_URLS}; "
+                       f"a chave do servidor não é enviada a ela")
+
+
 def _local(base_url: str | None) -> bool:
     return bool(base_url) and urlsplit(base_url).hostname in LOOPBACK
 
@@ -201,6 +225,8 @@ class AnthropicProvedor:
             import anthropic  # dependência opcional (extra `llm`): sem o SDK, o agente segue no template
         except ImportError:
             raise ErroProvedor('SDK anthropic não instalado (pip install "fin-mas[llm]")') from None
+        if not destino_confiavel(base_url, None):
+            _recusar_destino(self.id)
         saida = {"effort": "low"}  # tarefas curtas e estruturadas: esforço baixo basta
         if pedido.esquema:
             saida["format"] = {"type": "json_schema", "schema": pedido.esquema}
@@ -245,6 +271,10 @@ class OpenAIProvedor:
         chave = os.environ.get(self.variavel_chave, "")
         if self.exige_chave and not chave:
             raise ErroProvedor(f"chave ausente: defina a variável de ambiente {self.variavel_chave}")
+        if chave and not destino_confiavel(base_url, self.base_padrao):
+            if self.exige_chave:
+                _recusar_destino(self.id)
+            chave = ""  # servidor compatível numa URL não fixada na instalação: o pedido segue sem a chave
         corpo = {"model": modelo, self.campo_limite: pedido.max_tokens,
                  "messages": [{"role": "system", "content": pedido.sistema},
                               {"role": "user", "content": pedido.prompt}]}
@@ -299,6 +329,8 @@ class GeminiProvedor:
             geracao["responseMimeType"] = "application/json"
         corpo = {"systemInstruction": {"parts": [{"text": pedido.sistema}]},
                  "contents": [{"role": "user", "parts": [{"text": pedido.prompt}]}], "generationConfig": geracao}
+        if not destino_confiavel(base_url, self.base_padrao):
+            _recusar_destino(self.id)
         base = (base_url or self.base_padrao).rstrip("/")
         dados = _post_json(f"{base}/models/{modelo}:generateContent", corpo, {"x-goog-api-key": chave}, timeout)
         try:

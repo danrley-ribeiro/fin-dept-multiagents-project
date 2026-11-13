@@ -28,7 +28,7 @@ class AgenteRelatorios(Specialist):
             linhas.append(f"Insight: {insight}")
         for campo, autor in (("comentario", "AG-RES"), ("narrativa", "AG-ORC")):  # textos de LLM já validados na origem
             if content.get(campo):
-                linhas.append(f"Comentário do {autor} (gerado por {content[campo]['modelo']}; números conferidos): "
+                linhas.append(f"Comentário do {autor} (gerado por {content[campo]['modelo']}; números conferidos; redação não verificada): "
                               f"{content[campo]['texto']}")
         for ressalva in content.get("ressalvas", []):
             linhas.append(f"Ressalva: {ressalva}")
@@ -39,8 +39,9 @@ class AgenteRelatorios(Specialist):
         modo = "template"
         if sintese:
             modelo = self.modelos.config(self.id)["modelo"]
-            texto, modo = f"{sintese}\n(síntese gerada por {modelo}; números conferidos com o template)\n\n{texto}", \
-                "template+llm"
+            # o relatório determinístico vem primeiro; a redação do modelo vai ao fim, rotulada (correção C2)
+            texto, modo = (f"{texto}\n\nSíntese gerada por {modelo} (redação de modelo, não verificada; "
+                           f"números conferidos com o template):\n{sintese}"), "template+llm"
         self.estado["rascunho"] = texto
         self.decide(conversation_id, "relatório por template determinístico" + (" com síntese validada" if sintese else ""),
                     {"tarefa": tarefa, "ressalvas": len(content.get("ressalvas", []))}, VERSAO_TEMPLATE)

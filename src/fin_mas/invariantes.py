@@ -30,8 +30,11 @@ SEGREDO = re.compile(r"\b(sk|pk|rk)-[A-Za-z0-9_-]{16,}\b|Bearer\s+[A-Za-z0-9._~+
 
 def _inv01(reg):
     pendente = {}  # CMP -> veto ainda sem tratamento
+    intencao = {}  # SOL -> intenção do pedido
     for r in reg:
         cid = r.get("conversation_id")
+        if r["kind"] == "open" and r.get("protocol") == "PROT-SOL":
+            intencao[cid] = (r.get("content") or {}).get("intencao")
         if r.get("protocol") == "PROT-CMP" and r["kind"] in ("open", "send"):
             if r["performative"] == "veto":
                 pendente[cid] = True
@@ -41,13 +44,18 @@ def _inv01(reg):
             yield f"INV-01: publicação em {cid} (#{r['seq']}) com veto sem tratamento"
         elif (r["kind"] == "send" and r.get("protocol") == "PROT-SOL" and r["performative"] == "inform"
               and str((r.get("content") or {}).get("status", "")).startswith("publicado")):
-            vetadas = sorted(c for c in familia(reg, cid) if pendente.get(c))
+            parentes = familia(reg, cid)
+            vetadas = sorted(c for c in parentes if pendente.get(c))
             if vetadas:
                 yield f"INV-01: {cid} publicada (#{r['seq']}) com veto sem tratamento em {', '.join(vetadas)}"
+            if intencao.get(cid) == "fechar_mes" and not any(c in pendente for c in parentes):
+                # fechamento publicado sem nenhum parecer do AG-CIN (ex.: nó de conformidade retirado do plano)
+                yield f"INV-01: {cid} publicada (#{r['seq']}) sem parecer de conformidade do AG-CIN"
 
 
 def _inv02(reg):
     decididas = {}  # ticket -> correções aprovadas
+    usadas = set()  # (ticket, lançamento, ação): cada correção aprovada vale uma vez (POL-08)
     for r in reg:
         if r["kind"] == "politica" and r.get("evento") == "decidido" and r.get("decisao") == "corrigir":
             decididas[r["conversation_id"]] = [(c.get("lancamento"), c.get("acao")) for c in r.get("correcoes") or []]
@@ -56,6 +64,11 @@ def _inv02(reg):
             if (c.get("lancamento"), c.get("acao")) not in decididas.get(c.get("aprovacao"), []):
                 yield (f"INV-02: erp.corrigir em #{r['seq']} ({c.get('acao')} {c.get('lancamento')}) sem aprovação "
                        f"decidida para essa correção")
+            elif (c.get("aprovacao"), c.get("lancamento"), c.get("acao")) in usadas and r.get("erro") is None:
+                yield (f"INV-02: erp.corrigir em #{r['seq']} repete a correção {c.get('acao')} {c.get('lancamento')} "
+                       f"da aprovação {c.get('aprovacao')} (uso único)")
+            elif r.get("erro") is None:
+                usadas.add((c.get("aprovacao"), c.get("lancamento"), c.get("acao")))
 
 
 def _inv03(reg):
@@ -66,6 +79,12 @@ def _inv03(reg):
         p = protocolos.get(r.get("protocol"))
         evento = r.get("performative") if r["kind"] in ("open", "send") else r.get("evento") or "timeout"
         abertura = r["kind"] == "open" and p is not None and evento == p.opening and r["de"] == r["para"] == p.initial
+        # aviso de prazo num protocolo sem transição de timeout (PROT-CMP): o barramento avisa o iniciador e não
+        # mexe na FSM; não é transição (era um falso positivo quando o pedido de parecer se perdia e era reenviado)
+        aviso = (r["kind"] == "timeout" and p is not None and r["de"] == r["para"]
+                 and (r["de"], "timeout") not in p.transitions)
+        if aviso:
+            continue
         if p is None or (p.transitions.get((r["de"], evento)) != r["para"] and not abertura):
             yield f"INV-03: transição {r['de']} --{evento}--> {r['para']} fora de {r.get('protocol')} (#{r['seq']})"
 

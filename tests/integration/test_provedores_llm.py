@@ -21,11 +21,16 @@ CHAVE = "sk-teste-" + "a1b2c3d4e5f6" * 2
 
 
 @pytest.fixture
-def servidor():
+def servidor(monkeypatch):
     criados = []
 
-    def criar(**kw):
+    def criar(confiavel=True, **kw):
         criados.append(ServidorLLM(**kw))
+        if confiavel:  # quem instala fixa as URLs que podem receber a chave do servidor
+            url = criados[-1].url
+            monkeypatch.setenv("FIN_MAS_LLM_URLS_CONFIAVEIS", ",".join(
+                [u for u in os.environ.get("FIN_MAS_LLM_URLS_CONFIAVEIS", "").split(",") if u]
+                + [url, url + "/v1", url + "/v1beta"]))
         return criados[-1]
     yield criar
     for s in criados:
@@ -198,3 +203,20 @@ def test_cli_lists_providers_without_revealing_keys():
     r = _cli("llm", "provedores", OPENAI_API_KEY=CHAVE)
     assert r.returncode == 0 and CHAVE not in r.stdout
     assert "OPENAI_API_KEY: definida" in r.stdout and "mock" in r.stdout and "(exige --base-url)" in r.stdout
+
+
+@pytest.mark.parametrize("provedor, variavel, sufixo", [
+    ("openai", "OPENAI_API_KEY", "/v1"), ("gemini", "GEMINI_API_KEY", "/v1beta"), ("anthropic", "ANTHROPIC_API_KEY", ""),
+    ("openai-compat", "FIN_MAS_LLM_API_KEY", "/v1"),
+])
+def test_server_api_key_is_never_sent_to_a_url_chosen_in_the_configuration(servidor, monkeypatch, provedor,
+                                                                          variavel, sufixo):
+    """Correção simulada da v0.5.0 (M1): quem configura o modelo apontava `base_url` para um endereço seu e
+    recebia a chave de API do servidor. Fora da URL do provedor e da lista da instalação, a chave não sai."""
+    monkeypatch.setenv(variavel, CHAVE)
+    s = servidor(confiavel=False)
+    e = rodar(provedor, s.url + sufixo)
+    assert CHAVE not in json.dumps([dict(p["cabecalhos"]) for p in s.pedidos])
+    assert e.resposta.performative == "inform"  # a execução conclui pelo caminho sem LLM (ou sem a chave)
+    if provedor != "openai-compat":
+        assert not s.pedidos and "chave do servidor não é enviada" in reg(e, "llm_fallback")[0]["motivo"]

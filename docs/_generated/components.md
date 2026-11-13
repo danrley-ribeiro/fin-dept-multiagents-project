@@ -240,3 +240,21 @@ Componente implementado em `src/fin_mas/invariantes.py`.
 
 Componente implementado em `src/fin_mas/services/explicacao.py`.
 ````
+
+````{comp} Console de administração de acesso e auditoria (TUI)
+:id: COMP-TUI
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM, SVC-AUD
+
+Componente implementado em `src/fin_mas/tui/app.py`.
+````
+
+````{comp} Instalação por um comando e diagnóstico
+:id: COMP-IMP
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/implantacao.py`.
+````

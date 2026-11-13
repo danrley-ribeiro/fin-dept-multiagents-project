@@ -98,7 +98,7 @@ test("porte: ficha com as regras de cada porte e o porte em uso", async ({ page,
   await expect(tabela).toContainText("Microempresa (ME)");
   await expect(tabela).toContainText("ITG 1000");
   await expect(tabela.getByRole("columnheader").filter({ hasText: "Média empresa" })).toContainText("em uso");
-  await expect(tabela.getByRole("row").filter({ hasText: "Controle compensatório" })).toContainText("revisão mensal dos lançamentos pelo sócio");
+  await expect(tabela.getByRole("row").filter({ hasText: /^Controle compensatório/ })).toContainText("revisão mensal dos lançamentos pelo sócio");
   await comando(request, { tipo: "reiniciar", cenario: "fechar_mes", porte: "micro" });
   await page.reload();
   await page.getByRole("tab", { name: "Porte" }).click();

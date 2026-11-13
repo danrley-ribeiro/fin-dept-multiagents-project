@@ -8,10 +8,15 @@ TTL_PADRAO = 50
 
 
 class LockService:
-    def __init__(self, audit, clock, ttl: int = TTL_PADRAO):
+    OPERADORES = frozenset({"AG-ORQ"})  # só o Orquestrador reserva, renova e libera períodos
+
+    def __init__(self, audit, clock, ttl: int = TTL_PADRAO, autenticar=None):
         self.audit = audit
         self.clock = clock  # callable que devolve o tempo lógico atual
         self.ttl = ttl
+        # f(identidade, credencial) -> bool, do barramento. None = serviço isolado (testes do próprio PROT-LCK).
+        # Com ele, dizer o nome do dono não basta: a transição exige a credencial do Orquestrador (correção M6).
+        self.autenticar = autenticar
         self._protocolo = load_protocols()["PROT-LCK"]
         self._reservas: dict[tuple, dict] = {}
 
@@ -30,8 +35,18 @@ class LockService:
             self.audit.record(self.clock(), "lock", chave=list(chave), evento="ttl_expirado", dono=reserva["dono"])
             reserva["dono"] = None
 
-    def reserve(self, entidade: str, competencia: str, dono: str) -> dict:
+    def _autorizar(self, evento: str, chave, agente, credencial) -> None:
+        if self.autenticar is None:
+            return
+        if agente not in self.OPERADORES or not self.autenticar(agente, credencial):
+            motivo = f"PROT-LCK: '{evento}' sem credencial válida do Orquestrador (agente={agente!r})"
+            self.audit.record(self.clock(), "rejected", protocol="PROT-LCK", agente=str(agente)[:64], evento=evento,
+                              chave=list(chave), motivo=motivo, etapa="autenticacao")
+            raise ProtocolViolation(motivo)
+
+    def reserve(self, entidade: str, competencia: str, dono: str, *, agente=None, credencial=None) -> dict:
         chave = (entidade, competencia)
+        self._autorizar("reserve", chave, agente, credencial)
         fsm = self._conv(chave)
         self._expirar(chave)
         reserva = self._reservas[chave]
@@ -49,8 +64,9 @@ class LockService:
         self.audit.record(agora, "lock", chave=list(chave), evento="reserve", solicitante=dono, **resposta)
         return resposta
 
-    def release(self, entidade: str, competencia: str, dono: str) -> None:
+    def release(self, entidade: str, competencia: str, dono: str, *, agente=None, credencial=None) -> None:
         chave = (entidade, competencia)
+        self._autorizar("release", chave, agente, credencial)
         fsm = self._conv(chave)
         self._expirar(chave)
         reserva = self._reservas[chave]
@@ -60,9 +76,10 @@ class LockService:
         reserva["dono"] = None
         self.audit.record(self.clock(), "lock", chave=list(chave), evento="release", dono=dono)
 
-    def renovar(self, entidade: str, competencia: str, dono: str, ate: int) -> bool:
+    def renovar(self, entidade: str, competencia: str, dono: str, ate: int, *, agente=None, credencial=None) -> bool:
         """Estende o TTL da reserva do próprio dono (ex.: enquanto espera o aprovador). False se já a perdeu."""
         chave = (entidade, competencia)
+        self._autorizar("renovar", chave, agente, credencial)
         self._expirar(chave)
         reserva = self._reservas.get(chave)
         if reserva is None or reserva["fsm"].state != "RESERVADO" or reserva["dono"] != dono:

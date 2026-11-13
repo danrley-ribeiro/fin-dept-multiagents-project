@@ -3,7 +3,7 @@
 :entrega: DSM3
 :status: especificado
 
-Ler cenários, estado dos agentes, conversas e o fluxo de eventos ao vivo.
+Ler cenários, estado dos agentes, conversas e o fluxo de eventos ao vivo (o fluxo traz os registros do trace da execução em curso; quem vê a simulação vê o que os agentes fazem).
 ````
 
 ````{perm} Operar a simulação
@@ -75,7 +75,7 @@ Ligar ou desligar o LLM de um agente, trocar provedor e modelo, usos, cota e con
 :entrega: DSM3
 :status: especificado
 
-Consultar o trace com filtros, a trilha de acesso e a explicação de decisões.
+Pesquisar e exportar o trace com filtros, ler a trilha de acesso (quem entrou, quem administrou) e a explicação de decisões. Não é o que protege o fluxo ao vivo, coberto por PERM-SIM-VER.
 ````
 
 ````{perm} Exportar auditoria

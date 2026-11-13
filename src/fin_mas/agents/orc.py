@@ -471,7 +471,9 @@ class AgenteOrcamento(AgenteBDI):
                      "orcado": brl(self.crencas.get(chaves["orcado"])),
                      "realizado": brl(self.crencas.get(chaves["realizado"])),
                      "desvio": brl(self.desvio_bruto(c, conta))}
-                valores[chaves["orcado"]], valores[chaves["realizado"]] = x["orcado"], x["realizado"]
+                # o valor sai com a própria grandeza: um marcador trocado no texto do proponente fica evidente
+                valores[chaves["orcado"]] = f"{x['orcado']} (orçado)"
+                valores[chaves["realizado"]] = f"{x['realizado']} (realizado)"
                 if _k("observacao", c, conta) in self.crencas:
                     chaves["observacao"] = _k("observacao", c, conta)
                     x["observacao"] = self.crencas.get(chaves["observacao"])
@@ -521,6 +523,8 @@ class AgenteOrcamento(AgenteBDI):
             desfecho = {"confirmada": f"confirmada por {h.verificacao}", "refutada": f"refutada por {h.verificacao}",
                         "arquivada": "arquivada sem evidência", "em_verificacao": "em verificação",
                         "proposta": "sem verificação"}[h.estado]
+            if any(o.startswith("llm:") for o in h.origens):  # o desfecho é do agente; a frase, do modelo
+                texto = f"Justificativa proposta por modelo (texto não verificado): {texto}"
             linhas.append(f"{h.alvo}: hipótese {h.id} ({h.tipo}; origem {', '.join(h.origens)}) {desfecho}. {texto}")
         return linhas
 

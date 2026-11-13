@@ -109,7 +109,7 @@ class Orquestrador(Agent):
         if isinstance(c.get("solicitado_por"), str):  # pessoa autenticada que pediu (interface com SVC-IAM)
             sol["solicitado_por"] = c["solicitado_por"]
         if plano["reservar_periodo"]:
-            r = self.locks.reserve(sol["entidade"], sol["competencia"], sid)
+            r = self.com_credencial(self.locks.reserve, sol["entidade"], sol["competencia"], sid)
             if r["performative"] == "reserve-failure":
                 self.decide(sid, "período já reservado por outro fechamento", {"dono_atual": r["dono_atual"]}, "refuse")
                 self.send(msg.sender, "refuse", "PROT-SOL", sid,
@@ -188,10 +188,21 @@ class Orquestrador(Agent):
         if p == "propose":
             self._negociar_prazo(sol, nome, msg)
             return
-        if p == "inform" or p in ("conforme", "nao_conforme_nao_critico"):
-            self._parecer_ou_resultado(sol, nome, msg)
-        elif p == "veto":
-            self._veto(sol, nome, msg)
+        if p == "inform" or p in ("conforme", "nao_conforme_nao_critico", "veto"):
+            try:
+                if p == "veto":
+                    self._veto(sol, nome, msg)
+                else:
+                    self._parecer_ou_resultado(sol, nome, msg)
+            except (KeyError, TypeError, ValueError, AttributeError, IndexError) as erro:
+                # conteúdo aninhado fora do esperado (o esquema do protocolo só confere o primeiro nível): o
+                # solicitante recebe falha explícita e o período é liberado, em vez de silêncio (correção M3)
+                if sol["status"] not in ("executando", "aguardando_aprovacao", "aguardando"):
+                    raise
+                motivo = f"resposta malformada de {msg.sender} em {nome}: {type(erro).__name__}: {erro}"
+                self.decide(sol["id"], "resposta de especialista que não pode ser interpretada aborta a solicitação",
+                            {"subtarefa": nome, "motivo": motivo}, "abortar")
+                self._abortar(sol, nome, motivo)
         else:  # failure, refuse ou timeout
             motivo = msg.content.get("motivo") or p
             self._falha(sol, nome, p, motivo)
@@ -254,7 +265,7 @@ class Orquestrador(Agent):
         self.estado["aprovacao_para_solicitacao"][tid] = sol["id"]
         self.bus.audit.record(self.bus.now, "link", conversation_id=sol["id"], filha=tid,
                               subtarefa="aprovação humana", agente=self.id)
-        if sol["reserva"] and not self.locks.renovar(sol["entidade"], sol["competencia"], sol["id"],
+        if sol["reserva"] and not self.com_credencial(self.locks.renovar, sol["entidade"], sol["competencia"], sol["id"],
                                                      ticket["expira_em"] + 2 * PRAZO_SUBTAREFA):
             sol.pop("veto")  # a reserva do período expirou antes do veto: não há como esperar o aprovador
             self.politica.expirar(tid)
@@ -359,7 +370,7 @@ class Orquestrador(Agent):
     def _liberar(self, sol):
         if sol["reserva"]:
             if self.locks.dono(sol["entidade"], sol["competencia"]) == sol["id"]:
-                self.locks.release(sol["entidade"], sol["competencia"], sol["id"])
+                self.com_credencial(self.locks.release, sol["entidade"], sol["competencia"], sol["id"])
             else:  # a reserva já expirou por TTL (ex.: espera longa por decisão humana)
                 self.decide(sol["id"], "reserva do período já expirada por TTL", {"competencia": sol["competencia"]},
                             "sem liberação")

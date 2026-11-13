@@ -283,3 +283,30 @@ items:
      esperado: "TUI: abrir trace, filtrar, explicar a decisão e exportar", entrega: DSM3, status: executado}
   - {id: TEST-140, nome: test_auditor_sees_the_trail_and_cannot_administer, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
      esperado: "TUI: auditor lê a trilha e não administra", entrega: DSM3, status: executado}
+  # ---- correção simulada da v0.5.0 (4ª rodada): achados reproduzidos pelo avaliador e corrigidos ----
+  - {id: TEST-141, nome: test_unknown_identity_cannot_register_with_a_privileged_role_after_the_system_is_built, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: seguranca,
+     esperado: "identidade fora do diretório não se registra com o sistema montado; a tentativa é auditada", entrega: DSM3, status: executado}
+  - {id: TEST-142, nome: test_adversarial_model_text_never_becomes_a_hypothesis_nor_reaches_the_report, verifica: [REQ-F08, REQ-C01], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "número por extenso, outra escrita, sinônimo de ação, homógrafo e caractere invisível são rejeitados", entrega: DSM3, status: executado}
+  - {id: TEST-143, nome: test_model_text_in_the_report_is_labelled_unverified_and_values_carry_their_measure, verifica: [REQ-F08], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "texto de modelo no relatório sai rotulado como não verificado; valor resolvido leva a grandeza", entrega: DSM3, status: executado}
+  - {id: TEST-144, nome: test_synthesis_with_recommendations_falls_back_and_the_model_text_comes_last_and_labelled, verifica: [REQ-C01], derivado_de: NORM-05, tipo: seguranca,
+     esperado: "síntese com recomendação cai no template; a redação do modelo vem ao fim, rotulada", entrega: DSM3, status: executado}
+  - {id: TEST-145, nome: test_server_api_key_is_never_sent_to_a_url_chosen_in_the_configuration, verifica: [REQ-C01, REQ-P01], derivado_de: SVC-MOD, tipo: seguranca,
+     esperado: "a chave do servidor só segue para a URL do provedor ou para a lista da instalação", entrega: DSM3, status: executado}
+  - {id: TEST-146, nome: test_counterpart_cannot_extend_its_own_deadline_without_negotiating, verifica: [REQ-S04], derivado_de: PROT-DEL, tipo: protocolo-negativo,
+     esperado: "só o iniciador define o prazo da conversa; o especialista não o estende sozinho", entrega: DSM3, status: executado}
+  - {id: TEST-147, nome: test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure, verifica: [REQ-S04], derivado_de: PROT-DEL, tipo: robustez,
+     esperado: "conteúdo aninhado inválido vira failure ao solicitante e libera o período", entrega: DSM3, status: executado}
+  - {id: TEST-148, nome: test_malformed_bodies_get_a_400_instead_of_a_dropped_connection, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: robustez,
+     esperado: "corpo que não é objeto ou campo de tipo errado recebe 400, com ou sem sessão", entrega: DSM3, status: executado}
+  - {id: TEST-149, nome: test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_account, verifica: [REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "bloqueio por tentativas não derruba a sessão viva da pessoa", entrega: DSM3, status: executado}
+  - {id: TEST-150, nome: test_period_reservation_cannot_be_released_or_taken_by_naming_its_owner, verifica: [REQ-S04], derivado_de: PROT-LCK, tipo: seguranca,
+     esperado: "reserva de período só muda com a credencial do Orquestrador", entrega: DSM3, status: executado}
+  - {id: TEST-151, nome: test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_missed, verifica: [REQ-O01], derivado_de: SVC-AUD, tipo: seguranca,
+     esperado: "sem falso alarme no reenvio do parecer; acusa fechamento sem parecer e correção repetida", entrega: DSM3, status: executado}
+  - {id: TEST-152, nome: test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "identificador não textual e conteúdo não copiável são rejeitados com registro", entrega: DSM3, status: executado}
+  - {id: TEST-153, nome: test_changing_the_cognition_level_on_restart_needs_the_model_permission, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}

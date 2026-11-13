@@ -12,24 +12,37 @@ Validação (cada regra recusa a proposta inteira; o motivo vai para o trace):
 
 1. o tipo está na lista fechada do agente e o alvo existe na tarefa;
 2. toda evidência citada é uma crença que o agente realmente tem;
-3. o texto não traz números: valores entram por marcadores (`{chave}`) que o agente resolve
-   a partir das próprias crenças, de modo que o proponente não consegue inventar um valor
-   nem trocar a grandeza de um valor verdadeiro;
-4. o texto não propõe ação (aprovar, estornar, lançar…): quem age é a política, não a hipótese;
+3. o texto não traz números (algarismos de qualquer escrita nem por extenso): valores entram por
+   marcadores (`{chave}`) que o agente resolve a partir das próprias crenças e que saem com a
+   grandeza ao lado (`R$ … (realizado)`), de modo que um marcador trocado fica evidente; só
+   letras latinas e pontuação comum são aceitas (sem homógrafos nem caracteres invisíveis);
+4. o texto não propõe ação (aprovar, autorizar, estornar, publicar…): quem age é a política, não
+   a hipótese. É uma lista de proibições, que reduz e não esgota: por isso o texto de um modelo
+   sai no relatório rotulado como "não verificado", separado do desfecho, que é do agente;
 5. todo marcador aponta para uma evidência citada ou para o alvo.
 
 Estados: proposta -> em_verificacao -> confirmada | refutada | arquivada.
 """
 import json
 import re
+import unicodedata
 from dataclasses import dataclass, field
 
 ESTADOS = ("proposta", "em_verificacao", "confirmada", "refutada", "arquivada")
 FINAIS = {"confirmada", "refutada", "arquivada"}
 MARCADOR = re.compile(r"\{([^{}]*)\}")
 DIGITO = re.compile(r"\d")
-ACAO = re.compile(r"\b(aprov[ae]r?|aprove|estorn[ae]r?|estorne|execut[ae]r?|execute|lan[cç]ar|lance|liberar?|libere|"
-                  r"classifi(car|que)|reclassifi(car|que)|bloque(ar|ie)|pag(ar|ue))\b", re.IGNORECASE)
+# Radicais de ação e de instrução ao leitor (lista de proibições: reduz, não esgota; por isso o texto de modelo
+# sai sempre rotulado como não verificado — ver `AgenteOrcamento.insights`).
+ACAO = re.compile(r"\b(aprov\w*|autoriz\w*|estorn\w*|execut\w*|liber\w*|bloque\w*|public\w*|desconsider\w*|"
+                  r"ignor\w*|distribu\w*|transf[ie]r\w*|lan[cç](ar|e|em)|(re)?classifi(car|que|quem)|"
+                  r"pag(ar|ue|uem))\b", re.IGNORECASE)
+# Números por extenso: o valor só entra por marcador de evidência, nunca escrito pelo proponente.
+EXTENSO = re.compile(r"\b(dois|duas|tr[eê]s|quatro|cinco|seis|sete|oito|nove|dez|onze|doze|treze|(c|qu)atorze|quinze|"
+                     r"dezesseis|dezessete|dezoito|dezenove|vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|"
+                     r"noventa|cem|cento|duzent[oa]s|trezent[oa]s|quatrocent[oa]s|quinhent[oa]s|seiscent[oa]s|"
+                     r"setecent[oa]s|oitocent[oa]s|novecent[oa]s|mil|milh[aã]o|milh[oõ]es|bilh[aã]o|bilh[oõ]es)\b",
+                     re.IGNORECASE)
 MAX_TEXTO = 600
 CAMPOS_PROPOSTA = {"tipo", "alvo", "justificativa", "evidencias", "confianca"}
 
@@ -128,6 +141,27 @@ def ler_propostas(texto: str, origem: str) -> list[Proposta]:
     return saida
 
 
+def caractere_estranho(texto: str) -> str | None:
+    """Nome do primeiro caractere que não é letra latina, espaço ou pontuação comum (ou None).
+
+    Fecha os desvios da lista de proibições por escrita: homógrafos de outros alfabetos, numerais de outras
+    escritas, caracteres invisíveis de formatação e formas de compatibilidade (texto que muda sob NFKC).
+    """
+    if unicodedata.normalize("NFKC", texto) != texto:
+        return "forma de compatibilidade Unicode"
+    for ch in texto:
+        categoria = unicodedata.category(ch)
+        if categoria[0] == "L":
+            if not unicodedata.name(ch, "").startswith("LATIN"):
+                return unicodedata.name(ch, f"U+{ord(ch):04X}")
+        elif categoria[0] in "NC" or categoria in ("Zl", "Zp", "Co", "Cn"):
+            if ch not in "\n" and categoria != "Nd":  # dígito comum fica para a regra de números
+                return unicodedata.name(ch, f"U+{ord(ch):04X}")
+        elif categoria[0] in "MS" and ch not in "$%+=<>~^`´¨°ºª|":
+            return unicodedata.name(ch, f"U+{ord(ch):04X}")
+    return None
+
+
 def validar_proposta(p: Proposta, esquema: EsquemaHipoteses) -> str | None:
     """Motivo da recusa, ou None quando a proposta pode virar hipótese."""
     if p.tipo not in esquema.tipos:
@@ -150,8 +184,14 @@ def validar_proposta(p: Proposta, esquema: EsquemaHipoteses) -> str | None:
     livre = MARCADOR.sub("", p.justificativa)
     if "{" in livre or "}" in livre:
         return "chaves desbalanceadas na justificativa"
+    estranho = caractere_estranho(livre)
+    if estranho:
+        return f"o texto traz caractere fora do alfabeto aceito ({estranho})"
     if DIGITO.search(livre):
         return "o texto traz número; valores só entram por marcador de evidência"
+    extenso = EXTENSO.search(livre)
+    if extenso:
+        return f"o texto traz número por extenso ({extenso.group(0)}); valores só entram por marcador de evidência"
     acao = ACAO.search(livre)
     if acao:
         return f"o texto propõe uma ação ({acao.group(0)})"

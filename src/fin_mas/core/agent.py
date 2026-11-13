@@ -36,6 +36,10 @@ class Agent:
         """Chamada autenticada ao gateway MCP: a identidade vai com a credencial do próprio agente."""
         return self.gw.call(self.id, tool, conversation_id, credencial=self.__credencial, **args)
 
+    def com_credencial(self, funcao, *args, **kw):
+        """Chama um serviço fora do barramento (ex.: SVC-LCK) com a identidade e a credencial do próprio agente."""
+        return funcao(*args, agente=self.id, credencial=self.__credencial, **kw)
+
     def avancar(self, conversation_id: str, evento: str) -> str:
         """Transição local autenticada (ex.: publicar no PROT-CMP)."""
         return self.bus.advance(conversation_id, evento, self.id, credencial=self.__credencial)

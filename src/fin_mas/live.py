@@ -90,6 +90,10 @@ class Simulacao:
         validar(cmd)
         if self.acesso is not None:  # negado por padrão: sem sessão ou sem a permissão do comando, não entra na fila
             self.acesso.exigir(ator, PERMISSAO_COMANDO[cmd["tipo"]])
+            if cmd["tipo"] == "reiniciar" and cmd.get("cognicao") not in (None, self.cognicao or self.cenario.cognicao):
+                self.acesso.exigir(ator, "PERM-MOD-CONFIG")  # mudar o nível de cognição é ajuste de modelo
+        if cmd["tipo"] == "agente" and cmd.get("agente") not in self.sistema.bus.agents:
+            raise ComandoInvalido(f"agente desconhecido: {cmd.get('agente')!r}")
         self.comandos.put((cmd, ator))
 
     def _aplicar(self, cmd: dict, ator=None) -> None:

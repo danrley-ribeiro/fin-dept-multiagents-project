@@ -1593,3 +1593,243 @@
 **Resultado esperado:** configurar o LLM pela interface, ver a hipótese corroborada e o uso  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_deadline_check_uses_the_real_delivery_time_of_the_decision
+:id: TEST-134
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_deadline_check_uses_the_real_delivery_time_of_the_decision()` — tipo *seguranca*.  
+**Resultado esperado:** decisão que só chegaria depois do prazo do ticket é recusada (POL-08); pelo canal normal, vale  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_first_use_wizard_creates_the_first_administrator
+:id: TEST-135
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_first_use_wizard_creates_the_first_administrator()` — tipo *interface*.  
+**Resultado esperado:** TUI: o primeiro uso cria o administrador e exige senha forte  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_assigning_approver_role_to_the_administrator_is_refused_with_iam06
+:id: TEST-136
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_assigning_approver_role_to_the_administrator_is_refused_with_iam06()` — tipo *interface*.  
+**Resultado esperado:** TUI: administrador não acumula aprovador (IAM-06)  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_revoking_a_session_opened_by_the_server_drops_it
+:id: TEST-137
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_revoking_a_session_opened_by_the_server_drops_it()` — tipo *interface*.  
+**Resultado esperado:** TUI: sessão aberta pelo servidor é revogada e deixa de valer  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_access_trail_filters_export_integrity_and_tampering
+:id: TEST-138
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05, REQ-O01
+:derived_from: NORM-13
+
+`test_access_trail_filters_export_integrity_and_tampering()` — tipo *interface*.  
+**Resultado esperado:** TUI: trilha filtrada, exportada, íntegra aprovada e adulterada acusada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_open_a_recorded_trace_filter_explain_and_export
+:id: TEST-139
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O01, REQ-O04
+:derived_from: SVC-AUD
+
+`test_open_a_recorded_trace_filter_explain_and_export()` — tipo *interface*.  
+**Resultado esperado:** TUI: abrir trace, filtrar, explicar a decisão e exportar  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_auditor_sees_the_trail_and_cannot_administer
+:id: TEST-140
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_auditor_sees_the_trail_and_cannot_administer()` — tipo *interface*.  
+**Resultado esperado:** TUI: auditor lê a trilha e não administra  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_unknown_identity_cannot_register_with_a_privileged_role_after_the_system_is_built
+:id: TEST-141
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_unknown_identity_cannot_register_with_a_privileged_role_after_the_system_is_built()` — tipo *seguranca*.  
+**Resultado esperado:** identidade fora do diretório não se registra com o sistema montado; a tentativa é auditada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_adversarial_model_text_never_becomes_a_hypothesis_nor_reaches_the_report
+:id: TEST-142
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08, REQ-C01
+:derived_from: NORM-11
+
+`test_adversarial_model_text_never_becomes_a_hypothesis_nor_reaches_the_report()` — tipo *seguranca*.  
+**Resultado esperado:** número por extenso, outra escrita, sinônimo de ação, homógrafo e caractere invisível são rejeitados  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_model_text_in_the_report_is_labelled_unverified_and_values_carry_their_measure
+:id: TEST-143
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F08
+:derived_from: NORM-11
+
+`test_model_text_in_the_report_is_labelled_unverified_and_values_carry_their_measure()` — tipo *seguranca*.  
+**Resultado esperado:** texto de modelo no relatório sai rotulado como não verificado; valor resolvido leva a grandeza  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_synthesis_with_recommendations_falls_back_and_the_model_text_comes_last_and_labelled
+:id: TEST-144
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01
+:derived_from: NORM-05
+
+`test_synthesis_with_recommendations_falls_back_and_the_model_text_comes_last_and_labelled()` — tipo *seguranca*.  
+**Resultado esperado:** síntese com recomendação cai no template; a redação do modelo vem ao fim, rotulada  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_server_api_key_is_never_sent_to_a_url_chosen_in_the_configuration
+:id: TEST-145
+:entrega: DSM3
+:status: executado
+:verifies: REQ-C01, REQ-P01
+:derived_from: SVC-MOD
+
+`test_server_api_key_is_never_sent_to_a_url_chosen_in_the_configuration()` — tipo *seguranca*.  
+**Resultado esperado:** a chave do servidor só segue para a URL do provedor ou para a lista da instalação  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_counterpart_cannot_extend_its_own_deadline_without_negotiating
+:id: TEST-146
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-DEL
+
+`test_counterpart_cannot_extend_its_own_deadline_without_negotiating()` — tipo *protocolo-negativo*.  
+**Resultado esperado:** só o iniciador define o prazo da conversa; o especialista não o estende sozinho  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure
+:id: TEST-147
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-DEL
+
+`test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure()` — tipo *robustez*.  
+**Resultado esperado:** conteúdo aninhado inválido vira failure ao solicitante e libera o período  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_malformed_bodies_get_a_400_instead_of_a_dropped_connection
+:id: TEST-148
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_malformed_bodies_get_a_400_instead_of_a_dropped_connection()` — tipo *robustez*.  
+**Resultado esperado:** corpo que não é objeto ou campo de tipo errado recebe 400, com ou sem sessão  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_account
+:id: TEST-149
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: NORM-12
+
+`test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_account()` — tipo *seguranca*.  
+**Resultado esperado:** bloqueio por tentativas não derruba a sessão viva da pessoa  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_period_reservation_cannot_be_released_or_taken_by_naming_its_owner
+:id: TEST-150
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: PROT-LCK
+
+`test_period_reservation_cannot_be_released_or_taken_by_naming_its_owner()` — tipo *seguranca*.  
+**Resultado esperado:** reserva de período só muda com a credencial do Orquestrador  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_missed
+:id: TEST-151
+:entrega: DSM3
+:status: executado
+:verifies: REQ-O01
+:derived_from: SVC-AUD
+
+`test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_missed()` — tipo *seguranca*.  
+**Resultado esperado:** sem falso alarme no reenvio do parecer; acusa fechamento sem parecer e correção repetida  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised
+:id: TEST-152
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised()` — tipo *robustez*.  
+**Resultado esperado:** identificador não textual e conteúdo não copiável são rejeitados com registro  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_changing_the_cognition_level_on_restart_needs_the_model_permission
+:id: TEST-153
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_changing_the_cognition_level_on_restart_needs_the_model_permission()` — tipo *seguranca*.  
+**Resultado esperado:** mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado  
+**Execução:** DSM3 (status atual: executado).
+````

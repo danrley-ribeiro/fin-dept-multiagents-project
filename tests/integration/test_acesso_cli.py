@@ -204,3 +204,26 @@ def test_revoked_or_demoted_actor_cannot_keep_administering(tmp_path, monkeypatc
         a.bloquear(seg, "bruno")
     negadas = [(r["ator"], r["regra"]) for r in a.trilha.ler() if r["evento"] == "permissao" and r["resultado"] == "negado"]
     assert negadas == [("admin", "IAM-04"), ("segundo", "IAM-05")]
+
+
+def test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_missed():
+    """Correção simulada da v0.5.0 (M8): um falso positivo (reenvio do pedido de parecer) e dois falsos negativos
+    (fechamento publicado sem parecer do AG-CIN; correção aprovada usada duas vezes)."""
+    from fin_mas import invariantes
+    from fin_mas.env.scenarios import build_system, run_scenario
+
+    s = build_system(faults=({"receiver": "AG-CIN", "performative": "request", "times": 1},))
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert s.usuario.resposta(sid).content["status"].startswith("publicado")
+    assert [r for r in s.bus.audit.records if r["kind"] == "timeout" and r.get("protocol") == "PROT-CMP"]
+    assert invariantes.verificar(s.bus.audit.records) == []  # o aviso de prazo do PROT-CMP não é transição
+
+    limpo = run_scenario("fechar_mes").audit.records
+    sem_cin = [r for r in limpo if r.get("protocol") != "PROT-CMP"]
+    assert any("sem parecer de conformidade" in v for v in invariantes.verificar(sem_cin))
+
+    corrigido = run_scenario("veto_correcao").audit.records
+    efeito = next(r for r in corrigido if r["kind"] == "mcp_call" and r.get("tool") == "erp.corrigir")
+    repetido = corrigido + [{**efeito, "seq": 99999}]
+    assert any("uso único" in v for v in invariantes.verificar(repetido))

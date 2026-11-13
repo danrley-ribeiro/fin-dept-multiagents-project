@@ -51,3 +51,33 @@ def test_resposta_de_tentativa_anterior_e_ignorada():
                               faults=({"receiver": "AG-ORC", "performative": "request", "times": 1},)))
     assert e.resposta.performative == "inform"
     assert e.resposta.content["dag"]["orcamento"]["tentativas"] == 2
+
+
+@pytest.mark.parametrize("agente, protocolo, performativo, conteudo", [
+    ("AG-RES", "PROT-DEL", "inform", {}),
+    ("AG-CIN", "PROT-CMP", "veto", {"achados": [1, 2], "opcoes": [], "correcoes_sugeridas": []}),
+])
+def test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure(agente, protocolo, performativo,
+                                                                                conteudo):
+    """Correção simulada da v0.5.0 (M3): conteúdo aninhado inválido deixava o solicitante sem resposta e o
+    período reservado. O Orquestrador aborta com `failure` e libera a reserva."""
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system(plantar=("alcada",) if agente == "AG-CIN" else ())
+    original = s.agentes[agente].on_message
+
+    def defeituoso(msg):  # o especialista responde com um payload que passa no esquema de primeiro nível
+        if msg.protocol == protocolo and msg.performative == "request":
+            if protocolo == "PROT-DEL":
+                s.agentes[agente].send(msg.sender, "agree", protocolo, msg.conversation_id, {})
+            s.agentes[agente].send(msg.sender, performativo, protocolo, msg.conversation_id, conteudo)
+        else:
+            original(msg)
+
+    s.agentes[agente].on_message = defeituoso
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    r = s.usuario.resposta(sid)
+    assert r is not None and r.performative == "failure" and r.content["publicado"] is False
+    assert "resposta malformada" in r.content["motivo"]
+    assert s.locks.dono(s.dataset.entidade, s.dataset.competencia) is None  # período liberado

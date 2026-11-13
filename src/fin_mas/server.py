@@ -506,17 +506,29 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None) ->
                 self.close_connection = True
                 self._erro(408, "corpo incompleto ou enviado devagar demais")
                 return
-            if rota == "/api/login":
-                self._login(corpo)
-            elif rota == "/api/logout":
-                acesso.sair(sessao)
-                self._responder(200, {"Content-Type": "application/json; charset=utf-8",
-                                      "Set-Cookie": f"{COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0"},
-                                b'{"ok": true}')
-            elif rota == "/api/senha":
-                self._senha(sessao, corpo)
-            else:
-                self._protegido(sessao, rota, corpo)
+            # todo corpo é um objeto JSON; tipo errado em qualquer campo vira 400, nunca exceção que derruba a
+            # conexão sem resposta (correção simulada da v0.5.0, M4: a mesma classe do KeyError do barramento)
+            try:
+                if corpo.strip() and not isinstance(json.loads(corpo), dict):
+                    self._erro(400, "o corpo deve ser um objeto JSON")
+                    return
+            except (ValueError, RecursionError):
+                self._erro(400, "JSON inválido")
+                return
+            try:
+                if rota == "/api/login":
+                    self._login(corpo)
+                elif rota == "/api/logout":
+                    acesso.sair(sessao)
+                    self._responder(200, {"Content-Type": "application/json; charset=utf-8",
+                                          "Set-Cookie": f"{COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0"},
+                                    b'{"ok": true}')
+                elif rota == "/api/senha":
+                    self._senha(sessao, corpo)
+                else:
+                    self._protegido(sessao, rota, corpo)
+            except (AttributeError, TypeError, KeyError, IndexError, ValueError) as erro:
+                self._erro(400, f"pedido inválido: campo ausente ou de tipo errado ({type(erro).__name__})")
 
         def _login(self, corpo):
             try:

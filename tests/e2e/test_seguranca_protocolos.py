@@ -150,7 +150,7 @@ def test_content_tampering_after_send_is_detected():
     conteudo = {"tarefa": "apurar_custos", "entidade": "SMA", "competencia": "2026-09"}
     s.orq.send("AG-CUS", "request", "PROT-DEL", "DEL-900", conteudo)
     conteudo["tarefa"] = "outra"  # o remetente não altera o que já foi enviado (cópia no envio)
-    _, _, _, (msg, _) = s.bus._queue[0]
+    _, _, _, (msg, *_) = s.bus._queue[0]
     assert msg.content["tarefa"] == "apurar_custos"
     msg.content["entidade"] = "OUTRA"  # adulteração do conteúdo enfileirado
     s.bus.run()

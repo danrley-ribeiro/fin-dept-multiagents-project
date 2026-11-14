@@ -664,9 +664,13 @@ def numeros_sistema(M: Macros, suite: bool):
     for nome in ("agents", "protocols", "norms", "services", "roles", "components", "metrics"):
         itens = yaml.safe_load((RAIZ / "models" / f"{nome}.yaml").read_text(encoding="utf-8"))["items"]
         M[f"modelos.{nome}"] = len(itens)
-    for chave, cenario in (("barramento", "ataque_decisao_forjada"), ("acesso", "ataque_acesso")):
+    for chave, cenario in (("barramento", "ataque_decisao_forjada"), ("acesso", "ataque_acesso"),
+                           ("acesso_avancado", "ataque_acesso_avancado")):
+        if cenario not in CENARIOS:  # lote ainda não integrado nesta branch
+            M[f"ataques.{chave}"], M[f"ataques.{chave}.rejeitados"] = "---", "---"
+            continue
         saida = rodar([sys.executable, "-m", "fin_mas", "run", "--scenario", cenario]).stdout
-        m = re.search(r"ATAQUES (\d+) de (\d+) rejeitados", saida)
+        m = re.search(r"ATAQUES (\d+) de (\d+) (?:rejeitados|recusados)", saida)
         M[f"ataques.{chave}"], M[f"ataques.{chave}.rejeitados"] = (m.group(2), m.group(1)) if m else ("?", "?")
     return verif, resumo, antigos
 

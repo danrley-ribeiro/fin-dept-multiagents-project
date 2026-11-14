@@ -1,8 +1,9 @@
 % Relatório técnico da DSM4 (entrega final) — Sistema Multiagente de Controladoria da SMA.
 % Compilar: make pdf-dsm4 (converte as figuras SVG do experimento e roda latexmk com bibtex).
 % Todo número vem de numeros.tex (\V{chave} e \Tab...), gerado por tools/relatorio_numeros.py.
-% Trechos marcados com "% PENDENTE-INTEGRACAO:" dependem dos lotes de conectores e de acesso avançado,
-% ainda não integrados na branch desta versão; quando entrarem, cada marca pede um parágrafo.
+% Os parágrafos dos lotes de conectores e de acesso avançado (marcados "% Integrado da branch dsm4/v1.0.0") foram
+% escritos a partir de docs/dsm4/ADR-011, ADR-012 e acesso-avancado.md daquela branch; os números deles saem de
+% tools/relatorio_numeros.py rodado sobre o código integrado.
 \documentclass[10pt,a4paper]{article}
 
 \newcommand{\autorA}{Danrley Moreira Ribeiro}
@@ -144,11 +145,12 @@ menos custo, o paradigma não se justifica pelo resultado. O capítulo de experi
 
 \textbf{Escopo da versão final.} Seis portes (MEI, micro, pequena, média, média II e grande) e quatro segmentos
 (software e serviços, comércio, serviços, indústria); duas intenções do catálogo (\code{fechar\_mes} e
-\code{avaliar\_orcamento}); dados de um ERP simulado, gerados por seed com gabarito, ou de planilhas Excel lidas por
-um servidor MCP; execução numa máquina só, para quem está nela (o servidor só aceita loopback). Exposição em rede e
-integração com ERP real ficam fora do escopo por decisão do dono do produto.
-% PENDENTE-INTEGRACAO: conectores genéricos (REST, cliente MCP, ERP de demonstração, cofre de credenciais) ampliam
-% as fontes de dados; reescrever o parágrafo de escopo quando o lote de conectores entrar.
+\code{avaliar\_orcamento}); dados de um ERP simulado, gerados por seed com gabarito, de planilhas Excel lidas por
+um servidor MCP ou de fontes genéricas por conectores (REST JSON, cliente MCP, planilha fora do modelo), sempre com
+mapeamento confirmado por uma pessoa; execução numa máquina só, para quem está nela (o servidor só aceita
+loopback). Exposição em rede, conectores de fornecedor e integração com ERP real ficam fora do escopo por decisão do
+dono do produto.
+% Integrado da branch dsm4/v1.0.0 (lote de conectores, ADR-011).
 
 % ---------------------------------------------------------------- 2
 \section{Requisitos e rastreabilidade}
@@ -166,9 +168,10 @@ A DSM4 acrescentou dois requisitos: REQ-F20 (Resultados, Custos e Relatórios co
 cognição \code{local} e \code{llm}, com as classes reativas preservadas no nível \code{basico}) e REQ-F21
 (conhecimento normativo com proveniência). As métricas MET-41 a MET-47 operacionalizam o experimento (robustez,
 recuperação, custo frente ao workflow equivalente, equivalência funcional, ganho da cognição, ataques e invariantes
-sob falha).
-% PENDENTE-INTEGRACAO: o lote de acesso avançado acrescenta REQ-S06, NORM-14/15 e MET-19; os números acima e os
-% grafos do apêndice são regenerados por tools/relatorio_numeros.py, mas o parágrafo precisa citar o requisito.
+sob falha). Os dois últimos lotes da DSM4 acrescentaram REQ-F30 e REQ-S20 (conectores e entendimento de fontes,
+com as normas NORM-30 a NORM-32 e a métrica MET-50) e REQ-S06 (acesso avançado, que estende o REQ-S05, com NORM-14,
+NORM-15 e MET-19). As contagens acima e os grafos do apêndice são gerados dos modelos da versão compilada.
+% Integrado da branch dsm4/v1.0.0 (ADR-011 e ADR-012).
 
 % ---------------------------------------------------------------- 3
 \section{Arquitetura}
@@ -196,7 +199,7 @@ protocolos, \V{modelos.norms} normas e \V{modelos.services} serviços de platafo
   \foreach \x/\n/\t/\d in {0/pol/SVC-POL/Approval Gate, 2.9/lck/SVC-LCK/reserva do período, 5.8/mem/SVC-MEM/só decisão humana, 8.7/aud/SVC-AUD/trace encadeado, 11.6/mod/SVC-MOD/LLM opcional, 14.5/apd/SVC-APD/aprendizado local}
     \node[bx, fill=trprot, text width=2.5cm, minimum height=0.7cm] (\n) at (\x,-5.15) {\textbf{\t}\\\d};
   \node[bx, fill=trteste, text width=6.0cm, minimum height=0.7cm] (gw) at (0,-6.2) {\textbf{Gateway MCP}: allowlist por papel,\\proveniência \code{mcp://} em toda resposta};
-  \node[bx, fill=trmet, text width=10.2cm, minimum height=0.7cm] (amb) at (6.85,-6.2) {\textbf{Ambiente}: ERP simulado (seed e gabarito), planilhas Excel (servidor MCP de Excel),\\base normativa por porte e segmento (\code{corpus-v1})};
+  \node[bx, fill=trmet, text width=10.2cm, minimum height=0.7cm] (amb) at (6.85,-6.2) {\textbf{Ambiente, por conectores}: ERP simulado (seed e gabarito), planilhas Excel, REST JSON,\\cliente MCP; base normativa por porte e segmento (\code{corpus-v1})};
   \draw[->] (web.south) -- (web.south |- srv.north);
   \draw[->] (tui.south) -- (tui.south |- srv.north);
   \draw[->] (cli.east) -- ++(0.2,0) |- (bus.east);
@@ -210,9 +213,16 @@ efeito externo (\code{erp.corrigir}) só com aprovação humana decidida no SVC-
 \code{diagramas/arquitetura\_final.png} e \code{modelos-editaveis/arquitetura\_final.mmd}.}
 \label{fig:arq}
 \end{figure}
-% PENDENTE-INTEGRACAO: o lote de conectores acrescenta a interface Conector (ERP simulado, planilhas, REST genérico,
-% cliente MCP, ERP de demonstração), o entendimento determinístico de fontes e o cofre de credenciais (ADR-011);
-% acrescentar a camada "fontes" à Figura 1 e uma linha à Tabela 1 quando entrar.
+\textbf{Fontes de dados (ADR-011).} Abaixo do gateway, uma interface \code{Conector} entrega os dados num modelo
+canônico, com proveniência por aba: ERP simulado, pasta de planilhas, planilha fora do modelo, REST JSON genérico e
+cliente MCP por stdio. Os agentes continuam vendo as mesmas tools pela mesma allowlist; falha da fonte vira
+\code{mcp\_denied} com o motivo e falha explícita ao solicitante. O \emph{entendimento} de uma fonte nova (contrato
+OpenAPI, amostra JSON, tools MCP ou planilha qualquer) é determinístico: infere tipos e sugere o mapeamento por nome,
+sinônimos e conteúdo, cada sugestão com confiança e motivo, e o mapeamento só vale depois de confirmado por uma pessoa
+(NORM-30). O LLM é opcional também aqui: só sugere para campos sem sugestão determinística, recebe nomes e tipos, sem
+valores, e passa pela mesma validação (NORM-31). Não há conector de fornecedor; o alvo de teste é um ERP de
+demonstração em loopback, num formato diferente do canônico.
+% Integrado da branch dsm4/v1.0.0 (lote de conectores, ADR-011).
 
 \begin{tabela}{Agentes: o que cada um decide, onde é BDI e onde é reativo, e onde o LLM é permitido.\label{tab:agentes}}
 \begin{tabularx}{\linewidth}{L{1.4cm} Y L{2.6cm} L{3.4cm} L{2.0cm}}
@@ -235,7 +245,7 @@ marcado e o agente delibera de novo sem ele. A utilidade é a soma dos pesos dos
 e os pesos vêm do porte (\code{models/portes.yaml} e \code{models/cognicao.yaml}), de modo que a escolha muda com a
 empresa. No cenário \code{res\_insumo\_faltante}, por exemplo, o AG-RES não recebe o orçamento, tenta de novo, dá o
 insumo por indisponível e, na média empresa, consolida com ressalva; com \code{-{}-porte grande}, onde a completude pesa
-mais, falha de forma explícita.
+mais, falha de forma explícita, e o Orquestrador reenvia a subtarefa.
 
 A pedido do dono do produto, todos os especialistas viraram BDI na DSM4, mas como \emph{variantes}: as classes
 reativas continuam no nível \code{basico}, que é o braço de comparação do experimento e o nível dos cenários revisados
@@ -341,9 +351,25 @@ garantias se mantiveram com o sistema degradado.
 
 Fora do modelo, e declarado: código com acesso ao objeto Python de outro agente (a raiz de confiança é o processo),
 quem lê a pasta de chaves e a máquina comprometida.
-% PENDENTE-INTEGRACAO: o lote de acesso avançado (ADR-012) acrescenta segundo fator, alçada por pessoa, delegação,
-% dupla aprovação (quatro olhos), escalonamento, cofre, isolamento entre empresas e a memória sobre o ArquivoSelado
-% (sem perda entre execuções simultâneas, adoção de cópia íntegra); acrescentar um parágrafo e os ataques novos.
+
+\textbf{Acesso avançado (ADR-012).} A última etapa fechou o que a DSM3 deixou aberto de propósito. Segundo fator
+TOTP (RFC 6238) só com a biblioteca padrão, com anti-replay pelo passo e códigos de recuperação de uso único,
+obrigatório por política para administrador e aprovador; a senha certa abre só uma pré-sessão que nenhuma rota aceita.
+Alçada por pessoa (POL-10): o AG-CIN informa no veto a exposição dos lançamentos críticos, e a liberação só vale se
+couber na alçada do cargo de quem decide. Delegação com prazo, teto e escopo, sem subdelegação (POL-11). Dupla
+aprovação acima do limite do porte, com aval (\code{endorse}) de uma pessoa e aprovação de outra (POL-12). Escalonamento
+do ticket a um nível acima quando o prazo corre sem decisão (POL-14). Cofre de segredos sobre o arquivo selado, que
+garante integridade e controle de acesso mas \emph{não} cifra os valores: a biblioteca padrão não tem cifra autenticada
+e o projeto não inventa criptografia. Memória (SVC-MEM) gravada na trava entre processos e cópia de outra pasta
+adotável à mão, e várias empresas por cadastro, com empresa ativa por sessão. Os campos novos só aparecem com o SVC-IAM
+ligado, e os traces revisados do nível básico não mudaram. O cenário \code{ataque\_acesso\_avancado} tenta
+\V{ataques.acesso_avancado} ataques (TOTP repetido, recuperação reutilizada, pré-sessão em rota comum, delegação
+forjada, expirada ou subdelegada, a mesma pessoa nos dois passos, decisão acima da alçada e de outra empresa), e
+\V{ataques.acesso_avancado.rejeitados} são recusados. Ficam limitados: o escalonamento sobe um nível, uma vez; a trilha
+é uma por cadastro; delegações, seletor de empresa, segundo fator e cofre não têm tela no dashboard web (só API, CLI e
+TUI).
+% Integrado da branch dsm4/v1.0.0 (lote de acesso avançado, ADR-012). Na branch do relatório o cenário não existe e
+% \V{ataques.acesso_avancado} sai como "---": rodar tools/relatorio_numeros.py e make pdf-dsm4 depois da integração.
 
 % ---------------------------------------------------------------- 7
 \section{Cognição assistida e LLM opcional: proposta não é crença}
@@ -379,8 +405,10 @@ arquivo é conferido por teste de leitura. Backup e restauração conferem o sel
 antes de gravar e recusam rollback sobre uma instalação que já existiu. MEI e Média empresa II foram acrescentados com
 as fontes legais \parencite{lc123,bndes} sem mudar nenhum valor dos portes anteriores; os segmentos mudam o
 direcionador do rateio e a estrutura de custos, e o gabarito é calculado com o mesmo direcionador.
-% PENDENTE-INTEGRACAO: com os conectores, "rede liberada" passa a ser permissão explícita (PERM-DAD-REDE); revisar
-% a frase "só loopback" para dizer o que muda (o servidor continua em loopback; o conector pode sair para a rede).
+Com os conectores, o servidor continua só em loopback, mas um conector pode precisar sair para a rede: host externo
+só com liberação explícita do administrador (PERM-DAD-REDE, NORM-32), registrada na trilha; a credencial da fonte vai
+para o cofre, nunca volta pela API, pelo trace ou pela trilha e só é enviada ao host e porta a que foi vinculada.
+% Integrado da branch dsm4/v1.0.0 (lote de conectores, ADR-011).
 
 % ---------------------------------------------------------------- 9
 \section{Testes e reprodutibilidade}
@@ -734,10 +762,16 @@ A lista completa e sem suavização está em \code{docs/dsm4/limitacoes.md}. As 
         resposta final ao solicitante, se perdida, não é avisada.
   \item \textbf{Dados sintéticos}: o gabarito é o que foi plantado; empresas reais têm erros combinados e ambíguos.
   \item \textbf{Interfaces}: TUI não verificada em Windows; expiração de sessão por tempo sem teste automatizado; os
-        roteiros Playwright não foram executados na geração deste relatório.
+        roteiros Playwright não foram executados na geração deste relatório; delegações, empresa ativa, segundo fator
+        e cofre não têm tela no dashboard web.
+  \item \textbf{Cofre sem cifra}: integridade e controle de acesso, não confidencialidade contra quem lê o disco.
+  \item \textbf{Fontes}: nenhum conector de fornecedor nem ERP real testado; o entendimento de fontes depende de um
+        vocabulário finito de sinônimos, e o que ele não reconhece a pessoa mapeia à mão.
 \end{itemize}
-% PENDENTE-INTEGRACAO: o lote de acesso avançado resolve itens da DSM3 (2FA, delegação, dupla aprovação, cofre, memória
-% entre processos e cópia íntegra); tirar da lista o que for resolvido e acrescentar as limitações novas dos dois lotes.
+Saíram da lista da DSM3 nesta entrega: o experimento sem variância e desequilibrado, os especialistas só reativos, a
+resposta perdida que virava silêncio, a senha como único fator, o aprovador sem limite de valor e sem substituto, a
+memória que perdia entradas entre processos e o cadastro de uma empresa só.
+% Integrado da branch dsm4/v1.0.0 (ADR-011 e ADR-012).
 
 % ---------------------------------------------------------------- 12
 \section{Conclusão}

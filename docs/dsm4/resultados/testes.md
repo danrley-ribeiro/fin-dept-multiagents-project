@@ -20,14 +20,14 @@ Testes bilaterais sobre a média por seed (Wilcoxon pareado) ou sobre execuçõe
 | Comparação (a × b) | Métrica | n | Média a | Média b | Diferença [IC 95%] | Pares ≠ | Teste e estatística | p | p (Holm) | δ de Cliff | Efeito | sig. |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | sma_basico x wf_equivalente, perda_baixa | Execução correta | 30 | 94,2% | 100,0% | -5,8% [-11,7%; -0,8%] | 5 | Wilcoxon pareado, exato: 0,0 | 0,0625 | 0,1250 | -0,17 | pequeno | não |
-| sma_basico x wf_equivalente, perda_media | Execução correta | 30 | 62,5% | 100,0% | -37,5% [-50,0%; -25,4%] | 20 | Wilcoxon pareado, exato: 0,0 | 0,0000 | 0,0000 | -0,67 | grande | sim |
-| sma_basico x wf_equivalente, perda_alta | Execução correta | 30 | 32,5% | 100,0% | -67,5% [-78,8%; -55,8%] | 28 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | -0,93 | grande | sim |
+| sma_basico x wf_equivalente, perda_media | Execução correta | 30 | 64,2% | 100,0% | -35,8% [-48,8%; -23,3%] | 19 | Wilcoxon pareado, exato: 0,0 | 0,0000 | 0,0000 | -0,63 | grande | sim |
+| sma_basico x wf_equivalente, perda_alta | Execução correta | 30 | 35,0% | 100,0% | -65,0% [-77,1%; -52,5%] | 28 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | -0,93 | grande | sim |
 | sma_basico x wf_equivalente, indisponibilidade | Execução correta | 30 | 97,1% | 100,0% | -2,9% [-7,9%; 0,0%] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 0,5000 | -0,07 | desprezível | não |
 | sma_basico x wf_equivalente, humano_lento | Execução correta | 30 | 75,8% | 75,8% | 0,0% [0,0%; 0,0%] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |
 | sma_basico x wf_equivalente, combinadas | Execução correta | 30 | 50,8% | 75,8% | -25,0% [-37,1%; -14,2%] | 14 | Wilcoxon pareado, exato: 0,0 | 0,0001 | 0,0005 | -0,45 | médio | sim |
 | sma_basico x wf_equivalente, combinadas_ataque | Execução correta | 30 | 50,8% | 75,8% | -25,0% [-37,1%; -14,2%] | 14 | Wilcoxon pareado, exato: 0,0 | 0,0001 | 0,0005 | -0,45 | médio | sim |
-| sma_basico, perda_baixa x perda_media | Execução correta | 30 | 94,2% | 62,5% | 31,7% [19,2%; 44,6%] | 16 | Wilcoxon pareado, exato: 0,0 | 0,0000 | 0,0002 | 0,54 | grande | sim |
-| sma_basico, perda_media x perda_alta | Execução correta | 30 | 62,5% | 32,5% | 30,0% [18,3%; 43,3%] | 15 | Wilcoxon pareado, exato: 0,0 | 0,0001 | 0,0003 | 0,46 | médio | sim |
+| sma_basico, perda_baixa x perda_media | Execução correta | 30 | 94,2% | 64,2% | 30,0% [17,5%; 43,3%] | 15 | Wilcoxon pareado, exato: 0,0 | 0,0001 | 0,0004 | 0,51 | grande | sim |
+| sma_basico, perda_media x perda_alta | Execução correta | 30 | 64,2% | 35,0% | 29,2% [17,5%; 42,9%] | 15 | Wilcoxon pareado, exato: 0,0 | 0,0001 | 0,0004 | 0,45 | médio | sim |
 
 **Família RQ3**
 
@@ -37,16 +37,16 @@ Testes bilaterais sobre a média por seed (Wilcoxon pareado) ou sobre execuçõe
 | sma_basico x wf_equivalente, nominal | Latência (ticks) | 30 | 15,89 | 12,71 | 3,18 [2,87; 3,48] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 0,89 | grande | sim |
 | sma_basico x wf_equivalente, combinadas | Mensagens de coordenação | 30 | 13,60 | 0,64 | 12,96 [11,75; 14,00] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 1,00 | grande | sim |
 | sma_basico x wf_equivalente, combinadas | Latência (ticks) | 30 | 49,15 | 18,07 | 31,08 [25,02; 37,53] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 0,95 | grande | sim |
-| controle de acesso ligado x desligado, nominal, porte médio | Mensagens | 30 | 18,53 | 18,67 | -0,13 [-0,33; 0,00] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | -0,04 | desprezível | não |
-| controle de acesso ligado x desligado, nominal, porte médio | Latência (ticks) | 30 | 16,25 | 15,88 | 0,37 [0,00; 0,92] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | 0,04 | desprezível | não |
-| controle de acesso ligado x desligado, nominal, porte médio | Registros de auditoria | 30 | 139,85 | 140,87 | -1,02 [-2,50; 0,00] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | -0,02 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Mensagens | 30 | 18,70 | 18,67 | 0,03 [0,00; 0,08] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | 0,01 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Latência (ticks) | 30 | 15,88 | 15,88 | 0,00 [0,00; 0,00] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Registros de auditoria | 30 | 141,00 | 140,87 | 0,13 [0,00; 0,33] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | 0,00 | desprezível | não |
 
 **Família RQ4**
 
 | Comparação (a × b) | Métrica | n | Média a | Média b | Diferença [IC 95%] | Pares ≠ | Teste e estatística | p | p (Holm) | δ de Cliff | Efeito | sig. |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| sma_basico: perda de mensagens x indisponibilidade | Recuperação (ticks) | 514 x 57 | 50,19 | 35,72 | 14,47 | — | Mann-Whitney, normal: 9791,5 | 0,0000 | 0,0001 | 0,33 | médio | sim |
-| sma_local x sma_basico, falhas de comunicação | Recuperação (ticks) | 747 x 747 | 53,53 | 49,05 | 4,48 | — | Mann-Whitney, normal: 261087,5 | 0,0314 | 0,0314 | 0,06 | desprezível | sim |
+| sma_basico: perda de mensagens x indisponibilidade | Recuperação (ticks) | 30 x 13 seeds | 50,57 | 33 | 17,57 | — | Mann-Whitney, normal: 67,5 | 0,0008 | 0,0016 | 0,65 | grande | sim |
+| sma_local x sma_basico, falhas de comunicação | Recuperação (ticks) | 30 x 30 seeds | 53,75 | 49,06 | 4,69 | — | Mann-Whitney, normal: 374,0 | 0,2642 | 0,2642 | 0,17 | pequeno | não |
 
 **Família RQ5-porte**
 
@@ -94,13 +94,13 @@ Testes bilaterais sobre a média por seed (Wilcoxon pareado) ou sobre execuçõe
 | sma_local x sma_basico, perda_alta | Classificação correta | 29 | 73,7% | 69,8% | 3,8% [0,0%; 11,1%] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | 0,06 | desprezível | não |
 | sma_local x sma_basico, combinadas | Classificação correta | 28 | 79,5% | 78,6% | 0,9% [-8,0%; 10,7%] | 2 | Wilcoxon pareado, exato: 1,0 | 1,0000 | 1,0000 | 0,03 | desprezível | não |
 | sma_local x sma_basico, perda (3 níveis), desvio irregular com pista na planilha | Classificação correta | 6 | 41,7% | 30,6% | 11,1% [0,0%; 33,3%] | 1 | Wilcoxon pareado, exato: 0,0 | 1,0000 | 1,0000 | 0,11 | desprezível | não |
-| sma_local x sma_basico, perda_media | Mensagens de coordenação | 30 | 15,95 | 15,42 | 0,53 [-0,13; 1,27] | 10 | Wilcoxon pareado, exato: 13,5 | 0,1699 | 0,8496 | 0,07 | desprezível | não |
+| sma_local x sma_basico, perda_media | Mensagens de coordenação | 30 | 16,02 | 15,49 | 0,53 [-0,13; 1,27] | 10 | Wilcoxon pareado, exato: 13,5 | 0,1699 | 0,8496 | 0,06 | desprezível | não |
 
 **Família Ablação**
 
 | Comparação (a × b) | Métrica | n | Média a | Média b | Diferença [IC 95%] | Pares ≠ | Teste e estatística | p | p (Holm) | δ de Cliff | Efeito | sig. |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| sem_reenvio x completo, perda_media | Execução correta | 30 | 31,7% | 61,7% | -30,0% [-43,3%; -16,7%] | 13 | Wilcoxon pareado, exato: 0,0 | 0,0002 | 0,0005 | -0,39 | médio | sim |
+| sem_reenvio x completo, perda_media | Execução correta | 30 | 31,7% | 63,3% | -31,7% [-46,7%; -18,3%] | 13 | Wilcoxon pareado, exato: 0,0 | 0,0002 | 0,0005 | -0,41 | médio | sim |
 | sem_reserva x completo, nominal, fechar_mes | Publicações do período | 30 | 2,00 | 1,00 | 1,00 [1,00; 1,00] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 1,00 | grande | sim |
 | sem_correcao x completo, nominal, fechar_mes | Críticas corrigidas | 30 | 0,00 | 2,00 | -2,00 [-2,30; -1,70] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | -1,00 | grande | sim |
 | sem_negociacao x completo, consulta_instavel, avaliar_orcamento | Classificação correta | 30 | 50,0% | 50,0% | 0,0% [0,0%; 0,0%] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |

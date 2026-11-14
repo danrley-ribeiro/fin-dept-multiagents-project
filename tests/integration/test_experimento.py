@@ -49,7 +49,7 @@ def test_quick_experiment_writes_every_output_and_repeats_byte_for_byte(rodadas)
     sha = hashlib.sha256((a / "execucoes.csv").read_bytes()).hexdigest()
     assert manifesto["arquivos"]["execucoes.csv"] == {"sha256": sha, "reproduzivel": True} and sha in saida
     assert manifesto["arquivos"]["tempo_parede.csv"]["reproduzivel"] is False
-    assert manifesto["versao_do_pacote"] == "0.5.0" and manifesto["seeds"] == [1, 2, 3] and manifesto["rapido"] is True
+    assert manifesto["versao_do_pacote"] == "1.0.0" and manifesto["seeds"] == [1, 2, 3] and manifesto["rapido"] is True
     assert manifesto["parametros_padrao"]["prazo_subtarefa"] == 30 and manifesto["estatistica"]["correcao"] == "Holm por família"
     with open(a / "execucoes.csv", newline="", encoding="utf-8") as f:
         linhas = list(csv.DictReader(f))

@@ -9,168 +9,168 @@
 <text x="14" y="82" font-weight="700" fill="#52514e">Mensagens de coordenação por solicitação</text>
 <line x1="134" y1="89" x2="134" y2="440" stroke="#d6d5d0"/>
 <text x="126" y="116.0" text-anchor="end" fill="#0b0b0b">nominal</text>
-<rect x="134" y="92" width="216.1" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · nominal · SMA básico: 15,8</title></rect>
-<line x1="340.3" y1="96.5" x2="359.9" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="340.3" y1="93.5" x2="340.3" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="359.9" y1="93.5" x2="359.9" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="363.9" y="100" font-size="9" fill="#52514e">15,8</text>
-<rect x="134" y="103" width="216.1" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · nominal · SMA com cognição local: 15,8</title></rect>
-<line x1="340.3" y1="107.5" x2="359.9" y2="107.5" stroke="#0b0b0b" stroke-width="1"/><line x1="340.3" y1="104.5" x2="340.3" y2="110.5" stroke="#0b0b0b" stroke-width="1"/><line x1="359.9" y1="104.5" x2="359.9" y2="110.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="363.9" y="111" font-size="9" fill="#52514e">15,8</text>
+<rect x="134" y="92" width="215.2" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · nominal · SMA básico: 15,8</title></rect>
+<line x1="339.4" y1="96.5" x2="359.0" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="339.4" y1="93.5" x2="339.4" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="359.0" y1="93.5" x2="359.0" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="363.0" y="100" font-size="9" fill="#52514e">15,8</text>
+<rect x="134" y="103" width="215.2" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · nominal · SMA com cognição local: 15,8</title></rect>
+<line x1="339.4" y1="107.5" x2="359.0" y2="107.5" stroke="#0b0b0b" stroke-width="1"/><line x1="339.4" y1="104.5" x2="339.4" y2="110.5" stroke="#0b0b0b" stroke-width="1"/><line x1="359.0" y1="104.5" x2="359.0" y2="110.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="363.0" y="111" font-size="9" fill="#52514e">15,8</text>
 <rect x="134" y="114" width="12.1" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · nominal · workflow equivalente: 0,9</title></rect>
-<line x1="144.5" y1="118.5" x2="147.3" y2="118.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="115.5" x2="144.5" y2="121.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.3" y1="115.5" x2="147.3" y2="121.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="151.3" y="122" font-size="9" fill="#52514e">0,9</text>
+<line x1="144.5" y1="118.5" x2="147.2" y2="118.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="115.5" x2="144.5" y2="121.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.2" y1="115.5" x2="147.2" y2="121.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="151.2" y="122" font-size="9" fill="#52514e">0,9</text>
 <text x="138.0" y="133" font-size="9" fill="#52514e">0,0</text>
 <text x="126" y="164.5" text-anchor="end" fill="#0b0b0b">perda_baixa</text>
-<rect x="134" y="146" width="219.8" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_baixa · SMA básico: 16,0</title></rect>
-<line x1="340.5" y1="150.5" x2="366.5" y2="150.5" stroke="#0b0b0b" stroke-width="1"/><line x1="340.5" y1="147.5" x2="340.5" y2="153.5" stroke="#0b0b0b" stroke-width="1"/><line x1="366.5" y1="147.5" x2="366.5" y2="153.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="370.5" y="154" font-size="9" fill="#52514e">16,0</text>
-<rect x="134" y="157" width="220.9" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_baixa · SMA com cognição local: 16,1</title></rect>
-<line x1="342.6" y1="161.5" x2="366.0" y2="161.5" stroke="#0b0b0b" stroke-width="1"/><line x1="342.6" y1="158.5" x2="342.6" y2="164.5" stroke="#0b0b0b" stroke-width="1"/><line x1="366.0" y1="158.5" x2="366.0" y2="164.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="370.0" y="165" font-size="9" fill="#52514e">16,1</text>
+<rect x="134" y="146" width="218.6" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_baixa · SMA básico: 16,0</title></rect>
+<line x1="339.3" y1="150.5" x2="365.3" y2="150.5" stroke="#0b0b0b" stroke-width="1"/><line x1="339.3" y1="147.5" x2="339.3" y2="153.5" stroke="#0b0b0b" stroke-width="1"/><line x1="365.3" y1="147.5" x2="365.3" y2="153.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="369.3" y="154" font-size="9" fill="#52514e">16,0</text>
+<rect x="134" y="157" width="219.8" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_baixa · SMA com cognição local: 16,1</title></rect>
+<line x1="341.7" y1="161.5" x2="365.1" y2="161.5" stroke="#0b0b0b" stroke-width="1"/><line x1="341.7" y1="158.5" x2="341.7" y2="164.5" stroke="#0b0b0b" stroke-width="1"/><line x1="365.1" y1="158.5" x2="365.1" y2="164.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="369.1" y="165" font-size="9" fill="#52514e">16,1</text>
 <rect x="134" y="168" width="12.1" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · perda_baixa · workflow equivalente: 0,9</title></rect>
-<line x1="144.5" y1="172.5" x2="147.3" y2="172.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="169.5" x2="144.5" y2="175.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.3" y1="169.5" x2="147.3" y2="175.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="151.3" y="176" font-size="9" fill="#52514e">0,9</text>
+<line x1="144.5" y1="172.5" x2="147.2" y2="172.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="169.5" x2="144.5" y2="175.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.2" y1="169.5" x2="147.2" y2="175.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="151.2" y="176" font-size="9" fill="#52514e">0,9</text>
 <text x="126" y="207.5" text-anchor="end" fill="#0b0b0b">perda_media</text>
-<rect x="134" y="189" width="211.6" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_media · SMA básico: 15,4</title></rect>
-<line x1="329.5" y1="193.5" x2="361.8" y2="193.5" stroke="#0b0b0b" stroke-width="1"/><line x1="329.5" y1="190.5" x2="329.5" y2="196.5" stroke="#0b0b0b" stroke-width="1"/><line x1="361.8" y1="190.5" x2="361.8" y2="196.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="365.8" y="197" font-size="9" fill="#52514e">15,4</text>
-<rect x="134" y="200" width="218.8" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_media · SMA com cognição local: 15,9</title></rect>
-<line x1="334.0" y1="204.5" x2="372.0" y2="204.5" stroke="#0b0b0b" stroke-width="1"/><line x1="334.0" y1="201.5" x2="334.0" y2="207.5" stroke="#0b0b0b" stroke-width="1"/><line x1="372.0" y1="201.5" x2="372.0" y2="207.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="376.0" y="208" font-size="9" fill="#52514e">15,9</text>
+<rect x="134" y="189" width="211.6" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_media · SMA básico: 15,5</title></rect>
+<line x1="329.3" y1="193.5" x2="362.8" y2="193.5" stroke="#0b0b0b" stroke-width="1"/><line x1="329.3" y1="190.5" x2="329.3" y2="196.5" stroke="#0b0b0b" stroke-width="1"/><line x1="362.8" y1="190.5" x2="362.8" y2="196.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="366.8" y="197" font-size="9" fill="#52514e">15,5</text>
+<rect x="134" y="200" width="218.9" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_media · SMA com cognição local: 16,0</title></rect>
+<line x1="334.5" y1="204.5" x2="372.0" y2="204.5" stroke="#0b0b0b" stroke-width="1"/><line x1="334.5" y1="201.5" x2="334.5" y2="207.5" stroke="#0b0b0b" stroke-width="1"/><line x1="372.0" y1="201.5" x2="372.0" y2="207.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="376.0" y="208" font-size="9" fill="#52514e">16,0</text>
 <rect x="134" y="211" width="12.1" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · perda_media · workflow equivalente: 0,9</title></rect>
-<line x1="144.5" y1="215.5" x2="147.3" y2="215.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="212.5" x2="144.5" y2="218.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.3" y1="212.5" x2="147.3" y2="218.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="151.3" y="219" font-size="9" fill="#52514e">0,9</text>
+<line x1="144.5" y1="215.5" x2="147.2" y2="215.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="212.5" x2="144.5" y2="218.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.2" y1="212.5" x2="147.2" y2="218.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="151.2" y="219" font-size="9" fill="#52514e">0,9</text>
 <text x="126" y="250.5" text-anchor="end" fill="#0b0b0b">perda_alta</text>
-<rect x="134" y="232" width="166.1" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_alta · SMA básico: 12,1</title></rect>
-<line x1="278.9" y1="236.5" x2="323.8" y2="236.5" stroke="#0b0b0b" stroke-width="1"/><line x1="278.9" y1="233.5" x2="278.9" y2="239.5" stroke="#0b0b0b" stroke-width="1"/><line x1="323.8" y1="233.5" x2="323.8" y2="239.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="327.8" y="240" font-size="9" fill="#52514e">12,1</text>
-<rect x="134" y="243" width="182.0" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_alta · SMA com cognição local: 13,3</title></rect>
-<line x1="288.9" y1="247.5" x2="344.3" y2="247.5" stroke="#0b0b0b" stroke-width="1"/><line x1="288.9" y1="244.5" x2="288.9" y2="250.5" stroke="#0b0b0b" stroke-width="1"/><line x1="344.3" y1="244.5" x2="344.3" y2="250.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="348.3" y="251" font-size="9" fill="#52514e">13,3</text>
+<rect x="134" y="232" width="166.7" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · perda_alta · SMA básico: 12,2</title></rect>
+<line x1="279.0" y1="236.5" x2="325.2" y2="236.5" stroke="#0b0b0b" stroke-width="1"/><line x1="279.0" y1="233.5" x2="279.0" y2="239.5" stroke="#0b0b0b" stroke-width="1"/><line x1="325.2" y1="233.5" x2="325.2" y2="239.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="329.2" y="240" font-size="9" fill="#52514e">12,2</text>
+<rect x="134" y="243" width="182.3" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · perda_alta · SMA com cognição local: 13,3</title></rect>
+<line x1="289.2" y1="247.5" x2="344.6" y2="247.5" stroke="#0b0b0b" stroke-width="1"/><line x1="289.2" y1="244.5" x2="289.2" y2="250.5" stroke="#0b0b0b" stroke-width="1"/><line x1="344.6" y1="244.5" x2="344.6" y2="250.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="348.6" y="251" font-size="9" fill="#52514e">13,3</text>
 <rect x="134" y="254" width="12.1" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · perda_alta · workflow equivalente: 0,9</title></rect>
-<line x1="144.5" y1="258.5" x2="147.3" y2="258.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="255.5" x2="144.5" y2="261.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.3" y1="255.5" x2="147.3" y2="261.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="151.3" y="262" font-size="9" fill="#52514e">0,9</text>
+<line x1="144.5" y1="258.5" x2="147.2" y2="258.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="255.5" x2="144.5" y2="261.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.2" y1="255.5" x2="147.2" y2="261.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="151.2" y="262" font-size="9" fill="#52514e">0,9</text>
 <text x="126" y="293.5" text-anchor="end" fill="#0b0b0b">indisponibilidade</text>
-<rect x="134" y="275" width="217.2" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · indisponibilidade · SMA básico: 15,8</title></rect>
-<line x1="339.7" y1="279.5" x2="362.6" y2="279.5" stroke="#0b0b0b" stroke-width="1"/><line x1="339.7" y1="276.5" x2="339.7" y2="282.5" stroke="#0b0b0b" stroke-width="1"/><line x1="362.6" y1="276.5" x2="362.6" y2="282.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="366.6" y="283" font-size="9" fill="#52514e">15,8</text>
-<rect x="134" y="286" width="217.2" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · indisponibilidade · SMA com cognição local: 15,8</title></rect>
-<line x1="341.2" y1="290.5" x2="361.2" y2="290.5" stroke="#0b0b0b" stroke-width="1"/><line x1="341.2" y1="287.5" x2="341.2" y2="293.5" stroke="#0b0b0b" stroke-width="1"/><line x1="361.2" y1="287.5" x2="361.2" y2="293.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="365.2" y="294" font-size="9" fill="#52514e">15,8</text>
+<rect x="134" y="275" width="215.9" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · indisponibilidade · SMA básico: 15,8</title></rect>
+<line x1="338.4" y1="279.5" x2="361.2" y2="279.5" stroke="#0b0b0b" stroke-width="1"/><line x1="338.4" y1="276.5" x2="338.4" y2="282.5" stroke="#0b0b0b" stroke-width="1"/><line x1="361.2" y1="276.5" x2="361.2" y2="282.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="365.2" y="283" font-size="9" fill="#52514e">15,8</text>
+<rect x="134" y="286" width="215.9" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · indisponibilidade · SMA com cognição local: 15,8</title></rect>
+<line x1="340.0" y1="290.5" x2="359.8" y2="290.5" stroke="#0b0b0b" stroke-width="1"/><line x1="340.0" y1="287.5" x2="340.0" y2="293.5" stroke="#0b0b0b" stroke-width="1"/><line x1="359.8" y1="287.5" x2="359.8" y2="293.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="363.8" y="294" font-size="9" fill="#52514e">15,8</text>
 <rect x="134" y="297" width="12.1" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · indisponibilidade · workflow equivalente: 0,9</title></rect>
-<line x1="144.5" y1="301.5" x2="147.3" y2="301.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="298.5" x2="144.5" y2="304.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.3" y1="298.5" x2="147.3" y2="304.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="151.3" y="305" font-size="9" fill="#52514e">0,9</text>
+<line x1="144.5" y1="301.5" x2="147.2" y2="301.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.5" y1="298.5" x2="144.5" y2="304.5" stroke="#0b0b0b" stroke-width="1"/><line x1="147.2" y1="298.5" x2="147.2" y2="304.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="151.2" y="305" font-size="9" fill="#52514e">0,9</text>
 <text x="126" y="336.5" text-anchor="end" fill="#0b0b0b">humano_lento</text>
-<rect x="134" y="318" width="199.5" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · humano_lento · SMA básico: 14,5</title></rect>
-<line x1="323.7" y1="322.5" x2="343.9" y2="322.5" stroke="#0b0b0b" stroke-width="1"/><line x1="323.7" y1="319.5" x2="323.7" y2="325.5" stroke="#0b0b0b" stroke-width="1"/><line x1="343.9" y1="319.5" x2="343.9" y2="325.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="347.9" y="326" font-size="9" fill="#52514e">14,5</text>
-<rect x="134" y="329" width="199.5" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · humano_lento · SMA com cognição local: 14,5</title></rect>
-<line x1="323.7" y1="333.5" x2="343.9" y2="333.5" stroke="#0b0b0b" stroke-width="1"/><line x1="323.7" y1="330.5" x2="323.7" y2="336.5" stroke="#0b0b0b" stroke-width="1"/><line x1="343.9" y1="330.5" x2="343.9" y2="336.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="347.9" y="337" font-size="9" fill="#52514e">14,5</text>
+<rect x="134" y="318" width="198.7" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · humano_lento · SMA básico: 14,5</title></rect>
+<line x1="322.9" y1="322.5" x2="343.0" y2="322.5" stroke="#0b0b0b" stroke-width="1"/><line x1="322.9" y1="319.5" x2="322.9" y2="325.5" stroke="#0b0b0b" stroke-width="1"/><line x1="343.0" y1="319.5" x2="343.0" y2="325.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="347.0" y="326" font-size="9" fill="#52514e">14,5</text>
+<rect x="134" y="329" width="198.7" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · humano_lento · SMA com cognição local: 14,5</title></rect>
+<line x1="322.9" y1="333.5" x2="343.0" y2="333.5" stroke="#0b0b0b" stroke-width="1"/><line x1="322.9" y1="330.5" x2="322.9" y2="336.5" stroke="#0b0b0b" stroke-width="1"/><line x1="343.0" y1="330.5" x2="343.0" y2="336.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="347.0" y="337" font-size="9" fill="#52514e">14,5</text>
 <rect x="134" y="340" width="8.8" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · humano_lento · workflow equivalente: 0,6</title></rect>
-<line x1="141.3" y1="344.5" x2="144.2" y2="344.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.3" y1="341.5" x2="141.3" y2="347.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="341.5" x2="144.2" y2="347.5" stroke="#0b0b0b" stroke-width="1"/>
+<line x1="141.2" y1="344.5" x2="144.2" y2="344.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.2" y1="341.5" x2="141.2" y2="347.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="341.5" x2="144.2" y2="347.5" stroke="#0b0b0b" stroke-width="1"/>
 <text x="148.2" y="348" font-size="9" fill="#52514e">0,6</text>
 <text x="126" y="379.5" text-anchor="end" fill="#0b0b0b">combinadas</text>
-<rect x="134" y="361" width="186.7" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · combinadas · SMA básico: 13,6</title></rect>
-<line x1="304.1" y1="365.5" x2="335.0" y2="365.5" stroke="#0b0b0b" stroke-width="1"/><line x1="304.1" y1="362.5" x2="304.1" y2="368.5" stroke="#0b0b0b" stroke-width="1"/><line x1="335.0" y1="362.5" x2="335.0" y2="368.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="339.0" y="369" font-size="9" fill="#52514e">13,6</text>
-<rect x="134" y="372" width="191.6" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · combinadas · SMA com cognição local: 14,0</title></rect>
-<line x1="307.5" y1="376.5" x2="342.3" y2="376.5" stroke="#0b0b0b" stroke-width="1"/><line x1="307.5" y1="373.5" x2="307.5" y2="379.5" stroke="#0b0b0b" stroke-width="1"/><line x1="342.3" y1="373.5" x2="342.3" y2="379.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="346.3" y="380" font-size="9" fill="#52514e">14,0</text>
+<rect x="134" y="361" width="185.9" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · combinadas · SMA básico: 13,6</title></rect>
+<line x1="303.4" y1="365.5" x2="334.2" y2="365.5" stroke="#0b0b0b" stroke-width="1"/><line x1="303.4" y1="362.5" x2="303.4" y2="368.5" stroke="#0b0b0b" stroke-width="1"/><line x1="334.2" y1="362.5" x2="334.2" y2="368.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="338.2" y="369" font-size="9" fill="#52514e">13,6</text>
+<rect x="134" y="372" width="190.9" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · combinadas · SMA com cognição local: 14,0</title></rect>
+<line x1="306.8" y1="376.5" x2="341.5" y2="376.5" stroke="#0b0b0b" stroke-width="1"/><line x1="306.8" y1="373.5" x2="306.8" y2="379.5" stroke="#0b0b0b" stroke-width="1"/><line x1="341.5" y1="373.5" x2="341.5" y2="379.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="345.5" y="380" font-size="9" fill="#52514e">14,0</text>
 <rect x="134" y="383" width="8.8" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · combinadas · workflow equivalente: 0,6</title></rect>
-<line x1="141.3" y1="387.5" x2="144.2" y2="387.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.3" y1="384.5" x2="141.3" y2="390.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="384.5" x2="144.2" y2="390.5" stroke="#0b0b0b" stroke-width="1"/>
+<line x1="141.2" y1="387.5" x2="144.2" y2="387.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.2" y1="384.5" x2="141.2" y2="390.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="384.5" x2="144.2" y2="390.5" stroke="#0b0b0b" stroke-width="1"/>
 <text x="148.2" y="391" font-size="9" fill="#52514e">0,6</text>
 <text x="126" y="422.5" text-anchor="end" fill="#0b0b0b">combinadas_ataque</text>
-<rect x="134" y="404" width="186.7" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · combinadas_ataque · SMA básico: 13,6</title></rect>
-<line x1="304.1" y1="408.5" x2="335.0" y2="408.5" stroke="#0b0b0b" stroke-width="1"/><line x1="304.1" y1="405.5" x2="304.1" y2="411.5" stroke="#0b0b0b" stroke-width="1"/><line x1="335.0" y1="405.5" x2="335.0" y2="411.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="339.0" y="412" font-size="9" fill="#52514e">13,6</text>
-<rect x="134" y="415" width="191.6" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · combinadas_ataque · SMA com cognição local: 14,0</title></rect>
-<line x1="307.5" y1="419.5" x2="342.3" y2="419.5" stroke="#0b0b0b" stroke-width="1"/><line x1="307.5" y1="416.5" x2="307.5" y2="422.5" stroke="#0b0b0b" stroke-width="1"/><line x1="342.3" y1="416.5" x2="342.3" y2="422.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="346.3" y="423" font-size="9" fill="#52514e">14,0</text>
+<rect x="134" y="404" width="185.9" height="9" rx="2" fill="#2a78d6"><title>Mensagens de coordenação por solicitação · combinadas_ataque · SMA básico: 13,6</title></rect>
+<line x1="303.4" y1="408.5" x2="334.2" y2="408.5" stroke="#0b0b0b" stroke-width="1"/><line x1="303.4" y1="405.5" x2="303.4" y2="411.5" stroke="#0b0b0b" stroke-width="1"/><line x1="334.2" y1="405.5" x2="334.2" y2="411.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="338.2" y="412" font-size="9" fill="#52514e">13,6</text>
+<rect x="134" y="415" width="190.9" height="9" rx="2" fill="#eb6834"><title>Mensagens de coordenação por solicitação · combinadas_ataque · SMA com cognição local: 14,0</title></rect>
+<line x1="306.8" y1="419.5" x2="341.5" y2="419.5" stroke="#0b0b0b" stroke-width="1"/><line x1="306.8" y1="416.5" x2="306.8" y2="422.5" stroke="#0b0b0b" stroke-width="1"/><line x1="341.5" y1="416.5" x2="341.5" y2="422.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="345.5" y="423" font-size="9" fill="#52514e">14,0</text>
 <rect x="134" y="426" width="8.8" height="9" rx="2" fill="#1baf7a"><title>Mensagens de coordenação por solicitação · combinadas_ataque · workflow equivalente: 0,6</title></rect>
-<line x1="141.3" y1="430.5" x2="144.2" y2="430.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.3" y1="427.5" x2="141.3" y2="433.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="427.5" x2="144.2" y2="433.5" stroke="#0b0b0b" stroke-width="1"/>
+<line x1="141.2" y1="430.5" x2="144.2" y2="430.5" stroke="#0b0b0b" stroke-width="1"/><line x1="141.2" y1="427.5" x2="141.2" y2="433.5" stroke="#0b0b0b" stroke-width="1"/><line x1="144.2" y1="427.5" x2="144.2" y2="433.5" stroke="#0b0b0b" stroke-width="1"/>
 <text x="148.2" y="434" font-size="9" fill="#52514e">0,6</text>
 <text x="460" y="82" font-weight="700" fill="#52514e">Latência (ticks) por solicitação</text>
 <line x1="580" y1="89" x2="580" y2="440" stroke="#d6d5d0"/>
 <text x="572" y="116.0" text-anchor="end" fill="#0b0b0b">nominal</text>
-<rect x="580" y="92" width="51.0" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · nominal · SMA básico: 15,9</title></rect>
-<line x1="629.4" y1="96.5" x2="632.4" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="629.4" y1="93.5" x2="629.4" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="632.4" y1="93.5" x2="632.4" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="636.4" y="100" font-size="9" fill="#52514e">15,9</text>
-<rect x="580" y="103" width="51.0" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · nominal · SMA com cognição local: 15,9</title></rect>
-<line x1="629.4" y1="107.5" x2="632.4" y2="107.5" stroke="#0b0b0b" stroke-width="1"/><line x1="629.4" y1="104.5" x2="629.4" y2="110.5" stroke="#0b0b0b" stroke-width="1"/><line x1="632.4" y1="104.5" x2="632.4" y2="110.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="636.4" y="111" font-size="9" fill="#52514e">15,9</text>
-<rect x="580" y="114" width="40.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · nominal · workflow equivalente: 12,7</title></rect>
-<line x1="619.8" y1="118.5" x2="621.4" y2="118.5" stroke="#0b0b0b" stroke-width="1"/><line x1="619.8" y1="115.5" x2="619.8" y2="121.5" stroke="#0b0b0b" stroke-width="1"/><line x1="621.4" y1="115.5" x2="621.4" y2="121.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="625.4" y="122" font-size="9" fill="#52514e">12,7</text>
-<rect x="580" y="125" width="33.7" height="9" rx="2" fill="#eda100"><title>Latência (ticks) por solicitação · nominal · workflow mínimo (DSM3): 10,5</title></rect>
-<text x="617.7" y="133" font-size="9" fill="#52514e">10,5</text>
+<rect x="580" y="92" width="51.6" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · nominal · SMA básico: 15,9</title></rect>
+<line x1="630.0" y1="96.5" x2="633.1" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="630.0" y1="93.5" x2="630.0" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="633.1" y1="93.5" x2="633.1" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="637.1" y="100" font-size="9" fill="#52514e">15,9</text>
+<rect x="580" y="103" width="51.6" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · nominal · SMA com cognição local: 15,9</title></rect>
+<line x1="630.0" y1="107.5" x2="633.1" y2="107.5" stroke="#0b0b0b" stroke-width="1"/><line x1="630.0" y1="104.5" x2="630.0" y2="110.5" stroke="#0b0b0b" stroke-width="1"/><line x1="633.1" y1="104.5" x2="633.1" y2="110.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="637.1" y="111" font-size="9" fill="#52514e">15,9</text>
+<rect x="580" y="114" width="41.3" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · nominal · workflow equivalente: 12,7</title></rect>
+<line x1="620.3" y1="118.5" x2="622.0" y2="118.5" stroke="#0b0b0b" stroke-width="1"/><line x1="620.3" y1="115.5" x2="620.3" y2="121.5" stroke="#0b0b0b" stroke-width="1"/><line x1="622.0" y1="115.5" x2="622.0" y2="121.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="626.0" y="122" font-size="9" fill="#52514e">12,7</text>
+<rect x="580" y="125" width="34.1" height="9" rx="2" fill="#eda100"><title>Latência (ticks) por solicitação · nominal · workflow mínimo (DSM3): 10,5</title></rect>
+<text x="618.1" y="133" font-size="9" fill="#52514e">10,5</text>
 <text x="572" y="164.5" text-anchor="end" fill="#0b0b0b">perda_baixa</text>
-<rect x="580" y="146" width="79.1" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_baixa · SMA básico: 24,7</title></rect>
-<line x1="646.1" y1="150.5" x2="674.6" y2="150.5" stroke="#0b0b0b" stroke-width="1"/><line x1="646.1" y1="147.5" x2="646.1" y2="153.5" stroke="#0b0b0b" stroke-width="1"/><line x1="674.6" y1="147.5" x2="674.6" y2="153.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="678.6" y="154" font-size="9" fill="#52514e">24,7</text>
-<rect x="580" y="157" width="80.6" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_baixa · SMA com cognição local: 25,1</title></rect>
-<line x1="647.5" y1="161.5" x2="676.1" y2="161.5" stroke="#0b0b0b" stroke-width="1"/><line x1="647.5" y1="158.5" x2="647.5" y2="164.5" stroke="#0b0b0b" stroke-width="1"/><line x1="676.1" y1="158.5" x2="676.1" y2="164.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="680.1" y="165" font-size="9" fill="#52514e">25,1</text>
-<rect x="580" y="168" width="40.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_baixa · workflow equivalente: 12,7</title></rect>
-<line x1="619.8" y1="172.5" x2="621.4" y2="172.5" stroke="#0b0b0b" stroke-width="1"/><line x1="619.8" y1="169.5" x2="619.8" y2="175.5" stroke="#0b0b0b" stroke-width="1"/><line x1="621.4" y1="169.5" x2="621.4" y2="175.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="625.4" y="176" font-size="9" fill="#52514e">12,7</text>
+<rect x="580" y="146" width="78.8" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_baixa · SMA básico: 24,3</title></rect>
+<line x1="645.7" y1="150.5" x2="675.0" y2="150.5" stroke="#0b0b0b" stroke-width="1"/><line x1="645.7" y1="147.5" x2="645.7" y2="153.5" stroke="#0b0b0b" stroke-width="1"/><line x1="675.0" y1="147.5" x2="675.0" y2="153.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="679.0" y="154" font-size="9" fill="#52514e">24,3</text>
+<rect x="580" y="157" width="80.4" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_baixa · SMA com cognição local: 24,7</title></rect>
+<line x1="647.0" y1="161.5" x2="676.8" y2="161.5" stroke="#0b0b0b" stroke-width="1"/><line x1="647.0" y1="158.5" x2="647.0" y2="164.5" stroke="#0b0b0b" stroke-width="1"/><line x1="676.8" y1="158.5" x2="676.8" y2="164.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="680.8" y="165" font-size="9" fill="#52514e">24,7</text>
+<rect x="580" y="168" width="41.3" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_baixa · workflow equivalente: 12,7</title></rect>
+<line x1="620.3" y1="172.5" x2="622.0" y2="172.5" stroke="#0b0b0b" stroke-width="1"/><line x1="620.3" y1="169.5" x2="620.3" y2="175.5" stroke="#0b0b0b" stroke-width="1"/><line x1="622.0" y1="169.5" x2="622.0" y2="175.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="626.0" y="176" font-size="9" fill="#52514e">12,7</text>
 <text x="572" y="207.5" text-anchor="end" fill="#0b0b0b">perda_media</text>
-<rect x="580" y="189" width="138.8" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_media · SMA básico: 43,3</title></rect>
-<line x1="693.1" y1="193.5" x2="747.0" y2="193.5" stroke="#0b0b0b" stroke-width="1"/><line x1="693.1" y1="190.5" x2="693.1" y2="196.5" stroke="#0b0b0b" stroke-width="1"/><line x1="747.0" y1="190.5" x2="747.0" y2="196.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="751.0" y="197" font-size="9" fill="#52514e">43,3</text>
-<rect x="580" y="200" width="152.8" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_media · SMA com cognição local: 47,7</title></rect>
-<line x1="701.8" y1="204.5" x2="766.5" y2="204.5" stroke="#0b0b0b" stroke-width="1"/><line x1="701.8" y1="201.5" x2="701.8" y2="207.5" stroke="#0b0b0b" stroke-width="1"/><line x1="766.5" y1="201.5" x2="766.5" y2="207.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="770.5" y="208" font-size="9" fill="#52514e">47,7</text>
-<rect x="580" y="211" width="40.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_media · workflow equivalente: 12,7</title></rect>
-<line x1="619.8" y1="215.5" x2="621.4" y2="215.5" stroke="#0b0b0b" stroke-width="1"/><line x1="619.8" y1="212.5" x2="619.8" y2="218.5" stroke="#0b0b0b" stroke-width="1"/><line x1="621.4" y1="212.5" x2="621.4" y2="218.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="625.4" y="219" font-size="9" fill="#52514e">12,7</text>
+<rect x="580" y="189" width="139.8" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_media · SMA básico: 43,0</title></rect>
+<line x1="694.3" y1="193.5" x2="747.8" y2="193.5" stroke="#0b0b0b" stroke-width="1"/><line x1="694.3" y1="190.5" x2="694.3" y2="196.5" stroke="#0b0b0b" stroke-width="1"/><line x1="747.8" y1="190.5" x2="747.8" y2="196.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="751.8" y="197" font-size="9" fill="#52514e">43,0</text>
+<rect x="580" y="200" width="153.9" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_media · SMA com cognição local: 47,4</title></rect>
+<line x1="703.3" y1="204.5" x2="767.8" y2="204.5" stroke="#0b0b0b" stroke-width="1"/><line x1="703.3" y1="201.5" x2="703.3" y2="207.5" stroke="#0b0b0b" stroke-width="1"/><line x1="767.8" y1="201.5" x2="767.8" y2="207.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="771.8" y="208" font-size="9" fill="#52514e">47,4</text>
+<rect x="580" y="211" width="41.3" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_media · workflow equivalente: 12,7</title></rect>
+<line x1="620.3" y1="215.5" x2="622.0" y2="215.5" stroke="#0b0b0b" stroke-width="1"/><line x1="620.3" y1="212.5" x2="620.3" y2="218.5" stroke="#0b0b0b" stroke-width="1"/><line x1="622.0" y1="212.5" x2="622.0" y2="218.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="626.0" y="219" font-size="9" fill="#52514e">12,7</text>
 <text x="572" y="250.5" text-anchor="end" fill="#0b0b0b">perda_alta</text>
-<rect x="580" y="232" width="191.9" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_alta · SMA básico: 59,8</title></rect>
-<line x1="749.8" y1="236.5" x2="795.6" y2="236.5" stroke="#0b0b0b" stroke-width="1"/><line x1="749.8" y1="233.5" x2="749.8" y2="239.5" stroke="#0b0b0b" stroke-width="1"/><line x1="795.6" y1="233.5" x2="795.6" y2="239.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="799.6" y="240" font-size="9" fill="#52514e">59,8</text>
-<rect x="580" y="243" width="210.0" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_alta · SMA com cognição local: 65,5</title></rect>
-<line x1="762.0" y1="247.5" x2="818.0" y2="247.5" stroke="#0b0b0b" stroke-width="1"/><line x1="762.0" y1="244.5" x2="762.0" y2="250.5" stroke="#0b0b0b" stroke-width="1"/><line x1="818.0" y1="244.5" x2="818.0" y2="250.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="822.0" y="251" font-size="9" fill="#52514e">65,5</text>
-<rect x="580" y="254" width="40.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_alta · workflow equivalente: 12,7</title></rect>
-<line x1="619.8" y1="258.5" x2="621.4" y2="258.5" stroke="#0b0b0b" stroke-width="1"/><line x1="619.8" y1="255.5" x2="619.8" y2="261.5" stroke="#0b0b0b" stroke-width="1"/><line x1="621.4" y1="255.5" x2="621.4" y2="261.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="625.4" y="262" font-size="9" fill="#52514e">12,7</text>
+<rect x="580" y="232" width="192.3" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · perda_alta · SMA básico: 59,2</title></rect>
+<line x1="750.2" y1="236.5" x2="796.6" y2="236.5" stroke="#0b0b0b" stroke-width="1"/><line x1="750.2" y1="233.5" x2="750.2" y2="239.5" stroke="#0b0b0b" stroke-width="1"/><line x1="796.6" y1="233.5" x2="796.6" y2="239.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="800.6" y="240" font-size="9" fill="#52514e">59,2</text>
+<rect x="580" y="243" width="209.5" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · perda_alta · SMA com cognição local: 64,5</title></rect>
+<line x1="761.7" y1="247.5" x2="818.0" y2="247.5" stroke="#0b0b0b" stroke-width="1"/><line x1="761.7" y1="244.5" x2="761.7" y2="250.5" stroke="#0b0b0b" stroke-width="1"/><line x1="818.0" y1="244.5" x2="818.0" y2="250.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="822.0" y="251" font-size="9" fill="#52514e">64,5</text>
+<rect x="580" y="254" width="41.3" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · perda_alta · workflow equivalente: 12,7</title></rect>
+<line x1="620.3" y1="258.5" x2="622.0" y2="258.5" stroke="#0b0b0b" stroke-width="1"/><line x1="620.3" y1="255.5" x2="620.3" y2="261.5" stroke="#0b0b0b" stroke-width="1"/><line x1="622.0" y1="255.5" x2="622.0" y2="261.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="626.0" y="262" font-size="9" fill="#52514e">12,7</text>
 <text x="572" y="293.5" text-anchor="end" fill="#0b0b0b">indisponibilidade</text>
-<rect x="580" y="275" width="70.8" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · indisponibilidade · SMA básico: 22,1</title></rect>
-<line x1="642.3" y1="279.5" x2="659.9" y2="279.5" stroke="#0b0b0b" stroke-width="1"/><line x1="642.3" y1="276.5" x2="642.3" y2="282.5" stroke="#0b0b0b" stroke-width="1"/><line x1="659.9" y1="276.5" x2="659.9" y2="282.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="663.9" y="283" font-size="9" fill="#52514e">22,1</text>
-<rect x="580" y="286" width="71.3" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · indisponibilidade · SMA com cognição local: 22,2</title></rect>
-<line x1="642.6" y1="290.5" x2="660.6" y2="290.5" stroke="#0b0b0b" stroke-width="1"/><line x1="642.6" y1="287.5" x2="642.6" y2="293.5" stroke="#0b0b0b" stroke-width="1"/><line x1="660.6" y1="287.5" x2="660.6" y2="293.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="664.6" y="294" font-size="9" fill="#52514e">22,2</text>
-<rect x="580" y="297" width="40.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · indisponibilidade · workflow equivalente: 12,7</title></rect>
-<line x1="619.8" y1="301.5" x2="621.4" y2="301.5" stroke="#0b0b0b" stroke-width="1"/><line x1="619.8" y1="298.5" x2="619.8" y2="304.5" stroke="#0b0b0b" stroke-width="1"/><line x1="621.4" y1="298.5" x2="621.4" y2="304.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="625.4" y="305" font-size="9" fill="#52514e">12,7</text>
+<rect x="580" y="275" width="69.9" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · indisponibilidade · SMA básico: 21,5</title></rect>
+<line x1="641.2" y1="279.5" x2="659.2" y2="279.5" stroke="#0b0b0b" stroke-width="1"/><line x1="641.2" y1="276.5" x2="641.2" y2="282.5" stroke="#0b0b0b" stroke-width="1"/><line x1="659.2" y1="276.5" x2="659.2" y2="282.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="663.2" y="283" font-size="9" fill="#52514e">21,5</text>
+<rect x="580" y="286" width="70.4" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · indisponibilidade · SMA com cognição local: 21,7</title></rect>
+<line x1="641.6" y1="290.5" x2="659.8" y2="290.5" stroke="#0b0b0b" stroke-width="1"/><line x1="641.6" y1="287.5" x2="641.6" y2="293.5" stroke="#0b0b0b" stroke-width="1"/><line x1="659.8" y1="287.5" x2="659.8" y2="293.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="663.8" y="294" font-size="9" fill="#52514e">21,7</text>
+<rect x="580" y="297" width="41.3" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · indisponibilidade · workflow equivalente: 12,7</title></rect>
+<line x1="620.3" y1="301.5" x2="622.0" y2="301.5" stroke="#0b0b0b" stroke-width="1"/><line x1="620.3" y1="298.5" x2="620.3" y2="304.5" stroke="#0b0b0b" stroke-width="1"/><line x1="622.0" y1="298.5" x2="622.0" y2="304.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="626.0" y="305" font-size="9" fill="#52514e">12,7</text>
 <text x="572" y="336.5" text-anchor="end" fill="#0b0b0b">humano_lento</text>
-<rect x="580" y="318" width="67.4" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · humano_lento · SMA básico: 21,0</title></rect>
-<line x1="643.7" y1="322.5" x2="650.3" y2="322.5" stroke="#0b0b0b" stroke-width="1"/><line x1="643.7" y1="319.5" x2="643.7" y2="325.5" stroke="#0b0b0b" stroke-width="1"/><line x1="650.3" y1="319.5" x2="650.3" y2="325.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="654.3" y="326" font-size="9" fill="#52514e">21,0</text>
-<rect x="580" y="329" width="67.4" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · humano_lento · SMA com cognição local: 21,0</title></rect>
-<line x1="643.7" y1="333.5" x2="650.3" y2="333.5" stroke="#0b0b0b" stroke-width="1"/><line x1="643.7" y1="330.5" x2="643.7" y2="336.5" stroke="#0b0b0b" stroke-width="1"/><line x1="650.3" y1="330.5" x2="650.3" y2="336.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="654.3" y="337" font-size="9" fill="#52514e">21,0</text>
-<rect x="580" y="340" width="57.9" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · humano_lento · workflow equivalente: 18,1</title></rect>
-<line x1="634.7" y1="344.5" x2="640.5" y2="344.5" stroke="#0b0b0b" stroke-width="1"/><line x1="634.7" y1="341.5" x2="634.7" y2="347.5" stroke="#0b0b0b" stroke-width="1"/><line x1="640.5" y1="341.5" x2="640.5" y2="347.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="644.5" y="348" font-size="9" fill="#52514e">18,1</text>
+<rect x="580" y="318" width="68.3" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · humano_lento · SMA básico: 21,0</title></rect>
+<line x1="644.5" y1="322.5" x2="651.3" y2="322.5" stroke="#0b0b0b" stroke-width="1"/><line x1="644.5" y1="319.5" x2="644.5" y2="325.5" stroke="#0b0b0b" stroke-width="1"/><line x1="651.3" y1="319.5" x2="651.3" y2="325.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="655.3" y="326" font-size="9" fill="#52514e">21,0</text>
+<rect x="580" y="329" width="68.3" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · humano_lento · SMA com cognição local: 21,0</title></rect>
+<line x1="644.5" y1="333.5" x2="651.3" y2="333.5" stroke="#0b0b0b" stroke-width="1"/><line x1="644.5" y1="330.5" x2="644.5" y2="336.5" stroke="#0b0b0b" stroke-width="1"/><line x1="651.3" y1="330.5" x2="651.3" y2="336.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="655.3" y="337" font-size="9" fill="#52514e">21,0</text>
+<rect x="580" y="340" width="58.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · humano_lento · workflow equivalente: 18,1</title></rect>
+<line x1="635.4" y1="344.5" x2="641.3" y2="344.5" stroke="#0b0b0b" stroke-width="1"/><line x1="635.4" y1="341.5" x2="635.4" y2="347.5" stroke="#0b0b0b" stroke-width="1"/><line x1="641.3" y1="341.5" x2="641.3" y2="347.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="645.3" y="348" font-size="9" fill="#52514e">18,1</text>
 <text x="572" y="379.5" text-anchor="end" fill="#0b0b0b">combinadas</text>
-<rect x="580" y="361" width="157.6" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · combinadas · SMA básico: 49,1</title></rect>
-<line x1="716.9" y1="365.5" x2="759.7" y2="365.5" stroke="#0b0b0b" stroke-width="1"/><line x1="716.9" y1="362.5" x2="716.9" y2="368.5" stroke="#0b0b0b" stroke-width="1"/><line x1="759.7" y1="362.5" x2="759.7" y2="368.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="763.7" y="369" font-size="9" fill="#52514e">49,1</text>
-<rect x="580" y="372" width="168.2" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · combinadas · SMA com cognição local: 52,5</title></rect>
-<line x1="727.4" y1="376.5" x2="770.8" y2="376.5" stroke="#0b0b0b" stroke-width="1"/><line x1="727.4" y1="373.5" x2="727.4" y2="379.5" stroke="#0b0b0b" stroke-width="1"/><line x1="770.8" y1="373.5" x2="770.8" y2="379.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="774.8" y="380" font-size="9" fill="#52514e">52,5</text>
-<rect x="580" y="383" width="57.9" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · combinadas · workflow equivalente: 18,1</title></rect>
-<line x1="634.7" y1="387.5" x2="640.5" y2="387.5" stroke="#0b0b0b" stroke-width="1"/><line x1="634.7" y1="384.5" x2="634.7" y2="390.5" stroke="#0b0b0b" stroke-width="1"/><line x1="640.5" y1="384.5" x2="640.5" y2="390.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="644.5" y="391" font-size="9" fill="#52514e">18,1</text>
+<rect x="580" y="361" width="159.7" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · combinadas · SMA básico: 49,1</title></rect>
+<line x1="718.7" y1="365.5" x2="762.1" y2="365.5" stroke="#0b0b0b" stroke-width="1"/><line x1="718.7" y1="362.5" x2="718.7" y2="368.5" stroke="#0b0b0b" stroke-width="1"/><line x1="762.1" y1="362.5" x2="762.1" y2="368.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="766.1" y="369" font-size="9" fill="#52514e">49,1</text>
+<rect x="580" y="372" width="170.5" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · combinadas · SMA com cognição local: 52,5</title></rect>
+<line x1="729.4" y1="376.5" x2="773.3" y2="376.5" stroke="#0b0b0b" stroke-width="1"/><line x1="729.4" y1="373.5" x2="729.4" y2="379.5" stroke="#0b0b0b" stroke-width="1"/><line x1="773.3" y1="373.5" x2="773.3" y2="379.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="777.3" y="380" font-size="9" fill="#52514e">52,5</text>
+<rect x="580" y="383" width="58.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · combinadas · workflow equivalente: 18,1</title></rect>
+<line x1="635.4" y1="387.5" x2="641.3" y2="387.5" stroke="#0b0b0b" stroke-width="1"/><line x1="635.4" y1="384.5" x2="635.4" y2="390.5" stroke="#0b0b0b" stroke-width="1"/><line x1="641.3" y1="384.5" x2="641.3" y2="390.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="645.3" y="391" font-size="9" fill="#52514e">18,1</text>
 <text x="572" y="422.5" text-anchor="end" fill="#0b0b0b">combinadas_ataque</text>
-<rect x="580" y="404" width="157.6" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · combinadas_ataque · SMA básico: 49,1</title></rect>
-<line x1="716.9" y1="408.5" x2="759.7" y2="408.5" stroke="#0b0b0b" stroke-width="1"/><line x1="716.9" y1="405.5" x2="716.9" y2="411.5" stroke="#0b0b0b" stroke-width="1"/><line x1="759.7" y1="405.5" x2="759.7" y2="411.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="763.7" y="412" font-size="9" fill="#52514e">49,1</text>
-<rect x="580" y="415" width="168.2" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · combinadas_ataque · SMA com cognição local: 52,5</title></rect>
-<line x1="727.4" y1="419.5" x2="770.8" y2="419.5" stroke="#0b0b0b" stroke-width="1"/><line x1="727.4" y1="416.5" x2="727.4" y2="422.5" stroke="#0b0b0b" stroke-width="1"/><line x1="770.8" y1="416.5" x2="770.8" y2="422.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="774.8" y="423" font-size="9" fill="#52514e">52,5</text>
-<rect x="580" y="426" width="57.9" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · combinadas_ataque · workflow equivalente: 18,1</title></rect>
-<line x1="634.7" y1="430.5" x2="640.5" y2="430.5" stroke="#0b0b0b" stroke-width="1"/><line x1="634.7" y1="427.5" x2="634.7" y2="433.5" stroke="#0b0b0b" stroke-width="1"/><line x1="640.5" y1="427.5" x2="640.5" y2="433.5" stroke="#0b0b0b" stroke-width="1"/>
-<text x="644.5" y="434" font-size="9" fill="#52514e">18,1</text>
+<rect x="580" y="404" width="159.7" height="9" rx="2" fill="#2a78d6"><title>Latência (ticks) por solicitação · combinadas_ataque · SMA básico: 49,1</title></rect>
+<line x1="718.7" y1="408.5" x2="762.1" y2="408.5" stroke="#0b0b0b" stroke-width="1"/><line x1="718.7" y1="405.5" x2="718.7" y2="411.5" stroke="#0b0b0b" stroke-width="1"/><line x1="762.1" y1="405.5" x2="762.1" y2="411.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="766.1" y="412" font-size="9" fill="#52514e">49,1</text>
+<rect x="580" y="415" width="170.5" height="9" rx="2" fill="#eb6834"><title>Latência (ticks) por solicitação · combinadas_ataque · SMA com cognição local: 52,5</title></rect>
+<line x1="729.4" y1="419.5" x2="773.3" y2="419.5" stroke="#0b0b0b" stroke-width="1"/><line x1="729.4" y1="416.5" x2="729.4" y2="422.5" stroke="#0b0b0b" stroke-width="1"/><line x1="773.3" y1="416.5" x2="773.3" y2="422.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="777.3" y="423" font-size="9" fill="#52514e">52,5</text>
+<rect x="580" y="426" width="58.7" height="9" rx="2" fill="#1baf7a"><title>Latência (ticks) por solicitação · combinadas_ataque · workflow equivalente: 18,1</title></rect>
+<line x1="635.4" y1="430.5" x2="641.3" y2="430.5" stroke="#0b0b0b" stroke-width="1"/><line x1="635.4" y1="427.5" x2="635.4" y2="433.5" stroke="#0b0b0b" stroke-width="1"/><line x1="641.3" y1="427.5" x2="641.3" y2="433.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="645.3" y="434" font-size="9" fill="#52514e">18,1</text>
 </svg>

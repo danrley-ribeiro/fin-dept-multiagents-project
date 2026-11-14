@@ -26,8 +26,8 @@ O assistente pergunta o **porte** (`mei`, `micro`, `pequena`, `media`, `media_ii
 ## 2. Pacote instalável (wheel, pip ou pipx)
 
 ```bash
-make wheel                                   # constrói o dashboard (bun) e gera dist/fin_mas-0.5.0-py3-none-any.whl
-pipx install dist/fin_mas-0.5.0-py3-none-any.whl
+make wheel                                   # constrói o dashboard (bun) e gera dist/fin_mas-1.0.0-py3-none-any.whl
+pipx install dist/fin_mas-1.0.0-py3-none-any.whl
 fin-mas instalar --pasta ~/sma-dados && fin-mas serve --instalacao ~/sma-dados
 ```
 

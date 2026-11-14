@@ -1,6 +1,6 @@
 [project]
 name = "fin-mas"
-version = "0.5.0"
+version = "1.0.0"
 description = "Sistema multiagente de controladoria (DSM3): cognição assistida, acesso por pessoa e LLM opcional"
 requires-python = ">=3.11"
 dependencies = ["pyyaml>=6.0", "openpyxl>=3.1"]

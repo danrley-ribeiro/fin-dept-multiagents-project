@@ -790,13 +790,13 @@
               "n": 30
             },
             "concluida": {
-              "desvio": 0.4901,
+              "desvio": 0.4795,
               "execucoes": 30,
               "ic95": [
-                0.4667,
-                0.8
+                0.5,
+                0.8333
               ],
-              "media": 0.6333,
+              "media": 0.6667,
               "mediana": 1.0,
               "n": 30
             },
@@ -823,14 +823,14 @@
               "n": 30
             },
             "execucao_correta": {
-              "desvio": 0.5085,
+              "desvio": 0.5074,
               "execucoes": 30,
               "ic95": [
-                0.3333,
+                0.3667,
                 0.7
               ],
-              "media": 0.5,
-              "mediana": 0.5,
+              "media": 0.5333,
+              "mediana": 1.0,
               "n": 30
             },
             "hipoteses_confirmadas": {
@@ -845,24 +845,24 @@
               "n": 30
             },
             "latencia_ticks": {
-              "desvio": 33.1677,
+              "desvio": 32.5813,
               "execucoes": 30,
               "ic95": [
-                56.4,
-                80.1667
+                56.0333,
+                79.7667
               ],
-              "media": 67.9,
+              "media": 67.3333,
               "mediana": 63.0,
               "n": 30
             },
             "mensagens_coordenacao": {
-              "desvio": 6.3659,
+              "desvio": 6.4846,
               "execucoes": 30,
               "ic95": [
-                22.1,
-                26.5667
+                22.1667,
+                26.7667
               ],
-              "media": 24.4,
+              "media": 24.5333,
               "mediana": 26.0,
               "n": 30
             },
@@ -878,13 +878,13 @@
               "n": 30
             },
             "publicacoes_do_periodo": {
-              "desvio": 0.4901,
+              "desvio": 0.4795,
               "execucoes": 30,
               "ic95": [
-                0.4667,
-                0.8
+                0.5,
+                0.8333
               ],
-              "media": 0.6333,
+              "media": 0.6667,
               "mediana": 1.0,
               "n": 30
             },
@@ -1668,14 +1668,14 @@
               "n": 30
             },
             "concluida": {
-              "desvio": 0.5085,
+              "desvio": 0.5074,
               "execucoes": 30,
               "ic95": [
-                0.3333,
-                0.6667
+                0.3667,
+                0.7333
               ],
-              "media": 0.5,
-              "mediana": 0.5,
+              "media": 0.5333,
+              "mediana": 1.0,
               "n": 30
             },
             "criticas_corrigidas": {
@@ -1701,13 +1701,13 @@
               "n": 30
             },
             "execucao_correta": {
-              "desvio": 0.4661,
+              "desvio": 0.4795,
               "execucoes": 30,
               "ic95": [
-                0.1333,
-                0.4667
+                0.1667,
+                0.5
               ],
-              "media": 0.3,
+              "media": 0.3333,
               "mediana": 0.0,
               "n": 30
             },
@@ -1723,24 +1723,24 @@
               "n": 30
             },
             "latencia_ticks": {
-              "desvio": 28.2934,
+              "desvio": 27.4005,
               "execucoes": 30,
               "ic95": [
-                50.2667,
-                70.3667
+                49.9667,
+                69.2667
               ],
-              "media": 60.3667,
+              "media": 59.8,
               "mediana": 61.0,
               "n": 30
             },
             "mensagens_coordenacao": {
-              "desvio": 6.1816,
+              "desvio": 6.3958,
               "execucoes": 30,
               "ic95": [
-                21.0333,
-                25.3
+                21.0667,
+                25.5333
               ],
-              "media": 23.1667,
+              "media": 23.3,
               "mediana": 24.0,
               "n": 30
             },
@@ -1756,14 +1756,14 @@
               "n": 30
             },
             "publicacoes_do_periodo": {
-              "desvio": 0.5085,
+              "desvio": 0.5074,
               "execucoes": 30,
               "ic95": [
-                0.3333,
-                0.6667
+                0.3667,
+                0.7333
               ],
-              "media": 0.5,
-              "mediana": 0.5,
+              "media": 0.5333,
+              "mediana": 1.0,
               "n": 30
             },
             "reenvios": {
@@ -2612,13 +2612,13 @@
               "n": 30
             },
             "mensagens_coordenacao": {
-              "desvio": 6.2283,
+              "desvio": 6.0443,
               "execucoes": 30,
               "ic95": [
-                20.8333,
-                25.2333
+                20.7,
+                25.0
               ],
-              "media": 23.0333,
+              "media": 22.8667,
               "mediana": 23.0,
               "n": 30
             },
@@ -2645,13 +2645,13 @@
               "n": 30
             },
             "reenvios": {
-              "desvio": 1.0289,
+              "desvio": 1.0148,
               "execucoes": 30,
               "ic95": [
-                0.7667,
-                1.4667
+                0.7333,
+                1.4333
               ],
-              "media": 1.1,
+              "media": 1.0667,
               "mediana": 1.0,
               "n": 30
             },
@@ -3424,13 +3424,13 @@
               "n": 30
             },
             "concluida": {
-              "desvio": 0.4901,
+              "desvio": 0.4795,
               "execucoes": 30,
               "ic95": [
-                0.4667,
-                0.8
+                0.5,
+                0.8333
               ],
-              "media": 0.6333,
+              "media": 0.6667,
               "mediana": 1.0,
               "n": 30
             },
@@ -3457,14 +3457,14 @@
               "n": 30
             },
             "execucao_correta": {
-              "desvio": 0.5085,
+              "desvio": 0.5074,
               "execucoes": 30,
               "ic95": [
-                0.3333,
+                0.3667,
                 0.7
               ],
-              "media": 0.5,
-              "mediana": 0.5,
+              "media": 0.5333,
+              "mediana": 1.0,
               "n": 30
             },
             "hipoteses_confirmadas": {
@@ -3479,24 +3479,24 @@
               "n": 30
             },
             "latencia_ticks": {
-              "desvio": 33.1677,
+              "desvio": 32.5813,
               "execucoes": 30,
               "ic95": [
-                56.4,
-                80.1667
+                56.0333,
+                79.7667
               ],
-              "media": 67.9,
+              "media": 67.3333,
               "mediana": 63.0,
               "n": 30
             },
             "mensagens_coordenacao": {
-              "desvio": 6.3659,
+              "desvio": 6.4846,
               "execucoes": 30,
               "ic95": [
-                22.1,
-                26.5667
+                22.1667,
+                26.7667
               ],
-              "media": 24.4,
+              "media": 24.5333,
               "mediana": 26.0,
               "n": 30
             },
@@ -3512,13 +3512,13 @@
               "n": 30
             },
             "publicacoes_do_periodo": {
-              "desvio": 0.4901,
+              "desvio": 0.4795,
               "execucoes": 30,
               "ic95": [
-                0.4667,
-                0.8
+                0.5,
+                0.8333
               ],
-              "media": 0.6333,
+              "media": 0.6667,
               "mediana": 1.0,
               "n": 30
             },
@@ -5235,24 +5235,24 @@
               "n": 30
             },
             "latencia_ticks": {
-              "desvio": 27.9947,
+              "desvio": 27.9365,
               "execucoes": 30,
               "ic95": [
-                52.5333,
-                72.7333
+                51.7667,
+                71.4667
               ],
-              "media": 62.4333,
-              "mediana": 62.0,
+              "media": 61.6333,
+              "mediana": 61.0,
               "n": 30
             },
             "mensagens_coordenacao": {
-              "desvio": 6.164,
+              "desvio": 6.1372,
               "execucoes": 30,
               "ic95": [
                 20.6,
-                24.9
+                24.8333
               ],
-              "media": 22.7333,
+              "media": 22.7,
               "mediana": 24.5,
               "n": 30
             },
@@ -5279,13 +5279,13 @@
               "n": 30
             },
             "reenvios": {
-              "desvio": 0.8449,
+              "desvio": 0.8277,
               "execucoes": 30,
               "ic95": [
-                0.8,
-                1.4
+                0.7667,
+                1.3667
               ],
-              "media": 1.1,
+              "media": 1.0667,
               "mediana": 1.0,
               "n": 30
             },
@@ -6401,13 +6401,13 @@
       "perda_alta": {
         "sma_basico": {
           "concluida": {
-            "desvio": 0.3251,
+            "desvio": 0.3466,
             "execucoes": 240,
             "ic95": [
-              0.2833,
-              0.5125
+              0.2958,
+              0.5458
             ],
-            "media": 0.3958,
+            "media": 0.4208,
             "mediana": 0.5,
             "n": 30
           },
@@ -6423,24 +6423,24 @@
             "n": 30
           },
           "degradacao_segura": {
-            "desvio": 0.321,
+            "desvio": 0.348,
             "execucoes": 240,
             "ic95": [
-              0.5583,
-              0.7875
+              0.525,
+              0.7708
             ],
-            "media": 0.675,
+            "media": 0.65,
             "mediana": 0.5,
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.321,
+            "desvio": 0.348,
             "execucoes": 240,
             "ic95": [
-              0.2125,
-              0.4417
+              0.2292,
+              0.475
             ],
-            "media": 0.325,
+            "media": 0.35,
             "mediana": 0.5,
             "n": 30
           },
@@ -6458,13 +6458,13 @@
         },
         "sma_local": {
           "concluida": {
-            "desvio": 0.3738,
+            "desvio": 0.3894,
             "execucoes": 240,
             "ic95": [
-              0.3167,
-              0.5833
+              0.3292,
+              0.6125
             ],
-            "media": 0.4458,
+            "media": 0.4708,
             "mediana": 0.5,
             "n": 30
           },
@@ -6480,24 +6480,24 @@
             "n": 30
           },
           "degradacao_segura": {
-            "desvio": 0.3838,
+            "desvio": 0.4016,
             "execucoes": 240,
             "ic95": [
-              0.4542,
-              0.7292
+              0.425,
+              0.7125
             ],
-            "media": 0.5958,
+            "media": 0.5708,
             "mediana": 0.5,
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3838,
+            "desvio": 0.4016,
             "execucoes": 240,
             "ic95": [
-              0.2708,
-              0.5458
+              0.2875,
+              0.575
             ],
-            "media": 0.4042,
+            "media": 0.4292,
             "mediana": 0.5,
             "n": 30
           },
@@ -6747,14 +6747,14 @@
       "perda_media": {
         "sma_basico": {
           "concluida": {
-            "desvio": 0.3056,
+            "desvio": 0.3068,
             "execucoes": 240,
             "ic95": [
-              0.6083,
-              0.8292
+              0.6208,
+              0.8458
             ],
-            "media": 0.7208,
-            "mediana": 0.75,
+            "media": 0.7375,
+            "mediana": 0.9375,
             "n": 30
           },
           "criticas_publicadas_sem_tratamento": {
@@ -6769,25 +6769,25 @@
             "n": 30
           },
           "degradacao_segura": {
-            "desvio": 0.3596,
+            "desvio": 0.3651,
             "execucoes": 240,
             "ic95": [
-              0.2542,
-              0.5
+              0.2333,
+              0.4875
             ],
-            "media": 0.375,
-            "mediana": 0.4375,
+            "media": 0.3583,
+            "mediana": 0.375,
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3596,
+            "desvio": 0.3651,
             "execucoes": 240,
             "ic95": [
-              0.5,
-              0.7458
+              0.5125,
+              0.7667
             ],
-            "media": 0.625,
-            "mediana": 0.5625,
+            "media": 0.6417,
+            "mediana": 0.625,
             "n": 30
           },
           "resposta_explicita": {
@@ -6804,13 +6804,13 @@
         },
         "sma_local": {
           "concluida": {
-            "desvio": 0.3034,
+            "desvio": 0.3015,
             "execucoes": 240,
             "ic95": [
-              0.6625,
-              0.875
+              0.6833,
+              0.8917
             ],
-            "media": 0.775,
+            "media": 0.7917,
             "mediana": 1.0,
             "n": 30
           },
@@ -6826,25 +6826,25 @@
             "n": 30
           },
           "degradacao_segura": {
-            "desvio": 0.3583,
+            "desvio": 0.3597,
             "execucoes": 240,
             "ic95": [
-              0.175,
-              0.4125
+              0.15,
+              0.4
             ],
-            "media": 0.2875,
-            "mediana": 0.0625,
+            "media": 0.2708,
+            "mediana": 0.0,
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3583,
+            "desvio": 0.3597,
             "execucoes": 240,
             "ic95": [
-              0.5875,
-              0.825
+              0.6,
+              0.85
             ],
-            "media": 0.7125,
-            "mediana": 0.9375,
+            "media": 0.7292,
+            "mediana": 1.0,
             "n": 30
           },
           "resposta_explicita": {
@@ -6955,13 +6955,13 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3407,
+            "desvio": 0.3309,
             "execucoes": 60,
             "ic95": [
-              0.45,
-              0.6833
+              0.4333,
+              0.6667
             ],
-            "media": 0.5667,
+            "media": 0.55,
             "mediana": 0.5,
             "n": 30
           },
@@ -7148,47 +7148,47 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 2.2312,
+            "desvio": 1.4779,
             "execucoes": 60,
             "ic95": [
-              15.4833,
-              17.05
+              15.3333,
+              16.3833
             ],
-            "media": 16.25,
+            "media": 15.8833,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.1453,
+            "desvio": 2.1156,
             "execucoes": 60,
             "ic95": [
-              17.8,
-              19.2667
+              17.95,
+              19.4333
             ],
-            "media": 18.5333,
-            "mediana": 18.0,
+            "media": 18.7,
+            "mediana": 19.0,
             "n": 30
           },
           "mensagens_rejeitadas": {
-            "desvio": 0.1269,
+            "desvio": 0.0,
             "execucoes": 60,
             "ic95": [
               0.0,
-              0.0833
+              0.0
             ],
-            "media": 0.0333,
+            "media": 0.0,
             "mediana": 0.0,
             "n": 30
           },
           "registros_trace": {
-            "desvio": 31.3193,
+            "desvio": 31.6617,
             "execucoes": 60,
             "ic95": [
-              128.8833,
-              150.4833
+              129.6333,
+              151.8333
             ],
-            "media": 139.85,
-            "mediana": 145.5,
+            "media": 141.0,
+            "mediana": 148.25,
             "n": 30
           }
         },
@@ -7807,13 +7807,13 @@
       "indisponibilidade": {
         "sma_basico": {
           "decisoes": {
-            "desvio": 4.2005,
+            "desvio": 4.1818,
             "execucoes": 240,
             "ic95": [
-              12.025,
-              14.9583
+              11.975,
+              14.9083
             ],
-            "media": 13.4917,
+            "media": 13.4583,
             "mediana": 13.625,
             "n": 30
           },
@@ -7829,48 +7829,48 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 7.9229,
+            "desvio": 7.6672,
             "execucoes": 240,
             "ic95": [
-              19.4417,
-              24.9042
+              18.85,
+              24.3708
             ],
-            "media": 22.075,
+            "media": 21.5083,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.3949,
+            "desvio": 2.3741,
             "execucoes": 240,
             "ic95": [
-              17.9917,
-              19.6583
+              17.9583,
+              19.625
             ],
-            "media": 18.8292,
+            "media": 18.7958,
             "mediana": 19.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.3949,
+            "desvio": 2.3741,
             "execucoes": 240,
             "ic95": [
-              14.9917,
-              16.6583
+              14.9583,
+              16.625
             ],
-            "media": 15.8292,
+            "media": 15.7958,
             "mediana": 16.0,
             "n": 30
           }
         },
         "sma_local": {
           "decisoes": {
-            "desvio": 4.5466,
+            "desvio": 4.5265,
             "execucoes": 240,
             "ic95": [
-              16.5,
-              19.7083
+              16.4583,
+              19.675
             ],
-            "media": 18.125,
+            "media": 18.0917,
             "mediana": 17.625,
             "n": 30
           },
@@ -7886,35 +7886,35 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 8.1596,
+            "desvio": 7.9227,
             "execucoes": 240,
             "ic95": [
-              19.525,
-              25.1375
+              18.9458,
+              24.5542
             ],
-            "media": 22.225,
+            "media": 21.6583,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.0923,
+            "desvio": 2.0685,
             "execucoes": 240,
             "ic95": [
-              18.1,
-              19.5583
+              18.075,
+              19.525
             ],
-            "media": 18.8292,
+            "media": 18.7958,
             "mediana": 19.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.0923,
+            "desvio": 2.0685,
             "execucoes": 240,
             "ic95": [
-              15.1,
-              16.5583
+              15.075,
+              16.525
             ],
-            "media": 15.8292,
+            "media": 15.7958,
             "mediana": 16.0,
             "n": 30
           }
@@ -8210,14 +8210,14 @@
       "perda_alta": {
         "sma_basico": {
           "decisoes": {
-            "desvio": 3.9989,
+            "desvio": 4.051,
             "execucoes": 240,
             "ic95": [
-              9.8708,
-              12.7583
+              9.9375,
+              12.8417
             ],
-            "media": 11.3083,
-            "mediana": 11.8125,
+            "media": 11.3875,
+            "mediana": 12.3125,
             "n": 30
           },
           "intervencoes_humanas": {
@@ -8232,48 +8232,48 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 20.4056,
+            "desvio": 20.2515,
             "execucoes": 240,
             "ic95": [
-              52.95,
-              67.2292
+              52.3792,
+              66.65
             ],
-            "media": 59.8458,
-            "mediana": 60.6875,
+            "media": 59.1833,
+            "mediana": 59.1875,
             "n": 30
           },
           "mensagens": {
-            "desvio": 4.7577,
+            "desvio": 4.8951,
             "execucoes": 240,
             "ic95": [
-              13.5625,
-              16.8333
+              13.6083,
+              16.9917
             ],
-            "media": 15.1042,
+            "media": 15.2,
             "mediana": 14.75,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 4.7577,
+            "desvio": 4.8951,
             "execucoes": 240,
             "ic95": [
-              10.5625,
-              13.8333
+              10.6083,
+              13.9917
             ],
-            "media": 12.1042,
+            "media": 12.2,
             "mediana": 11.75,
             "n": 30
           }
         },
         "sma_local": {
           "decisoes": {
-            "desvio": 6.0988,
+            "desvio": 6.1106,
             "execucoes": 240,
             "ic95": [
-              14.1708,
-              18.4125
+              14.2708,
+              18.5083
             ],
-            "media": 16.2708,
+            "media": 16.3583,
             "mediana": 16.0,
             "n": 30
           },
@@ -8289,35 +8289,35 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 24.7529,
+            "desvio": 24.2783,
             "execucoes": 240,
             "ic95": [
-              56.7667,
-              74.225
+              55.9167,
+              73.25
             ],
-            "media": 65.4958,
+            "media": 64.4667,
             "mediana": 61.0,
             "n": 30
           },
           "mensagens": {
-            "desvio": 5.7086,
+            "desvio": 5.7612,
             "execucoes": 240,
             "ic95": [
-              14.2875,
-              18.325
+              14.3542,
+              18.4083
             ],
-            "media": 16.2625,
+            "media": 16.3417,
             "mediana": 15.75,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 5.7086,
+            "desvio": 5.7612,
             "execucoes": 240,
             "ic95": [
-              11.2875,
-              15.325
+              11.3542,
+              15.4083
             ],
-            "media": 13.2625,
+            "media": 13.3417,
             "mediana": 12.75,
             "n": 30
           }
@@ -8383,14 +8383,14 @@
       "perda_baixa": {
         "sma_basico": {
           "decisoes": {
-            "desvio": 4.0527,
+            "desvio": 4.0549,
             "execucoes": 240,
             "ic95": [
               12.0792,
-              14.9583
+              14.9458
             ],
-            "media": 13.5292,
-            "mediana": 13.375,
+            "media": 13.5125,
+            "mediana": 13.125,
             "n": 30
           },
           "intervencoes_humanas": {
@@ -8405,48 +8405,48 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 12.9912,
+            "desvio": 13.0378,
             "execucoes": 240,
             "ic95": [
-              20.6167,
-              29.4958
+              20.2083,
+              29.25
             ],
-            "media": 24.6667,
-            "mediana": 20.5,
+            "media": 24.2667,
+            "mediana": 19.25,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.6481,
+            "desvio": 2.6498,
             "execucoes": 240,
             "ic95": [
-              18.05,
-              19.9417
+              18.025,
+              19.925
             ],
-            "media": 19.0167,
+            "media": 19.0,
             "mediana": 20.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.6481,
+            "desvio": 2.6498,
             "execucoes": 240,
             "ic95": [
-              15.05,
-              16.9417
+              15.025,
+              16.925
             ],
-            "media": 16.0167,
+            "media": 16.0,
             "mediana": 17.0,
             "n": 30
           }
         },
         "sma_local": {
           "decisoes": {
-            "desvio": 4.5647,
+            "desvio": 4.5698,
             "execucoes": 240,
             "ic95": [
               16.7208,
-              19.9708
+              19.9542
             ],
-            "media": 18.3625,
+            "media": 18.3458,
             "mediana": 18.0,
             "n": 30
           },
@@ -8462,35 +8462,35 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 13.1638,
+            "desvio": 13.2245,
             "execucoes": 240,
             "ic95": [
-              21.0375,
-              29.9583
+              20.6083,
+              29.7917
             ],
-            "media": 25.1375,
-            "mediana": 21.25,
+            "media": 24.7375,
+            "mediana": 19.75,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.4056,
+            "desvio": 2.4081,
             "execucoes": 240,
             "ic95": [
               18.2,
               19.9083
             ],
-            "media": 19.1,
+            "media": 19.0833,
             "mediana": 20.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.4056,
+            "desvio": 2.4081,
             "execucoes": 240,
             "ic95": [
               15.2,
               16.9083
             ],
-            "media": 16.1,
+            "media": 16.0833,
             "mediana": 17.0,
             "n": 30
           }
@@ -8556,13 +8556,13 @@
       "perda_media": {
         "sma_basico": {
           "decisoes": {
-            "desvio": 4.3341,
+            "desvio": 4.3545,
             "execucoes": 240,
             "ic95": [
-              11.7625,
-              14.8458
+              11.8,
+              14.8958
             ],
-            "media": 13.2583,
+            "media": 13.3083,
             "mediana": 13.5,
             "n": 30
           },
@@ -8578,48 +8578,48 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 23.587,
+            "desvio": 23.2416,
             "execucoes": 240,
             "ic95": [
-              35.2708,
-              52.0958
+              35.1708,
+              51.6458
             ],
-            "media": 43.3,
+            "media": 43.0167,
             "mediana": 39.375,
             "n": 30
           },
           "mensagens": {
-            "desvio": 3.3561,
+            "desvio": 3.4781,
             "execucoes": 240,
             "ic95": [
-              17.2458,
-              19.6042
+              17.2917,
+              19.7417
             ],
-            "media": 18.4208,
+            "media": 18.4875,
             "mediana": 18.9375,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 3.3561,
+            "desvio": 3.4781,
             "execucoes": 240,
             "ic95": [
-              14.2458,
-              16.6042
+              14.2917,
+              16.7417
             ],
-            "media": 15.4208,
+            "media": 15.4875,
             "mediana": 15.9375,
             "n": 30
           }
         },
         "sma_local": {
           "decisoes": {
-            "desvio": 5.5138,
+            "desvio": 5.5218,
             "execucoes": 240,
             "ic95": [
-              16.7125,
-              20.5792
+              16.7792,
+              20.6167
             ],
-            "media": 18.5792,
+            "media": 18.6458,
             "mediana": 17.5,
             "n": 30
           },
@@ -8635,35 +8635,35 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 28.1029,
+            "desvio": 27.8701,
             "execucoes": 240,
             "ic95": [
-              37.975,
-              58.1792
+              37.9375,
+              57.8042
             ],
-            "media": 47.6583,
+            "media": 47.375,
             "mediana": 40.5,
             "n": 30
           },
           "mensagens": {
-            "desvio": 3.8678,
+            "desvio": 3.9387,
             "execucoes": 240,
             "ic95": [
-              17.575,
-              20.3458
+              17.6708,
+              20.4167
             ],
-            "media": 18.95,
+            "media": 19.0167,
             "mediana": 18.8125,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 3.8678,
+            "desvio": 3.9387,
             "execucoes": 240,
             "ic95": [
-              14.575,
-              17.3458
+              14.6708,
+              17.4167
             ],
-            "media": 15.95,
+            "media": 16.0167,
             "mediana": 15.8125,
             "n": 30
           }
@@ -8775,7 +8775,7 @@
           "mesmo_resultado": 50,
           "recuperacao_ticks": {
             "maximo": 58,
-            "media": 35.72,
+            "media": 33.33,
             "mediana": 33,
             "n": 57
           },
@@ -8783,12 +8783,12 @@
         },
         "perda_alta": {
           "atingidas": 220,
-          "degradacao_segura": 162,
+          "degradacao_segura": 156,
           "execucoes": 240,
-          "mesmo_resultado": 58,
+          "mesmo_resultado": 64,
           "recuperacao_ticks": {
             "maximo": 126,
-            "media": 61.4,
+            "media": 60.68,
             "mediana": 59.0,
             "n": 220
           },
@@ -8801,20 +8801,20 @@
           "mesmo_resultado": 91,
           "recuperacao_ticks": {
             "maximo": 79,
-            "media": 32.79,
-            "mediana": 28,
+            "media": 31.88,
+            "mediana": 27,
             "n": 105
           },
           "sem_resposta": 0
         },
         "perda_media": {
           "atingidas": 189,
-          "degradacao_segura": 90,
+          "degradacao_segura": 86,
           "execucoes": 240,
-          "mesmo_resultado": 99,
+          "mesmo_resultado": 103,
           "recuperacao_ticks": {
             "maximo": 119,
-            "media": 46.81,
+            "media": 46.46,
             "mediana": 46,
             "n": 189
           },
@@ -8868,7 +8868,7 @@
           "mesmo_resultado": 53,
           "recuperacao_ticks": {
             "maximo": 58,
-            "media": 36.35,
+            "media": 33.96,
             "mediana": 33,
             "n": 57
           },
@@ -8876,12 +8876,12 @@
         },
         "perda_alta": {
           "atingidas": 220,
-          "degradacao_segura": 143,
+          "degradacao_segura": 137,
           "execucoes": 240,
-          "mesmo_resultado": 77,
+          "mesmo_resultado": 83,
           "recuperacao_ticks": {
             "maximo": 146,
-            "media": 67.56,
+            "media": 66.44,
             "mediana": 59.0,
             "n": 220
           },
@@ -8894,20 +8894,20 @@
           "mesmo_resultado": 99,
           "recuperacao_ticks": {
             "maximo": 79,
-            "media": 33.87,
-            "mediana": 29,
+            "media": 32.95,
+            "mediana": 28,
             "n": 105
           },
           "sem_resposta": 0
         },
         "perda_media": {
           "atingidas": 189,
-          "degradacao_segura": 69,
+          "degradacao_segura": 65,
           "execucoes": 240,
-          "mesmo_resultado": 120,
+          "mesmo_resultado": 124,
           "recuperacao_ticks": {
             "maximo": 169,
-            "media": 52.35,
+            "media": 51.99,
             "mediana": 49,
             "n": 189
           },
@@ -13495,24 +13495,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 7.9229,
+            "desvio": 7.6672,
             "execucoes": 240,
             "ic95": [
-              19.4417,
-              24.9042
+              18.85,
+              24.3708
             ],
-            "media": 22.075,
+            "media": 21.5083,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.3949,
+            "desvio": 2.3741,
             "execucoes": 240,
             "ic95": [
-              14.9917,
-              16.6583
+              14.9583,
+              16.625
             ],
-            "media": 15.8292,
+            "media": 15.7958,
             "mediana": 16.0,
             "n": 30
           },
@@ -13596,24 +13596,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 8.1596,
+            "desvio": 7.9227,
             "execucoes": 240,
             "ic95": [
-              19.525,
-              25.1375
+              18.9458,
+              24.5542
             ],
-            "media": 22.225,
+            "media": 21.6583,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.0923,
+            "desvio": 2.0685,
             "execucoes": 240,
             "ic95": [
-              15.1,
-              16.5583
+              15.075,
+              16.525
             ],
-            "media": 15.8292,
+            "media": 15.7958,
             "mediana": 16.0,
             "n": 30
           },
@@ -13859,13 +13859,13 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.321,
+            "desvio": 0.348,
             "execucoes": 240,
             "ic95": [
-              0.2125,
-              0.4417
+              0.2292,
+              0.475
             ],
-            "media": 0.325,
+            "media": 0.35,
             "mediana": 0.5,
             "n": 30
           },
@@ -13903,24 +13903,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 20.4056,
+            "desvio": 20.2515,
             "execucoes": 240,
             "ic95": [
-              52.95,
-              67.2292
+              52.3792,
+              66.65
             ],
-            "media": 59.8458,
-            "mediana": 60.6875,
+            "media": 59.1833,
+            "mediana": 59.1875,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 4.7577,
+            "desvio": 4.8951,
             "execucoes": 240,
             "ic95": [
-              10.5625,
-              13.8333
+              10.6083,
+              13.9917
             ],
-            "media": 12.1042,
+            "media": 12.2,
             "mediana": 11.75,
             "n": 30
           },
@@ -13960,13 +13960,13 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3838,
+            "desvio": 0.4016,
             "execucoes": 240,
             "ic95": [
-              0.2708,
-              0.5458
+              0.2875,
+              0.575
             ],
-            "media": 0.4042,
+            "media": 0.4292,
             "mediana": 0.5,
             "n": 30
           },
@@ -14004,24 +14004,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 24.7529,
+            "desvio": 24.2783,
             "execucoes": 240,
             "ic95": [
-              56.7667,
-              74.225
+              55.9167,
+              73.25
             ],
-            "media": 65.4958,
+            "media": 64.4667,
             "mediana": 61.0,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 5.7086,
+            "desvio": 5.7612,
             "execucoes": 240,
             "ic95": [
-              11.2875,
-              15.325
+              11.3542,
+              15.4083
             ],
-            "media": 13.2625,
+            "media": 13.3417,
             "mediana": 12.75,
             "n": 30
           },
@@ -14107,24 +14107,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 12.9912,
+            "desvio": 13.0378,
             "execucoes": 240,
             "ic95": [
-              20.6167,
-              29.4958
+              20.2083,
+              29.25
             ],
-            "media": 24.6667,
-            "mediana": 20.5,
+            "media": 24.2667,
+            "mediana": 19.25,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.6481,
+            "desvio": 2.6498,
             "execucoes": 240,
             "ic95": [
-              15.05,
-              16.9417
+              15.025,
+              16.925
             ],
-            "media": 16.0167,
+            "media": 16.0,
             "mediana": 17.0,
             "n": 30
           },
@@ -14208,24 +14208,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 13.1638,
+            "desvio": 13.2245,
             "execucoes": 240,
             "ic95": [
-              21.0375,
-              29.9583
+              20.6083,
+              29.7917
             ],
-            "media": 25.1375,
-            "mediana": 21.25,
+            "media": 24.7375,
+            "mediana": 19.75,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 2.4056,
+            "desvio": 2.4081,
             "execucoes": 240,
             "ic95": [
               15.2,
               16.9083
             ],
-            "media": 16.1,
+            "media": 16.0833,
             "mediana": 17.0,
             "n": 30
           },
@@ -14267,14 +14267,14 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3596,
+            "desvio": 0.3651,
             "execucoes": 240,
             "ic95": [
-              0.5,
-              0.7458
+              0.5125,
+              0.7667
             ],
-            "media": 0.625,
-            "mediana": 0.5625,
+            "media": 0.6417,
+            "mediana": 0.625,
             "n": 30
           },
           "hipoteses_arquivadas": {
@@ -14311,24 +14311,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 23.587,
+            "desvio": 23.2416,
             "execucoes": 240,
             "ic95": [
-              35.2708,
-              52.0958
+              35.1708,
+              51.6458
             ],
-            "media": 43.3,
+            "media": 43.0167,
             "mediana": 39.375,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 3.3561,
+            "desvio": 3.4781,
             "execucoes": 240,
             "ic95": [
-              14.2458,
-              16.6042
+              14.2917,
+              16.7417
             ],
-            "media": 15.4208,
+            "media": 15.4875,
             "mediana": 15.9375,
             "n": 30
           },
@@ -14368,14 +14368,14 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3583,
+            "desvio": 0.3597,
             "execucoes": 240,
             "ic95": [
-              0.5875,
-              0.825
+              0.6,
+              0.85
             ],
-            "media": 0.7125,
-            "mediana": 0.9375,
+            "media": 0.7292,
+            "mediana": 1.0,
             "n": 30
           },
           "hipoteses_arquivadas": {
@@ -14412,24 +14412,24 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 28.1029,
+            "desvio": 27.8701,
             "execucoes": 240,
             "ic95": [
-              37.975,
-              58.1792
+              37.9375,
+              57.8042
             ],
-            "media": 47.6583,
+            "media": 47.375,
             "mediana": 40.5,
             "n": 30
           },
           "mensagens_coordenacao": {
-            "desvio": 3.8678,
+            "desvio": 3.9387,
             "execucoes": 240,
             "ic95": [
-              14.575,
-              17.3458
+              14.6708,
+              17.4167
             ],
-            "media": 15.95,
+            "media": 16.0167,
             "mediana": 15.8125,
             "n": 30
           },
@@ -14518,24 +14518,24 @@
           "n": 6
         },
         "latencia_ticks": {
-          "desvio": 20.5142,
+          "desvio": 20.4281,
           "execucoes": 144,
           "ic95": [
-            41.5139,
-            70.7222
+            41.0556,
+            70.25
           ],
-          "media": 55.9028,
-          "mediana": 57.2083,
+          "media": 55.2917,
+          "mediana": 55.375,
           "n": 6
         },
         "mensagens_coordenacao": {
-          "desvio": 1.7147,
+          "desvio": 1.6773,
           "execucoes": 144,
           "ic95": [
             16.4514,
-            18.9722
+            18.9028
           ],
-          "media": 17.6944,
+          "media": 17.6667,
           "mediana": 17.7708,
           "n": 6
         }
@@ -14786,24 +14786,24 @@
     {
       "a": "sma_basico",
       "b": "wf_equivalente",
-      "cliff": -0.6667,
+      "cliff": -0.6333,
       "comparacao": "sma_basico x wf_equivalente, perda_media",
-      "diferenca_media": -0.375,
+      "diferenca_media": -0.3583,
       "estatistica": 0,
       "familia": "RQ2",
       "ic95_diferenca": [
-        -0.5,
-        -0.2542
+        -0.4875,
+        -0.2333
       ],
       "magnitude": "grande",
-      "media_a": 0.625,
+      "media_a": 0.6417,
       "media_b": 1.0,
       "metodo": "exato",
       "metrica": "execucao_correta",
       "n": 30,
-      "p": 2e-06,
-      "p_holm": 1.6e-05,
-      "pares_diferentes": 20,
+      "p": 4e-06,
+      "p_holm": 2.8e-05,
+      "pares_diferentes": 19,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
     },
@@ -14812,21 +14812,21 @@
       "b": "wf_equivalente",
       "cliff": -0.9333,
       "comparacao": "sma_basico x wf_equivalente, perda_alta",
-      "diferenca_media": -0.675,
+      "diferenca_media": -0.65,
       "estatistica": 0,
       "familia": "RQ2",
       "ic95_diferenca": [
-        -0.7875,
-        -0.5583
+        -0.7708,
+        -0.525
       ],
       "magnitude": "grande",
-      "media_a": 0.325,
+      "media_a": 0.35,
       "media_b": 1.0,
       "metodo": "normal",
       "metrica": "execucao_correta",
       "n": 30,
-      "p": 2e-06,
-      "p_holm": 1.6e-05,
+      "p": 3e-06,
+      "p_holm": 2.4e-05,
       "pares_diferentes": 28,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14930,47 +14930,47 @@
     {
       "a": "perda_baixa",
       "b": "perda_media",
-      "cliff": 0.5411,
+      "cliff": 0.5056,
       "comparacao": "sma_basico, perda_baixa x perda_media",
-      "diferenca_media": 0.3167,
+      "diferenca_media": 0.3,
       "estatistica": 0.0,
       "familia": "RQ2",
       "ic95_diferenca": [
-        0.1917,
-        0.4458
+        0.175,
+        0.4333
       ],
       "magnitude": "grande",
       "media_a": 0.9417,
-      "media_b": 0.625,
+      "media_b": 0.6417,
       "metodo": "exato",
       "metrica": "execucao_correta",
       "n": 30,
-      "p": 3.1e-05,
-      "p_holm": 0.000186,
-      "pares_diferentes": 16,
+      "p": 6.1e-05,
+      "p_holm": 0.000366,
+      "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
     },
     {
       "a": "perda_media",
       "b": "perda_alta",
-      "cliff": 0.46,
+      "cliff": 0.4456,
       "comparacao": "sma_basico, perda_media x perda_alta",
-      "diferenca_media": 0.3,
+      "diferenca_media": 0.2917,
       "estatistica": 0.0,
       "familia": "RQ2",
       "ic95_diferenca": [
-        0.1833,
-        0.4333
+        0.175,
+        0.4292
       ],
       "magnitude": "médio",
-      "media_a": 0.625,
-      "media_b": 0.325,
+      "media_a": 0.6417,
+      "media_b": 0.35,
       "metodo": "exato",
       "metrica": "execucao_correta",
       "n": 30,
       "p": 6.1e-05,
-      "p_holm": 0.000305,
+      "p_holm": 0.000366,
       "pares_diferentes": 15,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -14994,7 +14994,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 1.2e-05,
+      "p_holm": 1e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15018,7 +15018,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 1e-06,
-      "p_holm": 7e-06,
+      "p_holm": 6e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15042,7 +15042,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 1.2e-05,
+      "p_holm": 1e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15066,7 +15066,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 1.2e-05,
+      "p_holm": 1e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15074,17 +15074,17 @@
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": -0.0356,
+      "cliff": 0.0133,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": -0.1333,
-      "estatistica": 0,
+      "diferenca_media": 0.0333,
+      "estatistica": 0.0,
       "familia": "RQ3",
       "ic95_diferenca": [
-        -0.3333,
-        0.0
+        0.0,
+        0.0833
       ],
       "magnitude": "desprezível",
-      "media_a": 18.5333,
+      "media_a": 18.7,
       "media_b": 18.6667,
       "metodo": "exato",
       "metrica": "mensagens",
@@ -15098,41 +15098,41 @@
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": 0.0378,
+      "cliff": 0.0,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": 0.3667,
+      "diferenca_media": 0.0,
       "estatistica": 0.0,
       "familia": "RQ3",
       "ic95_diferenca": [
         0.0,
-        0.9167
+        0.0
       ],
       "magnitude": "desprezível",
-      "media_a": 16.25,
+      "media_a": 15.8833,
       "media_b": 15.8833,
-      "metodo": "exato",
+      "metodo": "sem diferenças",
       "metrica": "latencia_ticks",
       "n": 30,
-      "p": 0.5,
-      "p_holm": 1.0,
-      "pares_diferentes": 2,
+      "p": 1.0,
+      "p_holm": null,
+      "pares_diferentes": 0,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
     },
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": -0.0222,
+      "cliff": 0.0022,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": -1.0167,
-      "estatistica": 0,
+      "diferenca_media": 0.1333,
+      "estatistica": 0.0,
       "familia": "RQ3",
       "ic95_diferenca": [
-        -2.5,
-        0.0
+        0.0,
+        0.3333
       ],
       "magnitude": "desprezível",
-      "media_a": 139.85,
+      "media_a": 141.0,
       "media_b": 140.8667,
       "metodo": "exato",
       "metrica": "registros_trace",
@@ -15146,43 +15146,43 @@
     {
       "a": "perda",
       "b": "indisponibilidade",
-      "cliff": 0.3316,
+      "cliff": 0.6538,
       "comparacao": "sma_basico: perda de mensagens x indisponibilidade",
-      "diferenca_media": 14.4733,
-      "estatistica": 9791.5,
+      "diferenca_media": 17.5657,
+      "estatistica": 67.5,
       "familia": "RQ4",
-      "magnitude": "médio",
-      "media_a": 50.1926,
-      "media_b": 35.7193,
-      "mediana_a": 49.0,
+      "magnitude": "grande",
+      "media_a": 50.5657,
+      "media_b": 33,
+      "mediana_a": 52.083333333333336,
       "mediana_b": 33,
       "metodo": "normal",
       "metrica": "recuperacao_ticks",
-      "n": "514 x 57",
-      "p": 3.8e-05,
-      "p_holm": 7.6e-05,
+      "n": "30 x 13 seeds",
+      "p": 0.00078,
+      "p_holm": 0.00156,
       "significativo": true,
       "tipo": "Mann-Whitney"
     },
     {
       "a": "sma_local",
       "b": "sma_basico",
-      "cliff": 0.0642,
+      "cliff": 0.1689,
       "comparacao": "sma_local x sma_basico, falhas de comunicação",
-      "diferenca_media": 4.4806,
-      "estatistica": 261087.5,
+      "diferenca_media": 4.689,
+      "estatistica": 374.0,
       "familia": "RQ4",
-      "magnitude": "desprezível",
-      "media_a": 53.5274,
-      "media_b": 49.0469,
-      "mediana_a": 54,
-      "mediana_b": 49,
+      "magnitude": "pequeno",
+      "media_a": 53.7496,
+      "media_b": 49.0606,
+      "mediana_a": 57.75120192307692,
+      "mediana_b": 52.8375,
       "metodo": "normal",
       "metrica": "recuperacao_ticks",
-      "n": "747 x 747",
-      "p": 0.031439,
-      "p_holm": 0.031439,
-      "significativo": true,
+      "n": "30 x 30 seeds",
+      "p": 0.26418,
+      "p_holm": 0.26418,
+      "significativo": false,
       "tipo": "Mann-Whitney"
     },
     {
@@ -15836,7 +15836,7 @@
     {
       "a": "sma_local",
       "b": "sma_basico",
-      "cliff": 0.0667,
+      "cliff": 0.0622,
       "comparacao": "sma_local x sma_basico, perda_media",
       "diferenca_media": 0.5292,
       "estatistica": 13.5,
@@ -15846,8 +15846,8 @@
         1.2667
       ],
       "magnitude": "desprezível",
-      "media_a": 15.95,
-      "media_b": 15.4208,
+      "media_a": 16.0167,
+      "media_b": 15.4875,
       "metodo": "exato",
       "metrica": "mensagens_coordenacao",
       "n": 30,
@@ -15860,18 +15860,18 @@
     {
       "a": "sem_reenvio",
       "b": "completo",
-      "cliff": -0.39,
+      "cliff": -0.4056,
       "comparacao": "sem_reenvio x completo, perda_media",
-      "diferenca_media": -0.3,
+      "diferenca_media": -0.3167,
       "estatistica": 0,
       "familia": "Ablação",
       "ic95_diferenca": [
-        -0.4333,
-        -0.1667
+        -0.4667,
+        -0.1833
       ],
       "magnitude": "médio",
       "media_a": 0.3167,
-      "media_b": 0.6167,
+      "media_b": 0.6333,
       "metodo": "exato",
       "metrica": "execucao_correta",
       "n": 30,

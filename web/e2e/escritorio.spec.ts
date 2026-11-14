@@ -72,6 +72,26 @@ test("waiver exige justificativa e libera com ressalva", async ({ page, request 
   await expect(pedido(page, "SOL-001")).toContainText("publicado c/ ressalva", { timeout: 20_000 });
 });
 
+test("reincidência: a política nega o waiver e o diálogo não o oferece", async ({ page, request }) => {
+  await reiniciar(request, "reincidencia_waiver");
+  await abrir(page);
+  const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
+  await expect(sino).toBeEnabled({ timeout: 20_000 });
+  await sino.click();
+  let dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN · SOL-001/ });
+  await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria nesta competência");
+  await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
+  await expect(sino).toBeEnabled({ timeout: 20_000 });
+  await sino.click();
+  dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN · SOL-002/ });
+  await expect(dialogo).toContainText("reincidente");
+  await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria de novo");
+  await expect(dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" })).toBeDisabled();
+  await expect(dialogo).toContainText("Waiver não admitido pela política");
+  await dialogo.getByRole("button", { name: "Corrigir no ERP" }).click();
+  await expect(pedido(page, "SOL-002")).toContainText("publicado", { timeout: 20_000 });
+});
+
 test("desligar o AG-CIN gera perdas, timeout, replanejamento do AG-ORC e falha explícita", async ({ page, request }) => {
   await reiniciar(request, "desvio_irregular", true);
   await abrir(page);

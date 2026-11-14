@@ -312,3 +312,7 @@ items:
      esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}
   - {id: TEST-154, nome: test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita", entrega: DSM3, status: executado}
+  - {id: TEST-155, nome: test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua", entrega: DSM3, status: executado}
+  - {id: TEST-156, nome: "reincidência: a política nega o waiver e o diálogo não o oferece", verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: interface,
+     esperado: "no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica", entrega: DSM3, status: executado}

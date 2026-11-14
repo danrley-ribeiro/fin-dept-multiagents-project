@@ -1,0 +1,138 @@
+# Modelo de papéis (Gaia): role = <Resp, Perm, Obl, Prot>  (Cancian, 2026, §4.3).
+# Papéis humanos (exercido_por) ficam fora da fronteira do software, mas participam de protocolos.
+items:
+  - id: ROLE-SOL
+    titulo: Solicitante (humano)
+    exercido_por: [STK-01]
+    resp: [Formular solicitações à controladoria, Receber o resultado final]
+    perm: [Enviar request pela interface, Consultar dashboard de observabilidade]
+    obl: [Usar intenções do catálogo ou aceitar not-understood]
+    protocolos: [PROT-SOL]
+    permissoes: [PERM-SIM-VER, PERM-SOL-CRIAR, PERM-DAD-VER]
+    llm: nao_aplicavel
+    entrega: DSM1
+
+  - id: ROLE-APR
+    titulo: Aprovador (controller humano)
+    exercido_por: [STK-02]
+    resp: [Decidir sobre ações restritas, Conceder waiver a não conformidades]
+    perm: [Aprovar ou rejeitar ActionRequest, Ajustar configuração de modelos e cotas]
+    obl: [Registrar justificativa da decisão]
+    protocolos: [PROT-APR]
+    permissoes: [PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER]
+    llm: nao_aplicavel
+    entrega: DSM1
+
+  # Papéis humanos da plataforma (DSM3, ADR-009): não trocam mensagens com os agentes; agem pela
+  # interface, sob as permissões abaixo, e todo comando deles fica na auditoria com a pessoa.
+  - id: ROLE-OPE
+    titulo: Operador da plataforma (humano)
+    exercido_por: [STK-06]
+    plataforma: true
+    resp: [Acompanhar a execução dos agentes, Operar a simulação e as fontes de dados]
+    perm: [Pausar e retomar a execução, Ligar e desligar especialistas, Enviar planilhas validadas]
+    obl: [Agir só pela interface autenticada, Não decidir no Approval Gate sem o papel de aprovador]
+    permissoes: [PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER, PERM-AUD-VER]
+    llm: nao_aplicavel
+    entrega: DSM3
+
+  - id: ROLE-AUD
+    titulo: Auditor (humano)
+    exercido_por: [STK-04]
+    plataforma: true
+    resp: [Examinar decisões, aprovações e acessos, Verificar a integridade das trilhas]
+    perm: [Consultar e exportar o trace e a trilha de acesso, Ver a configuração de modelos]
+    obl: [Não alterar dados nem operar a simulação]
+    permissoes: [PERM-SIM-VER, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-MOD-VER, PERM-DAD-VER]
+    llm: nao_aplicavel
+    entrega: DSM3
+
+  - id: ROLE-ADM
+    titulo: Administrador de acesso (humano)
+    exercido_por: [STK-05]
+    plataforma: true
+    resp: [Manter contas, papéis e sessões, Zelar pela trilha de acesso]
+    perm: [Criar e bloquear contas, Atribuir papéis, Revogar sessões]
+    obl: [Não acumular o papel de aprovador, Manter ao menos um administrador ativo]
+    permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER,
+                 PERM-IAM-POLITICA, PERM-IAM-EMPRESAS, PERM-MOD-SEGREDOS, PERM-MEM-ADOTAR, PERM-DAD-VER, PERM-DAD-REDE]
+    llm: nao_aplicavel
+    entrega: DSM3
+
+  - id: ROLE-ORQ
+    titulo: Orquestrador
+    resp:
+      - Receber solicitações e mapear para intenção do catálogo
+      - Decompor em DAG de subtarefas e delegar aos papéis competentes
+      - Reservar o período e agregar a resposta final
+    perm:
+      - Delegar (request) a qualquer papel especialista
+      - Reservar e liberar período na Reserva de Período (SVC-LCK)
+      - Propor publicação ao Approval Gate
+    obl:
+      - Responder toda solicitação com resultado ou falha explícita
+      - Respeitar reply_by e veto de conformidade
+      - Liberar a reserva ao término ou falha
+      - Reenviar uma vez a subtarefa expirada ou com falha; na segunda falha, abortar e informar qual subtarefa falhou
+    protocolos: [PROT-SOL, PROT-DEL, PROT-CMP, PROT-LCK, PROT-APR]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-CUS
+    titulo: Analista de Custos
+    resp:
+      - Apurar custos fixos e variáveis e aplicar rateio por critério configurado
+      - Calcular margem de contribuição e rentabilidade por produto, serviço e UN
+    perm: [Ler ERP e base histórica via MCP, Responder query-ref de outros papéis]
+    obl: [Anexar proveniência a cada valor, Informar falha se dado de origem estiver ausente]
+    protocolos: [PROT-DEL, PROT-QRY]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-ORC
+    titulo: Analista de Orçamento
+    resp:
+      - Comparar orçado x realizado por conta e centro de custo
+      - Sinalizar desvios acima do limiar e projetar forecast
+      - Reconciliar planilha e ERP e explicar desvios antes de sinalizá-los
+    perm: [Ler planilhas de orçamento e ERP via MCP, Propor alteração de orçamento (restrita), Responder query-ref,
+           Iniciar query-ref para ROLE-CIN]
+    obl: [Explicitar limiar e método de forecast usados, Não alterar orçamento sem aprovação,
+          Registrar a fonte adotada e a atribuição de cada desvio]
+    protocolos: [PROT-DEL, PROT-QRY]
+    llm: flag
+    entrega: DSM1
+
+  - id: ROLE-RES
+    titulo: Analista de Resultados
+    resp:
+      - Montar DRE gerencial, EBITDA, fluxo de caixa e KPIs
+      - Obter custos e orçamento dos papéis especialistas
+    perm: [Iniciar query-ref para ROLE-CUS e ROLE-ORC, Ler ERP e APIs de mercado via MCP]
+    obl: [Não recalcular rateio próprio — usar o de ROLE-CUS, Sinalizar inconsistência de fechamento]
+    protocolos: [PROT-DEL, PROT-QRY]
+    llm: flag
+    entrega: DSM1
+
+  - id: ROLE-CIN
+    titulo: Auditor de Controles Internos
+    resp:
+      - Verificar alçada, segregação de funções, duplicidade, conciliação e competência
+      - Emitir parecer conforme / não conforme com regra e severidade
+      - Sugerir correções e atestar lançamentos irregulares a outros papéis
+    perm: [Ler ERP e base normativa via MCP, Vetar publicação por não conformidade crítica, Responder query-ref]
+    obl: [Citar regra e evidência de cada apontamento, Reavaliar após waiver ou correção]
+    protocolos: [PROT-DEL, PROT-CMP, PROT-QRY]
+    llm: nao_permitido
+    entrega: DSM1
+
+  - id: ROLE-REL
+    titulo: Redator de Relatórios
+    resp:
+      - Sintetizar resultados em relatório executivo por template
+      - Acrescentar narrativa e insights quando a flag LLM estiver ativa
+    perm: [Consultar memória aprovada, Propor publicação do relatório (restrita)]
+    obl: [Preservar números do núcleo determinístico, Usar template se o texto LLM divergir]
+    protocolos: [PROT-DEL]
+    llm: flag
+    entrega: DSM1

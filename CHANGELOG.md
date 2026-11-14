@@ -33,7 +33,7 @@ Registro por entrega.
 - Ficha do porte em `models/portes.yaml` (regime, obrigações, estrutura, calendário, papéis de acesso); as regras lidas
   pelos agentes não mudaram (normas-v2).
 - Rastreabilidade: REQ-S05, REQ-F08, NORM-11 a NORM-13, SVC-IAM, componentes novos, MET-17 e MET-18, TEST-19 e
-  TEST-91 a TEST-154 executados (313 objetos, 21 requisitos, 154 testes modelados, 0 erros).
+  TEST-91 a TEST-156 executados (315 objetos, 21 requisitos, 156 testes modelados, 0 erros).
 - Correção simulada da v0.5.0 (4ª rodada): registro do barramento fechado depois da montagem; validação do texto
   de LLM endurecida e texto de modelo rotulado como não verificado; chave de API só para destinos confiáveis
   (`FIN_MAS_LLM_URLS_CONFIAVEIS`); prazo só pelo iniciador da conversa; falha explícita para resposta malformada de
@@ -41,8 +41,8 @@ Registro por entrega.
   invariantes INV-01, 02 e 03 corrigidos (TEST-141 a 153).
 - Mensagem perdida depois da abertura da conversa (resposta final de especialista, parecer, correção): o barramento
   avisa o iniciador, que reenvia uma vez ou falha de forma explícita (achado do experimento da DSM4; TEST-154).
-- Testes: 436 no pytest (eram 249 na tag `dsm3-base`), todos e2e, de integração ou de interface (TUI pelo Pilot do
-  Textual); nenhum unitário novo. Playwright: 29 roteiros (9 de acesso e 6 das áreas de trabalho, novos). `make
+- Testes: 437 no pytest (eram 249 na tag `dsm3-base`), todos e2e, de integração ou de interface (TUI pelo Pilot do
+  Textual); nenhum unitário novo. Playwright: 30 roteiros (9 de acesso e 6 das áreas de trabalho, novos). `make
   cenarios`, `make diagramas`, `make cobertura`, `make verificar-tudo`; `requirements-lock.txt`.
 - Diagramas novos em `entregas/dsm3/`: login e sessão, decisão atestada, ciclo de hipóteses, PROT-DEL com
   negociação. Âncora nova do cenário `ataque_decisao_forjada`.
@@ -72,6 +72,11 @@ Registro por entrega.
 - Issue #2: arquivo do SVC-MEM em outra versão do formato (ex.: v3, pseudônimo sem chave) deixa a memória
   comprometida ao carregar (falha fechada), em vez de carregar chaves de reincidência que não casam e
   desativar a POL-06. 2 casos novos no teste de falha fechada (249 no total).
+- Teste exploratório: `iniciar.ps1` funciona sem Python 3.13 no PowerShell 5.1; dependências da documentação
+  (Python 3.12+) só no modo `docs`; waiver negado pela política não aparece nem vira bloqueio no dashboard;
+  aviso de erro só diz "pausada" quando pausou; MET-01 e `docs/dsm2/revisao.md` atribuídas ao feedback da
+  DSM1. 250 testes Python e 15 de uso real. Limitação registrada: POL-06 conferida só na emissão do
+  ticket (dois vetos do mesmo padrão pendentes juntos podem receber waiver), correção na DSM4.
 - Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
   COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
 - Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita

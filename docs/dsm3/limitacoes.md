@@ -39,6 +39,15 @@ entrega em um tick e o código de saída de `verificar --ancora` sobre trace sem
   entradas sem detecção (o arquivo selado do cadastro de acesso tem trava; a memória ainda não).
 - **Pseudônimos não são anonimização.** Valores e contas vão ao provedor externo; por isso o
   envio exige consentimento.
+- **Reincidência conferida só na emissão do ticket (POL-06).** A política decide se o waiver é
+  oferecido quando o veto é emitido, com o que a memória tem naquele momento, e não confere de
+  novo quando a decisão chega. Se dois vetos do mesmo padrão ficam pendentes ao mesmo tempo (ex.:
+  agosto e setembro no dashboard, com o aprovador ainda sem decidir agosto), o de setembro é
+  emitido antes de o waiver de agosto existir; o aprovador pode então conceder waiver nos dois, e
+  a POL-06 não age. Em sequência (agosto decidido antes do veto de setembro), a POL-06 nega o
+  novo waiver, como no cenário `reincidencia_waiver`. A correção é conferir a reincidência também
+  no `approve` do waiver (o SVC-POL consultando o AG-CIN ou a memória), o que muda o PROT-APR e
+  fica para a DSM4, junto com as falhas combinadas.
 
 ## Cognição e LLM
 
@@ -115,7 +124,8 @@ A 4ª rodada da correção simulada ({doc}`revisao`) deixou estes pontos sem cor
    mesmas regras de conformidade, correção e aprovação em sequência, para isolar o efeito do
    paradigma do efeito das funções.
 2. **Falhas combinadas, portes e parâmetros:** perda de mensagens + agente fora do ar + ataque +
-   aprovação expirada no mesmo expediente; micro a grande; limiares, prazos, TTL da reserva,
+   aprovação expirada + vetos do mesmo padrão pendentes ao mesmo tempo (reincidência conferida também na
+   decisão) no mesmo expediente; micro a grande; limiares, prazos, TTL da reserva,
    máximo de correções e teto de extensão variando, para que as seeds tenham variância.
 3. **Métricas além da qualidade:** latência, custo de coordenação, robustez e recuperação; MET-17
    e MET-18 por condição.

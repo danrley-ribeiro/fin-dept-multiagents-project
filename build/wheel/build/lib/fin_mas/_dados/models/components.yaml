@@ -1,0 +1,68 @@
+# Componentes de implementação (Agente/Serviço → Componente).
+# DSM2: dez componentes implementados em src/fin_mas (Python, ADR-003 e ADR-004).
+# COMP-MOD, COMP-MEM e COMP-POL foram implementados na DSM3.
+items:
+  - {id: COMP-ORQ, titulo: Componente do Orquestrador,realiza: [AG-ORQ],  caminho: src/fin_mas/agents/orq.py, entrega: DSM2, status: implementado}
+  - {id: COMP-CUS, titulo: Componente do Agente de Custos, realiza: [AG-CUS],  caminho: src/fin_mas/agents/cus.py, entrega: DSM2, status: implementado}
+  - {id: COMP-ORC, titulo: Componente do Agente de Orçamento,realiza: [AG-ORC],  caminho: src/fin_mas/agents/orc.py, entrega: DSM2, status: implementado}
+  - {id: COMP-RES, titulo: Componente do Agente de Resultados, realiza: [AG-RES], caminho: src/fin_mas/agents/res.py, entrega: DSM2, status: implementado}
+  - {id: COMP-CIN, titulo: Componente do Agente de Controles Internos,realiza: [AG-CIN],  caminho: src/fin_mas/agents/cin.py, entrega: DSM2, status: implementado}
+  - {id: COMP-REL, titulo: Componente do Agente de Relatórios, realiza: [AG-REL],  caminho: src/fin_mas/agents/rel.py, entrega: DSM2, status: implementado}
+  - {id: COMP-A2A, titulo: Barramento/adaptador A2A,realiza: [SVC-A2A], caminho: src/fin_mas/core/bus.py, entrega: DSM2, status: implementado}
+  - {id: COMP-MCP, titulo: MCP servers mock (ERP, planilhas, BD, mercado, normas), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/gateway.py, entrega: DSM2, status: implementado}
+  - {id: COMP-AUD, titulo: Serviço de Auditoria (tracer JSONL), realiza: [SVC-AUD], caminho: src/fin_mas/services/audit.py, entrega: DSM2, status: implementado}
+  - {id: COMP-MOD, titulo: Registro de Modelos e gateway LLM (opcional, offline nos testes), realiza: [SVC-MOD], caminho: src/fin_mas/services/modelos.py, entrega: DSM3, status: implementado}
+  - {id: COMP-MEM, titulo: Serviço de Memória (aprovada, persistente, com retenção e pseudônimos), realiza: [SVC-MEM], caminho: src/fin_mas/services/memoria.py, entrega: DSM3, status: implementado}
+  - {id: COMP-POL, titulo: Política de Segurança e Approval Gate, realiza: [SVC-POL], caminho: src/fin_mas/services/politica.py, entrega: DSM3, status: implementado}
+  - {id: COMP-RED, titulo: Redaction fail-closed e trace com hash encadeado, realiza: [SVC-AUD], caminho: src/fin_mas/services/redacao.py, entrega: DSM3, status: implementado}
+  - {id: COMP-SCH, titulo: Validação de envelope e esquema das mensagens A2A, realiza: [SVC-A2A], caminho: src/fin_mas/core/schema.py, entrega: DSM3, status: implementado}
+  - {id: COMP-BDI, titulo: "Núcleo BDI (crenças, desejos, planos, intenções, estratégias de compromisso)", realiza: [AG-ORC, AG-CIN, AG-RES, AG-CUS, AG-REL], caminho: src/fin_mas/core/bdi.py, entrega: DSM2, status: implementado}
+  - {id: COMP-OBS, titulo: Execução ao vivo, servidor e dashboard do escritório, realiza: [SVC-AUD], caminho: web/src/App.tsx, entrega: DSM2, status: implementado}
+  - {id: COMP-XLS, titulo: Modelos Excel e servidor MCP de Excel (empresa sem ERP), realiza: [SVC-MCP], caminho: src/fin_mas/mcp/excel_server.py, entrega: DSM3, status: implementado}
+  - {id: COMP-LCK, titulo: Reserva de Período, realiza: [SVC-LCK], caminho: src/fin_mas/services/locks.py, entrega: DSM2, status: implementado}
+  # ---- DSM3 (v0.5.0): identidade e acesso, cognição assistida, provedores de LLM, auditoria ----
+  - {id: COMP-IAM, titulo: Serviço de identidade e acesso, realiza: [SVC-IAM], caminho: src/fin_mas/services/iam.py, entrega: DSM3, status: implementado}
+  - {id: COMP-SEL, titulo: Arquivo selado com trava entre processos, realiza: [SVC-IAM], caminho: src/fin_mas/services/selado.py, entrega: DSM3, status: implementado}
+  - {id: COMP-TRI, titulo: Trilha de acesso encadeada, realiza: [SVC-IAM], caminho: src/fin_mas/services/trilha.py, entrega: DSM3, status: implementado}
+  - {id: COMP-CLA, titulo: Linha de comando de acesso e implantação, realiza: [SVC-IAM], caminho: src/fin_mas/cli_acesso.py, entrega: DSM3, status: implementado}
+  - {id: COMP-PRV, titulo: Provedores de LLM (mocks, Claude, GPT, Gemini, compatível OpenAI), realiza: [SVC-MOD], caminho: src/fin_mas/services/provedores.py, entrega: DSM3, status: implementado}
+  - {id: COMP-INF, titulo: Hipóteses (proposta, validação e estados), realiza: [AG-ORC, AG-RES], caminho: src/fin_mas/core/inferencia.py, entrega: DSM3, status: implementado}
+  - {id: COMP-COG, titulo: Motor local de hipóteses (regras offline), realiza: [AG-ORC, AG-RES], caminho: src/fin_mas/cognicao/regras.py, entrega: DSM3, status: implementado}
+  - {id: COMP-INV, titulo: Verificador de invariantes do trace, realiza: [SVC-AUD], caminho: src/fin_mas/invariantes.py, entrega: DSM3, status: implementado}
+  - {id: COMP-EXP, titulo: Explicação de decisões e diagrama de sequência, realiza: [SVC-AUD], caminho: src/fin_mas/services/explicacao.py, entrega: DSM3, status: implementado}
+  - {id: COMP-TUI, titulo: Console de administração de acesso e auditoria (TUI), realiza: [SVC-IAM, SVC-AUD], caminho: src/fin_mas/tui/app.py, entrega: DSM3, status: implementado}
+  - {id: COMP-IMP, titulo: Instalação por um comando e diagnóstico, realiza: [SVC-IAM], caminho: src/fin_mas/implantacao.py, entrega: DSM3, status: implementado}
+  # ---- DSM4: especialistas cognitivos, aprendizado, perfil cognitivo e conhecimento normativo (ADR-010) ----
+  - {id: COMP-RESB, titulo: Agente de Resultados cognitivo (variante BDI), realiza: [AG-RES], caminho: src/fin_mas/agents/res_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CUSB, titulo: Agente de Custos cognitivo (variante BDI), realiza: [AG-CUS], caminho: src/fin_mas/agents/cus_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-RELB, titulo: Agente de Relatórios cognitivo (variante BDI), realiza: [AG-REL], caminho: src/fin_mas/agents/rel_bdi.py, entrega: DSM4, status: implementado}
+  - {id: COMP-APD, titulo: Registro selado de aprendizado das regras locais, realiza: [SVC-APD], caminho: src/fin_mas/services/aprendizado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PCG, titulo: "Perfil cognitivo por porte (pesos, público, compromisso, limiares)", realiza: [AG-RES, AG-CUS, AG-REL], caminho: src/fin_mas/cognicao/perfis.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CON, titulo: Base de conhecimento normativo com busca lexical (BM25), realiza: [SVC-MCP], caminho: src/fin_mas/conhecimento/base.py, entrega: DSM4, status: implementado}
+  - {id: COMP-MCG, titulo: Métricas da cognição dos especialistas (MET-30 e MET-31), realiza: [SVC-AUD], caminho: src/fin_mas/metricas_cognicao.py, entrega: DSM4, status: implementado}
+  # ---- DSM4 (experimento redesenhado) ----
+  - {id: COMP-CAO, titulo: Modelo de falhas aleatórias por seed, realiza: [SVC-A2A], caminho: src/fin_mas/caos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PAR, titulo: Parâmetros de coordenação injetáveis, realiza: [AG-ORQ], caminho: src/fin_mas/parametros.py, entrega: DSM4, status: implementado}
+  - {id: COMP-WEQ, titulo: Workflow centralizado funcionalmente equivalente (linha de base), realiza: [SVC-POL], caminho: src/fin_mas/baseline_eq.py, entrega: DSM4, status: implementado}
+  - {id: COMP-EST, titulo: Estatística do experimento com a biblioteca padrão, realiza: [SVC-AUD], caminho: src/fin_mas/estatistica.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ESU, titulo: Experimento em blocos (desenho, medição e análise), realiza: [SVC-AUD], caminho: src/fin_mas/estudo.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ESR, titulo: Tabelas e figuras do experimento, realiza: [SVC-AUD], caminho: src/fin_mas/estudo_relato.py, entrega: DSM4, status: implementado}
+  # ---- DSM4: portes novos, segmentos e implantação ----
+  - {id: COMP-SEG, titulo: Eixo segmento (plano de contas, custos e rateio por direcionador), realiza: [AG-CUS], caminho: src/fin_mas/env/segmentos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-BKP, titulo: Backup, restauração e migração da pasta de dados, realiza: [SVC-IAM], caminho: src/fin_mas/manutencao.py, entrega: DSM4, status: implementado}
+  - {id: COMP-PKG, titulo: Pacote instalável com modelos YAML e dashboard embutidos, realiza: [SVC-MCP], caminho: src/fin_mas/recursos.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CTN, titulo: Contêiner (Dockerfile e compose) publicado só em loopback, realiza: [SVC-IAM], caminho: Dockerfile, entrega: DSM4, status: implementado}
+  - {id: COMP-AAV, titulo: Acesso avançado (segundo fator, delegação, empresas, política do cadastro), realiza: [SVC-IAM], caminho: src/fin_mas/services/acesso_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-TOTP, titulo: Segundo fator TOTP (RFC 6238) e códigos de recuperação, realiza: [SVC-IAM], caminho: src/fin_mas/services/totp.py, entrega: DSM4, status: implementado}
+  - {id: COMP-COF, titulo: Cofre de segredos selado, realiza: [SVC-IAM], caminho: src/fin_mas/services/cofre.py, entrega: DSM4, status: implementado}
+  - {id: COMP-AAT, titulo: Ataques ao acesso avançado (cenário), realiza: [SVC-IAM], caminho: src/fin_mas/env/ataques_acesso_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-CLV, titulo: Linha de comando do acesso avançado e da memória, realiza: [SVC-IAM, SVC-MEM], caminho: src/fin_mas/cli_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-SAV, titulo: Rotas do acesso avançado no servidor, realiza: [SVC-IAM], caminho: src/fin_mas/server_avancado.py, entrega: DSM4, status: implementado}
+  - {id: COMP-TAV, titulo: Abas do acesso avançado no console, realiza: [SVC-IAM], caminho: src/fin_mas/tui/avancado.py, entrega: DSM4, status: implementado}
+  # ---- DSM4 (ADR-011): conectores e entendimento de fontes ----
+  - {id: COMP-CNX, titulo: Conectores de fonte (interface, ERP simulado, planilhas, REST genérico), realiza: [SVC-MCP], caminho: src/fin_mas/conectores/base.py, entrega: DSM4, status: implementado}
+  - {id: COMP-MCC, titulo: Cliente MCP por stdio e conector MCP, realiza: [SVC-MCP], caminho: src/fin_mas/conectores/mcp_cliente.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ERD, titulo: ERP de demonstração em loopback (API JSON com token e escrita), realiza: [SVC-MCP], caminho: src/fin_mas/conectores/erp_demo.py, entrega: DSM4, status: implementado}
+  - {id: COMP-ENT, titulo: Entendimento determinístico de fontes (OpenAPI, amostras, MCP, planilha), realiza: [SVC-MCP], caminho: src/fin_mas/fontes/entendimento.py, entrega: DSM4, status: implementado}
+  - {id: COMP-FNT, titulo: Cadastro de fontes e rotas da aba Fontes de dados, realiza: [SVC-IAM], caminho: src/fin_mas/fontes/registro.py, entrega: DSM4, status: implementado}
+  - {id: COMP-FNW, titulo: Aba Fontes de dados no dashboard, realiza: [SVC-AUD], caminho: web/src/components/Fontes.tsx, entrega: DSM4, status: implementado}

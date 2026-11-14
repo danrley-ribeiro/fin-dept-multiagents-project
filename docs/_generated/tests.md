@@ -1845,3 +1845,27 @@
 **Resultado esperado:** resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard
+:id: TEST-155
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard()` — tipo *seguranca*.  
+**Resultado esperado:** no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} reincidência: a política nega o waiver e o diálogo não o oferece
+:id: TEST-156
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`reincidência: a política nega o waiver e o diálogo não o oferece()` — tipo *interface*.  
+**Resultado esperado:** no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica  
+**Execução:** DSM3 (status atual: executado).
+````

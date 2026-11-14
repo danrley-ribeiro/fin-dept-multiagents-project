@@ -58,6 +58,19 @@ def test_option_not_offered_reports_nothing_sent_and_keeps_pending():
     assert s.bus.conversations[proposta.conversation_id].state == "PENDENTE"
 
 
+def test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard():
+    """Teste manual no dashboard: com o waiver negado (ex.: reincidência, POL-06), escolher waiver
+    não pode bloquear a publicação em silêncio; nada é enviado e a pendência continua."""
+    s, sid, proposta = pendente()
+    proposta.content["opcoes"] = [o for o in proposta.content["opcoes"] if o != "waiver"]
+    assert s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA) is False
+    assert sid in s.aprovador.pendentes
+    assert s.bus.conversations[proposta.conversation_id].state == "PENDENTE"
+    assert s.aprovador.decidir(sid, "corrigir") is True
+    s.bus.run()
+    assert s.usuario.resposta(sid).content["status"] == "publicado"
+
+
 # ---- 2. waiver sem justificativa humana ------------------------------------------------
 @pytest.mark.parametrize("justificativa", [None, "", "   "])
 def test_waiver_without_human_justification_is_refused(justificativa):

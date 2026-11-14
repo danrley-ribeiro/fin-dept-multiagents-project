@@ -71,19 +71,29 @@ def verificar_python():
                  "Use ./iniciar.ps1 (Windows) ou ./iniciar.sh, que instalam/indicam o Python certo.")
 
 
-def preparar_python():
+def preparar_python(docs=False):
     if not PY_VENV.exists():
         passo("Criando o ambiente virtual .venv")
         rodar([sys.executable, "-m", "venv", VENV])
-    marca, atual = VENV / ".sma-deps", _hash("pyproject.toml", "requirements-dev.txt", "docs/requirements.txt")
+    marca, atual = VENV / ".sma-deps", _hash("pyproject.toml", "requirements-dev.txt")
     if not marca.exists() or marca.read_text() != atual:
-        passo("Instalando as dependências Python (projeto, testes e documentação)")
+        passo("Instalando as dependências Python (projeto e testes)")
         rodar([PY_VENV, "-m", "pip", "install", "-q", "--upgrade", "pip"])
-        rodar([PY_VENV, "-m", "pip", "install", "-q", "-e", ".", "-r", "requirements-dev.txt",
-               "-r", "docs/requirements.txt"])
+        rodar([PY_VENV, "-m", "pip", "install", "-q", "-e", ".", "-r", "requirements-dev.txt"])
         marca.write_text(atual)
     else:
         passo("Dependências Python já instaladas")
+    if docs:  # Sphinx 9 exige Python 3.12+; os demais modos funcionam com 3.11
+        versao = subprocess.run([PY_VENV, "-c", "import sys; print(sys.version_info >= (3, 12))"],
+                                capture_output=True, text=True).stdout.strip()
+        if versao != "True":
+            sys.exit("O modo docs exige Python 3.12+ no .venv (Sphinx 9). Recrie o .venv com Python 3.12 "
+                     "ou mais novo; os demais modos funcionam com 3.11.")
+        marca, atual = VENV / ".sma-deps-docs", _hash("docs/requirements.txt")
+        if not marca.exists() or marca.read_text() != atual:
+            passo("Instalando as dependências da documentação")
+            rodar([PY_VENV, "-m", "pip", "install", "-q", "-r", "docs/requirements.txt"])
+            marca.write_text(atual)
 
 
 def localizar_bun() -> str:
@@ -126,9 +136,9 @@ def preparar_traces():
         rodar([PY_VENV, "-m", "fin_mas", "export", "--out", "web/public/traces"])
 
 
-def preparar(bun_necessario=True):
+def preparar(bun_necessario=True, docs=False):
     verificar_python()
-    preparar_python()
+    preparar_python(docs)
     preparar_traces()
     bun = localizar_bun() if bun_necessario else None
     if bun:
@@ -221,7 +231,7 @@ def main(argv=None) -> int:
     parser.add_argument("--sem-navegador", action="store_true", help="não abre o navegador")
     args = parser.parse_args(argv)
     args.porta = args.porta or (4173 if args.modo == "replay" else 8765)
-    bun = preparar(bun_necessario=args.modo not in ("docs", "cli"))
+    bun = preparar(bun_necessario=args.modo not in ("docs", "cli"), docs=args.modo == "docs")
     if args.modo == "instalar":
         print("\n   Ambiente pronto. Rode de novo com um modo: ao-vivo, replay, dev, testes, docs ou cli.")
         return 0

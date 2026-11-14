@@ -42,11 +42,11 @@ A versão 0.5.0 (12/11/2026) acrescenta:
 | Protocolo de interação documentado | seis FSMs com transições válidas e inválidas, emissores e eventos locais; estado `NEGOCIANDO` no PROT-DEL; diagramas em `entregas/dsm3/modelos-editaveis/` |
 | Coordenação, negociação, cooperação ou planejamento | DAG do Orquestrador, consulta ORC↔CIN, ciclo veto→aprovação→correção→reavaliação, exclusão mútua de período, **negociação de prazo** (`negociacao_prazo`, `negociacao_recusada`), **ação epistêmica** do AG-ORC ao AG-CIN para verificar hipótese |
 | Tratamento de conflito, falha ou alternativa | reenvio e falha explícita, replanejamento BDI, prazo do ticket, decisão negada pela política, reincidência, hipótese arquivada sem evidência, extensão de prazo recusada, fallback e disjuntor do LLM |
-| Testes integrados ou cenários automatizados | 436 testes pytest (unit 95, e2e 259, integração 62, TUI 20), 29 roteiros Playwright, 12 vitest; 37 cenários nomeados, todos conferidos por `cenarios --verificar` |
+| Testes integrados ou cenários automatizados | 437 testes pytest (unit 95, e2e 260, integração 62, TUI 20), 30 roteiros Playwright, 12 vitest; 37 cenários nomeados, todos conferidos por `cenarios --verificar` |
 | Evidências de comportamento coletivo | traces JSONL com crenças, hipóteses, intenções, decisões, rejeições, tickets e autor de cada decisão; comparação em 10 seeds; MET-15 a MET-18 |
 
-Rastreabilidade (`python tools/trace.py --check`): 313 objetos, 21 requisitos com cadeia
-completa, 154 testes modelados (154 executados), 18 métricas, 0 erros.
+Rastreabilidade (`python tools/trace.py --check`): 315 objetos, 21 requisitos com cadeia
+completa, 156 testes modelados (156 executados), 18 métricas, 0 erros.
 
 ## Como reproduzir
 
@@ -60,7 +60,7 @@ python -m fin_mas run --scenario decisao_por_pessoa       # POL-03 contra a pess
 python -m fin_mas run --scenario reincidencia_waiver      # memória entre meses + POL-06
 python -m fin_mas run --scenario veto_correcao --trace t.jsonl && python -m fin_mas verificar t.jsonl
 python -m fin_mas serve --demo                            # dashboard: http://127.0.0.1:8765, senha Demonstracao-SMA-2026
-python -m pytest                                          # 436 testes
+python -m pytest                                          # 437 testes
 ```
 
 ```{toctree}

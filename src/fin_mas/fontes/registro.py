@@ -10,13 +10,19 @@ e nomes de credencial próprios (`conector:<id>@<empresa>`). Regras:
 - **rede**: só loopback por padrão; host externo só depois que uma pessoa com PERM-DAD-REDE (o
   administrador) o libera; liberar e revogar ficam na trilha de acesso;
 - **mapeamento**: o entendimento propõe; só vale depois que uma pessoa com PERM-DAD-CONECTAR o
-  confirma (com nome e hora), e a confirmação passa pela validação determinística;
+  confirma (com nome e hora), e a confirmação passa pela validação determinística. A confirmação
+  guarda a **impressão digital** da fonte (colunas de cada recurso mapeado, classe e ordem de grandeza
+  da amostra de cada coluna); a cada ativação e a cada reinício a fonte é relida e, se a impressão
+  divergir (coluna renomeada, sumida ou nova, tipo trocado, unidade trocada como reais -> centavos),
+  a confirmação deixa de valer, a fonte volta a "a confirmar" e a ativação falha com o motivo, em vez
+  de entregar dado errado;
 - **caminhos**: pelo dashboard só se usam arquivos dentro da pasta de fontes; o MCP cadastrável pelo
   dashboard é só o servidor de Excel embutido (comando montado aqui, nunca vindo do navegador);
 - toda ação vai para a trilha de acesso com a pessoa, sem valores de credencial.
 """
 import hashlib
 import json
+import math
 import re
 import time
 from pathlib import Path
@@ -52,6 +58,61 @@ class RecusaFonte(ValueError):
     def __init__(self, motivo: str, status: int = 400, erros: list | None = None):
         super().__init__(motivo)
         self.status, self.erros = status, erros or []
+
+
+class FonteMudou(RecusaFonte):
+    """A fonte não tem mais a impressão digital da confirmação: o mapeamento confirmado deixou de valer (409)."""
+
+
+def _perfil_coluna(valores) -> dict | None:
+    """Classe e ordem de grandeza da amostra de uma coluna (None: coluna sem valor na amostra)."""
+    if not valores:
+        return None
+    numeros = [v for v in valores if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)]
+    if len(numeros) == len(valores):
+        absolutos = sorted(abs(v) for v in numeros if v)
+        return {"classe": "numero", "escala": math.floor(math.log10(absolutos[len(absolutos) // 2])) if absolutos else None}
+    textos = [v for v in valores if isinstance(v, str)]
+    return {"classe": "texto" if len(textos) == len(valores) else "misto", "escala": None}
+
+
+def perfil_da_estrutura(estrutura: dict) -> dict:
+    """{recurso: {coluna: {classe, escala}}} das colunas com valor na amostra."""
+    perfil = {}
+    for r in estrutura.get("recursos", []):
+        colunas = {}
+        for c in r.get("campos", []):
+            p = _perfil_coluna(c.get("_valores") or [])
+            if p is not None:
+                colunas[c["nome"]] = p
+        perfil[r["nome"]] = colunas
+    return perfil
+
+
+def _recursos_do_mapeamento(mapeamento: dict) -> set:
+    return {spec.get("recurso") for spec in (mapeamento.get("abas") or {}).values() if spec.get("recurso")} | \
+        {e.get("recurso") for e in (mapeamento.get("empresa") or {}).values() if e.get("recurso")}
+
+
+def divergencias(antes: dict, agora: dict) -> list[str]:
+    """O que mudou na fonte desde a impressão `antes` (vazio: a fonte é a mesma que a pessoa confirmou)."""
+    saida = []
+    for recurso, colunas in sorted(antes.items()):
+        novas = agora.get(recurso)
+        if novas is None:
+            saida.append(f"{recurso}: recurso não encontrado na fonte")
+            continue
+        sumiram, apareceram = sorted(set(colunas) - set(novas)), sorted(set(novas) - set(colunas))
+        if sumiram or apareceram:
+            saida.append(f"{recurso}: colunas mudaram (sumiram {sumiram}, apareceram {apareceram})")
+        for col in sorted(set(colunas) & set(novas)):
+            a, b = colunas[col], novas[col]
+            if a["classe"] != b["classe"]:
+                saida.append(f"{recurso}.{col}: tipo mudou ({a['classe']} -> {b['classe']})")
+            elif a["escala"] is not None and b["escala"] is not None and abs(a["escala"] - b["escala"]) >= 2:
+                saida.append(f"{recurso}.{col}: escala mudou (ordem de grandeza 10^{a['escala']} -> 10^{b['escala']}; "
+                             "unidade trocada?)")
+    return saida
 
 
 def _digest(dados) -> str:
@@ -131,6 +192,10 @@ class RegistroFontes:
             conf = m["confirmado"]
             saida["mapeamento"] = {"situacao": "confirmado", "por": conf["por"], "em": conf["em"],
                                    "digest": conf["digest"], "competencia": conf.get("competencia")}
+        elif m.get("invalidado"):
+            inv = m["invalidado"]
+            saida["mapeamento"] = {"situacao": "a confirmar: a fonte mudou desde a confirmação",
+                                   "em": inv["em"], "motivos": inv["motivos"], "digest_anterior": inv["digest"]}
         elif m.get("proposta"):
             saida["mapeamento"] = {"situacao": "proposto, aguardando confirmação"}
         else:
@@ -303,8 +368,10 @@ class RegistroFontes:
                         cfg[chave] = conector.config[chave]
                 if conector.tipo == "mcp":
                     d["conectores"][cid]["recursos_mcp"] = conector.config.get("recursos")
-            d["mapeamentos"].setdefault(cid, {})["proposta"] = {"recursos": recursos, "competencia": detectada,
-                                                                  "em": self.relogio(), "por": ator}
+            d["mapeamentos"].setdefault(cid, {})["proposta"] = {
+                "recursos": recursos, "competencia": detectada, "em": self.relogio(), "por": ator,
+                "perfil": perfil_da_estrutura(estrutura), "competencia_lida": competencia,
+                "contexto": estrutura.get("contexto") or contexto}
         self._trilha("fonte_entendida", ator, conector=cid, recursos=len(recursos),
                      llm=bool(llm), sugestoes=sum(1 for s in resultado["sugestao"]["sugestoes"] if s["origem"]))
         resultado["recursos_campos"] = recursos
@@ -334,14 +401,18 @@ class RegistroFontes:
             self._trilha("mapeamento_confirmado", ator, "negado", conector=cid, erros=len(erros))
             raise RecusaFonte("o mapeamento não passa na validação", 422, erros)
         competencia = competencia or proposta.get("competencia")
+        perfil = proposta.get("perfil") or {}
+        impressao = {r: perfil.get(r, {}) for r in sorted(_recursos_do_mapeamento(mapeamento))}
         conf = {"mapeamento": mapeamento, "por": ator, "em": self.relogio(), "digest": _digest(mapeamento),
-                "competencia": competencia}
+                "competencia": competencia, "impressao": impressao, "competencia_lida": proposta.get("competencia_lida"),
+                "contexto": proposta.get("contexto")}
         with self._arq.transacao() as d:
             if cid not in d["conectores"]:
                 raise RecusaFonte(f"conector desconhecido: {cid}", 404)
             d["mapeamentos"].setdefault(cid, {})["confirmado"] = conf
+            d["mapeamentos"][cid].pop("invalidado", None)
         self._trilha("mapeamento_confirmado", ator, conector=cid, digest=conf["digest"],
-                     abas=sorted(mapeamento["abas"]))
+                     abas=sorted(mapeamento["abas"]), impressao=_digest(impressao))
         return {k: conf[k] for k in ("por", "em", "digest", "competencia")} | {"abas": sorted(mapeamento["abas"])}
 
     def fabrica(self, ator: str, cid: str, competencia: str | None = None):
@@ -357,7 +428,13 @@ class RegistroFontes:
             raise RecusaFonte("o mapeamento desta fonte ainda não foi confirmado por uma pessoa", 409)
         competencia = competencia or (m or {}).get("competencia") or c["config"].get("competencia")
 
-        def montar():
+        def montar():  # a cada montagem (ativação e reinícios), a confirmação vigente e a impressão da fonte
+            atual = (self._dados()["mapeamentos"].get(cid) or {}).get("confirmado")
+            if c["tipo"] != "planilhas" and atual is None:
+                raise FonteMudou("o mapeamento desta fonte não está mais confirmado (a fonte mudou?): entenda e "
+                                 "confirme de novo", 409)
+            if atual is not None and atual.get("impressao") is not None:
+                self.conferir_impressao(ator, cid, atual)
             conector = self.construir(cid)
             if c["tipo"] == "mcp" and c.get("recursos_mcp"):
                 conector.config["recursos"] = c["recursos_mcp"]
@@ -367,6 +444,8 @@ class RegistroFontes:
         try:
             amb = montar()
             ds = amb.conector.dataset(amb.principal)
+        except FonteMudou:
+            raise
         except FonteIndisponivel as e:
             self._trilha("fonte_ativada", ator, "falha", conector=cid, motivo=str(e))
             raise RecusaFonte(f"fonte indisponível: {e}", 422) from None
@@ -380,6 +459,33 @@ class RegistroFontes:
             d["ativo"] = cid
         self._trilha("fonte_ativada", ator, conector=cid, competencia=ds.competencia)
         return montar
+
+    def conferir_impressao(self, ator: str, cid: str, conf: dict) -> None:
+        """Relê a fonte e compara com a impressão digital da confirmação; divergiu, a confirmação deixa de valer
+        (a fonte volta a "a confirmar") e a montagem falha com o motivo (ADR-011): nunca dado lido com o
+        mapeamento de uma fonte que já não é a mesma."""
+        from fin_mas.conectores import descoberta
+        conector = self.construir(cid, mapeamento=None)
+        try:
+            estrutura = descoberta.estrutura_de(conector, conf.get("competencia_lida"), conf.get("contexto"))
+        finally:
+            if hasattr(conector, "fechar"):
+                conector.fechar()
+        mudou = divergencias(conf["impressao"], perfil_da_estrutura(estrutura))
+        if not mudou:
+            return
+        with self._arq.transacao() as d:
+            m = d["mapeamentos"].get(cid) or {}
+            if (m.get("confirmado") or {}).get("digest") == conf["digest"]:
+                m.pop("confirmado")
+                m["invalidado"] = {"em": self.relogio(), "motivos": mudou[:10], "digest": conf["digest"]}
+                d["mapeamentos"][cid] = m
+            if d["ativo"] == cid:
+                d["ativo"] = None
+        self._trilha("mapeamento_invalidado", ator, "negado", regra="ADR-011", conector=cid, digest=conf["digest"],
+                     motivos=mudou[:10])
+        raise FonteMudou("a fonte mudou desde a confirmação do mapeamento (" + "; ".join(mudou[:3]) + "): entenda e "
+                         "confirme de novo antes de ativar", 409, mudou)
 
     # ---- envios de planilha -----------------------------------------------------------------------
     def receber_planilha(self, ator: str, nome: str, conteudo: bytes) -> dict:

@@ -5316,8 +5316,8 @@
       }
     },
     "invariantes": {
-      "ataques_aceitos": 9,
-      "ataques_sem_premissa": 9,
+      "ataques_aceitos": 4,
+      "ataques_sem_premissa": 4,
       "ataques_tentados": 2227,
       "avisos_de_prazo_sem_transicao": 0,
       "execucoes_com_erro": 0,
@@ -6922,24 +6922,24 @@
       "combinadas_ataque": {
         "com_acesso": {
           "ataques_aceitos": {
-            "desvio": 0.233,
+            "desvio": 0.1729,
             "execucoes": 60,
             "ic95": [
-              0.0667,
-              0.2333
+              0.0167,
+              0.1333
             ],
-            "media": 0.15,
+            "media": 0.0667,
             "mediana": 0.0,
             "n": 30
           },
           "ataques_sem_premissa": {
-            "desvio": 0.233,
+            "desvio": 0.1729,
             "execucoes": 60,
             "ic95": [
-              0.0667,
-              0.2333
+              0.0167,
+              0.1333
             ],
-            "media": 0.15,
+            "media": 0.0667,
             "mediana": 0.0,
             "n": 30
           },
@@ -6955,57 +6955,57 @@
             "n": 30
           },
           "execucao_correta": {
-            "desvio": 0.3495,
+            "desvio": 0.3407,
             "execucoes": 60,
             "ic95": [
-              0.4667,
-              0.7
+              0.45,
+              0.6833
             ],
-            "media": 0.5833,
+            "media": 0.5667,
             "mediana": 0.5,
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 18.6012,
+            "desvio": 19.014,
             "execucoes": 60,
             "ic95": [
-              41.1667,
-              54.2833
+              41.8833,
+              55.4
             ],
-            "media": 47.6667,
-            "mediana": 44.75,
+            "media": 48.4667,
+            "mediana": 46.5,
             "n": 30
           },
           "mensagens": {
-            "desvio": 3.5145,
+            "desvio": 3.3289,
             "execucoes": 60,
             "ic95": [
-              15.5833,
-              18.1
+              15.4833,
+              17.85
             ],
-            "media": 16.9,
+            "media": 16.7333,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens_rejeitadas": {
-            "desvio": 5.6985,
+            "desvio": 5.7827,
             "execucoes": 60,
             "ic95": [
-              3.7,
-              7.55
+              3.7667,
+              7.6333
             ],
-            "media": 5.6,
+            "media": 5.6833,
             "mediana": 5.5,
             "n": 30
           },
           "registros_trace": {
-            "desvio": 39.8198,
+            "desvio": 38.608,
             "execucoes": 60,
             "ic95": [
-              122.45,
-              149.5833
+              122.0,
+              148.3667
             ],
-            "media": 136.2833,
+            "media": 135.4,
             "mediana": 133.0,
             "n": 30
           }
@@ -7148,47 +7148,47 @@
             "n": 30
           },
           "latencia_ticks": {
-            "desvio": 1.4779,
+            "desvio": 2.2312,
             "execucoes": 60,
             "ic95": [
-              15.3333,
-              16.3833
+              15.4833,
+              17.05
             ],
-            "media": 15.8833,
+            "media": 16.25,
             "mediana": 17.0,
             "n": 30
           },
           "mensagens": {
-            "desvio": 2.1064,
+            "desvio": 2.1453,
             "execucoes": 60,
             "ic95": [
-              17.9333,
-              19.4
+              17.8,
+              19.2667
             ],
-            "media": 18.6667,
-            "mediana": 19.0,
+            "media": 18.5333,
+            "mediana": 18.0,
             "n": 30
           },
           "mensagens_rejeitadas": {
-            "desvio": 0.0,
+            "desvio": 0.1269,
             "execucoes": 60,
             "ic95": [
               0.0,
-              0.0
+              0.0833
             ],
-            "media": 0.0,
+            "media": 0.0333,
             "mediana": 0.0,
             "n": 30
           },
           "registros_trace": {
-            "desvio": 31.5906,
+            "desvio": 31.3193,
             "execucoes": 60,
             "ic95": [
-              129.6167,
-              151.6833
+              128.8833,
+              150.4833
             ],
-            "media": 140.8667,
-            "mediana": 148.25,
+            "media": 139.85,
+            "mediana": 145.5,
             "n": 30
           }
         },
@@ -12795,8 +12795,8 @@
       },
       "bloco D: com ataques ao controle de acesso": {
         "aceitos_indevidos": 0,
-        "aceitos_sem_a_premissa_do_ataque": 9,
-        "ataques_aceitos": 9,
+        "aceitos_sem_a_premissa_do_ataque": 4,
+        "ataques_aceitos": 4,
         "ataques_tentados": 435,
         "criticas_publicadas_sem_tratamento": 0,
         "execucoes": 60,
@@ -14994,7 +14994,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 6e-06,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15018,7 +15018,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 1e-06,
-      "p_holm": 4e-06,
+      "p_holm": 7e-06,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15042,7 +15042,7 @@
       "metrica": "mensagens_coordenacao",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 6e-06,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15066,7 +15066,7 @@
       "metrica": "latencia_ticks",
       "n": 30,
       "p": 2e-06,
-      "p_holm": 6e-06,
+      "p_holm": 1.2e-05,
       "pares_diferentes": 30,
       "significativo": true,
       "tipo": "Wilcoxon pareado"
@@ -15074,72 +15074,72 @@
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": 0.0,
+      "cliff": -0.0356,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": 0.0,
-      "estatistica": 0.0,
+      "diferenca_media": -0.1333,
+      "estatistica": 0,
       "familia": "RQ3",
       "ic95_diferenca": [
-        0.0,
+        -0.3333,
         0.0
       ],
       "magnitude": "desprezível",
-      "media_a": 18.6667,
+      "media_a": 18.5333,
       "media_b": 18.6667,
-      "metodo": "sem diferenças",
+      "metodo": "exato",
       "metrica": "mensagens",
       "n": 30,
-      "p": 1.0,
-      "p_holm": null,
-      "pares_diferentes": 0,
+      "p": 0.5,
+      "p_holm": 1.0,
+      "pares_diferentes": 2,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
     },
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": 0.0,
+      "cliff": 0.0378,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": 0.0,
+      "diferenca_media": 0.3667,
       "estatistica": 0.0,
       "familia": "RQ3",
       "ic95_diferenca": [
         0.0,
-        0.0
+        0.9167
       ],
       "magnitude": "desprezível",
-      "media_a": 15.8833,
+      "media_a": 16.25,
       "media_b": 15.8833,
-      "metodo": "sem diferenças",
+      "metodo": "exato",
       "metrica": "latencia_ticks",
       "n": 30,
-      "p": 1.0,
-      "p_holm": null,
-      "pares_diferentes": 0,
+      "p": 0.5,
+      "p_holm": 1.0,
+      "pares_diferentes": 2,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
     },
     {
       "a": "com_acesso",
       "b": "sem_acesso",
-      "cliff": 0.0,
+      "cliff": -0.0222,
       "comparacao": "controle de acesso ligado x desligado, nominal, porte médio",
-      "diferenca_media": 0.0,
-      "estatistica": 0.0,
+      "diferenca_media": -1.0167,
+      "estatistica": 0,
       "familia": "RQ3",
       "ic95_diferenca": [
-        0.0,
+        -2.5,
         0.0
       ],
       "magnitude": "desprezível",
-      "media_a": 140.8667,
+      "media_a": 139.85,
       "media_b": 140.8667,
-      "metodo": "sem diferenças",
+      "metodo": "exato",
       "metrica": "registros_trace",
       "n": 30,
-      "p": 1.0,
-      "p_holm": null,
-      "pares_diferentes": 0,
+      "p": 0.5,
+      "p_holm": 1.0,
+      "pares_diferentes": 2,
       "significativo": false,
       "tipo": "Wilcoxon pareado"
     },

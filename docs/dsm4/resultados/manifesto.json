@@ -36,7 +36,7 @@
   "arquivos": {
     "execucoes.csv": {
       "reproduzivel": true,
-      "sha256": "952af6ebbbd76974e655af7083503e1a9e73af2d5daa0c4a71a7fc929d5cfc12"
+      "sha256": "b21fd5d8a81b1dba17288ca26ba8a85d7c934a833cde2d654f8e878e993a2857"
     },
     "tempo_parede.csv": {
       "nota": "milissegundos de parede por execução; mudam a cada máquina e a cada rodada",

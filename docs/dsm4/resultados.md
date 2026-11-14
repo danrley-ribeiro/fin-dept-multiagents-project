@@ -25,7 +25,7 @@ seed com o intervalo de confiança de 95% por bootstrap entre colchetes; "pp" é
 |---|---|---|
 | RQ1 | Com as mesmas funções, o SMA entrega mais qualidade? | **Não.** Sem falhas, o SMA e o workflow equivalente deram o mesmo resultado nos 240 pares. A vantagem medida na DSM3 era das funções (veto, correção, reconciliação), não do paradigma. |
 | RQ2 | Quão robusto é cada braço? | O SMA é **menos** robusto que o workflow sob falha de comunicação: 94,2% de execuções corretas com 5% de perda, 62,5% com 15%, 32,5% com 30%, contra 100% do workflow. Com 5% a diferença não é significativa; com 15%, 30% e nas falhas combinadas, é grande. Sob humano lento, empatam (75,8%). Nenhum dos dois publicou crítica sem tratamento. |
-| RQ3 | Quanto custa coordenar? E o controle de acesso? | 15,8 mensagens de coordenação por solicitação contra 0,9, e 3,2 ticks a mais sem falhas (31,1 a mais sob falhas combinadas). O controle de acesso por pessoa não acrescentou mensagem, tick nem registro no trace. |
+| RQ3 | Quanto custa coordenar? E o controle de acesso? | 15,8 mensagens de coordenação por solicitação contra 0,9, e 3,2 ticks a mais sem falhas (31,1 a mais sob falhas combinadas). O controle de acesso por pessoa não teve custo mensurável em mensagens, ticks ou registros do trace (idêntico em 28 das 30 seeds). |
 | RQ4 | O SMA se recupera? | Sempre responde: 100% de resposta explícita em todas as condições. Recupera o resultado em 87% das execuções atingidas com 5% de perda, 52% com 15% e 26% com 30%; nas outras, falha de forma explícita. A recuperação leva de 28 a 59 ticks na mediana. |
 | RQ5 | Depende do porte e dos parâmetros? | A microempresa classifica pior (40,0% contra 86,7%). Tentativas e prazo de subtarefa mexem na robustez e na latência como previsto; o efeito do prazo de aprovação e do TTL da reserva não foi detectado; o limiar de 5% não mudou nada. |
 | RQ6 | Os ataques passam quando há falha? | **Não.** 2.227 ataques tentados, nenhum aceito indevidamente; a execução atacada terminou igual à não atacada nos 480 pares. |
@@ -44,8 +44,15 @@ pelos ataques rejeitados.
 | | Primeira rodada | Segunda rodada |
 |---|---|---|
 | Código | experimento sobre a v0.5.0 como estava (dados no commit `cfa6b6f`) | código integrado, com o defeito corrigido (dados no commit `ab4cc3a`) |
-| SHA-256 do `execucoes.csv` | `c5a4e032…` | `952af6eb…` |
+| SHA-256 do `execucoes.csv` | `c5a4e032…` | `b21fd5d8…` (era `952af6eb…` antes da integração do acesso avançado; ver a nota abaixo) |
 | Papel | revelou o defeito "resposta perdida vira silêncio" | mede o sistema depois da correção |
+
+**Nota sobre os dados versionados.** Depois desta análise, o acesso avançado (alçada por pessoa,
+dupla aprovação, delegação) e os conectores foram integrados ao sistema e o experimento foi
+executado de novo, com o mesmo comando e as mesmas seeds. Das 9.360 execuções, 46 mudaram, todas
+no bloco D com o SVC-IAM ligado (o único que exercita as regras novas de decisão por pessoa); os
+blocos A, B e C e o bloco D com o SVC-IAM desligado saíram idênticos, linha a linha. Os dados em
+`resultados/` são os dessa execução, e os números do bloco D citados abaixo foram atualizados.
 
 **A correção foi feita depois de ver os resultados da primeira rodada.** A segunda rodada,
 portanto, **não é um teste confirmatório** das hipóteses de robustez e de recuperação: o sistema
@@ -180,8 +187,11 @@ por subtarefa) não dá conta.
   mensagens contra 0,64 e 49,2 ticks contra 18,1 (31,1 a mais [25,0; 37,5]). Todas com p
   ajustado < 0,001 e delta de Cliff entre 0,89 e 1,00.
 - **H3b confirmada em parte.** Ligar o SVC-IAM (decisão com atestado de pessoa) não mudou o
-  número de mensagens, a latência nem o número de registros do trace em nenhuma das 30 seeds: o
-  atestado viaja dentro da mensagem de aprovação. A previsão de que haveria **mais registros de
+  número de mensagens, a latência nem o número de registros do trace em 28 das 30 seeds: o
+  atestado viaja dentro da mensagem de aprovação. Nas outras 2, uma regra de decisão por pessoa
+  (alçada ou dupla aprovação) recusou uma decisão e o fluxo seguiu outro caminho; na média, 0,13
+  mensagem a menos, 0,37 tick a mais e 1,02 registro a menos, sem significância (p = 0,50 sem
+  correção) e com a execução correta em 100% dos dois lados. A previsão de que haveria **mais registros de
   auditoria no trace não se confirmou**; o que o controle de acesso registra a mais vai para a
   trilha de acesso, que é outro arquivo e não foi medida aqui. Tempo de parede (não
   reproduzível, uma rodada, `tempo_parede.csv`): mediana de 4,1 ms por execução com o SVC-IAM
@@ -242,7 +252,7 @@ pré-registro; MEI e Média empresa II, que entraram no sistema depois, ficam de
 
 - **H6a confirmada.** Bloco A: 1.792 ataques ao Approval Gate em 128 execuções atacadas, com
   perda, atraso, indisponibilidade e humano lento ao mesmo tempo; 0 aceitos. Bloco D (SVC-IAM
-  ligado): 435 ataques em 15 execuções; 9 registrados como aceitos, **todos o mesmo ataque e
+  ligado): 435 ataques em 15 execuções; 4 registrados como aceitos, **todos o mesmo ataque e
   nenhum indevido** (explicação em "Desvios do pré-registro").
 - **H6b confirmada.** A execução atacada terminou com o mesmo resultado da mesma execução sem
   ataque nos 240 pares do SMA básico e nos 240 do SMA com cognição local.
@@ -412,8 +422,9 @@ resposta).
    que participou do lançamento vetado decide sobre ele") supõe que a analista ana participou do
    lançamento. Com plantios sorteados isso nem sempre é verdade; quando ela não está entre os
    envolvidos do ticket, a decisão dela é a de uma aprovadora autorizada, com atestado válido e
-   sem conflito, e a política a aceita corretamente. Foram 8 casos na primeira rodada e 9 na
-   segunda. O CSV traz `ataques_aceitos` (bruto), `ataques_sem_premissa` (esses casos) e a
+   sem conflito, e a política a aceita corretamente. Foram 8 casos na primeira rodada, 9 na
+   segunda e 4 nos dados versionados (com a alçada por pessoa integrada, parte dessas decisões passou
+   a ser recusada por outra regra). O CSV traz `ataques_aceitos` (bruto), `ataques_sem_premissa` (esses casos) e a
    diferença, que é zero. A regra foi acrescentada depois de ver o primeiro caso, numa rodada de
    teste do aparato.
 7. **Medidas exploratórias.** `sinalizacao_correta` (só as contas sinalizadas, a definição da

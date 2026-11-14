@@ -75,9 +75,9 @@ Execuções: 9360 (bloco A: 6000, bloco B: 2160, bloco C: 1080, bloco D: 120). S
 
 | Condição | SVC-IAM | Mensagens | Latência (ticks) | Registros de auditoria | Mensagens rejeitadas | Execução correta | Ataques tentados | Ataques aceitos | Aceitos sem a premissa do ataque |
 |---|---|---|---|---|---|---|---|---|---|
-| `nominal` | ligado | 18,67 [17,93; 19,40] | 15,88 [15,33; 16,38] | 140,87 [129,62; 151,68] | 0,00 [0,00; 0,00] | 100,0% [100,0%; 100,0%] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] |
+| `nominal` | ligado | 18,53 [17,80; 19,27] | 16,25 [15,48; 17,05] | 139,85 [128,88; 150,48] | 0,03 [0,00; 0,08] | 100,0% [100,0%; 100,0%] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] |
 | `nominal` | desligado | 18,67 [17,93; 19,40] | 15,88 [15,33; 16,38] | 140,87 [129,62; 151,68] | 0,00 [0,00; 0,00] | 100,0% [100,0%; 100,0%] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] |
-| `combinadas_ataque` | ligado | 16,90 [15,58; 18,10] | 47,67 [41,17; 54,28] | 136,28 [122,45; 149,58] | 5,60 [3,70; 7,55] | 58,3% [46,7%; 70,0%] | 7,25 [4,83; 9,67] | 0,15 [0,07; 0,23] | 0,15 [0,07; 0,23] |
+| `combinadas_ataque` | ligado | 16,73 [15,48; 17,85] | 48,47 [41,88; 55,40] | 135,40 [122,00; 148,37] | 5,68 [3,77; 7,63] | 56,7% [45,0%; 68,3%] | 7,25 [4,83; 9,67] | 0,07 [0,02; 0,13] | 0,07 [0,02; 0,13] |
 | `combinadas_ataque` | desligado | 16,53 [15,33; 17,57] | 48,68 [42,13; 55,60] | 130,68 [118,37; 142,10] | 2,75 [1,83; 3,67] | 51,7% [41,7%; 61,7%] | 3,50 [2,33; 4,67] | 0,00 [0,00; 0,00] | 0,00 [0,00; 0,00] |
 
 **RQ4 — recuperação das execuções do SMA atingidas por falha (bloco A)**
@@ -160,7 +160,7 @@ Atingida: houve pelo menos uma mensagem perdida ou um prazo esgotado na solicita
 | Recorte | Valores |
 |---|---|
 | bloco A: ataques ao Approval Gate | execucoes: 480; execucoes atacadas: 128; ataques tentados: 1792; ataques aceitos: 0; aceitos sem a premissa do ataque: 0; aceitos indevidos: 0; criticas publicadas sem tratamento: 0 |
-| bloco D: com ataques ao controle de acesso | execucoes: 60; execucoes atacadas: 15; ataques tentados: 435; ataques aceitos: 9; aceitos sem a premissa do ataque: 9; aceitos indevidos: 0; criticas publicadas sem tratamento: 0 |
+| bloco D: com ataques ao controle de acesso | execucoes: 60; execucoes atacadas: 15; ataques tentados: 435; ataques aceitos: 4; aceitos sem a premissa do ataque: 4; aceitos indevidos: 0; criticas publicadas sem tratamento: 0 |
 | sma_basico: atacada x mesma execução sem ataque | pares: 240; diferentes: 0 |
 | sma_local: atacada x mesma execução sem ataque | pares: 240; diferentes: 0 |
 
@@ -241,8 +241,8 @@ Subgrupo registrado: execuções com perda de mensagens, `desvio_irregular` plan
 | Execuções com violação de invariante | 0 |
 | Execuções por invariante violado | nenhuma |
 | Avisos de prazo sem transição (contados à parte do INV-03) | 0 |
-| Ataques aceitos / tentados | 9 / 2227 |
-| Aceitos em que a premissa do ataque não vale (decisão legítima) | 9 |
+| Ataques aceitos / tentados | 4 / 2227 |
+| Aceitos em que a premissa do ataque não vale (decisão legítima) | 4 |
 | Aceitos indevidos | 0 |
 | Execuções que levantaram exceção | 0 |
 

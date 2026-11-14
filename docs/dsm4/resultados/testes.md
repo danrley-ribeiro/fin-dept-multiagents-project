@@ -37,9 +37,9 @@ Testes bilaterais sobre a média por seed (Wilcoxon pareado) ou sobre execuçõe
 | sma_basico x wf_equivalente, nominal | Latência (ticks) | 30 | 15,89 | 12,71 | 3,18 [2,87; 3,48] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 0,89 | grande | sim |
 | sma_basico x wf_equivalente, combinadas | Mensagens de coordenação | 30 | 13,60 | 0,64 | 12,96 [11,75; 14,00] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 1,00 | grande | sim |
 | sma_basico x wf_equivalente, combinadas | Latência (ticks) | 30 | 49,15 | 18,07 | 31,08 [25,02; 37,53] | 30 | Wilcoxon pareado, normal: 0,0 | 0,0000 | 0,0000 | 0,95 | grande | sim |
-| controle de acesso ligado x desligado, nominal, porte médio | Mensagens | 30 | 18,67 | 18,67 | 0,00 [0,00; 0,00] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |
-| controle de acesso ligado x desligado, nominal, porte médio | Latência (ticks) | 30 | 15,88 | 15,88 | 0,00 [0,00; 0,00] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |
-| controle de acesso ligado x desligado, nominal, porte médio | Registros de auditoria | 30 | 140,87 | 140,87 | 0,00 [0,00; 0,00] | 0 | idêntico em todos os pares | — | — | 0,00 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Mensagens | 30 | 18,53 | 18,67 | -0,13 [-0,33; 0,00] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | -0,04 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Latência (ticks) | 30 | 16,25 | 15,88 | 0,37 [0,00; 0,92] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | 0,04 | desprezível | não |
+| controle de acesso ligado x desligado, nominal, porte médio | Registros de auditoria | 30 | 139,85 | 140,87 | -1,02 [-2,50; 0,00] | 2 | Wilcoxon pareado, exato: 0,0 | 0,5000 | 1,0000 | -0,02 | desprezível | não |
 
 **Família RQ4**
 

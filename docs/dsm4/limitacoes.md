@@ -4,11 +4,10 @@ O que continua limitado na versão entregue, sem suavizar. Reúne o que segue va
 {doc}`../dsm3/limitacoes`, o que o experimento mostrou ({doc}`resultados`) e o que cada lote da DSM4
 deixou de fora. Itens resolvidos na DSM4 estão no fim, para que fique claro o que saiu da lista e por quê.
 
-<!-- PENDENTE-INTEGRACAO: os lotes de conectores e de acesso avançado ainda não estão integrados nesta
-branch. Quando entrarem: (1) tirar desta página o que eles resolverem (segundo fator, delegação, dupla
-aprovação, cofre de credenciais, memória entre processos e cópia íntegra da memória, isolamento entre
-empresas); (2) acrescentar as limitações próprias de cada lote (fornecedores de ERP não testados, rede
-liberada por permissão, entendimento de fontes por regra). -->
+Os lotes de conectores (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) e de acesso avançado
+(`docs/dsm4/acesso-avancado.md`, `docs/dsm4/ADR-012-acesso-avancado.md`) resolveram parte da lista da DSM3
+(segundo fator, alçada por pessoa, delegação, dupla aprovação, cofre, memória entre processos, várias
+empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes" e "Acesso avançado" abaixo.
 
 ## O resultado do experimento
 
@@ -61,8 +60,6 @@ liberada por permissão, entendimento de fontes por regra). -->
   do processo, não é conferido.
 - **Resposta final ao solicitante perdida não é avisada**: quem pediu precisa consultar de novo (nos
   protocolos entre agentes, a perda é avisada ao iniciador desde a correção da DSM4).
-- **Sem segundo fator, delegação, dupla aprovação nem cofre de credenciais** nesta branch; chaves de
-  LLM só por variável de ambiente. <!-- PENDENTE-INTEGRACAO: acesso avançado -->
 - **Prazo compartilhado no AG-ORC**: um segundo pedido legítimo da mesma avaliação encurta o prazo do
   primeiro.
 - **Fluxo ao vivo**: quem tem `PERM-SIM-VER` recebe os registros do trace da execução em curso.
@@ -80,10 +77,8 @@ liberada por permissão, entendimento de fontes por regra). -->
 - **Redação incompleta**: não reconhece chave no formato `AIza…`, `senha=…` em texto livre nem token de
   sessão em texto; o token CSRF fica em claro em `sessoes.json`; respostas 501 saem sem os cabeçalhos
   de segurança.
-- **Memória entre pastas e entre processos**: cópia íntegra em outra pasta é tratada como comprometida;
-  duas execuções simultâneas sobre o mesmo arquivo de memória perdem entradas sem detecção.
-  <!-- PENDENTE-INTEGRACAO: o lote de acesso avançado põe o SVC-MEM sobre o ArquivoSelado e acrescenta
-  `memoria adotar`; tirar este item quando entrar. -->
+- **Memória copiada de outra pasta** continua comprometida (falha fechada) até ser adotada à mão com
+  `fin-mas memoria adotar`, sob permissão e na trilha; arquivo alterado não é adotado.
 - **Pseudônimos não são anonimização**: valores e contas vão ao provedor externo; por isso o envio exige
   consentimento.
 - **A memória do SVC-MEM não tem migração possível** (os pseudônimos são HMAC sem volta).
@@ -125,7 +120,32 @@ liberada por permissão, entendimento de fontes por regra). -->
 - **MEI**: obrigações acessórias e data de publicação da LC 238/2026 no DOU **a confirmar**; o plantio de
   alçada é recusado (não há alçada menor para violar). Os números de regra dos portes e dos segmentos
   (alçadas, materialidade, pesos, direcionadores) são **parâmetros da simulação**, não lei.
-- **Integração com ERP real** fora do escopo. <!-- PENDENTE-INTEGRACAO: conectores genéricos -->
+- **Integração com ERP real** fora do escopo: os conectores são genéricos (REST JSON, cliente MCP,
+  planilhas) e foram exercidos só contra o ERP de demonstração em loopback.
+
+## Conectores e fontes
+
+- **Nenhum conector de fornecedor** (SAP, TOTVS etc.), por decisão; nenhum ERP real testado.
+- **Entendimento de fontes por vocabulário finito**: sinônimos pt/en explícitos; uma fonte com nomes
+  inesperados cai em "sem sugestão" e a pessoa mapeia à mão. O mapeamento só vale depois de confirmado por
+  uma pessoa (NORM-30).
+- **LLM no entendimento** é opcional, só sugere para campos sem sugestão determinística e nunca grava
+  nada sozinho; como no resto do sistema, nenhum provedor real foi exercitado.
+- **Rede**: só loopback por padrão; host externo exige liberação explícita do administrador
+  (PERM-DAD-REDE). Redirecionamentos não são seguidos.
+- **Cliente MCP pelo dashboard** só sobe o servidor de Excel embutido.
+
+## Acesso avançado
+
+- **O cofre não cifra os valores**: garante integridade (selo HMAC, contador) e controle de acesso
+  (arquivo 0600 fora da pasta de dados), não confidencialidade contra quem lê o disco com o usuário do
+  processo ou como administrador. A biblioteca padrão não tem cifra autenticada e o projeto não inventa
+  criptografia; a troca por um cofre do sistema mantém a mesma API.
+- **Escalonamento** sobe um nível, uma vez.
+- **Trilha de acesso única por cadastro** (o cadastro de contas é global); os eventos levam a empresa.
+- **Sem tela no dashboard web** para delegações, seletor de empresa, segundo fator e cofre: só API, CLI e
+  TUI.
+- **Dupla aprovação** só acima do limite do porte (nulo em micro e pequena).
 
 ## Interfaces e testes
 
@@ -133,7 +153,7 @@ liberada por permissão, entendimento de fontes por regra). -->
   expiração por inatividade sem teste pela TUI; expiração da sessão por tempo sem teste automatizado em
   nenhuma interface.
 - **Dashboard só web**; a sequência de uma conversa aparece como lista (o diagrama sai pela CLI).
-- **Prazos em tempo lógico**: sem calendário real nem escalonamento a outro aprovador.
+- **Prazos em tempo lógico**: sem calendário real; o escalonamento (POL-14) também conta em ticks.
 - **Os roteiros Playwright** rodam no CI e por `make web-test`; não foram executados na geração do
   relatório final.
 - **`tools/trace.py` confere a existência do teste pelo nome**, não o que ele verifica.
@@ -157,3 +177,9 @@ liberada por permissão, entendimento de fontes por regra). -->
 | O AG-ORC não lê a memória aprovada | lê correções aprovadas por tipo (cenário `memoria_reincidencia_orc`) |
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador; 0 execuções sem resposta na segunda rodada |
+| Senha como único fator | TOTP (RFC 6238) com anti-replay e códigos de recuperação, obrigatório por política para administrador e aprovador (`docs/dsm4/acesso-avancado.md`) |
+| Cargo sem limite de valor; ausência do aprovador travava o fechamento; uma pessoa liberava qualquer valor | alçada por pessoa (POL-10), delegação com prazo, teto e escopo (POL-11), dupla aprovação acima do limite do porte (POL-12), escalonamento (POL-14) |
+| Chaves de LLM só por variável de ambiente | cofre selado da plataforma, com a ressalva de não cifrar (ver acima) |
+| Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
+| Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (só pela API) |
+| Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

@@ -22,11 +22,8 @@ Fonte editável: `entregas/dsm4/modelos-editaveis/arquitetura_final.mmd`.
 | Ferramentas | gateway MCP com allowlist por papel e proveniência `mcp://` em toda resposta; `erp.corrigir` é o único efeito externo e só com aprovação decidida | {doc}`../dsm2/ADR-004-a2a-bus-e-mcp-mock` | {doc}`../dsm2/arquitetura` |
 | Ambiente | ERP simulado gerado por seed com gabarito; planilhas Excel lidas pelo servidor MCP de Excel; base normativa por porte e segmento (`models/portes.yaml`, `models/segmentos.yaml`, `models/conhecimento.yaml`) | {doc}`../dsm2/ADR-006-regras-por-porte-e-planilhas` | {doc}`portes-e-segmentos`, {doc}`../dsm2/planilhas` |
 | Implantação | checkout com um comando, wheel com os dados embutidos, contêiner com porta só em loopback; backup selado, restauração com falha fechada | {doc}`../dsm2/ADR-005-execucao-ao-vivo-e-dashboard` | {doc}`implantacao` |
-
-<!-- PENDENTE-INTEGRACAO: o lote de conectores acrescenta a camada "fontes" (interface Conector, REST genérico,
-cliente MCP, ERP de demonstração, entendimento determinístico de fontes, cofre de credenciais; ADR-011) e o lote
-de acesso avançado acrescenta segundo fator, alçada por pessoa, delegação, dupla aprovação, escalonamento e
-isolamento entre empresas (ADR-012). Acrescentar uma linha por camada e os ADRs quando entrarem. -->
+| Fontes (DSM4, ADR-011) | interface `Conector` (ERP simulado, pasta de planilhas, planilha fora do modelo, REST JSON genérico, cliente MCP por stdio) que entrega o modelo canônico; entendimento determinístico de fontes (OpenAPI, amostras JSON, tools MCP, planilha qualquer) com sugestão de mapeamento, confiança e motivo, sempre confirmado por uma pessoa (NORM-30); LLM só sugere, opcional (NORM-31); rede só loopback salvo liberação do administrador (NORM-32) | os agentes veem as mesmas tools: o gateway e a allowlist não mudam | `docs/dsm4/ADR-011-conectores-e-entendimento.md` |
+| Acesso avançado (DSM4, ADR-012) | segundo fator TOTP, alçada por pessoa (POL-10), delegação (POL-11), dupla aprovação (POL-12), escalonamento (POL-14), cofre selado, várias empresas por cadastro | estende o SVC-IAM e o Approval Gate sem mudar os traces do nível básico | `docs/dsm4/acesso-avancado.md`, `docs/dsm4/ADR-012-acesso-avancado.md` |
 
 ## Quem é BDI e quem é reativo
 
@@ -85,3 +82,5 @@ não mudaram. O experimento não encontrou ganho significativo do nível `local`
 | {doc}`../dsm3/ADR-008-cognicao-local-e-llm` | proposta não é crença; motor local e LLM como proponente | DSM3 |
 | {doc}`../dsm3/ADR-009-identidade-e-acesso` | identidade e acesso por pessoa | DSM3 |
 | {doc}`ADR-010-especialistas-bdi` | todos os especialistas BDI, com as variantes reativas como braço de comparação | DSM4 |
+| `docs/dsm4/ADR-011-conectores-e-entendimento.md` | conectores genéricos e entendimento automático de fontes, sem IA generativa | DSM4 |
+| `docs/dsm4/ADR-012-acesso-avancado.md` | segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas | DSM4 |

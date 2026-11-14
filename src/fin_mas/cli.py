@@ -79,6 +79,9 @@ def _run(args) -> int:
     except ConfiguracaoInvalida as e:
         print(f"configuração de LLM inválida: {e}", file=sys.stderr)
         return 2
+    except (ValueError, LookupError) as e:  # combinação de cenário, porte e segmento que os dados não comportam
+        print(f"cenário não pode ser montado com essas opções: {e}", file=sys.stderr)
+        return 2
     sc = execucao.scenario
     ds = execucao.system.dataset
     print(f"cenário: {sc.nome} | seed: {args.seed if args.seed is not None else sc.seed} | {sc.descricao}")

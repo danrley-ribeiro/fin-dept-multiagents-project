@@ -105,7 +105,7 @@ def _inv04(reg):
             quem = r.get("aprovado_por") or {}
             if not quem.get("pessoa") or not quem.get("sessao"):
                 yield f"INV-04: decisão em {r['conversation_id']} (#{r['seq']}) sem pessoa e sessão"
-        elif r["kind"] in ("open", "send") and r.get("protocol") == "PROT-APR" and r["performative"] in ("approve", "reject"):
+        elif r["kind"] in ("open", "send") and r.get("protocol") == "PROT-APR" and r["performative"] in ("approve", "reject", "endorse"):
             if not isinstance((r.get("content") or {}).get("atestado"), dict):
                 yield f"INV-04: {r['performative']} aceito em {r['conversation_id']} (#{r['seq']}) sem atestado"
 

@@ -230,3 +230,11 @@ def test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_miss
     efeito = next(r for r in corrigido if r["kind"] == "mcp_call" and r.get("tool") == "erp.corrigir")
     repetido = corrigido + [{**efeito, "seq": 99999}]
     assert any("uso único" in v for v in invariantes.verificar(repetido))
+
+
+def test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback(cli):
+    """Correção simulada da DSM4 (m1): combinações válidas de opções terminavam em traceback."""
+    mei = cli("run", "--scenario", "veto_waiver", "--porte", "mei", acesso=False)
+    assert mei.returncode == 2 and "não pode ser montado" in mei.stderr and "Traceback" not in mei.stderr
+    comercio = cli("run", "--scenario", "res_explica_variacao", "--segmento", "comercio", acesso=False)
+    assert comercio.returncode == 0 and "Traceback" not in comercio.stderr

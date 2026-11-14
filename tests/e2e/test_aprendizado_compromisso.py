@@ -184,3 +184,18 @@ def test_commitment_applies_to_the_new_bdi_specialists():
     assert len(leituras) == 3
     aberto = run_scenario("cus_rateio_alternativo")
     assert cego.resposta.content["resultado"] == aberto.resposta.content["resultado"]
+
+
+def test_learning_only_counts_evidence_from_a_deterministic_source():
+    """Correção simulada da DSM4 (m2): qualquer texto valia como fonte ("eu acho", " llm:mock" com espaço à frente)."""
+    from types import SimpleNamespace
+
+    from fin_mas.services.aprendizado import Aprendizado
+    from fin_mas.services.audit import AuditLog
+
+    registro = Aprendizado(AuditLog(), lambda: 0)
+    h = SimpleNamespace(id="AG-ORC-H001", cid="DEL-001", tipo="causa_controle", alvo="C-3002", competencia="2026-09",
+                        origens=["local:R-OBS-REPETICAO"], confianca=0.8)
+    for fonte in ("eu acho", " llm:mock/x", "local:R-OBS-REPETICAO", "", None, "AG-CIN e llm:mock"):
+        assert registro.observar("AG-ORC", h, "confirmada", fonte) == [], fonte
+    assert registro.observar("AG-ORC", h, "confirmada", "AG-CIN (QRY-002)")

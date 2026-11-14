@@ -111,6 +111,9 @@ def test_message_lost_after_the_opening_never_leaves_the_requester_without_an_an
     else:
         assert r.performative == "inform" and r.content["status"].startswith("publicado")
     assert [x for x in s.bus.audit.records if x["kind"] == "drop"]
-    assert [x for x in s.bus.audit.records if x["kind"] == "timeout" and x["de"] == x["para"]]  # aviso sem transição
+    if falha["performative"] == "correcao":  # aviso de decisão humana: o transporte reentrega (não vira timeout)
+        assert [x for x in s.bus.audit.records if x["kind"] == "drop" and x.get("reentrega") == 1]
+    else:
+        assert [x for x in s.bus.audit.records if x["kind"] == "timeout" and x["de"] == x["para"]]  # aviso sem transição
     assert invariantes.verificar(s.bus.audit.records) == []
     assert s.locks.dono("SMA", "2026-09") is None

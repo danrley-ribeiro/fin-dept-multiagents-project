@@ -36,11 +36,15 @@ Regras do registro:
 Confiança aprendida não é crença e não classifica nada: ela só entra no contexto dos planos
 epistêmicos que custam mensagem (regra que errou muito não justifica uma consulta nova).
 """
+import re
 from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado
 
 VERSAO = 1
 PESO_DO_PRIOR = 2
 CONFIANCA_NEUTRA = 0.5  # regra que não declara confiança inicial
+
+
+FONTE_DETERMINISTICA = re.compile(r"^(AG-[A-Z]{3}\b|SVC-[A-Z]{3}\b|mcp://|cálculo sobre )")
 
 
 class ObservacaoRecusada(ValueError):
@@ -106,7 +110,10 @@ class Aprendizado:
         try:
             if desfecho not in ("confirmada", "refutada"):
                 raise ObservacaoRecusada(f"desfecho '{desfecho}' não é evidência (só confirmada ou refutada contam)")
-            if not fonte or str(fonte).startswith(("local:", "llm:")):
+            texto = str(fonte or "").strip()
+            # lista de permissões: outro agente, serviço da plataforma, tool MCP ou cálculo sobre eles; nada que
+            # cite um proponente (regra local ou LLM), em qualquer posição (correção simulada da DSM4, m2)
+            if (not FONTE_DETERMINISTICA.match(texto) or "llm:" in texto.lower() or "local:" in texto.lower()):
                 raise ObservacaoRecusada(f"evidência sem fonte determinística ({fonte!r})")
         except ObservacaoRecusada as erro:
             self._registrar(hipotese.cid, "recusada", agente=agente, hipotese=hipotese.id, motivo=f"NORM-20: {erro}")

@@ -156,8 +156,11 @@ class Dataset:
         self.gold["variacao"] = None
         if "variacao_custo_fixo" in self.plantar:  # um centro de custo salta no mês: o EBITDA% cai contra o histórico
             aumento = self._base_resultado["receita"] * VARIACAO_PP // 100
-            next(c for c in self.custos_fixos if c["centro"] == CENTRO_VARIACAO)["valor"] += aumento
-            self.gold["variacao"] = {"indicador": "ebitda_pct", "linha": "custos_fixos", "centro": CENTRO_VARIACAO,
+            # o centro que salta: o de sempre na SMA; nos outros segmentos, o maior centro de custo fixo
+            centro = next((c for c in self.custos_fixos if c["centro"] == CENTRO_VARIACAO), None) \
+                or max(self.custos_fixos, key=lambda c: (c["valor"], c["centro"]))
+            centro["valor"] += aumento
+            self.gold["variacao"] = {"indicador": "ebitda_pct", "linha": "custos_fixos", "centro": centro["centro"],
                                      "aumento": aumento}
         fixo_total = sum(c["valor"] for c in self.custos_fixos)
         self._gabarito_rateio(margens, fixo_total)

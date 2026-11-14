@@ -116,4 +116,4 @@ def test_summary_and_tests_are_recomputed_from_the_raw_rows(rodadas):
     assert gravado["identidade"]["sma_local_x_sma_basico"]["diferentes"] == 0
     inv = gravado["tabelas"]["invariantes"]
     assert inv["ataques_tentados"] > 0 and inv["ataques_aceitos"] == inv["ataques_sem_premissa"]
-    assert set(inv["execucoes_por_invariante"]) <= {"INV-07"} and inv["execucoes_com_erro"] == 0
+    assert not inv["execucoes_por_invariante"] and inv["execucoes_com_erro"] == 0  # nem o INV-07: toda solicitação responde

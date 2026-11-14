@@ -67,8 +67,8 @@ def test_random_loss_and_outages_reach_the_bus_and_every_silence_is_flagged():
         assert all(r["protocol"] in ("PROT-DEL", "PROT-CMP", "PROT-QRY") for r in reg if r["kind"] == "drop")
         assert not any(r["kind"] == "erro_agente" for r in reg)
         violados, _ = estudo.violacoes(reg)
-        # quem fica sem resposta é acusado pelo INV-07; nenhum outro invariante é violado sob falha
-        assert set(violados) <= {"INV-07"} and (e.resposta is None) == ("INV-07" in violados)
+        # desde a correção do aviso de mensagem perdida, ninguém fica sem resposta: nenhum invariante é violado
+        assert not violados and e.resposta is not None
         sem_resposta += e.resposta is None
         medida = estudo.medir_sma(e)
         assert medida["criticas_publicadas_sem_tratamento"] == 0
@@ -98,7 +98,7 @@ def test_attacks_during_combined_failures_are_all_rejected():
         medida = estudo.medir_sma(e)
         tentados += medida["ataques_tentados"]
         assert medida["ataques_aceitos"] == 0 and medida["criticas_publicadas_sem_tratamento"] == 0
-        assert set(estudo.violacoes(e.audit.records)[0]) <= {"INV-07"}
+        assert not estudo.violacoes(e.audit.records)[0] and e.resposta is not None
     assert tentados >= 14  # pelo menos uma execução teve veto pendente e foi atacada
 
 
@@ -130,3 +130,13 @@ def test_injected_parameters_change_the_coordination_they_control():
     assert frouxo.resposta.content["resultado"]["sinalizadas"] == []  # o gabarito continua com os dois desvios
     assert len(frouxo.system.dataset.gold["desvios"]) == 2
     assert CENARIOS["avaliar_orcamento"].plantar == ("desvio_orcamentario",)
+
+
+def test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer():
+    """Correção simulada da DSM4 (C1): com atraso de entrega de 3 ticks ou mais, o `agree` atrasado chegava depois de
+    o `inform` final se perder e apagava a marca da perda; o Orquestrador esperava para sempre. Toda execução responde."""
+    for jitter in (3, 4, 6):
+        for seed in SEEDS:
+            e = rodar(seed, perda=0.10, jitter=jitter, indisponibilidades=1, aprovador="lento")
+            assert e.resposta is not None, (jitter, seed)
+            assert not estudo.violacoes(e.audit.records)[0], (jitter, seed)

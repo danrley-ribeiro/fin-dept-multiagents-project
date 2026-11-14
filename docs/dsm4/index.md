@@ -1,5 +1,17 @@
 # DSM4 — Experimentação, documentação e entrega final
 
+Entrega final do SMA de Controladoria (prazo 02/12/2026). O pacote para envio é gerado por
+`make entrega-dsm4` (`entregas/dsm4/DSM4-entrega.zip`); o README do pacote está em
+`entregas/dsm4/README.md` e o relatório técnico em `entregas/dsm4/documentacao/relatorio.pdf`.
+
+| Fechamento da entrega | Conteúdo |
+|---|---|
+| {doc}`arquitetura-final` | Visão consolidada da arquitetura, quem é BDI e quem é reativo, fluxo de um fechamento, propriedades garantidas e todos os ADRs. |
+| {doc}`limitacoes` | O que continua limitado na versão final, sem suavizar, e o que saiu da lista na DSM4. |
+| {doc}`demonstracao` | Roteiro de demonstração de 10 minutos com comandos exatos e plano B. |
+| {doc}`cenarios-de-teste` | Catálogo dos cenários e dos testes novos da DSM4 (página gerada). |
+| {doc}`reproducao` | Passo a passo do zero: instalar, testes, cenários, experimento, documentação, PDF e pacote. |
+
 Páginas da DSM4 disponíveis até aqui.
 
 | Página | Conteúdo |
@@ -20,6 +32,12 @@ python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 see
 
 ```{toctree}
 :maxdepth: 1
+
+arquitetura-final
+demonstracao
+reproducao
+cenarios-de-teste
+limitacoes
 
 experimento
 resultados

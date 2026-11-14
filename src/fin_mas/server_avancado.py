@@ -17,6 +17,7 @@ Corpo de POST: objeto JSON; outro tipo, ou campo de tipo errado, é 400.
 """
 import json
 import os
+import threading
 
 from fin_mas.services import provedores
 from fin_mas.services.acesso_avancado import MAX_FALHAS_2FA
@@ -145,14 +146,18 @@ class Simulacoes:
     def __init__(self, padrao, acesso, fabrica=None):
         self.padrao, self.acesso, self.fabrica = padrao, acesso, fabrica
         self.por_empresa: dict = {}
+        self._trava = threading.Lock()  # duas requisições ao mesmo tempo não criam duas simulações da mesma empresa
 
     def de(self, sessao):
         if self.fabrica is None or sessao is None or not sessao.empresa or not self.acesso.multiempresa():
             return self.padrao
-        if sessao.empresa not in self.por_empresa:
-            self.por_empresa[sessao.empresa] = self.fabrica(sessao.empresa)
-        return self.por_empresa[sessao.empresa]
+        with self._trava:  # uma simulação por empresa: a criação (e a thread dela) acontece uma vez só
+            if sessao.empresa not in self.por_empresa:
+                self.por_empresa[sessao.empresa] = self.fabrica(sessao.empresa)
+            return self.por_empresa[sessao.empresa]
 
     def parar(self) -> None:
-        for sim in self.por_empresa.values():
+        with self._trava:
+            simulacoes = list(self.por_empresa.values())
+        for sim in simulacoes:
             sim.parar()

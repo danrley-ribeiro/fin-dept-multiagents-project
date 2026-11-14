@@ -22,7 +22,8 @@ def test_llm_numeric_mismatch_falls_back():
     assert "propõe uma ação" in registros(acao, "llm_fallback")[0]["motivo"]
     assert acao.resposta.content["relatorio"] == base.resposta.content["relatorio"]
     ok = run_scenario("fechar_mes", llm="mock-narrador")
-    assert ok.resposta.content["relatorio"].startswith("Síntese:")
+    relatorio = ok.resposta.content["relatorio"]  # desde a v0.5.0 a síntese do modelo vem ao fim, rotulada
+    assert "não verificada" in relatorio and relatorio.index("\nSíntese: ") > relatorio.index("Receita:")
     assert base.resposta.content["relatorio"] in ok.resposta.content["relatorio"]  # a flag só acrescenta texto
 
 
@@ -53,7 +54,7 @@ def test_model_swap_without_redeploy():
     s.bus.run()
     modelos = [r["modelo"] for r in s.bus.audit.records if r["kind"] == "llm_prompt"]
     assert modelos == ["mock-alucina", "mock-narrador"]
-    assert s.usuario.resposta(sid).content["relatorio"].startswith("Síntese:")
+    assert "\nSíntese: " in s.usuario.resposta(sid).content["relatorio"]
 
 
 def test_llm_not_allowed_roles_rejected():

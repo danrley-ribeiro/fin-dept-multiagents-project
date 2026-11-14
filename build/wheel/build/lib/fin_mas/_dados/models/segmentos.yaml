@@ -1,0 +1,110 @@
+# Eixo segmento (DSM4): como a empresa ganha dinheiro muda o plano de contas, a estrutura de custos,
+# as unidades de negócio, os centros de custo e o direcionador de rateio dos custos fixos do AG-CUS.
+# Combina com qualquer porte de models/portes.yaml (o porte dá a escala e as regras; o segmento, a forma).
+#
+# Tudo aqui é PARÂMETRO DA SIMULAÇÃO (empresa fictícia), não classificação legal. As estruturas seguem a
+# prática de contabilidade de custos: comércio apura CMV pelo estoque (estoque inicial + compras -
+# estoque final); serviços têm a mão de obra direta como principal custo variável; indústria apura custo de
+# produção (matéria-prima, mão de obra direta e custos indiretos de fabricação) e rateia os custos fixos
+# de produção por um direcionador (horas-máquina).
+#
+# O segmento padrão (`software_servicos`) é a SMA de sempre: os valores dele são os mesmos do código da
+# DSM2/DSM3 (env/dataset.py e env/empresa.py), e os dados gerados com ele são idênticos aos de antes.
+# Cada segmento consome o gerador aleatório na mesma ordem e na mesma quantidade (4 produtos, 3 centros,
+# 4 contas); o que muda são faixas e nomes. Valores em centavos.
+#
+# Papéis das contas (mesma posição em todos os segmentos): `contas[1]` recebe a NF duplicada do plantio
+# desvio_irregular, `contas[2]` a divergência planilha x ERP e `contas[3]` o gasto sazonal.
+versao: segmentos-v1
+padrao: software_servicos
+segmentos:
+  software_servicos:
+    titulo: Software e serviços (a SMA de sempre)
+    descricao: licenças de software e serviços de implantação e suporte
+    natureza_dos_custos: custo variável de licenças, nuvem e horas de implantação; custos fixos administrativos, comerciais e de operações
+    unidades: {UN-A: Software, UN-B: Serviços}
+    produtos:
+      - {id: P-1, un: UN-A, nome: SMA Analytics (licença)}
+      - {id: P-2, un: UN-A, nome: SMA Ledger (licença)}
+      - {id: P-3, un: UN-B, nome: Implantação}
+      - {id: P-4, un: UN-B, nome: Suporte gerenciado}
+    custo_variavel_pct: [0.40, 0.65]            # fração do preço (rng.uniform)
+    composicao_custo_variavel: {licencas_e_nuvem: 45, horas_de_implantacao_e_suporte: 55}
+    centros_custo: {CC-ADM: Administrativo, CC-COM: Comercial, CC-OPS: Operações}
+    custo_fixo_faixa: [500000, 1500000]         # por centro, antes da escala do porte
+    rateio:
+      versao: rateio-v1
+      direcionador: percentual fixo definido pela diretoria
+      unidade_medida: "%"
+      base: {UN-A: 60, UN-B: 40}
+    contas: [C-3001 Pessoal, C-3002 Marketing, C-3003 Servicos, C-3004 Logistica]
+    conta_chamariz: C-3005 Eventos
+
+  comercio:
+    titulo: Comércio (varejo)
+    descricao: revenda de mercadorias em loja física e loja virtual
+    natureza_dos_custos: custo das mercadorias vendidas (CMV) apurado pelo estoque; despesas de loja, logística e aluguel
+    unidades: {UN-LOJ: Loja física, UN-ECO: Loja virtual}
+    produtos:
+      - {id: M-1, un: UN-LOJ, nome: Linha casa (mercadoria)}
+      - {id: M-2, un: UN-LOJ, nome: Linha vestuário (mercadoria)}
+      - {id: M-3, un: UN-ECO, nome: Eletrônicos (mercadoria)}
+      - {id: M-4, un: UN-ECO, nome: Acessórios (mercadoria)}
+    custo_variavel_pct: [0.55, 0.72]            # CMV: o custo de compra pesa mais que no serviço
+    composicao_custo_variavel: {cmv: 100}
+    estoque: {giro_meses: [1.0, 1.6]}           # estoque inicial e final em meses de CMV
+    centros_custo: {CC-ADM: Administrativo, CC-LOJ: Lojas, CC-LOG: Logística e estoque}
+    custo_fixo_faixa: [400000, 1200000]
+    rateio:
+      versao: rateio-comercio-v1
+      direcionador: área ocupada (m², loja e centro de distribuição)
+      unidade_medida: m²
+      base: {UN-LOJ: 800, UN-ECO: 200}
+    contas: [C-3101 Pessoal de loja, C-3102 Marketing e promoções, C-3103 Aluguel de lojas, C-3104 Fretes e armazenagem]
+    conta_chamariz: C-3105 Vitrinismo
+
+  servicos:
+    titulo: Serviços profissionais
+    descricao: consultoria por hora e operação terceirizada por contrato
+    natureza_dos_custos: mão de obra direta (horas dos profissionais) como principal custo variável; custos fixos de escritório e comerciais
+    unidades: {UN-CON: Consultoria, UN-OPE: Operação terceirizada}
+    produtos:
+      - {id: S-1, un: UN-CON, nome: Consultoria (hora)}
+      - {id: S-2, un: UN-CON, nome: Projetos fechados}
+      - {id: S-3, un: UN-OPE, nome: Operação mensal (contrato)}
+      - {id: S-4, un: UN-OPE, nome: Atendimento sob demanda}
+    custo_variavel_pct: [0.45, 0.62]
+    composicao_custo_variavel: {mao_de_obra_direta: 80, deslocamentos_e_materiais: 20}
+    custo_hora_mod: 9000                        # R$ 90 por hora de mão de obra direta
+    centros_custo: {CC-ADM: Administrativo, CC-COM: Comercial, CC-ENT: Entrega}
+    custo_fixo_faixa: [500000, 1400000]
+    rateio:
+      versao: rateio-servicos-v1
+      direcionador: horas trabalhadas por unidade
+      unidade_medida: horas
+      base: {UN-CON: 5200, UN-OPE: 2800}
+    contas: [C-3201 Pessoal técnico, C-3202 Marketing, C-3203 Serviços de terceiros, C-3204 Viagens e deslocamentos]
+    conta_chamariz: C-3205 Treinamentos
+
+  industria:
+    titulo: Indústria
+    descricao: fabricação própria em duas linhas de produção
+    natureza_dos_custos: custo de produção (matéria-prima, mão de obra direta e custos indiretos de fabricação variáveis); custos fixos de produção rateados por horas-máquina
+    unidades: {UN-L1: Linha 1 (usinagem), UN-L2: Linha 2 (montagem)}
+    produtos:
+      - {id: F-1, un: UN-L1, nome: Peça usinada A}
+      - {id: F-2, un: UN-L1, nome: Peça usinada B}
+      - {id: F-3, un: UN-L2, nome: Conjunto montado C}
+      - {id: F-4, un: UN-L2, nome: Conjunto montado D}
+    custo_variavel_pct: [0.50, 0.68]
+    composicao_custo_variavel: {materia_prima: 55, mao_de_obra_direta: 30, cif_variaveis: 15}
+    centros_custo: {CC-ADM: Administrativo, CC-PRD: Produção (CIF fixos), CC-MAN: Manutenção}
+    custo_fixo_faixa: [600000, 1600000]
+    centros_producao: [CC-PRD, CC-MAN]           # custos fixos de produção (entram no custo de produção)
+    rateio:
+      versao: rateio-industria-v1
+      direcionador: horas-máquina por linha de produção
+      unidade_medida: horas-máquina
+      base: {UN-L1: 1400, UN-L2: 600}
+    contas: [C-3301 Mão de obra indireta, C-3302 Marketing, C-3303 Manutenção industrial, C-3304 Fretes de distribuição]
+    conta_chamariz: C-3305 Feiras

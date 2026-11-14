@@ -37,10 +37,13 @@ items:
 
   - id: PROT-DEL
     titulo: Delegação de subtarefa (FIPA-Request via A2A)
-    proposito: Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by.
+    proposito: >-
+      Orquestrador atribui uma subtarefa do DAG a um papel especialista com prazo reply_by. Desde a DSM3 o
+      especialista pode negociar o prazo: em vez de estourar o tempo, propõe uma extensão justificada
+      (propose) e o Orquestrador aceita, com o novo prazo, ou recusa, e o especialista segue com o que tem.
     participantes: [ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
     meio: SVC-A2A
-    performativos: [request, agree, refuse, inform, failure]
+    performativos: [request, agree, refuse, inform, failure, propose, accept-proposal, reject-proposal]
     estado_inicial: CRIADA
     estados_finais: [CONCLUIDA, FALHOU, RECUSADA, EXPIRADA]
     transicoes:
@@ -51,20 +54,33 @@ items:
       - [EM_EXECUCAO, inform, CONCLUIDA]
       - [EM_EXECUCAO, failure, FALHOU]
       - [EM_EXECUCAO, timeout, EXPIRADA]
+      - [EM_EXECUCAO, propose, NEGOCIANDO]
+      - [NEGOCIANDO, accept-proposal, EM_EXECUCAO]
+      - [NEGOCIANDO, reject-proposal, EM_EXECUCAO]
+      - [NEGOCIANDO, timeout, EXPIRADA]
     invalidas:
       - [AGUARDANDO, inform, "resultado antes de agree"]
       - [EXPIRADA, inform, "resposta após reply_by é descartada"]
+      - [AGUARDANDO, propose, "proposta de prazo antes de agree"]
+      - [NEGOCIANDO, inform, "resultado com proposta de prazo ainda sem resposta"]
+      - [NEGOCIANDO, propose, "segunda proposta antes da resposta à primeira"]
     emissores:
       request: [ROLE-ORQ]
       agree: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       refuse: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       inform: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
       failure: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      propose: [ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL]
+      accept-proposal: [ROLE-ORQ]
+      reject-proposal: [ROLE-ORQ]
     esquemas:
       request: {tarefa: str, entidade: str, competencia: aaaa-mm}
       refuse: {motivo: str}
       inform: {}
       failure: {motivo: str}
+      propose: {tipo: str, prazo_extra: int, motivo: str}
+      accept-proposal: {prazo: int}
+      reject-proposal: {motivo: str}
     entrega: DSM1
 
   - id: PROT-QRY
@@ -131,7 +147,7 @@ items:
       request: {tarefa: str, entidade: str, competencia: aaaa-mm}
       conforme: {achados: list}
       nao_conforme_nao_critico: {achados: list}
-      veto: {achados: list, opcoes: list, correcoes_sugeridas: list}
+      veto: {achados: list, opcoes: list, correcoes_sugeridas: list, exposicao: "int?"}  # exposicao: DSM4, só com SVC-IAM
       correcao: {aprovacao: str, correcoes: list}
       waiver_humano: {aprovacao: str, justificativa: str}
       prazo_esgotado: {decisao: str}
@@ -162,7 +178,7 @@ items:
       solicitação, ao veto (hash dos achados), à identidade do aprovador e a um prazo; cada aprovação é de uso único.
     participantes: [ROLE-ORQ, ROLE-APR, SVC-POL]
     meio: SVC-A2A + SVC-POL
-    performativos: [propose-action, approve, reject]
+    performativos: [propose-action, approve, reject, endorse]
     estado_inicial: CRIADA
     estados_finais: [EXECUTADA, NEGADA, REJEITADA, EXPIRADA]
     transicoes:
@@ -170,6 +186,7 @@ items:
       - [PROPOSTA, allow, EXECUTADA]
       - [PROPOSTA, deny, NEGADA]
       - [PROPOSTA, require_approval, PENDENTE]
+      - [PENDENTE, endorse, PENDENTE]  # POL-12 (DSM4): primeiro aval da dupla aprovação; a segunda pessoa aprova
       - [PENDENTE, approve, APROVADA]
       - [PENDENTE, reject, REJEITADA]
       - [PENDENTE, timeout, EXPIRADA]
@@ -181,10 +198,12 @@ items:
       - [APROVADA, approve, "aprovação duplicada"]
       - [EXECUTADA, approve, "aprovação reutilizada após a execução"]
       - [EXPIRADA, approve, "aprovação após o prazo é descartada"]
+      - [APROVADA, endorse, "aval depois da aprovação"]
     emissores:
       propose-action: [ROLE-ORQ]
       approve: [ROLE-APR]
       reject: [ROLE-APR]
+      endorse: [ROLE-APR]
     eventos_locais:
       allow: [SVC-POL]
       deny: [SVC-POL]
@@ -192,7 +211,10 @@ items:
       execute: [ROLE-ORQ]
     esquemas:
       propose-action: {solicitacao: str, competencia: aaaa-mm, acao: str, veto: str, achados: list, opcoes: list,
-                       correcoes_sugeridas: list, prazo: int}
-      approve: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?"}
-      reject: {aprovacao: str, solicitacao: str, veto: str, justificativa: str}
+                       correcoes_sugeridas: list, prazo: int, exposicao: "int?", dupla: "bool?"}
+      approve: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?",
+                atestado: "dict?", delegacao: "str?"}
+      endorse: {aprovacao: str, solicitacao: str, veto: str, decisao: str, justificativa: str, correcoes: "list?",
+                atestado: dict, delegacao: "str?"}
+      reject: {aprovacao: str, solicitacao: str, veto: str, justificativa: str, atestado: "dict?"}
     entrega: DSM3

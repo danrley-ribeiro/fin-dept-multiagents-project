@@ -1,0 +1,21 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+flowchart TB
+  P["perceber<br/>pedido, resposta, timeout, tools MCP<br/>(normas.cognicao, erp.direcionadores, erp.historico_resultado)"] --> B["revisar crenças<br/>toda crença com fonte determinística"]
+  B --> R{"reconsiderar intenções<br/>conforme o compromisso"}
+  R -- "aberto: motivo caiu" --> AB["abandonada / reconsiderada"]
+  R -- "obstinado: só se atingida ou impossível" --> MT["mantida"]
+  R -- "cego: repete o plano (até 2 vezes)" --> IS["insistida"]
+  AB --> O
+  MT --> O
+  IS --> D
+  O["gerar opções<br/>desejos a partir das crenças"] --> D["deliberar<br/>planos aplicáveis e não aplicáveis com motivo<br/>utilidade = 10 × Σ pesos do porte + preferência"]
+  D --> I["executar a intenção"]
+  I -- "plano falhou" --> RP["marcar falho e deliberar de novo sem ele"]
+  RP --> D
+  I -- "concluída" --> OK["resposta ao Orquestrador"]
+  subgraph EX["exemplos (cenários da DSM4)"]
+    E1["AG-RES: insumo sem resposta →<br/>P-CONSULTAR-DE-NOVO → P-DAR-POR-INDISPONIVEL →<br/>P-CONSOLIDAR-COM-RESSALVA (média) ou P-FALHAR (grande)"]
+    E2["AG-CUS: direcionador inconsistente →<br/>P-RATEIO-PADRAO falha → proporcional à receita<br/>(igualitário na micro)"]
+    E3["AG-REL: exceção no período →<br/>P-RELATORIO-DE-EXCECAO; sem exceção →<br/>P-SUMARIO-EXECUTIVO; grande → completo"]
+  end
+  D -.-> EX

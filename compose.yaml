@@ -1,0 +1,43 @@
+# SMA de Controladoria por Docker Compose (DSM4, docs/dsm4/implantacao.md).
+#
+#   cp .env.example .env      # defina FIN_MAS_SENHA_NOVA (ou FIN_MAS_DEMO=1 para avaliação)
+#   docker compose up -d --build
+#   abra http://localhost:8765
+#
+# A porta é publicada SÓ em 127.0.0.1 do hospedeiro. Exposição em rede ou nuvem está fora do escopo
+# do produto (decisão do dono do produto): não troque por "8765:8765" nem ponha um proxy na frente.
+# Dois volumes: `dados` (pasta de dados: cadastro de acesso, trilha, planilhas, instalacao.json) e
+# `chaves` (chaves de integridade, contadores e cabeças das trilhas, FIN_MAS_DIR_CHAVES), separados de
+# propósito: copiar o volume de dados sem o de chaves não leva junto a capacidade de forjar nada.
+services:
+  sma:
+    build: .
+    image: fin-mas:1.0.0
+    ports:
+      - "127.0.0.1:8765:8765"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      FIN_MAS_DIR_CHAVES: /chaves
+    volumes:
+      - dados:/dados
+      - chaves:/chaves
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8765/api/saude', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  dados: {}
+  chaves: {}

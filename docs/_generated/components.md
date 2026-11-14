@@ -124,11 +124,11 @@ Componente implementado em `src/fin_mas/services/redacao.py`.
 Componente implementado em `src/fin_mas/core/schema.py`.
 ````
 
-````{comp} Núcleo BDI (crenças
+````{comp} Núcleo BDI (crenças, desejos, planos, intenções, estratégias de compromisso)
 :id: COMP-BDI
 :entrega: DSM2
 :status: implementado
-:realizes: AG-ORC, AG-CIN
+:realizes: AG-ORC, AG-CIN, AG-RES, AG-CUS, AG-REL
 
 Componente implementado em `src/fin_mas/core/bdi.py`.
 ````
@@ -158,4 +158,373 @@ Componente implementado em `src/fin_mas/mcp/excel_server.py`.
 :realizes: SVC-LCK
 
 Componente implementado em `src/fin_mas/services/locks.py`.
+````
+
+````{comp} Serviço de identidade e acesso
+:id: COMP-IAM
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/iam.py`.
+````
+
+````{comp} Arquivo selado com trava entre processos
+:id: COMP-SEL
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/selado.py`.
+````
+
+````{comp} Trilha de acesso encadeada
+:id: COMP-TRI
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/trilha.py`.
+````
+
+````{comp} Linha de comando de acesso e implantação
+:id: COMP-CLA
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/cli_acesso.py`.
+````
+
+````{comp} Provedores de LLM (mocks
+:id: COMP-PRV
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-MOD
+
+Componente implementado em `src/fin_mas/services/provedores.py`.
+````
+
+````{comp} Hipóteses (proposta
+:id: COMP-INF
+:entrega: DSM3
+:status: implementado
+:realizes: AG-ORC, AG-RES
+
+Componente implementado em `src/fin_mas/core/inferencia.py`.
+````
+
+````{comp} Motor local de hipóteses (regras offline)
+:id: COMP-COG
+:entrega: DSM3
+:status: implementado
+:realizes: AG-ORC, AG-RES
+
+Componente implementado em `src/fin_mas/cognicao/regras.py`.
+````
+
+````{comp} Verificador de invariantes do trace
+:id: COMP-INV
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/invariantes.py`.
+````
+
+````{comp} Explicação de decisões e diagrama de sequência
+:id: COMP-EXP
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/services/explicacao.py`.
+````
+
+````{comp} Console de administração de acesso e auditoria (TUI)
+:id: COMP-TUI
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM, SVC-AUD
+
+Componente implementado em `src/fin_mas/tui/app.py`.
+````
+
+````{comp} Instalação por um comando e diagnóstico
+:id: COMP-IMP
+:entrega: DSM3
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/implantacao.py`.
+````
+
+````{comp} Agente de Resultados cognitivo (variante BDI)
+:id: COMP-RESB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-RES
+
+Componente implementado em `src/fin_mas/agents/res_bdi.py`.
+````
+
+````{comp} Agente de Custos cognitivo (variante BDI)
+:id: COMP-CUSB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-CUS
+
+Componente implementado em `src/fin_mas/agents/cus_bdi.py`.
+````
+
+````{comp} Agente de Relatórios cognitivo (variante BDI)
+:id: COMP-RELB
+:entrega: DSM4
+:status: implementado
+:realizes: AG-REL
+
+Componente implementado em `src/fin_mas/agents/rel_bdi.py`.
+````
+
+````{comp} Registro selado de aprendizado das regras locais
+:id: COMP-APD
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-APD
+
+Componente implementado em `src/fin_mas/services/aprendizado.py`.
+````
+
+````{comp} Perfil cognitivo por porte (pesos, público, compromisso, limiares)
+:id: COMP-PCG
+:entrega: DSM4
+:status: implementado
+:realizes: AG-RES, AG-CUS, AG-REL
+
+Componente implementado em `src/fin_mas/cognicao/perfis.py`.
+````
+
+````{comp} Base de conhecimento normativo com busca lexical (BM25)
+:id: COMP-CON
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conhecimento/base.py`.
+````
+
+````{comp} Métricas da cognição dos especialistas (MET-30 e MET-31)
+:id: COMP-MCG
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/metricas_cognicao.py`.
+````
+
+````{comp} Modelo de falhas aleatórias por seed
+:id: COMP-CAO
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-A2A
+
+Componente implementado em `src/fin_mas/caos.py`.
+````
+
+````{comp} Parâmetros de coordenação injetáveis
+:id: COMP-PAR
+:entrega: DSM4
+:status: implementado
+:realizes: AG-ORQ
+
+Componente implementado em `src/fin_mas/parametros.py`.
+````
+
+````{comp} Workflow centralizado funcionalmente equivalente (linha de base)
+:id: COMP-WEQ
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-POL
+
+Componente implementado em `src/fin_mas/baseline_eq.py`.
+````
+
+````{comp} Estatística do experimento com a biblioteca padrão
+:id: COMP-EST
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estatistica.py`.
+````
+
+````{comp} Experimento em blocos (desenho
+:id: COMP-ESU
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estudo.py`.
+````
+
+````{comp} Tabelas e figuras do experimento
+:id: COMP-ESR
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `src/fin_mas/estudo_relato.py`.
+````
+
+````{comp} Eixo segmento (plano de contas
+:id: COMP-SEG
+:entrega: DSM4
+:status: implementado
+:realizes: AG-CUS
+
+Componente implementado em `src/fin_mas/env/segmentos.py`.
+````
+
+````{comp} Backup
+:id: COMP-BKP
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/manutencao.py`.
+````
+
+````{comp} Pacote instalável com modelos YAML e dashboard embutidos
+:id: COMP-PKG
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/recursos.py`.
+````
+
+````{comp} Contêiner (Dockerfile e compose) publicado só em loopback
+:id: COMP-CTN
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `Dockerfile`.
+````
+
+````{comp} Acesso avançado (segundo fator
+:id: COMP-AAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/acesso_avancado.py`.
+````
+
+````{comp} Segundo fator TOTP (RFC 6238) e códigos de recuperação
+:id: COMP-TOTP
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/totp.py`.
+````
+
+````{comp} Cofre de segredos selado
+:id: COMP-COF
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/services/cofre.py`.
+````
+
+````{comp} Ataques ao acesso avançado (cenário)
+:id: COMP-AAT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/env/ataques_acesso_avancado.py`.
+````
+
+````{comp} Linha de comando do acesso avançado e da memória
+:id: COMP-CLV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM, SVC-MEM
+
+Componente implementado em `src/fin_mas/cli_avancado.py`.
+````
+
+````{comp} Rotas do acesso avançado no servidor
+:id: COMP-SAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/server_avancado.py`.
+````
+
+````{comp} Abas do acesso avançado no console
+:id: COMP-TAV
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/tui/avancado.py`.
+````
+
+````{comp} Conectores de fonte (interface
+:id: COMP-CNX
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/base.py`.
+````
+
+````{comp} Cliente MCP por stdio e conector MCP
+:id: COMP-MCC
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/mcp_cliente.py`.
+````
+
+````{comp} ERP de demonstração em loopback (API JSON com token e escrita)
+:id: COMP-ERD
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/conectores/erp_demo.py`.
+````
+
+````{comp} Entendimento determinístico de fontes (OpenAPI
+:id: COMP-ENT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-MCP
+
+Componente implementado em `src/fin_mas/fontes/entendimento.py`.
+````
+
+````{comp} Cadastro de fontes e rotas da aba Fontes de dados
+:id: COMP-FNT
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-IAM
+
+Componente implementado em `src/fin_mas/fontes/registro.py`.
+````
+
+````{comp} Aba Fontes de dados no dashboard
+:id: COMP-FNW
+:entrega: DSM4
+:status: implementado
+:realizes: SVC-AUD
+
+Componente implementado em `web/src/components/Fontes.tsx`.
 ````

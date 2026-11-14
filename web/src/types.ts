@@ -32,6 +32,8 @@ export interface Empresa {
 export interface Cenario {
   nome: string;
   descricao: string;
+  cognicao?: string;
+  esperado?: string;
 }
 
 export interface Controle {
@@ -46,6 +48,21 @@ export interface Controle {
   geracao: number;
   porte?: string;
   fonte?: string;
+  cognicao?: string;
+}
+
+/** Hipótese de um agente cognitivo (ADR-008): proposta validada, à espera de evidência, ou já decidida. */
+export interface Hipotese {
+  id: string;
+  tipo: string;
+  alvo: string;
+  estado: string; // aceita (proposta) | em_verificacao | confirmada | refutada | arquivada
+  origens: string[];
+  justificativa?: string;
+  fonte?: string; // evidência que confirmou ou refutou
+  motivo?: string;
+  seq: number;
+  t: number;
 }
 
 export interface Crenca {
@@ -106,6 +123,8 @@ export interface Mente {
   intencoes: Record<string, Intencao>;
   deliberacoes: Deliberacao[];
   decisoes: Decisao[];
+  hipoteses: Record<string, Hipotese>;
+  propostasRejeitadas: { tipo: string; alvo: string; origem: string; motivo: string; seq: number; t: number }[];
 }
 
 export interface EstadoAgente {

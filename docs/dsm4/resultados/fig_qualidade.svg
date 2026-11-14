@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 174" width="856" height="174" font-family="Arial, Helvetica, sans-serif" font-size="11">
+<rect width="856" height="174" fill="#fcfcfb"/>
+<text x="14" y="20" font-size="14" font-weight="700" fill="#0b0b0b">Qualidade sem falhas: com as mesmas funções, SMA e workflow equivalente empatam</text>
+<text x="14" y="36" fill="#52514e">Média por seed em 30 seeds; o traço é o IC de 95% por bootstrap. Bloco A do experimento.</text>
+<rect x="14" y="46" width="10" height="10" rx="2" fill="#2a78d6"/><text x="28" y="55" fill="#52514e">SMA básico</text>
+<rect x="100.0" y="46" width="10" height="10" rx="2" fill="#eb6834"/><text x="114.0" y="55" fill="#52514e">SMA com cognição local</text>
+<rect x="260.4" y="46" width="10" height="10" rx="2" fill="#1baf7a"/><text x="274.4" y="55" fill="#52514e">workflow equivalente</text>
+<rect x="408.4" y="46" width="10" height="10" rx="2" fill="#eda100"/><text x="422.4" y="55" fill="#52514e">workflow mínimo (DSM3)</text>
+<text x="14" y="82" font-weight="700" fill="#52514e">Classificação correta (%)</text>
+<line x1="14" y1="89" x2="14" y2="139" stroke="#d6d5d0"/>
+<rect x="14" y="92" width="141.0" height="9" rx="2" fill="#2a78d6"><title>Classificação correta (%) · SMA básico: 75,0%</title></rect>
+<line x1="133.1" y1="96.5" x2="175.4" y2="96.5" stroke="#0b0b0b" stroke-width="1"/><line x1="133.1" y1="93.5" x2="133.1" y2="99.5" stroke="#0b0b0b" stroke-width="1"/><line x1="175.4" y1="93.5" x2="175.4" y2="99.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="179.4" y="100" font-size="9" fill="#52514e">75,0%</text>
+<rect x="14" y="103" width="141.0" height="9" rx="2" fill="#eb6834"><title>Classificação correta (%) · SMA com cognição local: 75,0%</title></rect>
+<line x1="133.1" y1="107.5" x2="175.4" y2="107.5" stroke="#0b0b0b" stroke-width="1"/><line x1="133.1" y1="104.5" x2="133.1" y2="110.5" stroke="#0b0b0b" stroke-width="1"/><line x1="175.4" y1="104.5" x2="175.4" y2="110.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="179.4" y="111" font-size="9" fill="#52514e">75,0%</text>
+<rect x="14" y="114" width="141.0" height="9" rx="2" fill="#1baf7a"><title>Classificação correta (%) · workflow equivalente: 75,0%</title></rect>
+<line x1="133.1" y1="118.5" x2="175.4" y2="118.5" stroke="#0b0b0b" stroke-width="1"/><line x1="133.1" y1="115.5" x2="133.1" y2="121.5" stroke="#0b0b0b" stroke-width="1"/><line x1="175.4" y1="115.5" x2="175.4" y2="121.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="179.4" y="122" font-size="9" fill="#52514e">75,0%</text>
+<rect x="14" y="125" width="68.9" height="9" rx="2" fill="#eda100"><title>Classificação correta (%) · workflow mínimo (DSM3): 36,7%</title></rect>
+<line x1="51.6" y1="129.5" x2="114.3" y2="129.5" stroke="#0b0b0b" stroke-width="1"/><line x1="51.6" y1="126.5" x2="51.6" y2="132.5" stroke="#0b0b0b" stroke-width="1"/><line x1="114.3" y1="126.5" x2="114.3" y2="132.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="118.3" y="133" font-size="9" fill="#52514e">36,7%</text>
+<text x="290" y="82" font-weight="700" fill="#52514e">Conformidade correta (%)</text>
+<line x1="290" y1="89" x2="290" y2="139" stroke="#d6d5d0"/>
+<rect x="290" y="92" width="188.0" height="9" rx="2" fill="#2a78d6"><title>Conformidade correta (%) · SMA básico: 100,0%</title></rect>
+<text x="482.0" y="100" font-size="9" fill="#52514e">100,0%</text>
+<rect x="290" y="103" width="188.0" height="9" rx="2" fill="#eb6834"><title>Conformidade correta (%) · SMA com cognição local: 100,0%</title></rect>
+<text x="482.0" y="111" font-size="9" fill="#52514e">100,0%</text>
+<rect x="290" y="114" width="188.0" height="9" rx="2" fill="#1baf7a"><title>Conformidade correta (%) · workflow equivalente: 100,0%</title></rect>
+<text x="482.0" y="122" font-size="9" fill="#52514e">100,0%</text>
+<rect x="290" y="125" width="188.0" height="9" rx="2" fill="#eda100"><title>Conformidade correta (%) · workflow mínimo (DSM3): 100,0%</title></rect>
+<text x="482.0" y="133" font-size="9" fill="#52514e">100,0%</text>
+<text x="566" y="82" font-weight="700" fill="#52514e">Críticas publicadas sem tratamento (média)</text>
+<line x1="566" y1="89" x2="566" y2="139" stroke="#d6d5d0"/>
+<text x="570.0" y="100" font-size="9" fill="#52514e">0,0</text>
+<text x="570.0" y="111" font-size="9" fill="#52514e">0,0</text>
+<text x="570.0" y="122" font-size="9" fill="#52514e">0,0</text>
+<rect x="566" y="125" width="154.8" height="9" rx="2" fill="#eda100"><title>Críticas publicadas sem tratamento (média) · workflow mínimo (DSM3): 0,7</title></rect>
+<line x1="690.4" y1="129.5" x2="754.0" y2="129.5" stroke="#0b0b0b" stroke-width="1"/><line x1="690.4" y1="126.5" x2="690.4" y2="132.5" stroke="#0b0b0b" stroke-width="1"/><line x1="754.0" y1="126.5" x2="754.0" y2="132.5" stroke="#0b0b0b" stroke-width="1"/>
+<text x="758.0" y="133" font-size="9" fill="#52514e">0,7</text>
+</svg>

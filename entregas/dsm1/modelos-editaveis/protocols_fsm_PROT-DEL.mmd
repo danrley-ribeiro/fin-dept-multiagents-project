@@ -7,6 +7,10 @@ stateDiagram-v2
     EM_EXECUCAO --> CONCLUIDA: inform
     EM_EXECUCAO --> FALHOU: failure
     EM_EXECUCAO --> EXPIRADA: timeout
+    EM_EXECUCAO --> NEGOCIANDO: propose
+    NEGOCIANDO --> EM_EXECUCAO: accept-proposal
+    NEGOCIANDO --> EM_EXECUCAO: reject-proposal
+    NEGOCIANDO --> EXPIRADA: timeout
     CONCLUIDA --> [*]
     FALHOU --> [*]
     RECUSADA --> [*]

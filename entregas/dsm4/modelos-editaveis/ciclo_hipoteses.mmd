@@ -1,0 +1,34 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+flowchart TB
+  subgraph PROP["Proponentes (ADR-008)"]
+    L["regras locais<br/>cognicao/regras.py, offline"]
+    M["LLM opcional<br/>services/modelos.py"]
+  end
+  G["gatilho de inferência<br/>(uma vez por chave)"] --> L
+  G --> M
+  L --> P["proposta<br/>tipo, alvo, justificativa, evidências, confiança"]
+  M --> P
+  P --> V{"validação determinística<br/>core/inferencia.py"}
+  V -. "1 tipo fora da lista fechada ou alvo fora da tarefa" .-> R["rejeitada<br/>(motivo no trace, NORM-11)"]
+  V -. "2 evidência que não é crença do agente" .-> R
+  V -. "3 número no texto (só por marcador)" .-> R
+  V -. "4 texto propõe ação" .-> R
+  V -. "5 marcador sem evidência citada" .-> R
+  V -- "aceita" --> H["hipótese<br/>self.hipoteses, repositório separado das crenças<br/>estado: proposta"]
+  H --> D["desejo epistêmico<br/>verificar_hipotese(conta), prioridade 2"]
+  D --> PL{"deliberação:<br/>plano aplicável de maior utilidade"}
+  PL --> P1["P-CONFERIR-EVIDENCIA<br/>AG-CIN já respondeu"]
+  PL --> P2["P-VERIFICAR-COM-CIN<br/>nova query-ref, se cabe no prazo e no teto"]
+  PL --> P3["P-NEGOCIAR-PRAZO<br/>propose ao AG-ORQ (PROT-DEL)"]
+  PL --> P4["P-VERIFICAR-NO-HISTORICO<br/>padrão de calendário nos trimestres"]
+  PL --> P5["P-ARQUIVAR-HIPOTESE<br/>fallback"]
+  P3 -- "accept-proposal" --> P2
+  P3 -- "reject-proposal: plano falha" --> P5
+  P1 --> E["evidência determinística<br/>resposta do AG-CIN ou cálculo sobre o histórico"]
+  P2 --> E
+  P4 --> E
+  P5 --> A["hipótese arquivada<br/>nada muda na avaliação"]
+  E --> C["Crencas.revisar(chave, valor, fonte)"]
+  E --> F["hipótese confirmada ou refutada<br/>(fonte registrada)"]
+  C --> RC["reconsideração das intenções<br/>e nova geração de opções"]
+  F --> RC

@@ -1,0 +1,44 @@
+# Stakeholders (recorte Tropos — early requirements).
+# Um stakeholder não vira agente; fornece objetivos, restrições e critérios de aceite.
+items:
+  - id: STK-01
+    titulo: CFO / Diretoria contratante
+    interesse: Resultado do período confiável, no prazo, e insights para decisão.
+    restricoes: Não aceita números divergentes entre relatório e DRE.
+    entrega: DSM1
+
+  - id: STK-02
+    titulo: Controller humano (aprovador)
+    interesse: Revisar e aprovar ações restritas e publicações (human-in-the-loop).
+    restricoes: Toda ação com efeito externo passa por sua aprovação explícita.
+    entrega: DSM1
+
+  - id: STK-03
+    titulo: Contabilidade da empresa cliente
+    interesse: Receber apontamentos e ajustes propostos com justificativa.
+    restricoes: É a autoridade sobre o razão contábil no ERP.
+    entrega: DSM1
+
+  - id: STK-04
+    titulo: Auditoria interna / externa
+    interesse: Trilha completa de decisões, critérios, fontes e aprovações.
+    restricoes: Evidência reconstruível por identificador de conversa.
+    entrega: DSM1
+
+  - id: STK-05
+    titulo: TI, Segurança da Informação e DPO (LGPD)
+    interesse: Sigilo de dados financeiros, minimização e retenção de dados pessoais.
+    restricoes: Nenhum segredo ou dado pessoal desnecessário em logs e memória.
+    entrega: DSM1
+
+  - id: STK-06
+    titulo: Equipe de desenvolvimento (autores)
+    interesse: Rastreabilidade entre requisito, modelo, código e teste.
+    restricoes: Execução offline e reprodutível, sem API paga obrigatória.
+    entrega: DSM1
+
+  - id: STK-07
+    titulo: Avaliador da disciplina (INE5628)
+    interesse: Evidência verificável e reprodutível de cada critério.
+    restricoes: Documentação e autoria explícitas, incluindo uso de IA.
+    entrega: DSM1

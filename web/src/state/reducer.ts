@@ -5,7 +5,8 @@ export const AGENTES = ["SOL", "APR", "AG-ORQ", "AG-CUS", "AG-ORC", "AG-RES", "A
 const MAX_VOOS = 40;
 
 function menteVazia(): Mente {
-  return { crencas: {}, desejos: {}, intencoes: {}, deliberacoes: [], decisoes: [] };
+  return { crencas: {}, desejos: {}, intencoes: {}, deliberacoes: [], decisoes: [], hipoteses: {},
+    propostasRejeitadas: [] };
 }
 
 function agenteVazio(id: string): EstadoAgente {
@@ -149,6 +150,27 @@ function aplicar(s: ViewState, r: Registro): void {
       }
       break;
     }
+    case "hipotese": {  // ADR-008: proposta validada vira hipótese; só a evidência a confirma ou refuta
+      const a = agente(s, r.agente);
+      if (!a) break;
+      const evento = String(r.evento);
+      if (evento === "rejeitada") {
+        a.mente.propostasRejeitadas.push({ tipo: String(r.tipo), alvo: String(r.alvo), origem: String(r.origem),
+          motivo: String(r.motivo), seq: r.seq, t: r.t });
+        break;
+      }
+      const id = String(r.hipotese);
+      const anterior = a.mente.hipoteses[id];
+      a.mente.hipoteses[id] = {
+        id, tipo: String(r.tipo), alvo: String(r.alvo), seq: r.seq, t: r.t,
+        estado: evento === "aceita" ? "proposta" : evento === "corroborada" ? (anterior?.estado ?? "proposta") : evento,
+        origens: [...new Set([...(anterior?.origens ?? []), ...(r.origem ? [String(r.origem)] : [])])],
+        justificativa: (r.justificativa as string) ?? anterior?.justificativa,
+        fonte: (r.fonte as string) ?? anterior?.fonte, motivo: (r.motivo as string) ?? anterior?.motivo,
+      };
+      tocar(s, r.agente, r, `hipótese ${evento}: ${r.tipo}`, "pensamento");
+      break;
+    }
     case "desire": {
       const a = agente(s, r.agente);
       if (a) {
@@ -239,7 +261,8 @@ function clonar(s: ViewState): ViewState {
   const agentes: Record<string, EstadoAgente> = {};
   for (const [id, a] of Object.entries(s.agentes)) {
     agentes[id] = { ...a, mente: { crencas: { ...a.mente.crencas }, desejos: { ...a.mente.desejos },
-      intencoes: { ...a.mente.intencoes }, deliberacoes: [...a.mente.deliberacoes], decisoes: [...a.mente.decisoes] } };
+      intencoes: { ...a.mente.intencoes }, deliberacoes: [...a.mente.deliberacoes], decisoes: [...a.mente.decisoes],
+      hipoteses: { ...a.mente.hipoteses }, propostasRejeitadas: [...a.mente.propostasRejeitadas] } };
   }
   const conversas: ViewState["conversas"] = {};
   for (const [id, c] of Object.entries(s.conversas)) conversas[id] = { ...c };

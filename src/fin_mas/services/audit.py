@@ -189,7 +189,8 @@ def formatar(r: dict) -> str:
         resultado = json.dumps(r["resultado"], sort_keys=True, ensure_ascii=False)
         return f"{cab} DECISAO {r['agente']}: {r['regra']} => {resultado}"
     if k == "mcp_call":
-        return f"{cab} MCP {r['agente']} chama {r['tool']}"
+        efeito = f" ({r['situacao']}: {r.get('motivo')})" if r.get("situacao") else ""
+        return f"{cab} MCP {r['agente']} chama {r['tool']}{efeito}"
     if k == "mcp_denied":
         if r.get("motivo"):
             return f"{cab} MCP INDISPONIVEL {r['agente']} em {r['tool']} ({r['motivo']})"
@@ -205,6 +206,21 @@ def formatar(r: dict) -> str:
         return f"{cab} DELIBERA {r['agente']}: {r['desejo']} -> {r['escolhido']} [{opcoes}]"
     if k == "intention":
         return f"{cab} INTENCAO {r['agente']}: {r['intencao']} {r['plano']} {r['evento']} ({r['motivo']})"
+    if k == "hipotese":
+        detalhe = r.get("motivo") or r.get("origem") or ""
+        alvo = f"{r.get('tipo')}({r.get('alvo')})"
+        return f"{cab} HIPOTESE {r['agente']}: {r.get('hipotese') or '-'} {alvo} {r['evento']} ({detalhe})"
+    if k == "llm_prompt":
+        return (f"{cab} LLM {r['agente']} chama {r.get('provedor') or 'apelido'}/{r['modelo']} "
+                f"({r.get('uso', 'sintese')}; {r['versao_prompt']})")
+    if k == "llm_custo":
+        servido = f", servido por {r['modelo_servido']}" if r.get("modelo_servido") else ""
+        return (f"{cab} LLM {r['agente']} resposta: {r['tokens_entrada']}+{r['tokens_saida']} tokens, "
+                f"US$ {r['custo_usd']}{servido}")
+    if k == "llm_fallback":
+        return f"{cab} LLM FALLBACK {r['agente']}: {r['motivo']}"
+    if k == "modelo":
+        return f"{cab} MODELO {r['agente']} {r['evento']}: {_curto(r.get('config'))}"
     if k == "agente":
         return f"{cab} OPERADOR {r['agente']} {r['evento']}"
     if k == "rejected":
@@ -229,6 +245,11 @@ def formatar(r: dict) -> str:
         alvo = r.get("memoria") or r.get("memorias") or r.get("chave") or ""
         motivo = f" ({r['motivo']})" if r.get("motivo") else ""
         return f"{cab} MEMORIA {r.get('evento')} {r.get('tipo', '')} {alvo}{motivo}".rstrip()
+    if k == "aprendizado":  # ADR-010: contagem de acertos e erros das regras locais
+        if r.get("evento") == "observada":
+            return (f"{cab} APRENDIZADO {r.get('agente')}: {r.get('regra')} {r.get('desfecho')} em {r.get('alvo')} "
+                    f"({r.get('confirmadas')} confirmada(s), {r.get('refutadas')} refutada(s))")
+        return f"{cab} APRENDIZADO {r.get('evento')} {r.get('motivo', '')}".rstrip()
     if k == "meta":
         return f"{cab} META {r.get('empresa', {}).get('razao_social', '')}"
     return f"{cab} {k}"

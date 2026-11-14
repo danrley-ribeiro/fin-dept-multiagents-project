@@ -28,7 +28,7 @@
 :status: especificado
 :accessed_via: SVC-MCP
 
-**Observabilidade:** Leitura via MCP (séries históricas, fechamentos anteriores)  
+**Observabilidade:** Leitura via MCP (séries históricas, fechamentos anteriores). Desde a DSM4 (ADR-011) é real: o recurso canônico Historico vem de qualquer conector (API REST, servidor MCP, planilha) pelo mapeamento confirmado e alimenta a tool erp.historico  
 **Acionabilidade:** Nenhuma (somente leitura)  
 **Exclusividade:** Não exclusiva  
 **Autoridade:** TI do cliente (STK-05)
@@ -40,7 +40,7 @@
 :status: especificado
 :accessed_via: SVC-MCP
 
-**Observabilidade:** Leitura via MCP; pode falhar ou atrasar  
+**Observabilidade:** Leitura via MCP; pode falhar ou atrasar. Desde a DSM4 (ADR-011) há o conector REST JSON genérico (contrato OpenAPI ou amostras, autenticação por cabeçalho, Bearer ou chave, tempo limite, erros redigidos), exercitado contra o ERP de demonstração em loopback; host externo só com liberação de um administrador (NORM-32)  
 **Acionabilidade:** Nenhuma  
 **Exclusividade:** Não exclusiva (cota de chamadas)  
 **Autoridade:** Provedor externo
@@ -86,10 +86,22 @@
 :id: ENV-UI
 :entrega: DSM1
 :status: especificado
-:accessed_via: SVC-POL
+:accessed_via: SVC-IAM, SVC-POL
 
 **Observabilidade:** Recebe solicitações e decisões de aprovação humanas  
 **Acionabilidade:** Exibe resultado final, pedidos de aprovação e dashboard  
 **Exclusividade:** Não exclusiva  
-**Autoridade:** Usuários autenticados (STK-01, STK-02, STK-04)
+**Autoridade:** Pessoas com conta e papel (STK-01, STK-02, STK-04, STK-05, STK-06), cada uma sob as suas permissões
+````
+
+````{env} Perfil de segmento da empresa (models/segmentos.yaml)
+:id: ENV-SEG
+:entrega: DSM4
+:status: especificado
+:accessed_via: SVC-MCP
+
+**Observabilidade:** Plano de contas, unidades e centros chegam pelos dados do ERP ou da planilha; o direcionador de rateio é conhecimento do AG-CUS  
+**Acionabilidade:** Nenhuma (configuração da implantação)  
+**Exclusividade:** Não exclusiva  
+**Autoridade:** Controller (STK-02) na instalação
 ````

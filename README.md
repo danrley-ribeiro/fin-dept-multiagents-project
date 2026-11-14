@@ -11,8 +11,21 @@ Controles Internos são **agentes cognitivos BDI**; as regras valem para empresa
 porte** (micro, pequena, média e grande), com ou sem ERP (modelos Excel e servidor MCP de Excel). Um
 **dashboard** mostra os agentes trabalhando num escritório, ao vivo ou em replay. Desde a DSM3, o barramento
 valida identidade, papel, destinatário, conversa e esquema de toda mensagem, e as decisões humanas passam
-por um **Approval Gate** com política explícita e uso único. A IA generativa é **opcional e desligada por
-padrão**, restrita à síntese do Agente de Relatórios e validada contra os números do template.
+por um **Approval Gate** com política explícita e uso único. Na versão 0.5.0, quem usa a plataforma é uma
+**pessoa com conta** (login, papéis, decisão atestada pela pessoa autenticada, trilha de acesso), o Agente de
+Orçamento trabalha com **hipóteses verificáveis** (propostas por regras locais ou por um LLM, que só viram
+crença com evidência) e pode **negociar prazo** com o Orquestrador. A IA generativa continua **opcional e
+desligada por padrão** (Orçamento, Resultados e Relatórios; nunca Orquestrador, Custos ou Controles
+Internos), com cinco provedores, consentimento para envio externo e números conferidos contra o núcleo.
+
+Na **versão final (1.0.0, DSM4)**: Resultados, Custos e Relatórios ganham variantes BDI (as reativas seguem como
+nível `basico` e braço de comparação), com aprendizado local auditável, estratégias de compromisso e base normativa
+com proveniência; acesso avançado (segundo fator, alçada por pessoa, delegação, dupla aprovação, cofre, várias
+empresas); conectores genéricos e entendimento automático de fontes, sem IA generativa; portes MEI e Média empresa II
+e segmentos (comércio, serviços, indústria); instalação por wheel e Docker, backup e restauração. O **experimento**
+foi refeito com pré-registro, falhas sorteadas e um workflow centralizado funcionalmente equivalente: com as mesmas
+funções, o SMA **empata em qualidade e perde em custo e em robustez sob perda de mensagens**
+([análise](docs/dsm4/resultados.md), [relatório técnico](entregas/dsm4/documentacao/relatorio.pdf)).
 
 ```bash
 .\iniciar.ps1          # Windows: prepara tudo (Python, .venv, bun, dashboard) e abre o escritório ao vivo
@@ -33,15 +46,15 @@ Na raiz do repositório:
 | Linux / macOS | `./iniciar.sh` |
 | Qualquer um, com Python 3.11+ já instalado | `python tools/iniciar.py` |
 
-Sem argumento, abre o **escritório ao vivo** no navegador (`http://127.0.0.1:8765`). Para outro modo,
-passe o nome dele: `.\iniciar.ps1 testes`, `./iniciar.sh replay` etc.
+Sem argumento, abre o **escritório ao vivo** no navegador (`http://127.0.0.1:8765`) com as **contas de
+demonstração** (abaixo). Para outro modo, passe o nome dele: `.\iniciar.ps1 testes`, `./iniciar.sh replay` etc.
 
 | Modo | O que faz |
 |---|---|
-| `ao-vivo` (padrão) | servidor Python + dashboard: agentes executando agora; pausar, desligar agentes, decidir vetos, trocar porte, enviar planilha |
-| `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline), em `http://127.0.0.1:4173` |
+| `ao-vivo` (padrão) | servidor Python (`serve --demo`) + dashboard com login: agentes executando agora; pausar, desligar agentes, pedir, decidir vetos, logs, LLM, trocar porte, enviar planilha, conforme os papéis da conta |
+| `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline, sem login), em `http://127.0.0.1:4173` |
 | `dev` | servidor Python (8765) + Vite com recarga automática (`http://127.0.0.1:5173`), para desenvolver o dashboard |
-| `testes` | pytest (e2e e integração), `tools/trace.py --check`, testes do reducer e os 15 testes de uso real no navegador |
+| `testes` | pytest (437: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 30 roteiros de uso real no Chrome |
 | `docs` | gera a documentação Sphinx em `docs/_build/html` |
 | `cli` | roda um cenário no terminal: `--cenario veto_correcao --porte micro` |
 | `instalar` | só prepara o ambiente |
@@ -82,7 +95,8 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
 | **DSM1 v2** — revisão pós-feedback | [`entregas/dsm1/documentacao/main-v2.pdf`](entregas/dsm1/documentacao/main-v2.pdf) | ✅ concluída |
 | **DSM2** — Arquitetura e protótipo (revisados após o feedback) | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ concluída (prazo 31/10) |
-| **DSM3** — Comunicação, coordenação e protótipo funcional | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
+| **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.0) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
+| **DSM4** — Experimentação, documentação e entrega final (v1.0.0) | [`entregas/dsm4/`](entregas/dsm4/README.md) | ✅ concluída (prazo 02/12) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
@@ -97,9 +111,10 @@ entregas/
     modelos-editaveis/   diagramas Mermaid (.mmd)
     diagramas/           imagens dos diagramas (.png)
   dsm2/                  README, USO_DE_IA, diagramas e modelos-editaveis do protótipo
-  dsm3/                  README, USO_DE_IA e modelos-editaveis (validação, PROT-APR)
-src/fin_mas/             protótipo em Python (agentes, bus A2A, MCP mock, cenários, CLI)
-tests/                   testes unitários e e2e (pytest)
+  dsm3/                  README, USO_DE_IA, diagramas e modelos-editaveis (validação, PROT-APR, login, decisão atestada, hipóteses, PROT-DEL)
+src/fin_mas/             protótipo em Python (agentes, bus A2A, MCP mock, cenários, CLI, SVC-IAM, TUI)
+tests/                   testes unit, e2e, integration e tui (pytest)
+web/                     dashboard (Vite/React) e roteiros Playwright (web/e2e)
 enunciados/              enunciados da disciplina e exemplo de formato
 models/                  modelos AOSE em YAML (fonte única da rastreabilidade)
 tools/trace.py           valida a cadeia de rastreabilidade e gera a documentação
@@ -115,21 +130,59 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM3): **19/19 requisitos (100%) com cadeia completa**, 194 objetos rastreados,
-90 testes modelados (89 **executados**; TEST-19 é de entrega futura).
+Situação atual (DSM4, v1.0.0): **26/26 requisitos (100%) com cadeia completa**, 513 objetos rastreados,
+292 testes modelados (292 **executados**), 29 métricas, 0 erros.
 
-## Como executar o protótipo (DSM3)
+## Como executar
 
 ```bash
-python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt   # Python 3.11+
+python -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt   # Python 3.11+ (versões exatas: requirements-lock.txt)
 python -m fin_mas run --scenario fechar_mes --seed 42             # make demo
-python -m fin_mas run --scenario ataque_decisao_forjada           # 14 ataques rejeitados (make ataque)
-python -m fin_mas run --scenario reincidencia_waiver --memoria m.json
-python -m fin_mas verificar trace.jsonl                           # trace com cadeia de hashes e selo HMAC
-python -m pytest                                                  # 250 testes (make test)
+python -m fin_mas cenarios --verificar                            # 64 cenários: resposta, 10 invariantes, repetível (make cenarios)
+python -m fin_mas run --scenario ataque_decisao_forjada           # 14 ataques ao barramento rejeitados (make ataque)
+python -m fin_mas run --scenario ataque_acesso                    # 15 ataques ao controle de acesso rejeitados
+python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
+python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
+python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
+python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # o experimento da DSM4 (make experimento, ~3 min)
+python -m pytest                                                  # 669 testes: unit 95, e2e 428, integração 123, TUI 23 (make test)
 ```
 
+Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).
+Roteiro de demonstração de 10 minutos: [docs/dsm4/demonstracao.md](docs/dsm4/demonstracao.md).
+
+**Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),
+todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (vê e faz tudo, menos administrar acesso), `admin`,
+`operador`, `auditor`, `controller`, `elisa`, `carla`, `diego`, `ana` e `bruno`. Papéis e para que serve cada uma:
+[docs/dsm3/acesso.md](docs/dsm3/acesso.md), seção "Contas de demonstração".
+
+**Comandos novos da v0.5.0:**
+
+| Comando | Para quê |
+|---|---|
+| `fin-mas instalar [--demo]`, `fin-mas doctor`, `fin-mas serve --instalacao dados` | implantação local e diagnóstico |
+| `fin-mas acesso iniciar \| demo \| usuario \| sessao \| trilha \| papeis \| tui` | contas, papéis, sessões, trilha de acesso; console de administração (`pip install "fin-mas[tui]"`) |
+| `fin-mas auditoria TRACE [--agente --tipo --tarefa --q ...]`, `explicar TRACE SEQ`, `sequencia TRACE CONVERSA`, `invariantes TRACE` | auditoria de um trace gravado |
+| `fin-mas cenarios [--verificar] [--filtro]` | catálogo de cenários com conferência |
+| `fin-mas llm provedores \| avaliar` | provedores de LLM e bancada de avaliação de hipóteses |
+| `fin-mas run ... --cognicao basico\|local\|llm`, `--llm PROVEDOR:MODELO --llm-agentes --llm-usos --llm-consentimento` | nível de cognição e LLM opcional |
+
+**Comandos novos da v1.0.0:**
+
+| Comando | Para quê |
+|---|---|
+| `fin-mas experimento [--replicas N] [--rapido] --out PASTA` | experimento pré-registrado: braços, falhas sorteadas, estatística, tabelas e figuras |
+| `fin-mas run ... --segmento`, `--compromisso`, `--aprendizado ARQUIVO`; `fin-mas normas CONSULTA` | segmento da empresa, estratégia de compromisso, aprendizado persistente e busca na base normativa |
+| `fin-mas fontes entender \| testar`, `fin-mas erp-demo` | entendimento automático de uma fonte (OpenAPI, amostra JSON, tools MCP, planilha) e ERP de demonstração em loopback |
+| `fin-mas acesso 2fa \| politica \| delegacao \| alcadas \| empresa \| segredo`, `fin-mas memoria adotar` | acesso avançado e adoção de um arquivo de memória íntegro |
+| `fin-mas backup`, `restaurar`, `migrar`; `make wheel`, `make docker` | cópia de segurança conferida, pacote instalável e contêiner |
+
+`fin-mas` é o mesmo que `python -m fin_mas` (instalado pelo `pip install -e .`). Alvos do `make`: `cenarios`,
+`diagramas`, `cobertura`, `experimento`, `pdf-dsm4`, `entrega-dsm4` e `verificar-tudo`
+(rastreabilidade, pytest, cenários, vitest, Playwright e documentação, parando no primeiro erro).
+
 Roteiro de demonstração e mapa feedback → correção: [entregas/dsm3/README.md](entregas/dsm3/README.md);
+catálogo de cenários de teste: [docs/dsm3/cenarios-de-teste.md](docs/dsm3/cenarios-de-teste.md);
 protótipo e cenário de depuração: [entregas/dsm2/README.md](entregas/dsm2/README.md).
 
 ## Como compilar

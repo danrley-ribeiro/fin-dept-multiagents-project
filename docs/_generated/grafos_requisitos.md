@@ -5,10 +5,17 @@
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 
-### Funcional: REQ-F05 a REQ-F07
+### Funcional: REQ-F05 a REQ-F08
 
 ```{needflow}
-:filter: id in ["NORM-04", "NORM-05", "NORM-07", "NORM-08", "PROT-APR", "PROT-CMP", "PROT-DEL", "REQ-F05", "REQ-F06", "REQ-F07", "ROLE-CIN", "ROLE-CUS", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES"]
+:filter: id in ["NORM-04", "NORM-05", "NORM-07", "NORM-08", "NORM-11", "PROT-APR", "PROT-CMP", "PROT-DEL", "PROT-QRY", "REQ-F05", "REQ-F06", "REQ-F07", "REQ-F08", "ROLE-CIN", "ROLE-CUS", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES"]
+:link_types: assigned_to, uses_protocol, constrained_by
+```
+
+### Funcional: REQ-F20 a REQ-F30
+
+```{needflow}
+:filter: id in ["NORM-02", "NORM-07", "NORM-08", "NORM-11", "NORM-20", "NORM-21", "NORM-30", "NORM-31", "PROT-CMP", "PROT-DEL", "PROT-QRY", "REQ-F20", "REQ-F21", "REQ-F30", "ROLE-CIN", "ROLE-CUS", "ROLE-OPE", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES"]
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 
@@ -19,10 +26,17 @@
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 
+### Segurança: REQ-S05 a REQ-S20
+
+```{needflow}
+:filter: id in ["NORM-06", "NORM-10", "NORM-12", "NORM-13", "NORM-14", "NORM-15", "NORM-32", "PROT-APR", "PROT-CMP", "REQ-S05", "REQ-S06", "REQ-S20", "ROLE-ADM", "ROLE-APR", "ROLE-AUD", "ROLE-OPE", "ROLE-SOL"]
+:link_types: assigned_to, uses_protocol, constrained_by
+```
+
 ### Observabilidade: REQ-O01 a REQ-O04
 
 ```{needflow}
-:filter: id in ["NORM-06", "NORM-07", "PROT-DEL", "REQ-O01", "REQ-O02", "REQ-O03", "REQ-O04", "ROLE-APR", "ROLE-CIN", "ROLE-CUS", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES", "ROLE-SOL"]
+:filter: id in ["NORM-06", "NORM-07", "NORM-12", "PROT-DEL", "REQ-O01", "REQ-O02", "REQ-O03", "REQ-O04", "ROLE-APR", "ROLE-AUD", "ROLE-CIN", "ROLE-CUS", "ROLE-OPE", "ROLE-ORC", "ROLE-ORQ", "ROLE-REL", "ROLE-RES", "ROLE-SOL"]
 :link_types: assigned_to, uses_protocol, constrained_by
 ```
 

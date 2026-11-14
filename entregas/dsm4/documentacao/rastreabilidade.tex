@@ -1,0 +1,325 @@
+% Gerado por tools/relatorio_numeros.py; não edite à mão.
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-F01} (DSM1)\\Decomposição e agregação de solicitações};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-ORQ, ROLE-SOL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-SOL, PROT-DEL};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {22 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-01, MET-04, MET-09, MET-13, MET-41, MET-42, MET-43, MET-47};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.34) {\textbf{REQ-F02} (DSM1)\\Apuração de custos, margem e rentabilidade};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.34) {ROLE-CUS};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.34) {PROT-DEL};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.34) {6 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.34) {MET-02};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-2.68) {\textbf{REQ-F03} (DSM1)\\Orçado x realizado e forecast};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-2.68) {ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-2.68) {PROT-DEL, PROT-QRY};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-2.68) {12 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-2.68) {MET-02, MET-14, MET-44};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r35) at (0.0,-4.02) {\textbf{REQ-F04} (DSM1)\\Resultado consolidado via A2A};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r36) at (4.0,-4.02) {ROLE-RES, ROLE-CUS, ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r37) at (7.5,-4.02) {PROT-QRY, PROT-DEL};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r38) at (11.8,-4.02) {7 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r39) at (13.9,-4.02) {MET-02, MET-04, MET-43};
+\draw[->, black!55] ([yshift=-0.22cm]c0r35.north east) -- ([yshift=-0.22cm]c0r35.north east -| c1r36.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r36.north east) -- ([yshift=-0.22cm]c1r36.north east -| c2r37.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r37.north east) -- ([yshift=-0.22cm]c2r37.north east -| c3r38.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r38.north east) -- ([yshift=-0.22cm]c3r38.north east -| c4r39.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, funcional: REQ-F01 a REQ-F04. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace1}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-F05} (DSM1)\\Controles internos com veto};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-CIN, ROLE-ORQ};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-CMP, NORM-04};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {22 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-03, MET-14, MET-44};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.34) {\textbf{REQ-F06} (DSM1)\\Relatório executivo por template com LLM opcional};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.34) {ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.34) {PROT-DEL, NORM-05, NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.34) {6 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.34) {MET-06};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-3.02) {\textbf{REQ-F07} (DSM1)\\Memória de longo prazo com proveniência};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-3.02) {ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-3.02) {PROT-APR, NORM-08};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-3.02) {13 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-3.02) {MET-10};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r35) at (0.0,-4.36) {\textbf{REQ-F08} (DSM3)\\Cognição assistida por hipóteses verificáveis (local e LLM opcional)};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r36) at (4.0,-4.36) {ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r37) at (7.5,-4.36) {PROT-QRY, PROT-DEL, NORM-05, NORM-07, NORM-11};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r38) at (11.8,-4.36) {10 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r39) at (13.9,-4.36) {MET-18, MET-45};
+\draw[->, black!55] ([yshift=-0.22cm]c0r35.north east) -- ([yshift=-0.22cm]c0r35.north east -| c1r36.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r36.north east) -- ([yshift=-0.22cm]c1r36.north east -| c2r37.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r37.north east) -- ([yshift=-0.22cm]c2r37.north east -| c3r38.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r38.north east) -- ([yshift=-0.22cm]c3r38.north east -| c4r39.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, funcional: REQ-F05 a REQ-F08. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace2}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-F20} (DSM4)\\Especialistas de Resultados, Custos e Relatórios com deliberação BDI};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-RES, ROLE-CUS, ROLE-REL, ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-DEL, PROT-QRY, NORM-07, NORM-08, NORM-11, NORM-20};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {27 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-30};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-2.02) {\textbf{REQ-F21} (DSM4)\\Conhecimento normativo com proveniência};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-2.02) {ROLE-CIN, ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-2.02) {PROT-CMP, NORM-02, NORM-21};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-2.02) {6 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-2.02) {MET-31};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-3.36) {\textbf{REQ-F30} (DSM4)\\Fonte de dados por conector genérico e entendimento automático sem IA generativa};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-3.36) {ROLE-OPE, ROLE-ORQ};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-3.36) {PROT-DEL, NORM-02, NORM-30, NORM-31};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-3.36) {14 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-3.36) {MET-50};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, funcional: REQ-F20 a REQ-F30. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace3}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-S01} (DSM1)\\Ações com efeito externo só com aprovação};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-ORQ, ROLE-REL, ROLE-ORC, ROLE-APR};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-APR, NORM-01, NORM-02, NORM-10};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {23 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-05, MET-16};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.34) {\textbf{REQ-S04} (DSM3)\\Autenticidade e integridade das interações (feedback da DSM2)};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.34) {ROLE-ORQ, ROLE-APR, ROLE-CIN, ROLE-SOL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.34) {PROT-SOL, PROT-DEL, PROT-QRY, PROT-CMP, PROT-APR, NORM-09, NORM-10};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.34) {39 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.34) {MET-15, MET-46};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-3.02) {\textbf{REQ-S02} (DSM1)\\Exclusão mútua do período em fechamento};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-3.02) {ROLE-ORQ};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-3.02) {PROT-LCK, NORM-03};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-3.02) {11 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-3.02) {MET-05};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r35) at (0.0,-4.36) {\textbf{REQ-S03} (DSM1)\\LLM não calcula nem autoriza};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r36) at (4.0,-4.36) {ROLE-REL, ROLE-RES, ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r37) at (7.5,-4.36) {PROT-APR, NORM-05};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r38) at (11.8,-4.36) {8 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r39) at (13.9,-4.36) {MET-06};
+\draw[->, black!55] ([yshift=-0.22cm]c0r35.north east) -- ([yshift=-0.22cm]c0r35.north east -| c1r36.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r36.north east) -- ([yshift=-0.22cm]c1r36.north east -| c2r37.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r37.north east) -- ([yshift=-0.22cm]c2r37.north east -| c3r38.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r38.north east) -- ([yshift=-0.22cm]c3r38.north east -| c4r39.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, segurança: REQ-S01 a REQ-S03. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace4}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-S05} (DSM3)\\Identidade, sessão e autorização por pessoa};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-ADM, ROLE-APR, ROLE-OPE, ROLE-AUD, ROLE-SOL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-APR, NORM-10, NORM-12, NORM-13};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {34 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-17, MET-46};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.68) {\textbf{REQ-S06} (DSM4)\\Acesso avançado — segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.68) {ROLE-ADM, ROLE-APR};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.68) {PROT-APR, PROT-CMP, NORM-14, NORM-15};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.68) {48 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.68) {MET-19};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-4.04) {\textbf{REQ-S20} (DSM4)\\Credencial de conector selada e rede só em loopback salvo liberação do administrador};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-4.04) {ROLE-ADM, ROLE-OPE};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-4.04) {PROT-APR, NORM-06, NORM-12, NORM-32};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-4.04) {9 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-4.04) {MET-50};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, segurança: REQ-S05 a REQ-S20. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace5}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-O01} (DSM1)\\Log de decisão};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-ORQ, ROLE-CUS, ROLE-ORC, ROLE-RES, ROLE-CIN, ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {PROT-DEL, NORM-06};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {14 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-07, MET-47};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.34) {\textbf{REQ-O02} (DSM1)\\Log de prompt};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.34) {ROLE-REL, ROLE-RES, ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.34) {NORM-06, NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.34) {1 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.34) {MET-07};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-2.34) {\textbf{REQ-O03} (DSM1)\\Log de custo e tokens};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-2.34) {ROLE-REL, ROLE-RES, ROLE-ORC};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-2.34) {NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-2.34) {3 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-2.34) {MET-08};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r35) at (0.0,-3.68) {\textbf{REQ-O04} (DSM1)\\Interface de observabilidade segura};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r36) at (4.0,-3.68) {ROLE-APR, ROLE-SOL, ROLE-OPE, ROLE-AUD};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r37) at (7.5,-3.68) {NORM-06, NORM-12};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r38) at (11.8,-3.68) {21 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r39) at (13.9,-3.68) {MET-07};
+\draw[->, black!55] ([yshift=-0.22cm]c0r35.north east) -- ([yshift=-0.22cm]c0r35.north east -| c1r36.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r36.north east) -- ([yshift=-0.22cm]c1r36.north east -| c2r37.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r37.north east) -- ([yshift=-0.22cm]c2r37.north east -| c3r38.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r38.north east) -- ([yshift=-0.22cm]c3r38.north east -| c4r39.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, observabilidade: REQ-O01 a REQ-O04. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace6}
+\end{figure}
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize, >={Stealth[length=1.6mm]},
+ caixa/.style={draw=black!45, rounded corners=1.5pt, align=left, inner sep=2.5pt, anchor=north west}]
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (0.0,0.15) {Requisito};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (4.0,0.15) {Papéis};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (7.5,0.15) {Protocolos e normas};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (11.8,0.15) {Testes};
+\node[anchor=south west, inner sep=0pt, font=\sffamily\scriptsize\bfseries] at (13.9,0.15) {Métricas};
+\node[caixa, fill=trreq, text width=3.45cm] (c0r8) at (0.0,-0.00) {\textbf{REQ-C01} (DSM1)\\Modelo por agente trocável sem redeploy};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r9) at (4.0,-0.00) {ROLE-REL, ROLE-RES, ROLE-ORC, ROLE-APR};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r10) at (7.5,-0.00) {NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r11) at (11.8,-0.00) {13 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r12) at (13.9,-0.00) {MET-08};
+\draw[->, black!55] ([yshift=-0.22cm]c0r8.north east) -- ([yshift=-0.22cm]c0r8.north east -| c1r9.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.34) {\textbf{REQ-P01} (DSM1)\\Redaction fail-closed (LGPD e sigilo)};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.34) {ROLE-ORQ, ROLE-CIN, ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.34) {NORM-06};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.34) {14 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.34) {MET-11};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-2.68) {\textbf{REQ-NF01} (DSM1)\\Execução offline e reprodutível};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-2.68) {ROLE-ORQ, ROLE-REL};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-2.68) {PROT-DEL, NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-2.68) {18 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-2.68) {MET-09, MET-12};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r35) at (0.0,-4.02) {\textbf{REQ-NF02} (DSM1)\\Versionamento de prompts, regras e configuração};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r36) at (4.0,-4.02) {ROLE-REL, ROLE-CIN};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r37) at (7.5,-4.02) {NORM-07};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r38) at (11.8,-4.02) {3 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r39) at (13.9,-4.02) {MET-12};
+\draw[->, black!55] ([yshift=-0.22cm]c0r35.north east) -- ([yshift=-0.22cm]c0r35.north east -| c1r36.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r36.north east) -- ([yshift=-0.22cm]c1r36.north east -| c2r37.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r37.north east) -- ([yshift=-0.22cm]c2r37.north east -| c3r38.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r38.north east) -- ([yshift=-0.22cm]c3r38.north east -| c4r39.west);
+\end{tikzpicture}
+\caption{Rastreabilidade, demais requisitos: REQ-C01 a REQ-NF02. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\label{fig:trace7}
+\end{figure}

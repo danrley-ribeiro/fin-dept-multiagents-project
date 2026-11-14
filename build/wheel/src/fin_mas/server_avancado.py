@@ -1,0 +1,163 @@
+"""Rotas do acesso avançado no servidor do dashboard (DSM4, ADR-012). `server.py` só as encaminha.
+
+    POST /api/login             com o segundo fator ativo: 200 {"segundo_fator": "pendente"} e o cookie
+                                `sma_pre2fa` (5 min), que só vale em /api/login/2fa; nenhuma outra rota o aceita
+    POST /api/login/2fa         {"codigo"}: código TOTP ou de recuperação; abre a sessão de verdade (IAM-08)
+    POST /api/2fa/ativar        segredo e URI otpauth:// (mostrados uma única vez)
+    POST /api/2fa/confirmar     {"codigo"}: ativa e devolve os códigos de recuperação (uma única vez)
+    POST /api/2fa/desativar     {"codigo", "senha"}: código válido e a senha atual (IAM-08)
+    GET  /api/2fa               situação do segundo fator da própria conta (ativo, desde, códigos que restam, exigido)
+    POST /api/2fa/recuperacao   {"codigo", "senha"}: troca os códigos de recuperação e devolve os novos (uma única vez)
+    GET  /api/empresa           empresas do escopo da conta e a ativa | POST {"empresa"}: troca a ativa (IAM-09)
+    GET  /api/segredos          nomes dos segredos do cofre (nunca o valor) e, por provedor de LLM, de onde vem a
+                                chave (ambiente, cofre ou nenhuma) | POST {"nome", "valor"} define
+    POST /api/segredos/remover  {"nome"} (PERM-MOD-SEGREDOS, IAM-10)
+
+Corpo de POST: objeto JSON; outro tipo, ou campo de tipo errado, é 400.
+"""
+import json
+import os
+import threading
+
+from fin_mas.services import provedores
+from fin_mas.services.acesso_avancado import MAX_FALHAS_2FA
+from fin_mas.services.iam import AcessoNegado
+
+COOKIE_PRE = "sma_pre2fa"
+SO_SESSAO = {("POST", "/api/2fa/ativar"), ("POST", "/api/2fa/confirmar"), ("POST", "/api/2fa/desativar"),
+             ("GET", "/api/2fa"), ("POST", "/api/2fa/recuperacao"),
+             ("GET", "/api/empresa"), ("POST", "/api/empresa")}  # valem mesmo com o segundo fator pendente
+PERMISSAO_ROTA = [("GET", "/api/segredos", "PERM-MOD-SEGREDOS"), ("POST", "/api/segredos", "PERM-MOD-SEGREDOS")]
+
+
+class PedidoInvalido(ValueError):
+    pass
+
+
+def _json(status, dados, **cabecalhos):
+    return status, {"Content-Type": "application/json; charset=utf-8", **cabecalhos}, \
+        json.dumps(dados, ensure_ascii=False, default=str).encode("utf-8")
+
+
+def objeto(corpo: bytes) -> dict:
+    try:
+        pedido = json.loads(corpo or b"{}")
+    except ValueError:
+        raise PedidoInvalido("corpo inválido: envie um objeto JSON") from None
+    if not isinstance(pedido, dict):
+        raise PedidoInvalido("corpo inválido: envie um objeto JSON")
+    return pedido
+
+
+def texto(pedido: dict, campo: str) -> str:
+    valor = pedido.get(campo)
+    if not isinstance(valor, str) or not valor:
+        raise PedidoInvalido(f"campo {campo}: texto obrigatório")
+    return valor
+
+
+def pendente(erro, cabecalho_token: str):
+    """Resposta da primeira etapa quando falta o código: cookie da pré-sessão, sem sessão de verdade."""
+    return _json(200, {"segundo_fator": "pendente", "expira_em": erro.expira_em, "cabecalho": cabecalho_token,
+                       "tentativas": MAX_FALHAS_2FA if erro.tentativas is None else erro.tentativas},
+                 **{"Set-Cookie": f"{COOKIE_PRE}={erro.desafio}; Path=/api/login/2fa; HttpOnly; SameSite=Strict; "
+                                  f"Max-Age=300"})
+
+
+def login_2fa(acesso, corpo: bytes, desafio: str | None, origem: str, cookie_sessao: str, cabecalho_token: str):
+    try:
+        codigo = texto(objeto(corpo), "codigo")
+        sessao, token = acesso.confirmar_entrada(desafio, codigo, origem=origem)
+    except PedidoInvalido as erro:
+        return _json(400, {"erro": str(erro)})
+    except AcessoNegado as erro:  # `pre_sessao`: o que resta dela (prazo, tentativas), ou null quando acabou
+        return _json(401, {"erro": str(erro), "pre_sessao": acesso.pre_sessao(desafio)})
+    return 200, {"Content-Type": "application/json; charset=utf-8",
+                 "Set-Cookie": f"{cookie_sessao}={token}; Path=/; HttpOnly; SameSite=Strict"}, \
+        json.dumps({"sessao": sessao.publico(), "csrf": sessao.csrf, "cabecalho": cabecalho_token},
+                   ensure_ascii=False).encode("utf-8")
+
+
+def tratar_get(acesso, sessao, rota: str):
+    if rota == "/api/empresa":
+        empresas = acesso.empresas()
+        return _json(200, {"multiempresa": bool(empresas), "ativa": sessao.empresa,
+                           "empresas": [empresas[e] for e in sessao.empresas if e in empresas]})
+    if rota == "/api/2fa":
+        sf = (acesso.conta(sessao.usuario) or {}).get("segundo_fator") or {}
+        return _json(200, {"ativo": bool(sf.get("ativo")), "desde": sf.get("desde"),
+                           "codigos_restantes": sf.get("codigos_restantes", 0),
+                           "exigido": bool(set(acesso.politica()["exigir_2fa_para"]) & set(sessao.papeis))})
+    if rota == "/api/segredos":
+        return _json(200, {"segredos": acesso.segredos(sessao), "provedores": chaves_llm(acesso)})
+    return None
+
+
+def chaves_llm(acesso) -> list[dict]:
+    """De onde vem a chave de cada provedor de LLM: variável de ambiente (tem precedência), cofre ou nenhuma.
+    Só diz se existe; o valor nunca sai daqui."""
+    saida = []
+    for p in provedores.REGISTRO.values():
+        if not p.variavel_chave:
+            continue
+        no_cofre = acesso.cofre.existe(f"llm:{p.variavel_chave}")
+        saida.append({"id": p.id, "variavel": p.variavel_chave, "segredo": f"llm:{p.variavel_chave}",
+                      "ambiente": bool(os.environ.get(p.variavel_chave)) or (not no_cofre and p.tem_chave()),
+                      "cofre": no_cofre, "opcional": not getattr(p, "exige_chave", True)})
+    return saida
+
+
+def tratar_post(acesso, sessao, rota: str, corpo: bytes):
+    """None = não é rota do acesso avançado. AcessoNegado vira 403; pedido malformado, 400."""
+    if rota not in ("/api/2fa/ativar", "/api/2fa/confirmar", "/api/2fa/desativar", "/api/2fa/recuperacao",
+                    "/api/empresa", "/api/segredos", "/api/segredos/remover"):
+        return None
+    try:
+        pedido = objeto(corpo)
+        if rota == "/api/2fa/ativar":
+            return _json(200, acesso.iniciar_2fa(sessao))
+        if rota == "/api/2fa/confirmar":
+            return _json(200, {"ativo": True, "codigos_recuperacao": acesso.confirmar_2fa(sessao, texto(pedido, "codigo"))})
+        if rota == "/api/2fa/desativar":
+            acesso.desativar_2fa(sessao, texto(pedido, "codigo"), texto(pedido, "senha"))
+            return _json(200, {"ativo": False})
+        if rota == "/api/2fa/recuperacao":
+            return _json(200, {"ativo": True,
+                               "codigos_recuperacao": acesso.renovar_recuperacao(sessao, texto(pedido, "codigo"),
+                                                                                 texto(pedido, "senha"))})
+        if rota == "/api/empresa":
+            nova = acesso.escolher_empresa(sessao, texto(pedido, "empresa"))
+            return _json(200, {"ativa": nova.empresa, "sessao": nova.publico()})
+        if rota == "/api/segredos":
+            return _json(200, acesso.definir_segredo(sessao, texto(pedido, "nome"), texto(pedido, "valor")))
+        return _json(200, acesso.remover_segredo(sessao, texto(pedido, "nome")))
+    except PedidoInvalido as erro:
+        return _json(400, {"erro": str(erro)})
+    except AcessoNegado as erro:
+        return _json(403, {"erro": str(erro)})
+
+
+class Simulacoes:
+    """Uma simulação por empresa (IAM-09): dados, memória e trace de cada uma em `dados/<empresa>/`.
+
+    Sem empresas no cadastro, todas as sessões usam a simulação única de sempre.
+    """
+
+    def __init__(self, padrao, acesso, fabrica=None):
+        self.padrao, self.acesso, self.fabrica = padrao, acesso, fabrica
+        self.por_empresa: dict = {}
+        self._trava = threading.Lock()  # duas requisições ao mesmo tempo não criam duas simulações da mesma empresa
+
+    def de(self, sessao):
+        if self.fabrica is None or sessao is None or not sessao.empresa or not self.acesso.multiempresa():
+            return self.padrao
+        with self._trava:  # uma simulação por empresa: a criação (e a thread dela) acontece uma vez só
+            if sessao.empresa not in self.por_empresa:
+                self.por_empresa[sessao.empresa] = self.fabrica(sessao.empresa)
+            return self.por_empresa[sessao.empresa]
+
+    def parar(self) -> None:
+        with self._trava:
+            simulacoes = list(self.por_empresa.values())
+        for sim in simulacoes:
+            sim.parar()

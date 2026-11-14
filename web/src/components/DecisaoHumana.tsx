@@ -15,12 +15,17 @@ const ROTULO_ACAO: Record<string, string> = { reaprovar: "reaprovar por quem tem
 interface Props {
   pendencia: PendenciaHumana;
   interativo: boolean;
-  aoDecidir: (decisao: string, justificativa: string) => void;
+  quem?: string; // pessoa autenticada que está decidindo (a decisão fica registrada no nome dela)
+  aviso?: string; // por que esta conta não pode decidir
+  /** `delegacao`: id de uma delegação recebida (POL-11), quando a pessoa decide com a alçada de quem delegou. */
+  aoDecidir: (decisao: string, justificativa: string, delegacao?: string) => void;
   aoFechar: () => void;
 }
 
-export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Props) {
+export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar, quem, aviso }: Props) {
   const [justificativa, setJustificativa] = useState("");
+  const [delegacao, setDelegacao] = useState("");
+  const decidir = (decisao: string) => aoDecidir(decisao, justificativa, delegacao.trim() || undefined);
   const podeCorrigir = pendencia.opcoes.includes("corrigir");
   const podeWaiver = pendencia.opcoes.includes("waiver"); // a política pode negar (ex.: reincidência, POL-06)
   return (
@@ -37,6 +42,9 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
           O Agente de Controles Internos vetou a publicação. O Orquestrador aguarda a sua decisão no ticket
           {" "}<b>{pendencia.conversation_id}</b> (uso único, com prazo); quem reavalia o pacote é o próprio AG-CIN.
         </Typography>
+        {quem && <Alert severity="info" sx={{ mb: 1, py: 0 }}>Você decide como <b>{quem}</b>. A decisão fica registrada
+          no seu nome; se você criou ou aprovou o lançamento vetado, ou fez este pedido, a política recusa.</Alert>}
+        {aviso && <Alert severity="warning" sx={{ mb: 1, py: 0 }}>{aviso}</Alert>}
         <Typography variant="h3" component="h3">Achados</Typography>
         <List dense>
           {pendencia.achados.map((a) => (
@@ -69,18 +77,24 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
         ) : (
           <Alert severity="info">Replay: a decisão já está gravada no trace; avance para vê-la.</Alert>
         )}
+        {interativo && (
+          <TextField label="Delegação recebida (opcional)" size="small" value={delegacao} sx={{ mt: 1 }}
+            onChange={(e) => setDelegacao(e.target.value.toUpperCase())} placeholder="DLG-001"
+            helperText="Decide com o cargo e a alçada de quem delegou a você, dentro do teto e do prazo (POL-11)"
+            inputProps={{ "aria-label": "Delegação recebida", maxLength: 12, spellCheck: false }} />
+        )}
       </DialogContent>
       <DialogActions sx={{ flexWrap: "wrap", gap: 1 }}>
         <Button onClick={aoFechar}>Decidir depois</Button>
         {interativo && (
           <>
-            <Button color="error" variant="outlined" onClick={() => aoDecidir("bloquear", justificativa)}>Bloquear</Button>
+            <Button color="error" variant="outlined" onClick={() => decidir("bloquear")}>Bloquear</Button>
             <Button variant="outlined" disabled={!podeWaiver || !justificativaValida(justificativa)}
-              onClick={() => aoDecidir("waiver", justificativa)}>Waiver (aceitar o risco)</Button>
+              onClick={() => decidir("waiver")}>Waiver (aceitar o risco)</Button>
             {podeCorrigir && pendencia.correcoes_sugeridas.length > 1 && (
-              <Button variant="outlined" onClick={() => aoDecidir("corrigir_parcial", justificativa)}>
+              <Button variant="outlined" onClick={() => decidir("corrigir_parcial")}>
                 Corrigir só a primeira</Button>)}
-            {podeCorrigir && <Button variant="contained" onClick={() => aoDecidir("corrigir", justificativa)}>
+            {podeCorrigir && <Button variant="contained" onClick={() => decidir("corrigir")}>
               Corrigir no ERP</Button>}
           </>
         )}

@@ -1,0 +1,54 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+flowchart TB
+  subgraph INT["Interfaces (só loopback)"]
+    WEB["Dashboard web<br/>uso: pedir, decidir, auditar"]
+    TUI["Console no terminal (TUI)<br/>administração de acesso"]
+    CLI["fin-mas (CLI)<br/>cenários, experimento, auditoria"]
+  end
+  SRV["Servidor HTTP + SVC-IAM<br/>sessão por pessoa, papéis, CSRF, atestado da decisão"]
+  WEB --> SRV
+  TUI --> SRV
+  subgraph COORD["Coordenação"]
+    ORQ["AG-ORQ Orquestrador<br/>reativo a protocolos + planos:<br/>DAG, prazos, reenvio, reserva"]
+  end
+  subgraph ESP["Especialistas"]
+    CUS["AG-CUS Custos<br/>reativo no básico · BDI no local"]
+    ORC["AG-ORC Orçamento<br/>BDI · hipóteses no local"]
+    RES["AG-RES Resultados<br/>reativo no básico · BDI no local"]
+    CIN["AG-CIN Controles Internos<br/>BDI · autoridade de veto"]
+    REL["AG-REL Relatórios<br/>reativo no básico · BDI no local"]
+  end
+  BUS["SVC-A2A barramento em processo<br/>autenticação · papel · contraparte · esquema · FSM · política"]
+  SRV --> BUS
+  CLI --> BUS
+  ORQ <--> BUS
+  CUS <--> BUS
+  ORC <--> BUS
+  RES <--> BUS
+  CIN <--> BUS
+  REL <--> BUS
+  subgraph SVC["Serviços de plataforma"]
+    POL["SVC-POL<br/>Approval Gate, POL-01..09, 13"]
+    LCK["SVC-LCK<br/>reserva do período"]
+    MEM["SVC-MEM<br/>memória só de decisão humana"]
+    AUD["SVC-AUD<br/>trace JSONL encadeado + selo"]
+    MOD["SVC-MOD<br/>LLM opcional, desligado"]
+    APD["SVC-APD<br/>aprendizado das regras locais"]
+  end
+  BUS --- POL
+  BUS --- AUD
+  ORQ --- LCK
+  CIN --- MEM
+  ORC --- MOD
+  ORC --- APD
+  GW["Gateway MCP<br/>allowlist por papel, proveniência mcp://"]
+  ESP --> GW
+  ORQ --> GW
+  subgraph AMB["Ambiente"]
+    ERP["ERP simulado<br/>dataset por seed com gabarito"]
+    XLS["Planilhas Excel<br/>servidor MCP de Excel"]
+    NOR["Base normativa<br/>porte, segmento, corpus-v1"]
+  end
+  GW --> ERP
+  GW --> XLS
+  GW --> NOR

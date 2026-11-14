@@ -51,3 +51,69 @@ def test_resposta_de_tentativa_anterior_e_ignorada():
                               faults=({"receiver": "AG-ORC", "performative": "request", "times": 1},)))
     assert e.resposta.performative == "inform"
     assert e.resposta.content["dag"]["orcamento"]["tentativas"] == 2
+
+
+@pytest.mark.parametrize("agente, protocolo, performativo, conteudo", [
+    ("AG-RES", "PROT-DEL", "inform", {}),
+    ("AG-CIN", "PROT-CMP", "veto", {"achados": [1, 2], "opcoes": [], "correcoes_sugeridas": []}),
+])
+def test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure(agente, protocolo, performativo,
+                                                                                conteudo):
+    """Correção simulada da v0.5.0 (M3): conteúdo aninhado inválido deixava o solicitante sem resposta e o
+    período reservado. O Orquestrador aborta com `failure` e libera a reserva."""
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system(plantar=("alcada",) if agente == "AG-CIN" else ())
+    original = s.agentes[agente].on_message
+
+    def defeituoso(msg):  # o especialista responde com um payload que passa no esquema de primeiro nível
+        if msg.protocol == protocolo and msg.performative == "request":
+            if protocolo == "PROT-DEL":
+                s.agentes[agente].send(msg.sender, "agree", protocolo, msg.conversation_id, {})
+            s.agentes[agente].send(msg.sender, performativo, protocolo, msg.conversation_id, conteudo)
+        else:
+            original(msg)
+
+    s.agentes[agente].on_message = defeituoso
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    r = s.usuario.resposta(sid)
+    assert r is not None and r.performative == "failure" and r.content["publicado"] is False
+    assert "resposta malformada" in r.content["motivo"]
+    assert s.locks.dono(s.dataset.entidade, s.dataset.competencia) is None  # período liberado
+
+
+@pytest.mark.parametrize("nome, montagem, falha, esperado", [
+    ("resposta final de uma delegação", {}, {"receiver": "AG-ORQ", "performative": "inform", "times": 1,
+                                             "protocol": "PROT-DEL"}, "publicado"),
+    ("resposta final perdida três vezes", {}, {"receiver": "AG-ORQ", "performative": "inform", "times": 3,
+                                               "protocol": "PROT-DEL"}, "failure"),
+    ("parecer do AG-CIN", {}, {"receiver": "AG-ORQ", "performative": "conforme", "times": 1}, "publicado"),
+    ("veto do AG-CIN", {"plantar": ("alcada",), "decisao_aprovador": "corrigir"},
+     {"receiver": "AG-ORQ", "performative": "veto", "times": 1}, "publicado"),
+    ("correção enviada ao AG-CIN", {"plantar": ("alcada",), "decisao_aprovador": "corrigir"},
+     {"receiver": "AG-CIN", "performative": "correcao", "times": 1}, "publicado"),
+])
+def test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer(nome, montagem, falha, esperado):
+    """Achado do experimento da DSM4: a FSM avança no envio; se a resposta final de um especialista (ou uma
+    mensagem do meio do PROT-CMP) se perdia na entrega, o Orquestrador esperava para sempre e o solicitante
+    ficava sem resposta. O barramento avisa o iniciador, que reenvia uma vez ou falha de forma explícita."""
+    from fin_mas import invariantes
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system(faults=(falha,), **montagem)
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    r = s.usuario.resposta(sid)
+    assert r is not None, nome
+    if esperado == "failure":
+        assert r.performative == "failure" and r.content["publicado"] is False
+    else:
+        assert r.performative == "inform" and r.content["status"].startswith("publicado")
+    assert [x for x in s.bus.audit.records if x["kind"] == "drop"]
+    if falha["performative"] == "correcao":  # aviso de decisão humana: o transporte reentrega (não vira timeout)
+        assert [x for x in s.bus.audit.records if x["kind"] == "drop" and x.get("reentrega") == 1]
+    else:
+        assert [x for x in s.bus.audit.records if x["kind"] == "timeout" and x["de"] == x["para"]]  # aviso sem transição
+    assert invariantes.verificar(s.bus.audit.records) == []
+    assert s.locks.dono("SMA", "2026-09") is None

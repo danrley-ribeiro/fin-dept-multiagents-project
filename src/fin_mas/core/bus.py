@@ -55,6 +55,7 @@ class Fault:
     performative: str
     times: int
     protocol: str | None = None
+    competencia: str | None = None  # só mensagens desta competência (cenários de vários meses); None = todas
 
     def matches(self, msg: Message) -> bool:
         return (
@@ -62,6 +63,8 @@ class Fault:
             and msg.receiver == self.receiver
             and msg.performative == self.performative
             and (self.protocol is None or msg.protocol == self.protocol)
+            and (self.competencia is None
+                 or (isinstance(msg.content, dict) and msg.content.get("competencia") == self.competencia))
         )
 
 
@@ -78,10 +81,11 @@ def digest_conteudo(content) -> str:
 
 class Bus:
     def __init__(self, audit: AuditLog | None = None, faults: list[Fault] | None = None,
-                 diretorio: dict | None = None, isolar_erros: bool = True):
+                 diretorio: dict | None = None, isolar_erros: bool = True, caos=None):
         self.audit = audit if audit is not None else AuditLog()
         self.protocols = load_protocols()
         self.faults = faults or []
+        self.caos = caos  # DSM4: modelo de falhas aleatórias por seed (`fin_mas.caos`); None = nenhum efeito
         self.now = 0
         self.agents: dict = {}
         self.papeis: dict[str, str] = {}  # identidade -> papel (agentes e serviços registrados)
@@ -94,6 +98,10 @@ class Bus:
         self._seq = 0
         self._ids: dict[str, int] = {}
         self.offline: set[str] = set()  # agentes fora de operação: o que chega a eles se perde
+        self.prazos: dict[str, int] = {}  # conversa -> prazo vigente (uma resposta com novo reply_by o estende)
+        self.registro_fechado = False  # sistema montado: só identidades do diretório (ver fechar_registro)
+        # conversa -> posição (na conversa) da última mensagem perdida na entrega e ainda sem aviso ao iniciador
+        self._nao_entregues: dict[str, int] = {}
 
     # ---- identidades ------------------------------------------------------------
     def register(self, agent, papel: str | None = None) -> str:
@@ -106,6 +114,15 @@ class Bus:
         """Serviço que aplica transições locais (ex.: SVC-POL), sem caixa de entrada."""
         return self._registrar(servico_id, papel)
 
+    def fechar_registro(self) -> None:
+        """Sistema montado: daqui em diante só se registra identidade que consta no diretório.
+
+        Sem isso, um identificador qualquer se registrava com um papel privilegiado (ROLE-ORQ, ROLE-RES)
+        e passava a delegar e a consultar os especialistas (achado C1 da correção simulada da v0.5.0).
+        Barramentos de teste isolados, que não chamam este método, continuam aceitando clientes avulsos.
+        """
+        self.registro_fechado = True
+
     def _registrar(self, ident: str, papel: str | None) -> str:
         if not isinstance(ident, str) or not ident or ident == SISTEMA:
             raise ProtocolViolation(f"identidade inválida: {ident!r}")
@@ -115,6 +132,10 @@ class Bus:
             raise ProtocolViolation(f"{ident}: papel desconhecido {papel!r}")
         if ident in self.diretorio and papel not in self.diretorio[ident]:
             raise ProtocolViolation(f"{ident}: papel {papel} não consta no diretório ({sorted(self.diretorio[ident])})")
+        if self.registro_fechado and ident not in self.diretorio:
+            self.audit.record(self.now, "rejected", agente=ident, motivo=f"registro de identidade fora do diretório: "
+                              f"{ident} como {papel}", etapa="autenticacao")
+            raise ProtocolViolation(f"{ident}: identidade fora do diretório (registro fechado)")
         self.papeis[ident] = papel
         credencial = secrets.token_hex(16)
         self._credenciais[ident] = _hash_credencial(credencial)  # só o hash fica no barramento
@@ -143,8 +164,15 @@ class Bus:
     # ---- envio ---------------------------------------------------------------------
     def send(self, msg: Message, delay: int = 1, credencial: str | None = None) -> None:
         """Valida a mensagem (ver docstring do módulo) e a agenda para entrega em now + delay."""
+        if self.caos is not None:  # atraso de entrega sorteado (jitter); os prazos (reply_by) não mudam
+            delay += self.caos.atraso(msg)
+        self.entrega_prevista = self.now + delay  # lido pelos validadores de domínio (prazo do ticket, POL-08)
         if isinstance(msg.content, dict):
-            msg = replace(msg, content=copy.deepcopy(msg.content))  # o remetente não altera o que já enviou
+            try:
+                msg = replace(msg, content=copy.deepcopy(msg.content))  # o remetente não altera o que já enviou
+            except (TypeError, RecursionError, ValueError) as erro:  # gerador, estrutura profunda demais…
+                msg = replace(msg, content={})
+                self._rejeitar(msg, f"conteúdo que não pode ser copiado ({type(erro).__name__})", "esquema")
         if not isinstance(msg.sender, str) or msg.sender not in self._credenciais:
             self._rejeitar(msg, f"remetente desconhecido: {msg.sender!r}", "autenticacao")
         if not self._autentico(msg.sender, credencial):
@@ -206,10 +234,20 @@ class Bus:
                     conv.protocol.next_state(conv.state, msg.performative)
                 except ProtocolViolation as erro:
                     self._rejeitar(msg, str(erro), "fsm")
+            if msg.reply_by is not None and msg.sender != conv.initiator:
+                # só quem abriu a conversa fixa ou estende o prazo dela (no PROT-DEL, pelo accept-proposal);
+                # sem isso, a contraparte estendia o próprio prazo sem negociar (correção simulada, M2)
+                self._rejeitar(msg, f"{msg.sender} não abriu {msg.conversation_id}: só o iniciador "
+                                    f"({conv.initiator}) define o prazo da conversa", "protocolo")
             self._validar_dominio(msg, conv)
             antes, depois = conv.step(msg.performative)
             self.audit.record(self.now, "send", de=antes, para=depois, **_campos(msg))
-        self._push(self.now + delay, "msg", (msg, digest))
+            if msg.reply_by is not None:  # prazo renegociado (PROT-DEL, accept-proposal): o temporizador antigo perde efeito
+                self.prazos[msg.conversation_id] = msg.reply_by
+                self._push(msg.reply_by, "timer", msg.conversation_id)
+        # posição da mensagem na conversa: uma entrega atrasada de mensagem anterior não "cura" a perda da seguinte
+        ordem = len(self.conversations[msg.conversation_id].history)
+        self._push(self.now + delay, "msg", (msg, digest, ordem))
 
     def _validar_dominio(self, msg: Message, conv) -> None:
         for validador in self.validadores.get(msg.protocol, []):
@@ -230,6 +268,7 @@ class Bus:
             conv.step(msg.performative)
         self.audit.record(self.now, "open", de=antes, para=conv.state, **_campos(msg))
         if msg.reply_by is not None:
+            self.prazos[msg.conversation_id] = msg.reply_by
             self._push(msg.reply_by, "timer", msg.conversation_id)
         return conv
 
@@ -239,7 +278,11 @@ class Bus:
         Só o participante autenticado cujo papel consta em `eventos_locais` do protocolo
         pode aplicar o evento; qualquer outra tentativa é rejeitada e auditada.
         """
-        conv = self.conversations.get(conversation_id)
+        conv = self.conversations.get(conversation_id) if isinstance(conversation_id, str) else None
+        if not isinstance(conversation_id, str):
+            conversation_id = repr(conversation_id)[:64]
+        if not isinstance(event, str):
+            event = repr(event)[:64]
 
         def rejeitar(motivo, etapa):
             self.audit.record(self.now, "rejected", conversation_id=conversation_id, agente=actor, evento=event,
@@ -318,14 +361,54 @@ class Bus:
             self.offline.add(agente)
         self.audit.record(self.now, "agente", agente=agente, evento="ligado" if online else "desligado")
 
-    def _deliver(self, msg: Message, digest: str) -> None:
+    # Protocolos em que o iniciador é avisado quando uma mensagem da conversa se perde depois da abertura.
+    AVISO_DE_PERDA = frozenset({"PROT-DEL", "PROT-CMP", "PROT-QRY"})
+
+    # Avisos de decisão humana ao AG-CIN: a memória da decisão (waiver, correção, bloqueio) é gravada quando o
+    # agente recebe o aviso. Se ele se perdesse, a regra de reincidência (POL-06) ficava sem a memória, ou o
+    # Orquestrador reabria a conformidade e gerava um segundo ticket para o mesmo veto (correção simulada da
+    # DSM4, C2). Para estes performativos o transporte reentrega (pelo menos uma vez), até MAX_REENTREGAS.
+    ENTREGA_GARANTIDA = frozenset({("PROT-CMP", "waiver_humano"), ("PROT-CMP", "correcao"),
+                                   ("PROT-CMP", "prazo_esgotado")})
+    MAX_REENTREGAS = 5
+
+    def _nao_chegou(self, msg: Message, digest: str, ordem: int, tentativa: int, motivo: str) -> None:
+        """Registra a perda e decide: reentrega (decisão humana) ou aviso ao iniciador da conversa."""
+        garantida = (msg.protocol, msg.performative) in self.ENTREGA_GARANTIDA and tentativa < self.MAX_REENTREGAS
+        extra = {"reentrega": tentativa + 1} if garantida else {}
+        self.audit.record(self.now, "drop", motivo=motivo, **extra, **_campos(msg))
+        if garantida:
+            self._push(self.now + 1 + tentativa, "msg", (msg, digest, ordem, tentativa + 1))
+        else:
+            self._perdida(msg, ordem)
+
+    def _perdida(self, msg: Message, ordem: int = 0) -> None:
+        """Mensagem que não chegou: garante que o iniciador da conversa não fique esperando para sempre.
+
+        A FSM avança no envio. Se a resposta final de um especialista se perde na entrega, a conversa já está
+        encerrada e o temporizador do prazo não avisava ninguém: o Orquestrador esperava sem fim e o solicitante
+        ficava sem resposta (achado do experimento da DSM4). O barramento, que é o transporte e sabe da perda,
+        agenda um aviso de `timeout` ao iniciador para o prazo da conversa (ou para o tick seguinte, se o prazo
+        já passou). A perda do pedido de abertura continua coberta pelo temporizador normal.
+        """
+        conv = self.conversations.get(msg.conversation_id)
+        if conv is None or conv.protocol.id not in self.AVISO_DE_PERDA or len(conv.history) <= 1:
+            return
+        self._nao_entregues[msg.conversation_id] = max(ordem, self._nao_entregues.get(msg.conversation_id, 0))
+        if self.prazos.get(msg.conversation_id, self.now) <= self.now:
+            self._push(self.now + 1, "timer", msg.conversation_id)
+
+    def _deliver(self, msg: Message, digest: str, ordem: int = 0, tentativa: int = 0) -> None:
         for falha in self.faults:
             if falha.matches(msg):
                 falha.times -= 1
-                self.audit.record(self.now, "drop", motivo="falha injetada", **_campos(msg))
+                self._nao_chegou(msg, digest, ordem, tentativa, "falha injetada")
                 return
+        if self.caos is not None and self.caos.perder(msg):
+            self._nao_chegou(msg, digest, ordem, tentativa, "perda aleatória (caos)")
+            return
         if msg.receiver in self.offline:
-            self.audit.record(self.now, "drop", motivo="agente fora de operação", **_campos(msg))
+            self._nao_chegou(msg, digest, ordem, tentativa, "agente fora de operação")
             return
         try:
             integro = digest_conteudo(msg.content) == digest
@@ -336,6 +419,14 @@ class Bus:
                               **_campos(msg, seguro=True))
             return
         self.audit.record(self.now, "deliver", **_campos(msg))
+        conv = self.conversations.get(msg.conversation_id)
+        if (conv is not None and msg.receiver == conv.initiator and conv.is_final
+                and ordem > self._nao_entregues.get(msg.conversation_id, ordem)):
+            # chegou ao iniciador uma mensagem POSTERIOR à que se perdeu (ex.: perdeu-se o `agree`, chegou o
+            # `inform`): não há o que avisar. Uma mensagem anterior que chega atrasada (o `agree` depois de o
+            # `inform` se perder) não desfaz a marca: era o que deixava o Orquestrador esperando para sempre
+            # com atraso de entrega de 3 ticks ou mais (correção simulada da DSM4, C1).
+            del self._nao_entregues[msg.conversation_id]
         self._entregar(self.agents[msg.receiver], replace(msg, content=copy.deepcopy(msg.content)))
 
     def _entregar(self, agente, msg: Message) -> None:
@@ -358,8 +449,15 @@ class Bus:
 
     def _timer(self, conversation_id: str) -> None:
         conv = self.conversations[conversation_id]
+        if self.prazos.get(conversation_id, self.now) > self.now:
+            return  # o prazo foi estendido depois deste temporizador: vale o novo
+        perdida = self._nao_entregues.pop(conversation_id, None) is not None
         if conv.can("timeout"):
             antes, depois = conv.step("timeout")
+        elif perdida:
+            # uma mensagem da conversa se perdeu na entrega (ex.: a resposta final): a FSM não muda, mas o
+            # iniciador é avisado para reenviar ou falhar de forma explícita
+            antes = depois = conv.state
         elif len(conv.history) == 1 and not conv.is_final:
             # protocolo sem transição de timeout (PROT-CMP) e contraparte ainda sem resposta:
             # avisa o iniciador sem mexer na FSM

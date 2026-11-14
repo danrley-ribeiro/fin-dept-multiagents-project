@@ -1,0 +1,12 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+stateDiagram-v2
+    [*] --> CRIADA
+    CRIADA --> AGUARDANDO: query-ref
+    AGUARDANDO --> RESPONDIDA: inform
+    AGUARDANDO --> RECUSADA: refuse
+    AGUARDANDO --> FALHOU: failure
+    AGUARDANDO --> EXPIRADA: timeout
+    RESPONDIDA --> [*]
+    RECUSADA --> [*]
+    FALHOU --> [*]
+    EXPIRADA --> [*]

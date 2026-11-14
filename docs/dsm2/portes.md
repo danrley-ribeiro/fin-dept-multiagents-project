@@ -55,3 +55,12 @@ simulada fica na faixa legal do porte.
 python -m fin_mas run --scenario fechar_mes --porte micro
 python -m fin_mas run --scenario fechamento_grande
 ```
+
+## Ficha do porte (DSM3, v0.5.0)
+
+Cada porte de `models/portes.yaml` ganhou uma ficha descritiva: regime tributário, obrigações,
+estrutura de pessoas, volume, calendário de fechamento, política de aprovação, papéis de acesso
+sugeridos, fonte de dados e nível de cognição padrão. A ficha orienta o assistente de instalação
+(`fin-mas instalar`) e aparece na aba **Porte** do dashboard, com o porte em uso marcado. Ela não
+é lida pelos agentes: as regras desta página não mudaram e a versão continua `normas-v2`.
+Resumo em {doc}`../dsm3/implantacao`.

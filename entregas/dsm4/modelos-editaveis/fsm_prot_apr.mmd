@@ -1,0 +1,16 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+stateDiagram-v2
+  [*] --> CRIADA
+  CRIADA --> PROPOSTA: propose-action (ORQ)
+  PROPOSTA --> PENDENTE: require_approval (SVC-POL)
+  PROPOSTA --> NEGADA: deny (SVC-POL)
+  PROPOSTA --> EXECUTADA: allow (SVC-POL)
+  PENDENTE --> APROVADA: approve (APR)
+  PENDENTE --> REJEITADA: reject (APR)
+  PENDENTE --> EXPIRADA: timeout (reply_by)
+  APROVADA --> EXECUTADA: execute (ORQ)
+  APROVADA --> EXPIRADA: timeout (aprovada, não executada)
+  NEGADA --> [*]
+  REJEITADA --> [*]
+  EXPIRADA --> [*]
+  EXECUTADA --> [*]

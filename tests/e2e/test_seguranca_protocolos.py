@@ -50,7 +50,10 @@ def test_spoofed_approver_identity_without_credential_is_rejected():
                "justificativa": "aceito o risco do lançamento"}
     with pytest.raises(MensagemRejeitada, match="não autenticado"):
         s.bus.send(Message("APR", "AG-ORQ", "approve", "APR-001", "PROT-APR", decisao))
-    intruso = Agent("INTRUSO", s.bus, "ROLE-APR")  # registrado, mas usa a credencial dele para se passar por APR
+    with pytest.raises(ProtocolViolation, match="fora do diretório"):  # sistema montado: registro fechado
+        Agent("INTRUSO", s.bus, "ROLE-APR")
+    s.bus.registro_fechado = False  # defesa em profundidade: mesmo se o intruso conseguisse se registrar...
+    intruso = Agent("INTRUSO", s.bus, "ROLE-APR")  # ...a credencial dele não serve para se passar por APR
     with pytest.raises(MensagemRejeitada, match="não autenticado"):
         s.bus.send(Message("APR", "AG-ORQ", "approve", "APR-001", "PROT-APR", decisao),
                    credencial=intruso._Agent__credencial)
@@ -147,7 +150,7 @@ def test_content_tampering_after_send_is_detected():
     conteudo = {"tarefa": "apurar_custos", "entidade": "SMA", "competencia": "2026-09"}
     s.orq.send("AG-CUS", "request", "PROT-DEL", "DEL-900", conteudo)
     conteudo["tarefa"] = "outra"  # o remetente não altera o que já foi enviado (cópia no envio)
-    _, _, _, (msg, _) = s.bus._queue[0]
+    _, _, _, (msg, *_) = s.bus._queue[0]
     assert msg.content["tarefa"] == "apurar_custos"
     msg.content["entidade"] = "OUTRA"  # adulteração do conteúdo enfileirado
     s.bus.run()
@@ -208,3 +211,38 @@ def test_invalid_period_or_unknown_entity_is_refused():
     assert not [r for r in s.bus.audit.records if r["kind"] == "erro_agente"]
     assert not [c for c in s.bus.conversations.values() if c.protocol.id == "PROT-DEL"
                 and c.conversation_id in s.bus.audit.familia(outra)]  # nada foi delegado
+
+
+def test_unknown_identity_cannot_register_with_a_privileged_role_after_the_system_is_built():
+    """Correção simulada da v0.5.0 (C1): identidade fora do diretório se registrava como ROLE-ORQ ou ROLE-RES,
+    delegava ao AG-CIN e lia o veto. Com o sistema montado, o registro é fechado e a tentativa é auditada."""
+    s = build_system(plantar=("alcada",))
+    for ident, papel in (("INTRUSO-1", "ROLE-ORQ"), ("INTRUSO-2", "ROLE-RES"), ("INTRUSO-3", "ROLE-SOL")):
+        with pytest.raises(ProtocolViolation, match="fora do diretório"):
+            Agent(ident, s.bus, papel)
+    with pytest.raises(ProtocolViolation, match="fora do diretório"):
+        s.bus.register_service("SVC-POL-2", "SVC-POL")
+    assert "INTRUSO-1" not in s.bus.papeis and "SVC-POL-2" not in s.bus.papeis
+    recusas = [r for r in s.bus.audit.records if r["kind"] == "rejected" and "fora do diretório" in r["motivo"]]
+    assert len(recusas) == 4
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert s.usuario.resposta(sid) is not None  # o sistema legítimo segue funcionando
+
+
+def test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised():
+    """Correção simulada da v0.5.0 (m2): identificador não textual na transição local e conteúdo que não pode
+    ser copiado levantavam TypeError/RecursionError sem registro de rejeição."""
+    s = build_system()
+    with pytest.raises(MensagemRejeitada):
+        s.bus.advance({}, "publicar", "HACKER")
+    with pytest.raises(MensagemRejeitada):
+        s.bus.advance("CMP-001", ["publicar"], "AG-ORQ", credencial="x")
+    fundo = atual = {}
+    for _ in range(3000):
+        atual["x"] = {}
+        atual = atual["x"]
+    for conteudo in ({"g": (i for i in range(3))}, fundo):
+        with pytest.raises(MensagemRejeitada):
+            s.bus.send(Message("SOL", "AG-ORQ", "request", "SOL-900", "PROT-SOL", conteudo))
+    assert len([r for r in s.bus.audit.records if r["kind"] == "rejected"]) == 4

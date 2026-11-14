@@ -1,0 +1,47 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+sequenceDiagram
+  autonumber
+  participant NAV as Navegador (dashboard)
+  participant SRV as Servidor local (server.py)
+  participant IAM as SVC-IAM (iam.py)
+  participant TUI as TUI de administração
+  NAV->>SRV: POST /api/login {usuario, senha}
+  Note over SRV: Host/Origin só 127.0.0.1 ou localhost (senão 403)
+  SRV->>IAM: autenticar(usuario, senha, origem)
+  IAM->>IAM: scrypt com sal da conta (IAM-03: 5 erros bloqueiam 15 min)
+  alt usuário ou senha inválidos, conta bloqueada ou desativada
+    IAM-->>SRV: AcessoNegado (IAM-03 / IAM-04), registrado na trilha
+    SRV-->>NAV: 401 {erro}
+  else senha confere
+    IAM->>IAM: sessão S-... (8 h, 15 min de inatividade), guarda só o SHA-256 do token
+    IAM-->>SRV: Sessao + token + csrf
+    SRV-->>NAV: 200 {sessao, csrf, cabecalho X-SMA-Token} + Set-Cookie HttpOnly, SameSite=Strict
+  end
+  NAV->>SRV: GET ou POST /api/... com o cookie (POST também com X-SMA-Token = csrf)
+  SRV->>IAM: sessao(token do cookie): relê o cadastro selado
+  alt sessão ausente, expirada ou revogada
+    SRV-->>NAV: 401 entre com usuário e senha
+  else POST sem X-SMA-Token da sessão
+    SRV-->>NAV: 403 cabeçalho X-SMA-Token ausente ou inválido
+  else sessão viva
+    SRV->>SRV: autorizar(acesso, sessao, método, rota, cmd): permissão da rota ou do comando
+    opt senha temporária ainda não trocada
+      SRV-->>NAV: 403 IAM-02 troque a senha (fim)
+    end
+    opt rota fora da tabela de permissões
+      SRV-->>NAV: 404 (400 para comando desconhecido) (fim)
+    end
+    SRV->>IAM: exigir(sessao, permissão) com os papéis de agora (IAM-05)
+    alt papel sem a permissão
+      IAM-->>SRV: AcessoNegado (IAM-05), registrado na trilha
+      SRV-->>NAV: 403 {regra}
+    else permitido
+      SRV-->>NAV: 200 / 202 (comando aceito)
+    end
+  end
+  TUI->>IAM: revogar(sessão) / revogar_usuario / bloquear / desativar
+  IAM->>IAM: marca a sessão como revogada no cadastro selado
+  NAV->>SRV: próxima requisição com o mesmo cookie
+  SRV->>IAM: sessao(token)
+  IAM-->>SRV: None (revogada vale na hora)
+  SRV-->>NAV: 401, e o fluxo SSE /api/eventos envia sessao_encerrada e fecha

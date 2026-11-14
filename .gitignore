@@ -63,3 +63,23 @@ entregas/dsm2/DSM2-entrega.zip
 entregas/dsm3/DSM3-entrega.zip
 # --- Memória persistente local do SVC-MEM (--memoria) ---
 .fin_mas/
+
+# segredos locais (chaves de LLM): nunca versionar
+.env
+.env.*
+!.env.example
+
+# --- Cobertura (make cobertura) ---
+.coverage
+htmlcov/
+
+# --- Cópias de trabalho de agentes ---
+.claude/worktrees/
+
+# --- DSM4: build do wheel (tools/empacotar_wheel.py) ---
+build/
+dist/
+src/fin_mas/_dados/
+
+# --- Pacote de entrega gerado por tools/empacotar_dsm4.py ---
+entregas/dsm4/DSM4-entrega.zip

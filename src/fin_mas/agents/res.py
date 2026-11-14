@@ -5,6 +5,7 @@ Depende de informação de outros agentes: obtém custos e desvios por query-ref
 """
 from fin_mas.agents.base import Specialist
 from fin_mas.core.message import Message
+from fin_mas.env.dataset import brl
 
 PRAZO_CONSULTA = 10  # ticks lógicos até a expiração de uma query-ref
 
@@ -16,6 +17,7 @@ class AgenteResultados(Specialist):
         self.conhecimento = {"estrutura_dre": ["receita", "custos_variaveis", "margem_contribuicao",
                                                "custos_fixos", "ebitda"]}
         self.estado = {"consolidacoes": {}, "consulta_para_tarefa": {}}
+        self.modelos = None  # SVC-MOD: comentário opcional dos indicadores (uso `comentario`); None = sem LLM
 
     def on_message(self, msg: Message) -> None:
         if msg.protocol == "PROT-DEL" and msg.performative == "request":
@@ -82,6 +84,13 @@ class AgenteResultados(Specialist):
         self.decide(tarefa, "DRE = receita - variáveis - fixos; receita do ERP conferida com a de Custos",
                     {"consultas": sorted(c["consultas"])}, dre)
         self.estado["ultima_dre"] = dre
-        self.send(c["solicitante"], "inform", "PROT-DEL", tarefa,
-                  {"dre": dre, "kpis": kpis, "resultado_un": c["respostas"]["custos"]["resultado_un"],
-                   "proveniencia": c["proveniencia"]})
+        conteudo = {"dre": dre, "kpis": kpis, "resultado_un": c["respostas"]["custos"]["resultado_un"],
+                    "proveniencia": c["proveniencia"]}
+        if self.modelos:  # texto do LLM validado contra as linhas abaixo (NORM-05); só com a flag ligada
+            base = (f"Receita: {brl(dre['receita'])}\nMargem de contribuição: {brl(margem)} "
+                    f"({kpis['margem_contribuicao_pct']}%)\nEBITDA: {brl(dre['ebitda'])} ({kpis['ebitda_pct']}%)\n"
+                    f"Desvio orçamentário acumulado: {brl(kpis['desvio_orcamentario'])}")
+            texto = self.modelos.gerar(self.id, tarefa, "comentar os indicadores do período", base, uso="comentario")
+            if texto:
+                conteudo["comentario"] = {"texto": texto, "modelo": self.modelos.config(self.id)["modelo"]}
+        self.send(c["solicitante"], "inform", "PROT-DEL", tarefa, conteudo)

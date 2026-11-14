@@ -48,9 +48,46 @@ jobs:
           python-version: "3.13"
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - run: pip install -r requirements-dev.txt
+      - name: Dependências (pytest, pyyaml, openpyxl, textual, anthropic)
+        run: pip install -r requirements-dev.txt
       - name: Testes unitários e e2e (offline)
         run: python -m pytest
+      - name: Validar cadeia de rastreabilidade
+        run: python tools/trace.py --check
+      - name: Catálogo de cenários (duas execuções por cenário, hashes iguais)
+        run: PYTHONPATH=src python -m fin_mas cenarios --verificar
+
+  interface:
+    runs-on: ubuntu-latest
+    env:
+      PW_CHANNEL: chromium  # no runner não há o Chrome do sistema: usa o Chromium baixado pelo Playwright
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Dependências Python (o servidor real sobe nos testes de uso)
+        run: pip install -r requirements-dev.txt
+      - uses: oven-sh/setup-bun@v2
+      - name: Dependências do dashboard
+        working-directory: web
+        run: bun install --frozen-lockfile
+      - name: Chromium do Playwright
+        working-directory: web
+        run: bunx playwright install --with-deps chromium
+      - name: Testes unitários do dashboard (vitest)
+        working-directory: web
+        run: bun run test
+      - name: Testes de uso no navegador (Playwright + servidor Python)
+        working-directory: web
+        run: PYTHON="$(command -v python)" bun run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: web/test-results
 
   pdf:
     runs-on: ubuntu-latest

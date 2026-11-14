@@ -9,7 +9,7 @@ Modos:
     dev       servidor Python + Vite em modo desenvolvimento (recarga automática)
     testes    pytest (e2e e integração), rastreabilidade, testes do dashboard e de uso real
     docs      gera a documentação (Sphinx) em docs/_build/html
-    cli       roda um cenário no terminal (use --cenario e --porte)
+    cli       roda um cenário no terminal (use --cenario, --porte e --segmento)
     instalar  só prepara o ambiente
 
 O que é preparado (só quando falta ou mudou): Python 3.11+ (verificado), ambiente virtual
@@ -173,7 +173,9 @@ def _manter(processos):
 
 def modo_ao_vivo(args, _bun):
     passo("Iniciando o escritório ao vivo (servidor local, sem internet)")
-    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", str(args.porta),
+    # --demo: contas de demonstração com senha pública (o servidor a imprime), para avaliar sem configurar nada.
+    # Uso real: `python -m fin_mas instalar` e depois `python -m fin_mas serve --instalacao dados`.
+    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", str(args.porta), "--demo",
                             "--scenario", args.cenario or "expediente_sma"], cwd=RAIZ, env=_env())
     _abrir_quando_pronto(f"http://127.0.0.1:{args.porta}", not args.sem_navegador)
     _manter([srv])
@@ -189,7 +191,7 @@ def modo_replay(args, bun):
 
 def modo_dev(args, bun):
     passo("Modo desenvolvimento: servidor Python (8765) + Vite com recarga automática (5173)")
-    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", "8765"], cwd=RAIZ, env=_env())
+    srv = subprocess.Popen([str(PY_VENV), "-m", "fin_mas", "serve", "--porta", "8765", "--demo"], cwd=RAIZ, env=_env())
     web = subprocess.Popen([bun, "run", "dev", "--host", "127.0.0.1"], cwd=WEB, env=_env())
     _abrir_quando_pronto("http://127.0.0.1:5173", not args.sem_navegador)
     _manter([srv, web])
@@ -217,6 +219,8 @@ def modo_cli(args, _bun):
     cmd = [PY_VENV, "-m", "fin_mas", "run", "--scenario", args.cenario or "desvio_irregular"]
     if args.porte:
         cmd += ["--porte", args.porte]
+    if args.segmento:
+        cmd += ["--segmento", args.segmento]
     rodar(cmd)
 
 
@@ -225,7 +229,10 @@ def main(argv=None) -> int:
     parser.add_argument("modo", nargs="?", default="ao-vivo", choices=MODOS)
     parser.add_argument("--porta", type=int, default=None, help="porta do navegador (8765 ao vivo, 4173 replay)")
     parser.add_argument("--cenario", default=None, help="cenário (ao-vivo e cli)")
-    parser.add_argument("--porte", default=None, choices=("micro", "pequena", "media", "grande"), help="modo cli")
+    parser.add_argument("--porte", default=None, choices=("mei", "micro", "pequena", "media", "media_ii", "grande"),
+                        help="modo cli")
+    parser.add_argument("--segmento", default=None, choices=("software_servicos", "comercio", "servicos", "industria"),
+                        help="modo cli (models/segmentos.yaml)")
     parser.add_argument("--sem-navegador", action="store_true", help="não abre o navegador")
     args = parser.parse_args(argv)
     args.porta = args.porta or (4173 if args.modo == "replay" else 8765)

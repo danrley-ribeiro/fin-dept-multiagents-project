@@ -133,7 +133,7 @@ Lançar ajuste no ERP, alterar orçamento ou publicar relatório nunca é execut
 ````{req} Autenticidade e integridade das interações (feedback da DSM2)
 :id: REQ-S04
 :entrega: DSM3
-:status: pendente
+:status: especificado
 :categoria: Segurança
 :prioridade: Must
 :satisfies: G-09, G-05
@@ -238,10 +238,10 @@ Registrar tokens de entrada e saída, modelo e custo estimado por chamada, agreg
 :prioridade: Could
 :satisfies: G-07
 :addresses: PROB-06
-:assigned_to: ROLE-APR, ROLE-SOL
-:constrained_by: NORM-06
+:assigned_to: ROLE-APR, ROLE-SOL, ROLE-OPE, ROLE-AUD
+:constrained_by: NORM-06, NORM-12
 
-Dashboard web, mobile e desktop autenticado com filtros por agente, período, tarefa e custo sobre os logs de auditoria. Especificado na DSM1; implementação em entrega futura.
+Dashboard web autenticado, com filtros por agente, período, tarefa e custo sobre os logs de auditoria. Especificado na DSM1 e implementado na DSM3: login por pessoa, permissões por papel, aba de logs com exportação, explicação de decisões e sequência das conversas. Mobile e desktop nativos ficam fora do escopo (o dashboard web é responsivo).
 
 **Evidência observável de aceite:** Cada filtro retorna exatamente os registros do recorte em base de teste; acesso sem autenticação é negado.
 ````
@@ -309,4 +309,123 @@ O núcleo executa sem rede e sem API paga, com MCP mocks, dados sintéticos e se
 Templates de prompt, regras de conformidade e configurações de modelo têm ID e versão, registrados em cada log de decisão e de prompt.
 
 **Evidência observável de aceite:** Todo registro de log contém as versões vigentes; mudança de versão aparece no trace seguinte.
+````
+
+````{req} Identidade, sessão e autorização por pessoa
+:id: REQ-S05
+:entrega: DSM3
+:status: especificado
+:categoria: Segurança
+:prioridade: Must
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-APR, ROLE-OPE, ROLE-AUD, ROLE-SOL
+:uses_protocol: PROT-APR
+:constrained_by: NORM-10, NORM-12, NORM-13
+
+Quem usa a plataforma é uma pessoa com conta: entra com senha, recebe uma sessão com prazo, só executa o que os papéis dela permitem (negado por padrão) e tem cada comando e cada decisão registrados no seu nome. A decisão no Approval Gate vale pela pessoa autenticada (atestado de sessão), confere o cargo e a segregação de funções contra a pessoa real, e quem fez a solicitação não decide sobre ela.
+
+**Evidência observável de aceite:** Sem sessão a API responde 401; sem a permissão, 403 com a regra; decisão sem atestado, com atestado forjado, de sessão revogada, repetido, de cargo sem alçada, de pessoa envolvida ou do próprio solicitante é rejeitada e auditada; sessão revogada deixa de valer na requisição seguinte; cadastro adulterado não deixa ninguém entrar.
+````
+
+````{req} Cognição assistida por hipóteses verificáveis (local e LLM opcional)
+:id: REQ-F08
+:entrega: DSM3
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-03, G-07
+:addresses: PROB-03, PROB-06
+:assigned_to: ROLE-ORC
+:uses_protocol: PROT-QRY, PROT-DEL
+:constrained_by: NORM-05, NORM-07, NORM-11
+
+O agente cognitivo recebe propostas de hipótese de regras locais (offline) e, se a flag estiver ligada, de um LLM. Cada proposta é validada por regras; a aceita vira hipótese, separada das crenças, e gera uma ação epistêmica (buscar a evidência, negociando prazo se preciso). Só a evidência de fonte determinística revisa a crença e muda a avaliação.
+
+**Evidência observável de aceite:** Com cognição local, a hipótese leva a uma segunda consulta e o desvio passa a bater com o gabarito; propostas inválidas (número, alvo, tipo, ação, evidência inexistente) são rejeitadas e o resultado é idêntico ao do nível básico; nenhuma crença tem um proponente como fonte; no nível básico o trace é o mesmo.
+````
+
+````{req} Especialistas de Resultados, Custos e Relatórios com deliberação BDI
+:id: REQ-F20
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-02, G-04, G-06, G-08
+:addresses: PROB-01, PROB-02, PROB-05, PROB-07
+:assigned_to: ROLE-RES, ROLE-CUS, ROLE-REL, ROLE-ORC
+:uses_protocol: PROT-DEL, PROT-QRY
+:constrained_by: NORM-07, NORM-08, NORM-11, NORM-20
+
+Nos níveis de cognição local e llm, AG-RES, AG-CUS e AG-REL são agentes BDI: crenças com fonte, desejos gerados das crenças, planos alternativos com contexto e utilidade pelos pesos do porte, falha de plano com replanejamento e reconsideração. A estratégia de compromisso (cego, obstinado, aberto) é parâmetro por agente e porte, e cada regra local de hipótese aprende com as confirmações e refutações verificadas. No nível básico os três continuam sendo as classes reativas, que servem de braço de comparação.
+
+**Evidência observável de aceite:** O trace de cada cenário novo mostra deliberação com planos aplicáveis e não aplicáveis, a falha e o replanejamento, e a escolha mudando com o porte; o resultado bate com o gabarito; o mesmo cenário no nível básico não tem registro BDI desses agentes e os traces revisados da DSM3 não mudam.
+````
+
+````{req} Conhecimento normativo com proveniência
+:id: REQ-F21
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-05, G-07
+:addresses: PROB-04, PROB-06
+:assigned_to: ROLE-CIN, ROLE-REL
+:uses_protocol: PROT-CMP
+:constrained_by: NORM-02, NORM-21
+
+Uma base normativa versionada, com trechos curtos em paráfrase das normas já citadas pelo projeto, é consultada por recuperação lexical offline. Cada resultado traz documento, trecho e versão. O AG-CIN cita o trecho que fundamenta cada achado e o AG-REL cita a base de cada exceção; sem evidência, declaram "sem evidência".
+
+**Evidência observável de aceite:** A busca devolve o trecho esperado em primeiro para as consultas de referência e lista vazia para assunto fora do corpus; o achado de SoD cita COSO-SEGREGACAO com a versão; o de duplicidade sai marcado sem evidência e nada é citado no lugar.
+````
+
+````{req} Acesso avançado — segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas
+:id: REQ-S06
+:entrega: DSM4
+:status: especificado
+:categoria: Segurança
+:prioridade: Should
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-APR
+:uses_protocol: PROT-APR, PROT-CMP
+:constrained_by: NORM-14, NORM-15
+
+Contas de administração e de aprovação podem (ou, pela política do cadastro, devem) entrar com segundo fator TOTP e códigos de recuperação de uso único. A liberação de um veto só vale se a exposição couber na alçada do cargo de quem decide; a alçada pode ser delegada com prazo, teto e escopo, sem subdelegação; acima do limite do porte, duas pessoas diferentes liberam (aval e aprovação), e o ticket sem decisão escala para o nível acima. Segredos (TOTP, chaves de LLM, credenciais) ficam num cofre selado que nunca os devolve à interface. Cada empresa cliente tem dados, memória e decisões isolados.
+
+**Evidência observável de aceite:** Código TOTP repetido, fora da janela, código de recuperação reutilizado e pré-sessão usada em rota comum são negados (IAM-08); liberação acima da alçada (POL-10), por delegação forjada, expirada ou subdelegada (POL-11), pela mesma pessoa nos dois passos (POL-12) ou por sessão de outra empresa (IAM-09) é rejeitada e auditada; a API e as telas mostram só se um segredo existe; nada de uma empresa é lido, decidido ou lembrado em outra; nos cenários sem SVC-IAM o trace é o mesmo da v0.5.0.
+````
+
+````{req} Fonte de dados por conector genérico e entendimento automático sem IA generativa
+:id: REQ-F30
+:entrega: DSM4
+:status: especificado
+:categoria: Funcional
+:prioridade: Should
+:satisfies: G-01, G-07
+:addresses: PROB-01, PROB-06
+:assigned_to: ROLE-OPE, ROLE-ORQ
+:uses_protocol: PROT-DEL
+:constrained_by: NORM-02, NORM-30, NORM-31
+
+A empresa liga a SMA à própria fonte sem conector de fornecedor: ERP simulado, pasta de planilhas (várias competências), API REST JSON qualquer (contrato OpenAPI ou amostras) ou servidor MCP por stdio. O entendimento da fonte é determinístico (nomes, sinônimos pt/en, tipos e conteúdo): estrutura, sugestão de mapeamento para o modelo canônico com confiança e motivo, relatório de qualidade e prévia redigida. LLM só sugere, se ligado, e passa pela mesma validação; o mapeamento só vale confirmado por uma pessoa.
+
+**Evidência observável de aceite:** Fechamento sobre o ERP de demonstração em loopback igual ao do ERP simulado na mesma seed; planilha fora do modelo e tools MCP entendidas com o gabarito de mapeamento e o mesmo fechamento da leitura canônica; fonte fora do ar termina em falha explícita, sem travar; sugestão inválida do LLM rejeitada com o motivo.
+````
+
+````{req} Credencial de conector selada e rede só em loopback salvo liberação do administrador
+:id: REQ-S20
+:entrega: DSM4
+:status: especificado
+:categoria: Segurança
+:prioridade: Must
+:satisfies: G-07, G-09
+:addresses: PROB-06, PROB-08
+:assigned_to: ROLE-ADM, ROLE-OPE
+:uses_protocol: PROT-APR
+:constrained_by: NORM-06, NORM-12, NORM-32
+
+A credencial de um conector vai para o cofre selado e nunca volta pela API, pelo trace nem pela trilha; só é enviada ao host a que foi vinculada no cadastro. Host fora do loopback exige liberação explícita de uma pessoa com PERM-DAD-REDE; redirecionamentos não são seguidos. A escrita na fonte (correção) continua só com o ticket aprovado no Approval Gate.
+
+**Evidência observável de aceite:** O token não aparece em resposta, trace, trilha nem no arquivo do cofre; host externo negado sem liberação e o operador não consegue liberar; trocar a URL desvincula a credencial; correção sem aprovação não chega ao ERP.
 ````

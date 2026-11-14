@@ -39,7 +39,7 @@ items:
   - {id: TEST-18, nome: test_cost_log_per_call_and_task, verifica: [REQ-O03], derivado_de: SVC-AUD, tipo: observabilidade,
      esperado: "soma por chamada = total da tarefa; zero com flag desligada", entrega: DSM3, status: executado}
   - {id: TEST-19, nome: test_dashboard_filters_and_auth, verifica: [REQ-O04], derivado_de: SVC-AUD, tipo: integracao,
-     esperado: "filtros retornam o recorte exato; acesso anônimo negado", entrega: FUTURA, status: planejado}
+     esperado: "filtros retornam o recorte exato; acesso anônimo negado", entrega: DSM3, status: executado}
   - {id: TEST-20, nome: test_model_swap_without_redeploy, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: configuracao,
      esperado: "troca de modelo vale na próxima tarefa sem reiniciar agentes", entrega: DSM3, status: executado}
   - {id: TEST-21, nome: test_llm_not_allowed_roles_rejected, verifica: [REQ-C01], derivado_de: NORM-07, tipo: configuracao,
@@ -182,3 +182,417 @@ items:
      esperado: "decisão no último tick é recusada explicitamente (POL-08) em vez de aceita e expirada", entrega: DSM3, status: executado}
   - {id: TEST-90, nome: test_dashboard_authenticates_before_reading_the_body, verifica: [REQ-O04, REQ-S04], derivado_de: SVC-AUD, tipo: seguranca,
      esperado: "POST sem token com corpo enorme declarado ou token não-ASCII recebe 403 sem ler o corpo nem gerar exceção", entrega: DSM3, status: executado}
+  # ---- DSM3 (v0.5.0): cognição assistida, LLM multiprovedor, acesso por pessoa, negociação, interface ----
+  - {id: TEST-91, nome: test_local_hypothesis_triggers_verification_and_reclassifies, verifica: [REQ-F08], derivado_de: NORM-11, tipo: e2e,
+     esperado: "a observação vira hipótese, o AG-ORC consulta de novo o AG-CIN e o desvio bate com o gabarito", entrega: DSM3, status: executado}
+  - {id: TEST-92, nome: test_hypothesis_never_writes_a_belief, verifica: [REQ-F08, REQ-S03], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "nenhuma crença tem regra local ou LLM como fonte, em nenhum cenário cognitivo", entrega: DSM3, status: executado}
+  - {id: TEST-93, nome: test_false_alarm_hypothesis_is_refuted_without_extra_messages, verifica: [REQ-F08], derivado_de: NORM-11, tipo: e2e,
+     esperado: "hipótese refutada pela resposta que o AG-CIN já deu; nenhuma mensagem a mais", entrega: DSM3, status: executado}
+  - {id: TEST-94, nome: test_hypothesis_without_evidence_is_archived_and_changes_nothing, verifica: [REQ-F08], derivado_de: NORM-11, tipo: e2e,
+     esperado: "sem evidência a hipótese é arquivada e o resultado é igual ao do nível básico", entrega: DSM3, status: executado}
+  - {id: TEST-95, nome: test_calendar_pattern_is_confirmed_by_history_not_by_the_rule, verifica: [REQ-F08], derivado_de: NORM-11, tipo: e2e,
+     esperado: "padrão de calendário confirmado pelo cálculo sobre o histórico; o desvio segue sinalizado, com ressalva", entrega: DSM3, status: executado}
+  - {id: TEST-96, nome: test_epistemic_action_respects_requester_deadline, verifica: [REQ-F08], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "a verificação que não cabe no prazo não é feita: o agente negocia ou arquiva e responde no prazo", entrega: DSM3, status: executado}
+  - {id: TEST-97, nome: test_basic_cognition_has_no_hypotheses_and_no_extra_perception, verifica: [REQ-NF01], derivado_de: NORM-11, tipo: reprodutibilidade,
+     esperado: "os cenários revisados não ganham registro novo no nível básico", entrega: DSM3, status: executado}
+  - {id: TEST-98, nome: test_llm_hypothesis_is_verified_before_changing_the_outcome, verifica: [REQ-F08, REQ-S03], derivado_de: NORM-11, tipo: e2e,
+     esperado: "proposta do LLM (mock) só muda a avaliação depois de o AG-CIN confirmar", entrega: DSM3, status: executado}
+  - {id: TEST-99, nome: test_rejected_llm_proposals_leave_the_result_identical, verifica: [REQ-S03], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "cinco propostas inválidas rejeitadas, cada uma por uma regra; resultado idêntico ao básico", entrega: DSM3, status: executado}
+  - {id: TEST-100, nome: test_injected_note_cannot_change_classification, verifica: [REQ-S03], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "instrução embutida no texto livre é obedecida pelo modelo e recusada pela validação", entrega: DSM3, status: executado}
+  - {id: TEST-101, nome: test_provider_outage_opens_the_circuit_breaker_and_results_are_deterministic, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: e2e,
+     esperado: "duas falhas do provedor, disjuntor aberto e avaliações iguais às sem LLM", entrega: DSM3, status: executado}
+  - {id: TEST-102, nome: test_external_provider_without_consent_sends_nothing, verifica: [REQ-P01], derivado_de: NORM-06, tipo: seguranca,
+     esperado: "provedor externo sem consentimento: fallback e nenhum prompt enviado", entrega: DSM3, status: executado}
+  - {id: TEST-103, nome: test_prompt_is_pseudonymized_and_insight_restores_real_names, verifica: [REQ-P01], derivado_de: NORM-06, tipo: seguranca,
+     esperado: "o prompt registrado leva pseudônimos; o insight volta com os nomes reais", entrega: DSM3, status: executado}
+  - {id: TEST-104, nome: test_true_number_under_the_wrong_label_is_rejected, verifica: [REQ-S03], derivado_de: NORM-05, tipo: seguranca,
+     esperado: "valor verdadeiro sob a grandeza errada ou rótulo adulterado reprova o texto", entrega: DSM3, status: executado}
+  - {id: TEST-105, nome: test_openai_compatible_local_server_feeds_a_verified_hypothesis, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: integracao,
+     esperado: "provedor por HTTP em loopback propõe, o agente valida e o AG-CIN confirma", entrega: DSM3, status: executado}
+  - {id: TEST-106, nome: test_openai_provider_sends_key_in_header_and_never_in_the_trace, verifica: [REQ-P01, REQ-C01], derivado_de: NORM-06, tipo: integracao,
+     esperado: "a chave vai no cabeçalho e não aparece no trace; o corpo sai com pseudônimos", entrega: DSM3, status: executado}
+  - {id: TEST-107, nome: test_anthropic_sdk_request_shape_and_served_model, verifica: [REQ-C01, REQ-O03], derivado_de: SVC-MOD, tipo: integracao,
+     esperado: "requisição do SDK com saída estruturada e fallback; custo pelo modelo que serviu", entrega: DSM3, status: executado}
+  - {id: TEST-108, nome: test_provider_failures_fall_back_to_the_deterministic_path, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: integracao,
+     esperado: "429, 500, resposta inválida, cortada ou recusada caem no fallback, sem vazar segredo", entrega: DSM3, status: executado}
+  - {id: TEST-109, nome: test_cli_benchmark_table_with_mock_and_with_a_local_server, verifica: [REQ-C01], derivado_de: SVC-MOD, tipo: integracao,
+     esperado: "bancada de avaliação de LLM pela linha de comando, com mock e por HTTP", entrega: DSM3, status: executado}
+  - {id: TEST-110, nome: test_involved_approver_is_refused_and_another_person_decides, verifica: [REQ-S05, REQ-S01], derivado_de: NORM-10, tipo: e2e,
+     esperado: "quem criou o lançamento vetado é recusada (POL-03) e outra pessoa decide", entrega: DSM3, status: executado}
+  - {id: TEST-111, nome: test_requester_cannot_approve_their_own_request, verifica: [REQ-S05], derivado_de: NORM-10, tipo: e2e,
+     esperado: "quem fez a solicitação é recusada na decisão (POL-13)", entrega: DSM3, status: executado}
+  - {id: TEST-112, nome: test_position_limits_which_decisions_a_person_can_take, verifica: [REQ-S05], derivado_de: NORM-10, tipo: e2e,
+     esperado: "analista não concede waiver (POL-02); gerente concede", entrega: DSM3, status: executado}
+  - {id: TEST-113, nome: test_single_person_company_uses_the_registered_compensating_control, verifica: [REQ-S05], derivado_de: NORM-10, tipo: e2e,
+     esperado: "na microempresa a mesma pessoa pede e decide, com o controle compensatório anotado", entrega: DSM3, status: executado}
+  - {id: TEST-114, nome: test_access_attacks_are_all_rejected_and_nothing_is_published, verifica: [REQ-S05, REQ-S04], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "15 ataques ao controle de acesso rejeitados; nada publicado; nenhum token no trace", entrega: DSM3, status: executado}
+  - {id: TEST-115, nome: test_each_role_can_only_do_what_its_permissions_allow, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
+     esperado: "matriz papel x comando pelo HTTP: 202 só para quem tem a permissão", entrega: DSM3, status: executado}
+  - {id: TEST-116, nome: test_decision_is_bound_to_the_logged_in_person, verifica: [REQ-S05], derivado_de: NORM-13, tipo: integracao,
+     esperado: "a decisão pelo dashboard fica no ticket, no trace e na trilha com a pessoa", entrega: DSM3, status: executado}
+  - {id: TEST-117, nome: test_revoked_session_stops_at_once_and_closes_the_event_stream, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
+     esperado: "sessão revogada por outro processo: 401 na requisição seguinte e fluxo de eventos encerrado", entrega: DSM3, status: executado}
+  - {id: TEST-118, nome: test_login_lockout_and_generic_errors, verifica: [REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "mesma resposta para usuário inexistente e senha errada; cinco erros bloqueiam", entrega: DSM3, status: executado}
+  - {id: TEST-119, nome: test_tampered_account_store_locks_everyone_out, verifica: [REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "cadastro alterado fora do sistema: ninguém entra", entrega: DSM3, status: executado}
+  - {id: TEST-120, nome: test_full_account_lifecycle_from_the_terminal, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "bootstrap, contas, papéis incompatíveis, último administrador, bloqueio e sessões pela CLI", entrega: DSM3, status: executado}
+  - {id: TEST-121, nome: test_access_trail_is_listed_verified_and_tampering_is_detected, verifica: [REQ-S05, REQ-O01], derivado_de: NORM-13, tipo: seguranca,
+     esperado: "trilha de acesso íntegra é aprovada; alterada ou truncada é acusada", entrega: DSM3, status: executado}
+  - {id: TEST-122, nome: test_concurrent_writers_do_not_lose_updates, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "seis processos gravando ao mesmo tempo: nenhuma conta perdida", entrega: DSM3, status: executado}
+  - {id: TEST-123, nome: test_invariant_checker_flags_a_forged_trace, verifica: [REQ-S04, REQ-O01], derivado_de: SVC-AUD, tipo: seguranca,
+     esperado: "publicação sobre veto, efeito sem aprovação e crença de modelo são acusados", entrega: DSM3, status: executado}
+  - {id: TEST-124, nome: test_work_area_routes_reports_approvals_explanations_and_sequence, verifica: [REQ-O04, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "relatórios, aprovações, explicação de decisão e sequência pela API", entrega: DSM3, status: executado}
+  - {id: TEST-125, nome: test_specialist_negotiates_deadline_and_orchestrator_accepts, verifica: [REQ-F01], derivado_de: PROT-DEL, tipo: protocolo-nominal,
+     esperado: "propose e accept-proposal: prazo estendido, hipótese confirmada", entrega: DSM3, status: executado}
+  - {id: TEST-126, nome: test_orchestrator_refuses_extension_when_the_period_is_reserved, verifica: [REQ-F01, REQ-S02], derivado_de: PROT-DEL, tipo: protocolo-nominal,
+     esperado: "reject-proposal no fechamento com período reservado; entrega no prazo original", entrega: DSM3, status: executado}
+  - {id: TEST-127, nome: test_extended_deadline_replaces_the_original_timer, verifica: [REQ-F01], derivado_de: PROT-DEL, tipo: protocolo-nominal,
+     esperado: "trabalho além do prazo original, dentro do estendido, não expira", entrega: DSM3, status: executado}
+  - {id: TEST-128, nome: test_protocol_rejects_negotiation_out_of_order_or_by_the_wrong_role, verifica: [REQ-S04], derivado_de: PROT-DEL, tipo: protocolo-negativo,
+     esperado: "proposta fora de ordem, pelo papel errado ou malformada é rejeitada", entrega: DSM3, status: executado}
+  - {id: TEST-129, nome: test_install_creates_a_ready_data_folder_and_doctor_approves_it, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "instalação numa pasta limpa e diagnóstico sem erros", entrega: DSM3, status: executado}
+  - {id: TEST-130, nome: "a decisão é da pessoa: a gerente envolvida é impedida e outro gerente decide", verifica: [REQ-S05, REQ-O04], derivado_de: NORM-10, tipo: interface,
+     esperado: "no navegador, a gerente envolvida vê o impedimento e outro gerente decide", entrega: DSM3, status: executado}
+  - {id: TEST-131, nome: "sessão revogada pelo administrador no terminal devolve o dashboard ao login", verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "revogar pela CLI devolve o navegador à tela de login", entrega: DSM3, status: executado}
+  - {id: TEST-132, nome: "logs: filtros por agente e tipo, busca, por quê e sequência da conversa", verifica: [REQ-O04], derivado_de: SVC-AUD, tipo: interface,
+     esperado: "filtros, explicação e sequência pela aba Logs", entrega: DSM3, status: executado}
+  - {id: TEST-133, nome: "LLM opcional pelo dashboard: ligar o mock no AG-ORC, corroborar a hipótese e ver o custo", verifica: [REQ-C01, REQ-F08], derivado_de: SVC-MOD, tipo: interface,
+     esperado: "configurar o LLM pela interface, ver a hipótese corroborada e o uso", entrega: DSM3, status: executado}
+  - {id: TEST-134, nome: test_deadline_check_uses_the_real_delivery_time_of_the_decision, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "decisão que só chegaria depois do prazo do ticket é recusada (POL-08); pelo canal normal, vale", entrega: DSM3, status: executado}
+  - {id: TEST-135, nome: test_first_use_wizard_creates_the_first_administrator, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: interface,
+     esperado: "TUI: o primeiro uso cria o administrador e exige senha forte", entrega: DSM3, status: executado}
+  - {id: TEST-136, nome: test_assigning_approver_role_to_the_administrator_is_refused_with_iam06, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: administrador não acumula aprovador (IAM-06)", entrega: DSM3, status: executado}
+  - {id: TEST-137, nome: test_revoking_a_session_opened_by_the_server_drops_it, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: sessão aberta pelo servidor é revogada e deixa de valer", entrega: DSM3, status: executado}
+  - {id: TEST-138, nome: test_access_trail_filters_export_integrity_and_tampering, verifica: [REQ-S05, REQ-O01], derivado_de: NORM-13, tipo: interface,
+     esperado: "TUI: trilha filtrada, exportada, íntegra aprovada e adulterada acusada", entrega: DSM3, status: executado}
+  - {id: TEST-139, nome: test_open_a_recorded_trace_filter_explain_and_export, verifica: [REQ-O01, REQ-O04], derivado_de: SVC-AUD, tipo: interface,
+     esperado: "TUI: abrir trace, filtrar, explicar a decisão e exportar", entrega: DSM3, status: executado}
+  - {id: TEST-140, nome: test_auditor_sees_the_trail_and_cannot_administer, verifica: [REQ-S05], derivado_de: NORM-12, tipo: interface,
+     esperado: "TUI: auditor lê a trilha e não administra", entrega: DSM3, status: executado}
+  # ---- correção simulada da v0.5.0 (4ª rodada): achados reproduzidos pelo avaliador e corrigidos ----
+  - {id: TEST-141, nome: test_unknown_identity_cannot_register_with_a_privileged_role_after_the_system_is_built, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: seguranca,
+     esperado: "identidade fora do diretório não se registra com o sistema montado; a tentativa é auditada", entrega: DSM3, status: executado}
+  - {id: TEST-142, nome: test_adversarial_model_text_never_becomes_a_hypothesis_nor_reaches_the_report, verifica: [REQ-F08, REQ-C01], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "número por extenso, outra escrita, sinônimo de ação, homógrafo e caractere invisível são rejeitados", entrega: DSM3, status: executado}
+  - {id: TEST-143, nome: test_model_text_in_the_report_is_labelled_unverified_and_values_carry_their_measure, verifica: [REQ-F08], derivado_de: NORM-11, tipo: seguranca,
+     esperado: "texto de modelo no relatório sai rotulado como não verificado; valor resolvido leva a grandeza", entrega: DSM3, status: executado}
+  - {id: TEST-144, nome: test_synthesis_with_recommendations_falls_back_and_the_model_text_comes_last_and_labelled, verifica: [REQ-C01], derivado_de: NORM-05, tipo: seguranca,
+     esperado: "síntese com recomendação cai no template; a redação do modelo vem ao fim, rotulada", entrega: DSM3, status: executado}
+  - {id: TEST-145, nome: test_server_api_key_is_never_sent_to_a_url_chosen_in_the_configuration, verifica: [REQ-C01, REQ-P01], derivado_de: SVC-MOD, tipo: seguranca,
+     esperado: "a chave do servidor só segue para a URL do provedor ou para a lista da instalação", entrega: DSM3, status: executado}
+  - {id: TEST-146, nome: test_counterpart_cannot_extend_its_own_deadline_without_negotiating, verifica: [REQ-S04], derivado_de: PROT-DEL, tipo: protocolo-negativo,
+     esperado: "só o iniciador define o prazo da conversa; o especialista não o estende sozinho", entrega: DSM3, status: executado}
+  - {id: TEST-147, nome: test_malformed_nested_payload_from_a_specialist_becomes_an_explicit_failure, verifica: [REQ-S04], derivado_de: PROT-DEL, tipo: robustez,
+     esperado: "conteúdo aninhado inválido vira failure ao solicitante e libera o período", entrega: DSM3, status: executado}
+  - {id: TEST-148, nome: test_malformed_bodies_get_a_400_instead_of_a_dropped_connection, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: robustez,
+     esperado: "corpo que não é objeto ou campo de tipo errado recebe 400, com ou sem sessão", entrega: DSM3, status: executado}
+  - {id: TEST-149, nome: test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_account, verifica: [REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "bloqueio por tentativas não derruba a sessão viva da pessoa", entrega: DSM3, status: executado}
+  - {id: TEST-150, nome: test_period_reservation_cannot_be_released_or_taken_by_naming_its_owner, verifica: [REQ-S04], derivado_de: PROT-LCK, tipo: seguranca,
+     esperado: "reserva de período só muda com a credencial do Orquestrador", entrega: DSM3, status: executado}
+  - {id: TEST-151, nome: test_invariant_checker_has_no_false_alarm_on_resend_and_catches_what_it_missed, verifica: [REQ-O01], derivado_de: SVC-AUD, tipo: seguranca,
+     esperado: "sem falso alarme no reenvio do parecer; acusa fechamento sem parecer e correção repetida", entrega: DSM3, status: executado}
+  - {id: TEST-152, nome: test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "identificador não textual e conteúdo não copiável são rejeitados com registro", entrega: DSM3, status: executado}
+  - {id: TEST-153, nome: test_changing_the_cognition_level_on_restart_needs_the_model_permission, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}
+  - {id: TEST-154, nome: test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita", entrega: DSM3, status: executado}
+  - {id: TEST-155, nome: test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua", entrega: DSM3, status: executado}
+  - {id: TEST-156, nome: "reincidência: a política nega o waiver e o diálogo não o oferece", verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: interface,
+     esperado: "no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica", entrega: DSM3, status: executado}
+  # ---- DSM4: especialistas BDI, aprendizado, compromisso, memória lida e conhecimento normativo (ADR-010) ----
+  # Numeração a partir de 201 para não colidir com os testes das outras frentes da DSM4.
+  - {id: TEST-201, nome: test_new_scenarios_deliberate_and_keep_beliefs_with_deterministic_sources, verifica: [REQ-F20], derivado_de: NORM-11, tipo: e2e,
+     esperado: "nos onze cenários novos há deliberação com plano aplicável e não aplicável e toda crença tem fonte determinística", entrega: DSM4, status: executado}
+  - {id: TEST-202, nome: test_basic_level_runs_the_same_scenario_with_the_reactive_specialists, verifica: [REQ-F20, REQ-NF01], derivado_de: ROLE-RES, tipo: reprodutibilidade,
+     esperado: "no nível básico os mesmos cenários rodam com as classes reativas, sem registro BDI de RES, CUS e REL", entrega: DSM4, status: executado}
+  - {id: TEST-203, nome: test_build_system_picks_the_variant_by_cognition_level, verifica: [REQ-F20], derivado_de: ROLE-RES, tipo: e2e,
+     esperado: "variante BDI nos níveis local e llm; classe reativa no básico; estratégia de compromisso inválida é recusada", entrega: DSM4, status: executado}
+  - {id: TEST-204, nome: test_results_agent_explains_a_relevant_variation_with_verified_evidence, verifica: [REQ-F20, REQ-F04], derivado_de: PROT-QRY, tipo: e2e,
+     esperado: "variação do EBITDA% vira hipótese, o AG-RES pede o detalhe ao AG-CUS e a explicação aponta o centro do gabarito", entrega: DSM4, status: executado}
+  - {id: TEST-205, nome: test_variation_hypothesis_falls_back_to_history_when_the_cost_agent_goes_offline, verifica: [REQ-F20], derivado_de: PROT-QRY, tipo: e2e,
+     esperado: "plano de detalhe falha por timeout e o AG-RES replaneja para a conferência no histórico", entrega: DSM4, status: executado}
+  - {id: TEST-206, nome: test_results_agent_replans_when_a_specialist_is_silent_and_decides_by_size_and_criticality, verifica: [REQ-F20, REQ-F04], derivado_de: PROT-QRY, tipo: e2e,
+     esperado: "duas consultas perdidas: média consolida com ressalva, grande falha explicitamente, básico aborta o fechamento", entrega: DSM4, status: executado}
+  - {id: TEST-207, nome: test_missing_critical_input_never_becomes_a_partial_result, verifica: [REQ-F20, REQ-F04], derivado_de: ROLE-RES, tipo: e2e,
+     esperado: "sem custos não há DRE parcial em nenhum porte: falha explícita", entrega: DSM4, status: executado}
+  - {id: TEST-208, nome: test_cost_agent_picks_an_allocation_criterion_when_the_driver_is_unusable, verifica: [REQ-F20, REQ-F02], derivado_de: ROLE-CUS, tipo: e2e,
+     esperado: "direcionador inconsistente: plano padrão falha, critério proporcional à receita escolhido, conta igual ao gabarito, motivo registrado", entrega: DSM4, status: executado}
+  - {id: TEST-209, nome: test_cost_criterion_depends_on_company_size_and_on_what_is_wrong_with_the_driver, verifica: [REQ-F20, REQ-F02], derivado_de: ROLE-CUS, tipo: e2e,
+     esperado: "microempresa divide em partes iguais; tabela ausente reusa a última aprovada; sem problema, critério padrão", entrega: DSM4, status: executado}
+  - {id: TEST-210, nome: test_report_agent_chooses_structure_by_findings_and_audience, verifica: [REQ-F20, REQ-F06], derivado_de: ROLE-REL, tipo: e2e,
+     esperado: "relatório de exceção com veto corrigido, sumário quando conforme, relatório completo para conselho e auditoria", entrega: DSM4, status: executado}
+  - {id: TEST-211, nome: test_exception_report_orders_caveats_and_keeps_only_verified_insights, verifica: [REQ-F20, REQ-F06], derivado_de: ROLE-REL, tipo: e2e,
+     esperado: "waiver primeiro nas ressalvas; hipótese arquivada não é reproduzida, só contada", entrega: DSM4, status: executado}
+  - {id: TEST-212, nome: test_model_text_goes_to_the_end_of_the_report_labelled_and_never_inside_template_sentences, verifica: [REQ-S03, REQ-F06], derivado_de: NORM-05, tipo: seguranca,
+     esperado: "texto de modelo ao fim do relatório, rotulado; corpo igual ao do template; AG-CUS recusa LLM", entrega: DSM4, status: executado}
+  - {id: TEST-213, nome: test_deliberation_and_grounding_metrics_are_read_from_the_trace, verifica: [REQ-F20, REQ-F21], derivado_de: SVC-AUD, tipo: observabilidade,
+     esperado: "MET-30 e MET-31 calculadas só do trace: replanejamentos, insistências, crenças sem fonte, citações incompletas", entrega: DSM4, status: executado}
+  - {id: TEST-214, nome: test_rule_confidence_follows_refutations_and_changes_what_the_agent_does, verifica: [REQ-F20], derivado_de: NORM-20, tipo: e2e,
+     esperado: "duas refutações levam a confiança de 0,80 a 0,40 e a hipótese deixa de justificar nova consulta", entrega: DSM4, status: executado}
+  - {id: TEST-215, nome: test_rule_confidence_rises_with_confirmations, verifica: [REQ-F20], derivado_de: NORM-20, tipo: e2e,
+     esperado: "confirmações em meses seguidos elevam a confiança de 0,80 a 0,87 e 0,90", entrega: DSM4, status: executado}
+  - {id: TEST-216, nome: test_only_verified_evidence_counts_for_learning, verifica: [REQ-F20, REQ-S03], derivado_de: NORM-20, tipo: seguranca,
+     esperado: "hipótese arquivada, origem LLM e observação sem fonte determinística não contam", entrega: DSM4, status: executado}
+  - {id: TEST-217, nome: test_results_agent_rules_learn_too, verifica: [REQ-F20], derivado_de: NORM-20, tipo: e2e,
+     esperado: "a regra de custo fixo do AG-RES registra a confirmação com a fonte da evidência", entrega: DSM4, status: executado}
+  - {id: TEST-218, nome: test_three_commitment_strategies_differ_on_the_same_situation, verifica: [REQ-F20], derivado_de: ROLE-ORC, tipo: e2e,
+     esperado: "aberto replaneja e abandona o alerta (gabarito); obstinado mantém o alerta; cego insiste no plano; três traces distintos", entrega: DSM4, status: executado}
+  - {id: TEST-219, nome: test_open_commitment_is_the_default_and_reproduces_previous_behaviour, verifica: [REQ-F20, REQ-NF01], derivado_de: ROLE-ORC, tipo: reprodutibilidade,
+     esperado: "compromisso aberto explícito produz o mesmo trace, byte a byte, dos cenários existentes", entrega: DSM4, status: executado}
+  - {id: TEST-220, nome: test_blind_commitment_stops_insisting_at_the_cap_and_costs_the_deadline, verifica: [REQ-F20, REQ-F01], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "falha permanente: o cego insiste duas vezes, estoura o prazo e a solicitação falha; o aberto entrega com ressalva", entrega: DSM4, status: executado}
+  - {id: TEST-221, nome: test_commitment_applies_to_the_new_bdi_specialists, verifica: [REQ-F20], derivado_de: ROLE-CUS, tipo: e2e,
+     esperado: "AG-CUS cego relê o direcionador inconsistente duas vezes antes de trocar de critério", entrega: DSM4, status: executado}
+  - {id: TEST-222, nome: test_budget_agent_reads_approved_memory_and_avoids_a_false_deviation, verifica: [REQ-F07, REQ-F20], derivado_de: NORM-08, tipo: e2e,
+     esperado: "correção aprovada em agosto vira hipótese de reincidência em setembro, o AG-CIN confirma e o falso desvio some", entrega: DSM4, status: executado}
+  - {id: TEST-223, nome: test_memory_corroboration_raises_the_confidence_of_an_existing_hypothesis, verifica: [REQ-F07, REQ-F20], derivado_de: NORM-11, tipo: e2e,
+     esperado: "observação e memória apontam a mesma causa: hipótese corroborada, com confiança maior", entrega: DSM4, status: executado}
+  - {id: TEST-224, nome: test_memory_read_access_is_by_type_and_denials_are_audited, verifica: [REQ-F07, REQ-S04], derivado_de: SVC-MEM, tipo: seguranca,
+     esperado: "correção legível por ORC, RES e REL; waiver e bloqueio só pelo AG-CIN; leitura negada fica no trace", entrega: DSM4, status: executado}
+  - {id: TEST-225, nome: test_report_and_results_agents_cite_previous_approved_corrections, verifica: [REQ-F07], derivado_de: NORM-08, tipo: e2e,
+     esperado: "o relatório de exceção e a explicação do AG-RES citam a correção anterior com o id da memória", entrega: DSM4, status: executado}
+  - {id: TEST-226, nome: test_search_returns_the_expected_passage_first_with_provenance, verifica: [REQ-F21], derivado_de: NORM-21, tipo: e2e,
+     esperado: "top-k esperado para oito consultas de referência, com documento, trecho e versão", entrega: DSM4, status: executado}
+  - {id: TEST-227, nome: test_search_without_evidence_returns_nothing, verifica: [REQ-F21, REQ-S01], derivado_de: NORM-21, tipo: seguranca,
+     esperado: "assunto fora do corpus devolve lista vazia; a tool é negada fora da allowlist", entrega: DSM4, status: executado}
+  - {id: TEST-228, nome: test_finding_cites_the_passage_that_grounds_it, verifica: [REQ-F21, REQ-F05], derivado_de: NORM-21, tipo: e2e,
+     esperado: "achado de SoD cita COSO-SEGREGACAO com a versão do corpus; no básico não há busca nem campo novo", entrega: DSM4, status: executado}
+  - {id: TEST-229, nome: test_no_evidence_is_declared_and_never_filled, verifica: [REQ-F21, REQ-F05], derivado_de: NORM-21, tipo: seguranca,
+     esperado: "duplicidade sai marcada sem evidência, sem documento nem trecho; o veto segue pela regra interna", entrega: DSM4, status: executado}
+  - {id: TEST-230, nome: test_cli_checks_every_new_scenario_against_the_invariants, verifica: [REQ-F20, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "cenarios --verificar aprova os cenários novos: resposta explícita, invariantes e repetição", entrega: DSM4, status: executado}
+  - {id: TEST-231, nome: test_cli_shows_deliberation_of_the_new_bdi_specialists, verifica: [REQ-F20, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "a trilha no terminal mostra deliberação, falha de plano, hipótese e compromisso por parâmetro", entrega: DSM4, status: executado}
+  - {id: TEST-232, nome: test_cli_searches_the_normative_base_and_reports_missing_evidence, verifica: [REQ-F21], derivado_de: NORM-21, tipo: integracao,
+     esperado: "fin-mas normas devolve o trecho com proveniência e sai com código 1 quando não há evidência", entrega: DSM4, status: executado}
+  - {id: TEST-233, nome: test_learning_persists_between_runs_in_a_sealed_file, verifica: [REQ-F20], derivado_de: NORM-20, tipo: integracao,
+     esperado: "arquivo selado guarda a observação; a execução seguinte usa a confiança aprendida; reprocessar não conta duas vezes", entrega: DSM4, status: executado}
+  - {id: TEST-234, nome: test_tampered_learning_file_fails_closed, verifica: [REQ-F20, REQ-S04], derivado_de: NORM-20, tipo: seguranca,
+     esperado: "arquivo adulterado desliga o aprendizado, as regras voltam à confiança inicial e nada é gravado", entrega: DSM4, status: executado}
+  # ---- DSM4 (experimento redesenhado): workflow equivalente, modelo de falhas e pipeline. IDs a partir de 201. ----
+  - {id: TEST-235, nome: test_equivalent_workflow_matches_the_mas_on_the_comparable_scenarios, verifica: [REQ-F03, REQ-F05, REQ-S01], derivado_de: SVC-POL, tipo: e2e,
+     esperado: "sem falhas, workflow equivalente e SMA básico dão o mesmo status, DRE, classificação, correções e decisões nos 11 cenários comparáveis", entrega: DSM4, status: executado}
+  - {id: TEST-236, nome: test_equivalent_workflow_matches_the_mas_on_drawn_workloads, verifica: [REQ-F03, REQ-F05], derivado_de: SVC-POL, tipo: e2e,
+     esperado: "a mesma igualdade nas cargas sorteadas do experimento, nos quatro portes e nas duas intenções", entrega: DSM4, status: executado}
+  - {id: TEST-237, nome: test_equivalent_workflow_has_one_controller_and_only_approval_messages, verifica: [REQ-S01], derivado_de: PROT-APR, tipo: e2e,
+     esperado: "um só componente decide; as únicas mensagens são as do Approval Gate; correção só com aprovação", entrega: DSM4, status: executado}
+  - {id: TEST-238, nome: test_equivalence_stops_where_messages_can_be_lost_and_the_minimal_workflow_never_was_equivalent, verifica: [REQ-F01, REQ-F05], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "com perda de mensagens o SMA falha e o workflow publica; o workflow mínimo publica a crítica que os outros vetam", entrega: DSM4, status: executado}
+  - {id: TEST-239, nome: test_chaos_and_parameters_change_nothing_by_default, verifica: [REQ-NF01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "sem modelo de falhas e com os parâmetros padrão, o hash do trace é o de sempre", entrega: DSM4, status: executado}
+  - {id: TEST-240, nome: test_same_seed_repeats_the_run_and_each_factor_has_its_own_draw, verifica: [REQ-NF01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "mesma seed, mesmo trace; ligar uma falha não muda plantios, perfil do aprovador nem os dados", entrega: DSM4, status: executado}
+  - {id: TEST-241, nome: test_random_loss_and_outages_reach_the_bus_and_every_silence_is_flagged, verifica: [REQ-F01, REQ-O01], derivado_de: SVC-A2A, tipo: e2e,
+     esperado: "perdas e indisponibilidades chegam ao barramento; solicitação sem resposta é acusada pelo INV-07", entrega: DSM4, status: executado}
+  - {id: TEST-242, nome: test_slow_or_absent_approver_lets_the_ticket_expire_and_nothing_is_published, verifica: [REQ-S01, REQ-F05], derivado_de: PROT-APR, tipo: e2e,
+     esperado: "aprovador lento ou ausente: o ticket expira, a publicação fica bloqueada e nenhuma crítica sai", entrega: DSM4, status: executado}
+  - {id: TEST-243, nome: test_attacks_during_combined_failures_are_all_rejected, verifica: [REQ-S04], derivado_de: PROT-APR, tipo: seguranca,
+     esperado: "ataques ao Approval Gate sob perda, atraso, indisponibilidade e humano lento: nenhum aceito", entrega: DSM4, status: executado}
+  - {id: TEST-244, nome: test_injected_parameters_change_the_coordination_they_control, verifica: [REQ-F01, REQ-S02, REQ-NF02], derivado_de: PROT-DEL, tipo: e2e,
+     esperado: "tentativas, correções, extensão de prazo, reserva, prazos e limiar mudam o comportamento e ficam no trace", entrega: DSM4, status: executado}
+  - {id: TEST-245, nome: test_quick_experiment_writes_every_output_and_repeats_byte_for_byte, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "o comando do experimento grava os 12 arquivos e os reproduzíveis saem idênticos numa segunda execução", entrega: DSM4, status: executado}
+  - {id: TEST-246, nome: test_pipeline_statistics_match_hand_computed_references, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "Wilcoxon, Mann-Whitney, Cliff, Holm e descritivas gravados pelo pipeline batem com valores calculados à mão", entrega: DSM4, status: executado}
+  - {id: TEST-247, nome: test_summary_and_tests_are_recomputed_from_the_raw_rows, verifica: [REQ-NF01, REQ-O01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "a análise refeita só com o execucoes.csv dá o mesmo resumo e os mesmos testes", entrega: DSM4, status: executado}
+  # ---- DSM4: portes novos, segmentos e implantação (ids a partir de 170, fora das faixas dos outros lotes) ----
+  - {id: TEST-170, nome: test_legal_bands_follow_lc123_and_bndes, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "faixas legais: MEI só por opção (LC 123/2006, art. 18-A), ME, EPP, Média I e II e grande (BNDES); os quatro portes de antes inalterados", entrega: DSM4, status: executado}
+  - {id: TEST-171, nome: test_mei_runs_alone_without_erp_and_with_compensating_control, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "MEI com uma pessoa e sem ERP: SoD impossível vira controle compensatório, duplicidade vetada e estornada, plantio de alçada recusado", entrega: DSM4, status: executado}
+  - {id: TEST-172, nome: test_media_ii_applies_the_upper_band_rules, verifica: [REQ-F05, REQ-F03], derivado_de: NORM-04, tipo: cenario,
+     esperado: "Média empresa II: receita na faixa de R$ 90 a 300 milhões, materialidade e pesos do porte, alçada reaprovada e publicação", entrega: DSM4, status: executado}
+  - {id: TEST-173, nome: test_segment_changes_accounts_costs_and_allocation_driver, verifica: [REQ-F02, REQ-F04], derivado_de: SVC-MCP, tipo: cenario,
+     esperado: "comércio, serviços e indústria: plano de contas, unidades e centros do segmento; AG-CUS rateia pelo direcionador e o resultado por UN confere com o gabarito", entrega: DSM4, status: executado}
+  - {id: TEST-174, nome: test_segment_cost_structure_is_consistent, verifica: [REQ-F02], derivado_de: SVC-MCP, tipo: cenario,
+     esperado: "CMV pelo estoque no comércio, horas de mão de obra direta em serviços, custo de produção e rateio dos CIF na indústria", entrega: DSM4, status: executado}
+  - {id: TEST-175, nome: test_default_segment_keeps_the_dsm3_data_and_trace, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: regressao,
+     esperado: "segmento padrão gera os mesmos dados e o mesmo hash de trace da DSM3; o meta só ganha segmento fora do padrão", entrega: DSM4, status: executado}
+  - {id: TEST-176, nome: test_backup_restores_into_another_folder_on_another_machine, verifica: [REQ-S05, REQ-NF01], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "backup com manifesto selado e chaves em arquivo separado; restauração em outra pasta e outra pasta de chaves com selos, trilha e memória conferidos", entrega: DSM4, status: executado}
+  - {id: TEST-177, nome: test_tampered_or_mismatched_backup_is_refused, verifica: [REQ-S05, REQ-S04], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "arquivo trocado, hash corrigido, manifesto re-selado, fuga de diretório, arquivo a mais, chaves de outra instalação e rollback: recusados sem gravar nada", entrega: DSM4, status: executado}
+  - {id: TEST-178, nome: test_migration_mechanism_with_an_example_from_version_1_to_2, verifica: [REQ-NF02, REQ-S05], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "migrar confere o selo na versão de origem, aplica a migração de exemplo 1->2 e grava selado; o sistema na versão 1 recusa o arquivo migrado", entrega: DSM4, status: executado}
+  - {id: TEST-179, nome: test_server_on_all_interfaces_still_accepts_only_loopback_names, verifica: [REQ-O04, REQ-S05], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "serve --host 0.0.0.0 (contêiner) continua recusando Host e Origin que não sejam de loopback", entrega: DSM4, status: executado}
+  - {id: TEST-180, nome: test_dashboard_api_lists_sizes_segments_templates_and_restarts_with_a_segment, verifica: [REQ-O04], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "/api/portes com segmentos, /api/modelos com os portes novos e os segmentos, reiniciar com segmento e segmento desconhecido recusado", entrega: DSM4, status: executado}
+  - {id: TEST-181, nome: test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: integracao,
+     esperado: "wheel com YAML e dashboard embutidos instalado num venv limpo: list, run (mesmo hash do checkout), instalar --demo e doctor fora do repositório", entrega: DSM4, status: executado}
+  - {id: TEST-182, nome: test_container_files_publish_only_on_loopback_and_keep_keys_apart, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: configuracao,
+     esperado: "compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude", entrega: DSM4, status: executado}
+  - {id: TEST-300, nome: test_new_scenarios_hold_every_invariant_and_repeat, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "os sete cenários novos repetem o hash e respeitam todos os invariantes", entrega: DSM4, status: executado}
+  - {id: TEST-301, nome: test_person_without_authority_in_the_size_cannot_release, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "liberação sem alçada no porte recusada (POL-10); exposição no veto", entrega: DSM4, status: executado}
+  - {id: TEST-302, nome: test_without_iam_the_veto_carries_no_exposure, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "sem SVC-IAM o veto e o ticket são os da v0.5.0", entrega: DSM4, status: executado}
+  - {id: TEST-303, nome: test_delegated_decision_records_who_delegated, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "decisão por delegação aceita e registrada com quem delegou (POL-11)", entrega: DSM4, status: executado}
+  - {id: TEST-304, nome: test_expired_delegation_is_refused_and_the_delegator_decides, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "delegação expirada recusada (POL-11)", entrega: DSM4, status: executado}
+  - {id: TEST-305, nome: test_four_eyes_endorse_then_approve_by_another_person, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "endorse PENDENTE->PENDENTE e approve de outra pessoa (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-306, nome: test_same_person_cannot_endorse_and_approve, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "a mesma pessoa nos dois passos é recusada (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-307, nome: test_approval_without_endorsement_is_refused_above_the_limit, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "aprovação direta acima do limite recusada (POL-12)", entrega: DSM4, status: executado}
+  - {id: TEST-308, nome: test_ticket_escalates_after_half_the_deadline, verifica: [REQ-S06], derivado_de: NORM-14, tipo: e2e,
+     esperado: "nível acima recusado antes; escalonamento registrado na metade do prazo (POL-14)", entrega: DSM4, status: executado}
+  - {id: TEST-309, nome: test_advanced_access_attacks_are_all_rejected, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "doze ataques ao acesso avançado, nenhum aceito", entrega: DSM4, status: executado}
+  - {id: TEST-310, nome: test_invariants_catch_a_single_person_release_and_one_above_authority, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "INV-09 e INV-10 acusam trace adulterado", entrega: DSM4, status: executado}
+  - {id: TEST-311, nome: test_one_company_memory_is_never_remembered_in_another, verifica: [REQ-S06], derivado_de: NORM-15, tipo: e2e,
+     esperado: "memória de uma empresa não vira reincidência em outra; cópia fica comprometida", entrega: DSM4, status: executado}
+  - {id: TEST-312, nome: test_second_factor_from_the_terminal_with_policy_replay_and_recovery_codes, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "2FA pela CLI: política, replay, janela, recuperação de uso único", entrega: DSM4, status: executado}
+  - {id: TEST-313, nome: test_vault_keeps_llm_keys_without_ever_showing_them, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "cofre 0600 fora da pasta de dados, chave de LLM pelo cofre, valor nunca mostrado", entrega: DSM4, status: executado}
+  - {id: TEST-314, nome: test_delegation_policy_and_companies_from_the_terminal, verifica: [REQ-S06], derivado_de: NORM-14, tipo: integracao,
+     esperado: "delegação, escalonamento e escopo de empresas pela CLI", entrega: DSM4, status: executado}
+  - {id: TEST-315, nome: test_memory_copied_to_another_folder_is_adopted_under_permission, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada", entrega: DSM4, status: executado}
+  - {id: TEST-316, nome: test_two_runs_writing_the_same_memory_at_once_keep_both_entries, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida", entrega: DSM4, status: executado}
+  - {id: TEST-317, nome: test_two_step_login_with_short_lived_pre_session, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "login em dois passos no servidor; pré-sessão só vale em /api/login/2fa", entrega: DSM4, status: executado}
+  - {id: TEST-318, nome: test_policy_requiring_second_factor_only_lets_the_account_enrol, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "conta sem o 2FA exigido só consegue ativá-lo", entrega: DSM4, status: executado}
+  - {id: TEST-319, nome: test_vault_routes_store_llm_keys_without_returning_them, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "rotas do cofre nunca devolvem o valor", entrega: DSM4, status: executado}
+  - {id: TEST-320, nome: test_each_company_gets_its_own_simulation_and_nothing_crosses_over, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "uma simulação por empresa; seletor /api/empresa; nada cruza", entrega: DSM4, status: executado}
+  - {id: TEST-321, nome: test_enrol_second_factor_then_log_in_with_a_recovery_code, verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "TUI: ativar 2FA, segredo e códigos uma vez, entrada em dois passos", entrega: DSM4, status: executado}
+  - {id: TEST-322, nome: test_approver_creates_and_revokes_a_delegation, verifica: [REQ-S06], derivado_de: NORM-14, tipo: interface,
+     esperado: "TUI: criar e revogar delegação", entrega: DSM4, status: executado}
+  - {id: TEST-323, nome: test_administrator_sets_policy_vault_companies_and_sees_authority_limits, verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "TUI: política, cofre, empresas e alçadas", entrega: DSM4, status: executado}
+  # ---- DSM4 (ADR-011): conectores e entendimento de fontes ----
+  - {id: TEST-250, nome: test_understanding_openapi_samples_spreadsheet_and_mcp_match_the_answer_key, verifica: [REQ-F30], derivado_de: NORM-30, tipo: integracao,
+     esperado: "OpenAPI, amostras JSON, planilha fora do modelo e tools MCP: sugestões iguais ao gabarito, com confiança e motivo", entrega: DSM4, status: executado}
+  - {id: TEST-251, nome: test_quality_report_flags_missing_duplicates_out_of_period_totals_and_negatives, verifica: [REQ-F30], derivado_de: NORM-06, tipo: integracao,
+     esperado: "faltantes, duplicados, fora da competência, total que não fecha e negativos acusados; prévia redigida", entrega: DSM4, status: executado}
+  - {id: TEST-252, nome: test_rest_demo_closes_the_month_like_the_simulated_erp_and_writes_only_with_approval, verifica: [REQ-F30, REQ-S20], derivado_de: PROT-APR, tipo: integracao,
+     esperado: "fechamento sobre o ERP de demonstração igual ao ERP simulado; correção só com ticket aprovado", entrega: DSM4, status: executado}
+  - {id: TEST-253, nome: test_source_down_fails_explicitly_and_does_not_hang, verifica: [REQ-F30], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "failure com o motivo, leituras negadas auditadas, nada publicado, em segundos", entrega: DSM4, status: executado}
+  - {id: TEST-254, nome: test_rest_connector_errors_401_500_timeout_invalid_json_and_redirect_are_redacted, verifica: [REQ-S20], derivado_de: NORM-32, tipo: seguranca,
+     esperado: "erros tipados e redigidos; redirecionamento não seguido; credencial não vai a outro host", entrega: DSM4, status: executado}
+  - {id: TEST-255, nome: test_external_host_is_denied_without_admin_release, verifica: [REQ-S20], derivado_de: NORM-32, tipo: seguranca,
+     esperado: "host externo recusado antes de qualquer conexão; liberado, só o ambiente offline bloqueia", entrega: DSM4, status: executado}
+  - {id: TEST-256, nome: test_simulated_connector_and_spreadsheet_folder_preserve_the_current_behavior, verifica: [REQ-F30], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "ERP simulado por conector com o mesmo trace; pasta com uma planilha igual a --pasta; várias competências", entrega: DSM4, status: executado}
+  - {id: TEST-257, nome: test_spreadsheet_off_model_and_mcp_scenarios_match_the_canonical_reading, verifica: [REQ-F30], derivado_de: NORM-30, tipo: e2e,
+     esperado: "planilha_fora_do_modelo e mcp_tools_entendidas iguais à leitura canônica e repetíveis", entrega: DSM4, status: executado}
+  - {id: TEST-258, nome: test_mcp_client_talks_to_the_excel_server_over_stdio, verifica: [REQ-F30], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "initialize, tools/list, tools/call e erro de tool contra o servidor embutido", entrega: DSM4, status: executado}
+  - {id: TEST-259, nome: test_optional_llm_only_suggests_and_goes_through_the_same_validation, verifica: [REQ-F30], derivado_de: NORM-31, tipo: integracao,
+     esperado: "LLM só sugere pendentes, envia só nomes e tipos; inválidas rejeitadas; externo sem consentimento não envia", entrega: DSM4, status: executado}
+  - {id: TEST-260, nome: test_cli_understands_tests_and_serves_the_demo_erp, verifica: [REQ-F30, REQ-S20], derivado_de: SVC-MCP, tipo: integracao,
+     esperado: "fontes entender, fontes testar e erp-demo pela CLI; token fora da saída", entrega: DSM4, status: executado}
+  - {id: TEST-261, nome: test_sources_flow_register_test_understand_adjust_confirm_activate_and_close, verifica: [REQ-F30, REQ-S20], derivado_de: NORM-30, tipo: integracao,
+     esperado: "cadastro, teste, entendimento, ajuste, confirmação e ativação pelo HTTP; token fora de resposta, trace, trilha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-262, nome: test_sources_permissions_external_host_and_body_validation, verifica: [REQ-S20], derivado_de: NORM-32, tipo: seguranca,
+     esperado: "403 sem permissão, 400 para corpo não objeto, host externo só pelo administrador, credencial desvinculada", entrega: DSM4, status: executado}
+  - {id: TEST-263, nome: test_spreadsheet_uploads_history_and_off_model_activation, verifica: [REQ-F30], derivado_de: SVC-IAM, tipo: integracao,
+     esperado: "envio no modelo e fora dele, histórico, planilha fora do modelo entendida, confirmada e ativada", entrega: DSM4, status: executado}
+  - {id: TEST-264, nome: "fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele", verifica: [REQ-F30, REQ-S20], derivado_de: NORM-30, tipo: interface,
+     esperado: "no navegador: aba Fontes de ponta a ponta; o token nunca aparece", entrega: DSM4, status: executado}
+  - {id: TEST-265, nome: "fontes: modelos para baixar, envio de planilha e histórico; host externo só pelo administrador", verifica: [REQ-S20], derivado_de: NORM-32, tipo: interface,
+     esperado: "modelos, envio e histórico; só o administrador libera host externo", entrega: DSM4, status: executado}
+  # ---- DSM4 (entrega final): o acesso avançado no dashboard web e a demonstração guiada ----
+  - {id: TEST-400, nome: "segundo fator: ativar mostra o segredo e os códigos uma vez e a entrada passa a ter dois passos", verifica: [REQ-S06, REQ-O04], derivado_de: NORM-15, tipo: interface,
+     esperado: "no navegador: ativação com TOTP calculado no teste; segredo e códigos fora da página depois; senha abre só o pedido do código; código errado recusado com erro genérico", entrega: DSM4, status: executado}
+  - {id: TEST-401, nome: "segundo fator: código de recuperação entra uma vez só e cinco códigos errados devolvem ao início", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "código de recuperação vale uma vez; as tentativas que restam vêm do servidor; a quinta recusa volta ao usuário e senha", entrega: DSM4, status: executado}
+  - {id: TEST-402, nome: "segundo fator: novos códigos de recuperação e desativação pela própria pessoa", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "códigos novos invalidam os antigos; desativar pede um código válido; a entrada volta a um passo", entrega: DSM4, status: executado}
+  - {id: TEST-403, nome: "política que exige o segundo fator leva a conta sem ele à ativação e só depois libera o escritório", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "política ligada pela CLI: quem entra e quem já estava dentro caem na ativação; a API nega com IAM-08; ativado, o escritório abre", entrega: DSM4, status: executado}
+  - {id: TEST-404, nome: "chave de LLM no cofre: definir, ver que há chave e remover, sem o valor aparecer em lugar nenhum", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "só com PERM-MOD-SEGREDOS; situação por provedor; valor fora das respostas, do HTML, do console e da trilha", entrega: DSM4, status: executado}
+  - {id: TEST-405, nome: "troca de empresa: seletor só para quem tem mais de uma, empresa ativa inequívoca e dados isolados", verifica: [REQ-S06, REQ-O04], derivado_de: NORM-15, tipo: interface,
+     esperado: "empresas e escopo criados pela CLI; escolha na entrada; a troca recarrega estado e fluxo de eventos; nada cruza", entrega: DSM4, status: executado}
+  - {id: TEST-406, nome: "demonstração guiada: abre por opção, dispara os comandos de cada passo e fecha sem mudar o escritório", verifica: [REQ-O04], derivado_de: ROLE-OPE, tipo: interface,
+     esperado: "desligada por padrão; fechamento, veto, agente desligado (reenvio e falha) e ataque recusado disparados pelo roteiro; fechada, o escritório funciona igual", entrega: DSM4, status: executado}
+  - {id: TEST-407, nome: "demonstração guiada respeita as permissões: o auditor lê o roteiro, mas não dispara comandos", verifica: [REQ-O04, REQ-S05], derivado_de: ROLE-OPE, tipo: interface,
+     esperado: "botões de comando desligados com o motivo; o servidor nega o comando forçado", entrega: DSM4, status: executado}
+  - {id: TEST-408, nome: test_own_second_factor_status_and_new_recovery_codes, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "GET /api/2fa e POST /api/2fa/recuperacao: situação, códigos novos, antigos inválidos, trilha sem os códigos", entrega: DSM4, status: executado}
+  - {id: TEST-409, nome: test_second_step_reports_remaining_attempts_until_the_pre_session_ends, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "a recusa do código diz quantas tentativas restam; na quinta a pré-sessão acaba", entrega: DSM4, status: executado}
+  - {id: TEST-410, nome: test_vault_route_tells_where_each_llm_key_comes_from, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "por provedor: ambiente, cofre ou nenhuma; o valor nunca sai", entrega: DSM4, status: executado}
+  # ---- correção simulada da DSM4: achados do núcleo ----
+  - {id: TEST-420, nome: test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "com atraso de entrega de 3 a 6 ticks e perda, toda solicitação recebe resposta e nenhum invariante é violado", entrega: DSM4, status: executado}
+  - {id: TEST-421, nome: test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused, verifica: [REQ-S02, REQ-S04], derivado_de: SVC-A2A, tipo: seguranca,
+     esperado: "aviso de waiver perdido é reentregue: a reincidência segue barrada (POL-06) e há um ticket por veto", entrega: DSM4, status: executado}
+  - {id: TEST-422, nome: test_learning_only_counts_evidence_from_a_deterministic_source, verifica: [REQ-F20], derivado_de: NORM-20, tipo: seguranca,
+     esperado: "texto livre, fonte de proponente ou vazia não contam como evidência no aprendizado", entrega: DSM4, status: executado}
+  - {id: TEST-423, nome: test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2", entrega: DSM4, status: executado}
+  # ---- correção simulada da DSM4: achados de segurança (acesso, fontes, backup) ----
+  - {id: TEST-430, nome: test_brute_force_through_disable_route_locks_the_second_factor_and_needs_the_password, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-431, nome: test_new_pre_sessions_do_not_renew_the_attempts_and_parallel_guesses_respect_the_limit, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-432, nome: test_lock_holds_for_fifteen_minutes_counts_activation_and_only_a_correct_code_resets, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-433, nome: test_sources_of_one_company_cannot_be_listed_activated_removed_downloaded_or_overwritten_by_another, verifica: [REQ-S06, REQ-S20], derivado_de: NORM-32, tipo: seguranca,
+     esperado: "fontes, planilhas e credenciais isoladas por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-434, nome: test_forged_backup_never_writes_outside_the_destination_and_malformed_ones_are_refused, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "restauração validada antes de gravar; cofre viaja no pacote de chaves", entrega: DSM4, status: executado}
+  - {id: TEST-435, nome: test_backup_carries_the_vault_and_the_restored_install_keeps_2fa_llm_key_and_connector_credential, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "restauração validada antes de gravar; cofre viaja no pacote de chaves", entrega: DSM4, status: executado}
+  - {id: TEST-436, nome: test_confirmed_mapping_stops_counting_when_the_source_renames_a_column_or_changes_the_unit, verifica: [REQ-F30], derivado_de: NORM-30, tipo: seguranca,
+     esperado: "mapeamento confirmado perde a validade quando a fonte muda de coluna ou de escala", entrega: DSM4, status: executado}
+  - {id: TEST-437, nome: test_open_dashboard_does_not_keep_an_idle_session_alive, verifica: [REQ-S05, REQ-S06], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade", entrega: DSM4, status: executado}
+  - {id: TEST-438, nome: test_stream_closes_when_the_account_loses_the_company_or_the_permission, verifica: [REQ-S05, REQ-S06], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade", entrega: DSM4, status: executado}
+  - {id: TEST-439, nome: test_company_size_comes_from_the_registry_and_an_operator_cannot_change_it, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "porte vem do cadastro da empresa; uma simulação por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-440, nome: test_simultaneous_requests_create_a_single_simulation_per_company, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "porte vem do cadastro da empresa; uma simulação por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-441, nome: test_delegation_is_usable_live_and_does_not_cross_companies, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-442, nome: test_delegation_made_in_one_company_is_refused_in_another, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-443, nome: test_double_approval_needs_two_real_people_and_a_still_valid_endorsement, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-444, nome: test_veto_without_exposure_fails_closed, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-445, nome: test_password_change_revokes_other_sessions_and_wrong_current_password_counts, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-446, nome: test_burst_of_anonymous_logins_does_not_hold_the_registry_lock, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-447, nome: test_infinite_price_is_refused_and_a_tampered_vault_answers_503, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-448, nome: test_excel_mcp_server_answers_malformed_requests_with_json_rpc_errors_and_keeps_serving, verifica: [REQ-S04], derivado_de: SVC-MCP, tipo: robustez,
+     esperado: "servidor MCP de Excel responde erro JSON-RPC e segue atendendo", entrega: DSM4, status: executado}
+  - {id: TEST-449, nome: test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated, verifica: [REQ-S02, REQ-F30], derivado_de: SVC-MCP, tipo: robustez,
+     esperado: "correção aplicada com releitura inválida é registrada como aplicada e não se repete", entrega: DSM4, status: executado}
+  - {id: TEST-424, nome: test_recurrence_is_checked_again_when_the_waiver_is_decided, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "com dois vetos do mesmo padrão pendentes, o segundo waiver é recusado na decisão (POL-06) e a pendência continua", entrega: DSM4, status: executado}

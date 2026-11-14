@@ -1,0 +1,25 @@
+# Contexto de build do Dockerfile: só código, modelos, dashboard (fonte) e o script do wheel.
+.git
+.claude
+.venv
+.env
+.env.*
+!.env.example
+**/__pycache__
+**/*.pyc
+.pytest_cache
+build
+dist
+dados
+modelos
+saidas
+.fin_mas
+docs
+entregas
+enunciados
+assets
+tests
+web/node_modules
+web/dist
+web/test-results
+web/playwright-report

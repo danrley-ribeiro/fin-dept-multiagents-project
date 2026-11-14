@@ -24,10 +24,11 @@ PREFIXO = "DSM3-entrega"
 # Itens da raiz do repositório copiados para codigo/
 CODIGO = (
     "src/", "tests/", "web/", "models/", "tools/", "assets/", "docs/",
-    "pyproject.toml", "requirements-dev.txt", "iniciar.ps1", "iniciar.sh", "Makefile",
-    "README.md", "CHANGELOG.md", ".gitattributes", ".gitignore",
+    "pyproject.toml", "requirements-dev.txt", "requirements-lock.txt", ".env.example",
+    "iniciar.ps1", "iniciar.sh", "Makefile", "README.md", "CHANGELOG.md", ".gitattributes", ".gitignore",
 )
-EXCLUIR = ("web/package-lock.json",)  # o projeto usa bun (bun.lock)
+# O projeto usa bun: web/bun.lock entra (versões exatas do dashboard); o package-lock.json do npm fica fora.
+EXCLUIR = ("web/package-lock.json",)
 
 
 def arquivos_git() -> list[str]:

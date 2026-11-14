@@ -124,3 +124,135 @@ items:
     mede: [REQ-S01]
     entrega: DSM3
     status: implementado
+
+  - id: MET-17
+    titulo: Acessos indevidos aceitos
+    formula: >-
+      ataques ao controle de acesso aceitos / tentados (cenário ataque_acesso e testes de integração do
+      dashboard e da CLI); toda negação precisa aparecer no trace (`rejected`) ou na trilha de acesso
+    alvo: "0 aceitos; 100% das negações com a regra aplicada"
+    mede: [REQ-S05]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-18
+    titulo: Disciplina das hipóteses
+    formula: >-
+      crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as
+      verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo
+    alvo: "0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens"
+    mede: [REQ-F08]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-30
+    titulo: Deliberação efetiva dos especialistas
+    formula: >-
+      por agente BDI e cenário, lidos do trace (`metricas_cognicao.medir_deliberacao`): deliberações com mais
+      de um plano aplicável, deliberações em que as crenças tornaram um plano não aplicável, replanejamentos após
+      falha, insistências e intenções mantidas (compromisso cego e obstinado), crenças sem fonte determinística
+    alvo: "0 crenças sem fonte; reportar por agente e comparar o resultado com o nível básico (experimento da DSM4)"
+    mede: [REQ-F20]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-31
+    titulo: Citações normativas com proveniência
+    formula: >-
+      achados e exceções fundamentados com documento, trecho e versão; declarados sem evidência; citações
+      incompletas (`metricas_cognicao.medir_fundamentacao`)
+    alvo: "0 citações incompletas; 100% dos achados com fundamento ou com 'sem evidência' declarado"
+    mede: [REQ-F21]
+    entrega: DSM4
+    status: implementado
+
+  # ---- DSM4 (experimento redesenhado): definições operacionais em docs/dsm4/experimento.md. IDs a partir de 41. ----
+  - id: MET-41
+    titulo: Robustez sob falha
+    formula: >-
+      execuções com resposta explícita, sem crítica publicada sem tratamento e com o mesmo resultado (status, DRE,
+      contas sinalizadas e atribuídas, correções) da execução sem falha da mesma seed / execuções, por braço e condição
+    alvo: "reportar por braço e condição, com IC de 95%; comparar SMA x workflow equivalente"
+    mede: [REQ-F01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-42
+    titulo: Recuperação
+    formula: >-
+      ticks entre a primeira falha que atingiu a solicitação (mensagem perdida ou prazo esgotado) e a resposta final;
+      fração das execuções atingidas que termina com o resultado da execução sem falha, e fração sem resposta
+    alvo: "reportar mediana e fração recuperada por condição; 0 execuções sem resposta"
+    mede: [REQ-F01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-43
+    titulo: Custo de coordenação frente ao workflow equivalente
+    formula: >-
+      mensagens de coordenação por solicitação (todas menos as do PROT-SOL) e latência lógica em ticks, SMA x
+      workflow centralizado funcionalmente equivalente, nas mesmas seeds
+    alvo: "reportar a diferença pareada por condição, com IC de 95% e tamanho de efeito"
+    mede: [REQ-F01, REQ-F04]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-44
+    titulo: Equivalência funcional da linha de base
+    formula: >-
+      pares (porte, intenção, seed) em que o workflow equivalente e o SMA básico diferem em status, DRE, contas
+      sinalizadas, contas atribuídas ou correções, sem falhas / pares
+    alvo: "0 pares diferentes"
+    mede: [REQ-F03, REQ-F05]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-45
+    titulo: Ganho da cognição local
+    formula: >-
+      classificação correta com cognição local menos com cognição básica, pareada por seed, por condição e no
+      subgrupo com desvio irregular e pista na planilha; mensagens a mais por solicitação
+    alvo: "reportar a diferença com IC de 95%; 0 na condição sem falhas"
+    mede: [REQ-F08]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-46
+    titulo: Ataques aceitos sob falha
+    formula: >-
+      ataques ao Approval Gate e ao controle de acesso aceitos / tentados, com perda, atraso, indisponibilidade e
+      humano lento ao mesmo tempo; à parte, os aceitos em que a premissa do ataque não vale nos dados sorteados
+    alvo: "0 aceitos indevidamente"
+    mede: [REQ-S04, REQ-S05]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-47
+    titulo: Violações de invariantes sob falha
+    formula: >-
+      execuções do SMA em que o verificador de invariantes acusa violação, por invariante e por condição do
+      experimento
+    alvo: "0 (o experimento mede a frequência do INV-07 sob perda de mensagens)"
+    mede: [REQ-F01, REQ-O01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-19
+    titulo: Liberações fora da alçada ou com uma pessoa só
+    formula: >-
+      liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação,
+      sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)
+    alvo: "0"
+    mede: [REQ-S06]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-50
+    titulo: Acerto do entendimento automático de fontes
+    formula: >-
+      campos canônicos sugeridos corretamente / campos do gabarito, por fonte (OpenAPI do ERP de demonstração,
+      planilha fora do modelo, tools MCP); fechamento sobre o conector igual ao da fonte de referência
+    alvo: "100% nas fontes de demonstração; 0 credenciais expostas; 0 chamadas a host externo sem liberação"
+    mede: [REQ-F30, REQ-S20]
+    entrega: DSM4
+    status: implementado

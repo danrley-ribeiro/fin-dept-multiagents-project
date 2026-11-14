@@ -23,7 +23,25 @@ interface Props {
   aoNovoPedido?: () => void;
 }
 
-type Aba = "intencoes" | "deliberacoes" | "crencas" | "desejos" | "decisoes" | "planos";
+type Aba = "intencoes" | "deliberacoes" | "crencas" | "hipoteses" | "desejos" | "decisoes" | "planos";
+
+/** De onde veio uma crença, pelo que o agente registrou como fonte (ADR-008: proponente nunca é fonte de crença). */
+export function origemDaCrenca(fonte: string): { rotulo: string; cor: "default" | "info" | "success" | "warning" } {
+  if (fonte.startsWith("mcp://") || fonte.includes("mcp://")) {
+    return fonte.startsWith("cálculo") ? { rotulo: "inferência", cor: "warning" } : { rotulo: "percepção", cor: "info" };
+  }
+  if (fonte.startsWith("AG-") || fonte.startsWith("SVC-") || fonte.includes("PROT-")) return { rotulo: "comunicação", cor: "success" };
+  if (fonte.startsWith("plano ") || fonte.startsWith("planilha")) return { rotulo: "inferência", cor: "warning" };
+  return { rotulo: "percepção", cor: "info" };
+}
+
+const COR_HIPOTESE: Record<string, "default" | "info" | "success" | "error" | "warning"> = {
+  proposta: "info", em_verificacao: "warning", confirmada: "success", refutada: "error", arquivada: "default",
+};
+const ROTULO_HIPOTESE: Record<string, string> = {
+  proposta: "proposta", em_verificacao: "em verificação", confirmada: "confirmada", refutada: "refutada",
+  arquivada: "arquivada",
+};
 
 export function brl(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -53,8 +71,10 @@ export function PainelMente({ id, estado, ficha, snapshot, aoVivo, aoAlternarEne
   const humano = id === "SOL" || id === "APR";
   const status = statusDe(estado, id);
   const desligavel = aoVivo && !humano && id !== "AG-ORQ";
+  const temHipoteses = Object.keys(a.mente.hipoteses).length + a.mente.propostasRejeitadas.length > 0;
   const abas: [Aba, string][] = bdi
-    ? [["intencoes", "Intenções"], ["deliberacoes", "Deliberações"], ["crencas", "Crenças"], ["desejos", "Desejos"],
+    ? [["intencoes", "Intenções"], ["deliberacoes", "Deliberações"], ["crencas", "Crenças"],
+      ...(temHipoteses ? [["hipoteses", "Hipóteses"] as [Aba, string]] : []), ["desejos", "Desejos"],
       ["decisoes", "Decisões"], ["planos", "Planos"]]
     : [["decisoes", "Decisões"]];
   const [aba, setAba] = useState<Aba>(abas[0][0]);
@@ -63,6 +83,7 @@ export function PainelMente({ id, estado, ficha, snapshot, aoVivo, aoAlternarEne
     intencoes: Object.values(a.mente.intencoes).map((i) => i.seq),
     deliberacoes: a.mente.deliberacoes.map((d) => d.seq),
     crencas: Object.values(a.mente.crencas).map((c) => c.seq),
+    hipoteses: [...Object.values(a.mente.hipoteses).map((h) => h.seq), ...a.mente.propostasRejeitadas.map((p) => p.seq)],
     desejos: Object.values(a.mente.desejos).map((d) => d.seq),
     decisoes: a.mente.decisoes.map((d) => d.seq),
     planos: [] as number[],
@@ -123,6 +144,7 @@ export function PainelMente({ id, estado, ficha, snapshot, aoVivo, aoAlternarEne
             {aba === "intencoes" && <Intencoes estado={estado} id={id} />}
             {aba === "deliberacoes" && <Deliberacoes estado={estado} id={id} />}
             {aba === "crencas" && <Crencas estado={estado} id={id} />}
+            {aba === "hipoteses" && <Hipoteses estado={estado} id={id} />}
             {aba === "desejos" && <Desejos estado={estado} id={id} />}
             {aba === "decisoes" && <Decisoes estado={estado} id={id} />}
             {aba === "planos" && <Planos snapshot={snapshot} />}
@@ -223,7 +245,7 @@ function Crencas({ estado, id }: { estado: ViewState; id: string }) {
       {!lista.length ? <Vazio texto="Sem crenças." /> : (
         <Table size="small" aria-label="Crenças">
           <TableHead><TableRow><TableCell>Crença</TableCell><TableCell>Valor</TableCell>
-            <TableCell>Fonte</TableCell></TableRow></TableHead>
+            <TableCell>Fonte</TableCell><TableCell>Origem</TableCell></TableRow></TableHead>
           <TableBody>
             {lista.map(([k, c]) => (
               <TableRow key={k} sx={c.t >= estado.t - 2 ? { bgcolor: "action.selected" } : undefined}>
@@ -233,11 +255,54 @@ function Crencas({ estado, id }: { estado: ViewState; id: string }) {
                     <Typography component="s" variant="caption" color="text.secondary">{valorCurto(c.antes, 40)} </Typography>
                   )}{valorCurto(c.valor)}</TableCell>
                 <TableCell><Typography variant="caption" color="text.secondary">{c.fonte}</Typography></TableCell>
+                <TableCell><Chip size="small" variant="outlined" color={origemDaCrenca(c.fonte).cor}
+                  label={origemDaCrenca(c.fonte).rotulo} sx={{ height: 18, fontSize: 11 }} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+    </Stack>
+  );
+}
+
+function Hipoteses({ estado, id }: { estado: ViewState; id: string }) {
+  const m = estado.agentes[id].mente;
+  const lista = Object.values(m.hipoteses).sort((x, y) => y.seq - x.seq);
+  return (
+    <Stack spacing={1}>
+      <Alert severity="info" variant="outlined" sx={{ py: 0 }}>
+        Hipótese não é crença: só muda a avaliação depois de uma evidência (outro agente, uma tool, um cálculo).
+      </Alert>
+      {lista.map((h) => (
+        <Card key={h.id} variant="outlined" aria-label={`Hipótese ${h.id}`}>
+          <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
+            <Stack direction="row" spacing={1} alignItems="center" useFlexGap flexWrap="wrap">
+              <Typography variant="body2"><b>{h.id}</b> · {h.tipo.replace("_", " ")} · {h.alvo}</Typography>
+              <Chip size="small" color={COR_HIPOTESE[h.estado] ?? "default"} label={ROTULO_HIPOTESE[h.estado] ?? h.estado} />
+            </Stack>
+            <Typography variant="caption" color="text.secondary" component="div">
+              origem: {h.origens.map((o) => (o.startsWith("llm:") ? `IA (${o.slice(4)})` : `regra local (${o.replace("local:", "")})`)).join(", ")}
+            </Typography>
+            {h.fonte && <Typography variant="caption" component="div">evidência: {h.fonte}</Typography>}
+            {h.motivo && <Typography variant="caption" color="text.secondary" component="div">{h.motivo}</Typography>}
+          </CardContent>
+        </Card>
+      ))}
+      {m.propostasRejeitadas.length > 0 && (
+        <Table size="small" aria-label="Propostas rejeitadas">
+          <TableHead><TableRow><TableCell>Proposta rejeitada</TableCell><TableCell>Origem</TableCell>
+            <TableCell>Motivo (NORM-11)</TableCell></TableRow></TableHead>
+          <TableBody>
+            {m.propostasRejeitadas.map((p) => (
+              <TableRow key={p.seq}><TableCell>{p.tipo} · {p.alvo}</TableCell>
+                <TableCell><Typography variant="caption">{p.origem}</Typography></TableCell>
+                <TableCell><Typography variant="caption">{p.motivo}</Typography></TableCell></TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+      {!lista.length && !m.propostasRejeitadas.length && <Vazio texto="Sem hipóteses." />}
     </Stack>
   );
 }

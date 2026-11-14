@@ -272,3 +272,68 @@ def test_decision_that_cannot_be_delivered_in_time_is_rejected():
     assert s.politica.tickets[tid]["estado"] == "pendente" and s.politica.tickets[tid]["aprovado_por"] is None
     s.bus.run()
     assert s.usuario.resposta(sid).content["decisao"] == "expirada"
+
+
+def test_deadline_check_uses_the_real_delivery_time_of_the_decision():
+    """Residual da 3ª rodada: a checagem do prazo supunha entrega em um tick. Uma decisão enviada com
+    antecedência, mas por um canal lento (entrega depois do prazo), é recusada; pelo canal normal, vale."""
+    s, sid, proposta = pendente(prazo_aprovacao=15)
+    tid, expira = proposta.conversation_id, s.politica.tickets[proposta.conversation_id]["expira_em"]
+    falta = expira - s.bus.now
+    assert falta > 3
+    with pytest.raises(MensagemRejeitada, match="não seria entregue no prazo"):
+        s.aprovador.send("AG-ORQ", "approve", "PROT-APR", tid,
+                         {**decisao(sid, proposta, decisao="waiver"), "justificativa": JUSTIFICATIVA}, delay=falta)
+    assert s.politica.tickets[tid]["estado"] == "pendente" and s.politica.tickets[tid]["aprovado_por"] is None
+    s.aprovador.send("AG-ORQ", "approve", "PROT-APR", tid,
+                     {**decisao(sid, proposta, decisao="waiver"), "justificativa": JUSTIFICATIVA}, delay=falta - 1)
+    s.bus.run()
+    assert s.usuario.resposta(sid).content["status"] == "publicado_com_ressalva"
+
+
+def test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused():
+    """Correção simulada da DSM4 (C2): o aviso `waiver_humano` ao AG-CIN se perdia, a memória do waiver não era gravada
+    e, no mês seguinte, a reincidência ganhava novo waiver (POL-06 contornada). O transporte reentrega o aviso."""
+    import dataclasses
+
+    from fin_mas import invariantes
+    from fin_mas.env.scenarios import CENARIOS, run_scenario
+
+    base = dataclasses.replace(CENARIOS["reincidencia_waiver"], decisao_aprovador=("waiver", "waiver"))
+    perdido = dataclasses.replace(base, faults=({"receiver": "AG-CIN", "performative": "waiver_humano", "times": 1,
+                                                 "protocol": "PROT-CMP"},))
+    for cenario in (base, perdido):
+        e = run_scenario(cenario)
+        agosto, setembro = e.respostas.values()
+        assert agosto.content["status"] == "publicado_com_ressalva"
+        assert setembro.performative == "failure" and "bloqueada por veto" in setembro.content["motivo"]
+        segundo = e.system.politica.tickets["APR-002"]
+        assert segundo["decisao"] == "bloquear" and segundo["negadas"][0]["regra"] == "POL-06"
+        assert len(e.system.politica.tickets) == 2  # um ticket por veto: o aviso perdido não reabre a conformidade
+        assert invariantes.verificar(e.audit.records) == []
+    reentregas = [r for r in e.audit.records if r["kind"] == "drop" and r.get("reentrega")]
+    assert len(reentregas) == 1 and reentregas[0]["performative"] == "waiver_humano"
+
+
+def test_recurrence_is_checked_again_when_the_waiver_is_decided():
+    """Limitação registrada na revisão do PR #4 (DSM3) e corrigida na DSM4: a POL-06 só era conferida na emissão do
+    ticket. Com agosto e setembro pendentes ao mesmo tempo, o waiver de setembro era oferecido (o de agosto ainda
+    não existia) e os dois podiam ser liberados. Agora a decisão confere de novo."""
+    from fin_mas.env.scenarios import CENARIOS, montar
+
+    s, (agosto, setembro) = montar(CENARIOS["reincidencia_waiver"], interativo=True)
+    while s.bus.proximo_tempo() is not None and len(s.aprovador.pendentes) < 2:
+        s.bus.step()
+    assert set(s.aprovador.pendentes) == {agosto, setembro}
+    tickets = {t["solicitacao"]: t for t in s.politica.tickets.values()}
+    assert "waiver" in tickets[setembro]["opcoes"]  # emitido antes de existir o waiver de agosto
+    assert s.aprovador.decidir(agosto, "waiver", JUSTIFICATIVA) is True
+    while s.bus.proximo_tempo() is not None and not s.memoria.entradas:
+        s.bus.step()
+    with pytest.raises(MensagemRejeitada, match="POL-06: reincidência após waiver anterior"):
+        s.aprovador.decidir(setembro, "waiver", JUSTIFICATIVA)
+    assert setembro in s.aprovador.pendentes and tickets[setembro]["estado"] == "pendente"
+    assert s.aprovador.decidir(setembro, "corrigir") is True
+    s.bus.run()
+    assert s.usuario.resposta(agosto).content["status"] == "publicado_com_ressalva"
+    assert s.usuario.resposta(setembro).content["status"].startswith("publicado")

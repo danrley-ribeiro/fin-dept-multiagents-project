@@ -1,0 +1,39 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+sequenceDiagram
+  autonumber
+  participant CIN as AG-CIN
+  participant ORQ as AG-ORQ
+  participant POL as SVC-POL (politica.py)
+  participant APR as APR (pessoa logada)
+  participant IAM as SVC-IAM (iam.py)
+  participant MCP as Gateway MCP / ERP
+  CIN->>ORQ: veto (achados, opções, correções sugeridas, envolvidos) [PROT-CMP]
+  ORQ->>POL: emitir ticket (solicitação, hash do veto, aprovador, prazo, solicitado_por)
+  POL-->>ORQ: ticket APR-... com as opções abertas (POL-01, POL-06, POL-07)
+  ORQ->>APR: propose-action {aprovacao, solicitacao, veto, opcoes, correcoes_sugeridas} [PROT-APR]
+  Note over APR: pendência no dashboard (no lote: sessão simulada da persona)
+  APR->>IAM: atestar(sessao, ticket, veto, decisao, corpo)
+  IAM->>IAM: exigir PERM-APR-DECIDIR, gera nonce
+  IAM-->>APR: atestado {pessoa, sessao, nonce, token HMAC}
+  APR->>ORQ: approve {aprovacao, solicitacao, veto, decisao=corrigir, correcoes, atestado}
+  Note over ORQ,POL: o barramento chama o validador do SVC-POL antes de mudar o estado do PROT-APR
+  POL->>POL: vínculo com o ticket, hash do veto, estado pendente, prazo (POL-08)
+  POL->>IAM: verificar_atestado(atestado, ticket, veto, decisao, corpo)
+  alt atestado ausente, de outra decisão, repetido, sessão revogada ou sem papel de aprovador
+    IAM-->>POL: AcessoNegado POL-09
+    POL-->>APR: decisão recusada (ProtocolViolation), ticket segue pendente
+  else atestado confere
+    IAM-->>POL: sessão da pessoa (cargo, pessoa_erp)
+    POL->>POL: POL-02 o cargo permite a decisão
+    POL->>POL: POL-03 a pessoa não criou nem aprovou lançamento vetado
+    POL->>POL: POL-13 a pessoa não fez a solicitação (ou controle compensatório)
+    POL->>POL: POL-05 correções dentro das sugeridas pelo AG-CIN
+    POL->>IAM: registrar decisão na trilha de acesso
+    POL-->>ORQ: ticket aprovado (aprovado_por = pessoa, sessão)
+    ORQ->>MCP: erp.corrigir (aprovacao=APR-..., lançamento, ação)
+    MCP->>POL: autorizar_efeito (fail-closed, uso único)
+    MCP->>MCP: efeito no ERP
+    MCP->>POL: registrar_execucao
+    ORQ->>CIN: correcao {aprovacao, correcoes} [PROT-CMP]
+    Note over POL,CIN: SVC-POL consome o ticket, o AG-CIN percebe o ERP de novo e reconsidera
+  end

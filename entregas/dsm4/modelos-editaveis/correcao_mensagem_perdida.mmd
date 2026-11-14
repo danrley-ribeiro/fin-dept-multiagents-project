@@ -1,0 +1,24 @@
+%%{init: {"flowchart": {"useMaxWidth": false}, "sequence": {"useMaxWidth": false}, "state": {"useMaxWidth": false}}}%%
+sequenceDiagram
+  autonumber
+  participant ORQ as AG-ORQ
+  participant BUS as Barramento (SVC-A2A)
+  participant RES as AG-RES
+  ORQ->>BUS: request (PROT-DEL, reply_by = t+30)
+  BUS->>RES: entrega
+  RES->>BUS: agree
+  BUS->>ORQ: entrega
+  RES->>BUS: inform (resultado)
+  Note over BUS: a FSM muda no ENVIO: conversa já CONCLUIDA
+  BUS--xORQ: entrega perdida
+  rect rgb(245, 245, 245)
+    Note over ORQ,RES: primeira rodada (v0.5.0): o temporizador vê CONCLUIDA e não avisa ninguém,<br/>o Orquestrador espera para sempre (violação do INV-07)
+  end
+  rect rgb(235, 242, 250)
+    Note over BUS: correção (Bus._perdida): perda depois da abertura agenda aviso de prazo ao iniciador
+    BUS->>ORQ: prazo esgotado (aviso sem transição)
+    ORQ->>BUS: request (reenvio, uma vez)
+    BUS->>RES: entrega
+    RES->>BUS: agree / inform
+    BUS->>ORQ: entrega, ou nova perda e failure explícito ao solicitante
+  end

@@ -445,11 +445,21 @@ def comparar(familia, rotulo, metrica, a, b, nome_a, nome_b) -> dict:
 
 
 def comparar_grupos(familia, rotulo, metrica, a, b, nome_a, nome_b) -> dict:
-    """Mann-Whitney entre execuções de dois grupos independentes."""
-    x = [r[metrica] for r in a if r.get(metrica) is not None]
-    y = [r[metrica] for r in b if r.get(metrica) is not None]
+    """Mann-Whitney entre dois grupos independentes, com a seed como unidade (média da métrica por seed).
+
+    As execuções de uma mesma seed compartilham dados e falhas sorteadas: tratá-las como observações
+    independentes inflava o tamanho da amostra (pseudo-replicação apontada na correção simulada da DSM4).
+    """
+    def por_seed(registros):
+        grupos = {}
+        for r in registros:
+            if r.get(metrica) is not None:
+                grupos.setdefault(r["seed"], []).append(r[metrica])
+        return [estatistica.media(v) for _, v in sorted(grupos.items())]
+
+    x, y = por_seed(a), por_seed(b)
     teste = {"familia": familia, "comparacao": rotulo, "metrica": metrica, "a": nome_a, "b": nome_b,
-             "tipo": "Mann-Whitney", "n": f"{len(x)} x {len(y)}"}
+             "tipo": "Mann-Whitney", "n": f"{len(x)} x {len(y)} seeds"}
     if not x or not y:
         return {**teste, "p": None, "observacao": "grupo vazio"}
     r = estatistica.mann_whitney(x, y)

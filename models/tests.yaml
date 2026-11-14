@@ -540,3 +540,12 @@ items:
      esperado: "a recusa do código diz quantas tentativas restam; na quinta a pré-sessão acaba", entrega: DSM4, status: executado}
   - {id: TEST-410, nome: test_vault_route_tells_where_each_llm_key_comes_from, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
      esperado: "por provedor: ambiente, cofre ou nenhuma; o valor nunca sai", entrega: DSM4, status: executado}
+  # ---- correção simulada da DSM4: achados do núcleo ----
+  - {id: TEST-420, nome: test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "com atraso de entrega de 3 a 6 ticks e perda, toda solicitação recebe resposta e nenhum invariante é violado", entrega: DSM4, status: executado}
+  - {id: TEST-421, nome: test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused, verifica: [REQ-S02, REQ-S04], derivado_de: SVC-A2A, tipo: seguranca,
+     esperado: "aviso de waiver perdido é reentregue: a reincidência segue barrada (POL-06) e há um ticket por veto", entrega: DSM4, status: executado}
+  - {id: TEST-422, nome: test_learning_only_counts_evidence_from_a_deterministic_source, verifica: [REQ-F20], derivado_de: NORM-20, tipo: seguranca,
+     esperado: "texto livre, fonte de proponente ou vazia não contam como evidência no aprendizado", entrega: DSM4, status: executado}
+  - {id: TEST-423, nome: test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2", entrega: DSM4, status: executado}

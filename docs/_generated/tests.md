@@ -3177,3 +3177,51 @@
 **Resultado esperado:** por provedor: ambiente, cofre ou nenhuma; o valor nunca sai  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer
+:id: TEST-420
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer()` — tipo *robustez*.  
+**Resultado esperado:** com atraso de entrega de 3 a 6 ticks e perda, toda solicitação recebe resposta e nenhum invariante é violado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused
+:id: TEST-421
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-S04
+:derived_from: SVC-A2A
+
+`test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused()` — tipo *seguranca*.  
+**Resultado esperado:** aviso de waiver perdido é reentregue: a reincidência segue barrada (POL-06) e há um ticket por veto  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_learning_only_counts_evidence_from_a_deterministic_source
+:id: TEST-422
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F20
+:derived_from: NORM-20
+
+`test_learning_only_counts_evidence_from_a_deterministic_source()` — tipo *seguranca*.  
+**Resultado esperado:** texto livre, fonte de proponente ou vazia não contam como evidência no aprendizado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback
+:id: TEST-423
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback()` — tipo *robustez*.  
+**Resultado esperado:** combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2  
+**Execução:** DSM4 (status atual: executado).
+````

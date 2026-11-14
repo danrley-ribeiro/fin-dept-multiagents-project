@@ -33,8 +33,12 @@ Registro por entrega.
   moderados de acesso, fontes e backup corrigidos, cada um com teste (TEST-420 a 449).
 - Relatório técnico (`entregas/dsm4/documentacao/relatorio.pdf`), apresentação, roteiro de demonstração, páginas de
   arquitetura final, limitações e reprodução; `make pdf-dsm4`, `make entrega-dsm4`.
-- Testes: 667 no pytest (unit 95, e2e 426, integração 123, TUI 23), 40 roteiros Playwright, 12 vitest; 64 cenários com
-  10 invariantes; rastreabilidade com 510 objetos, 26 requisitos, 289 testes modelados e 29 métricas, 0 erros. As 280
+- Ajustes finais do coautor (PR #4, teste exploratório no Windows e no dashboard): `iniciar.ps1` no PowerShell 5.1,
+  dependências da documentação só no modo `docs`, waiver negado pela política que não vira bloqueio no dashboard, aviso
+  de erro correto. A limitação anotada naquele PR foi fechada: a POL-06 é conferida também na decisão do waiver, para
+  dois vetos do mesmo padrão pendentes ao mesmo tempo (TEST-424).
+- Testes: 669 no pytest (unit 95, e2e 428, integração 123, TUI 23), 41 roteiros Playwright, 12 vitest; 64 cenários com
+  10 invariantes; rastreabilidade com 513 objetos, 26 requisitos, 292 testes modelados e 29 métricas, 0 erros. As 280
   linhas da comparação da DSM3 seguem idênticas fora do hash do trace (que leva a versão do pacote).
 
 ## DSM3 v0.5.0 (12/11/2026)

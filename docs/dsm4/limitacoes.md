@@ -218,6 +218,7 @@ críticos e quase todos os demais corrigidos, cada um com teste (TEST-420 a TEST
 | O AG-ORC não lê a memória aprovada | lê correções aprovadas por tipo (cenário `memoria_reincidencia_orc`) |
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador, com a perda marcada pela posição da mensagem na conversa (achado C1 da correção simulada); 0 execuções sem resposta na segunda e na terceira rodada |
+| A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3) | a política confere a reincidência de novo quando o waiver é decidido (`test_recurrence_is_checked_again_when_the_waiver_is_decided`, TEST-424) |
 | Aviso de decisão humana perdido contornava a POL-06 ou gerava segundo ticket | reentrega pelo transporte dos avisos ao AG-CIN, até 5 tentativas (achado C2) |
 | Segundo fator derrubável por força bruta; fontes compartilhadas entre empresas; restauração gravava fora do destino | contador por conta com bloqueio e senha exigida (C3); registro de fontes por empresa (C4); backup validado antes de gravar, com o cofre no pacote de chaves (C5) |
 | Senha como único fator | TOTP (RFC 6238) com anti-replay e códigos de recuperação, obrigatório por política para administrador e aprovador (`docs/dsm4/acesso-avancado.md`) |

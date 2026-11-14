@@ -1,5 +1,5 @@
 {
- "versao": "0.5.0",
+ "versao": "1.0.0",
  "cenarios": [
   {
    "nome": "fechar_mes",
@@ -89,37 +89,37 @@
   {
    "nome": "orc_hipotese_local",
    "descricao": "Mesma perda de `orc_sem_cin`, com cognição local: a observação da planilha gera a hipótese de causa de controle, o AG-ORC consulta de novo o AG-CIN e o desvio é reclassificado",
-   "registros": 136
+   "registros": 146
   },
   {
    "nome": "hipotese_refutada",
    "descricao": "Desvio orçamentário legítimo com um alarme falso na planilha: a hipótese de controle é conferida com a resposta que o AG-CIN já deu e refutada; o desvio segue sinalizado",
-   "registros": 145
+   "registros": 155
   },
   {
    "nome": "hipotese_arquivada",
    "descricao": "AG-CIN não responde a nenhuma das duas consultas: a hipótese fica sem evidência, é arquivada e a avaliação sai igual à da cognição básica",
-   "registros": 128
+   "registros": 137
   },
   {
    "nome": "negociacao_prazo",
    "descricao": "Duas consultas ao AG-CIN se perdem e a terceira não cabe no prazo: o AG-ORC negocia mais prazo com o Orquestrador, que aceita; a hipótese é confirmada e o desvio reclassificado",
-   "registros": 153
+   "registros": 163
   },
   {
    "nome": "negociacao_recusada",
    "descricao": "No fechamento com período reservado o Orquestrador recusa a extensão de prazo: o AG-ORC arquiva a hipótese e entrega no prazo; o AG-CIN veta a NF duplicada depois e o estorno é aprovado",
-   "registros": 215
+   "registros": 280
   },
   {
    "nome": "historico_calendario",
    "descricao": "Gasto concentrado no início do trimestre: a hipótese de efeito de calendário é conferida em todos os trimestres do histórico e entra no relatório como insight",
-   "registros": 117
+   "registros": 128
   },
   {
    "nome": "fechamento_hipotese_local",
    "descricao": "Fechamento do mês com a consulta ao AG-CIN perdida: a hipótese leva o AG-ORC a consultar de novo, o AG-CIN veta a NF duplicada e o estorno aprovado destrava o fechamento",
-   "registros": 213
+   "registros": 279
   },
   {
    "nome": "decisao_por_pessoa",
@@ -147,44 +147,179 @@
    "registros": 138
   },
   {
+   "nome": "aprovador_sem_alcada",
+   "descricao": "Microempresa: uma gerente com papel de aprovadora tenta liberar a correção, mas as normas do porte só dão alçada ao assistente e ao sócio (POL-10); o controller corrige",
+   "registros": 151
+  },
+  {
+   "nome": "delegacao_valida",
+   "descricao": "O gerente delega à analista a sua alçada para a competência, com teto de R$ 10 mil; ela concede o waiver que o cargo dela sozinho não permitiria, e a decisão registra a delegação",
+   "registros": 139
+  },
+  {
+   "nome": "delegacao_expirada",
+   "descricao": "Mesma delegação, mas com prazo que termina antes do veto: a analista não decide mais por ela (POL-11) e o próprio gerente concede o waiver",
+   "registros": 140
+  },
+  {
+   "nome": "dupla_aprovacao",
+   "descricao": "Grande empresa: a correção de R$ 30 mil passa do limite de quatro olhos (R$ 25 mil); uma gerente dá o aval e o outro gerente aprova",
+   "registros": 157
+  },
+  {
+   "nome": "dupla_mesma_pessoa_recusada",
+   "descricao": "Grande empresa: a gerente que deu o aval tenta também aprovar; a política recusa (POL-12) e a segunda aprovação vem de outra pessoa",
+   "registros": 158
+  },
+  {
+   "nome": "escalonamento",
+   "descricao": "Ticket no nível de gerente: a diretora tenta decidir antes e é recusada (POL-14); sem decisão na metade do prazo o ticket escala para diretor e a decisão dela vale",
+   "registros": 156
+  },
+  {
+   "nome": "ataque_acesso_avancado",
+   "descricao": "Veto pendente sob ataques ao acesso avançado: código TOTP repetido e fora da janela, código de recuperação reutilizado, pré-sessão usada como sessão, delegação forjada, expirada e subdelegada, a mesma pessoa nos dois passos, decisão acima da alçada e sessão de outra empresa. Tudo recusado; nada é publicado",
+   "registros": 136
+  },
+  {
    "nome": "orc_hipotese_llm",
    "descricao": "A planilha descreve o lançamento repetido com outras palavras: as regras locais não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
-   "registros": 139
+   "registros": 148
   },
   {
    "nome": "llm_hipotese_rejeitada",
    "descricao": "O LLM (mock) devolve propostas com número inventado, alvo inexistente, tipo fora da lista, ação e evidência que o agente não tem: todas rejeitadas, nada muda",
-   "registros": 99
+   "registros": 108
   },
   {
    "nome": "llm_nota_injetada",
    "descricao": "A observação da planilha traz uma instrução para o modelo; o LLM (mock) obedece e a proposta é rejeitada: texto livre é dado, não instrução",
-   "registros": 141
+   "registros": 150
   },
   {
    "nome": "llm_json_invalido",
    "descricao": "O LLM (mock) responde fora do formato: fallback registrado e avaliação determinística",
-   "registros": 125
+   "registros": 135
   },
   {
    "nome": "llm_provedor_fora",
    "descricao": "Provedor de LLM fora do ar em dois meses seguidos: cada chamada cai no fallback, o disjuntor abre na terceira e as avaliações saem pelo caminho determinístico",
-   "registros": 276
+   "registros": 292
   },
   {
    "nome": "llm_sem_consentimento",
    "descricao": "Provedor externo configurado sem consentimento para enviar dados: nada sai da máquina e o agente segue no caminho determinístico",
-   "registros": 123
+   "registros": 133
   },
   {
    "nome": "llm_pseudonimos",
    "descricao": "Envio com pseudônimos: o prompt registrado troca fornecedor e documento por rótulos e o insight volta com os nomes reais",
-   "registros": 139
+   "registros": 148
   },
   {
    "nome": "llm_textos_validados",
    "descricao": "Fechamento com os três textos opcionais: narrativa do AG-ORC, comentário do AG-RES e síntese do AG-REL (mocks), cada um conferido contra os números do seu agente",
    "registros": 185
+  },
+  {
+   "nome": "res_explica_variacao",
+   "descricao": "Um centro de custo salta no mês e o EBITDA% cai contra o histórico: o AG-RES recebe a hipótese de custo fixo, pede o detalhe ao AG-CUS e explica a variação com o centro responsável",
+   "registros": 200
+  },
+  {
+   "nome": "res_insumo_faltante",
+   "descricao": "O AG-ORC não responde a duas consultas do AG-RES: o plano de consulta falha, o agente consulta de novo, dá o orçamento por indisponível e decide, pelo porte e pela criticidade, consolidar a DRE com ressalva (na grande empresa a mesma situação termina em falha explícita)",
+   "registros": 197
+  },
+  {
+   "nome": "cus_rateio_alternativo",
+   "descricao": "O direcionador de rateio do período está inconsistente (soma 110): o plano padrão do AG-CUS falha ao ler o dado e o agente escolhe outro critério conforme o porte, registrando o critério e o motivo",
+   "registros": 185
+  },
+  {
+   "nome": "rel_relatorio_de_excecao",
+   "descricao": "Veto de alçada corrigido por decisão humana: o AG-REL escolhe o relatório de exceção, que abre pela correção aprovada e cita a base normativa; sem exceção ele escolhe o sumário",
+   "registros": 218
+  },
+  {
+   "nome": "aprendizado_regra",
+   "descricao": "A regra da observação de duplicidade dá alarme falso em julho e em agosto: as duas refutações baixam a confiança dela de 0,80 para 0,40; em setembro, com o AG-CIN sem responder, a hipótese não justifica mais uma consulta nova e é arquivada",
+   "registros": 433
+  },
+  {
+   "nome": "compromisso_aberto",
+   "descricao": "Consulta ao AG-CIN perdida e, depois, resposta que derruba o motivo do alerta: com compromisso aberto o AG-ORC replaneja na falha e abandona o alerta quando o motivo cai",
+   "registros": 146
+  },
+  {
+   "nome": "compromisso_obstinado",
+   "descricao": "Mesma situação com compromisso obstinado: o AG-ORC replaneja na falha, mas não larga o alerta quando o motivo cai (a intenção ainda é possível) e sinaliza um falso desvio",
+   "registros": 150
+  },
+  {
+   "nome": "compromisso_cego",
+   "descricao": "Mesma situação com compromisso cego: o AG-ORC insiste na mesma consulta em vez de replanejar e também não larga o alerta: falso desvio, por outro caminho",
+   "registros": 142
+  },
+  {
+   "nome": "memoria_reincidencia_orc",
+   "descricao": "Em agosto um estorno de NF duplicada em Marketing é aprovado e vira memória. Em setembro a planilha não fala em duplicidade e a consulta ao AG-CIN se perde: o AG-ORC lê a memória aprovada, levanta a hipótese de reincidência, consulta de novo e reclassifica o desvio",
+   "registros": 405
+  },
+  {
+   "nome": "normas_fundamentam_achado",
+   "descricao": "SoD crítica vetada e liberada por waiver: o AG-CIN busca na base normativa o trecho que fundamenta o achado e o cita com documento, trecho e versão",
+   "registros": 205
+  },
+  {
+   "nome": "normas_sem_evidencia",
+   "descricao": "NF duplicada vetada e estornada: a base normativa não tem trecho sobre duplicidade, a busca devolve vazio e o AG-CIN declara 'sem evidência' em vez de citar algo aproximado",
+   "registros": 218
+  },
+  {
+   "nome": "fechamento_mei",
+   "descricao": "MEI: uma pessoa só, sem ERP; toda a segregação é impossível e vira controle compensatório; a NF duplicada é vetada e estornada, a competência errada fica como ressalva",
+   "registros": 150
+  },
+  {
+   "nome": "fechamento_media_ii",
+   "descricao": "Média empresa II (BNDES, R$ 90 a 300 milhões): alçadas e materialidade da faixa de cima; alçada violada é reaprovada e os desvios orçamentários entram no relatório",
+   "registros": 209
+  },
+  {
+   "nome": "fechamento_comercio",
+   "descricao": "Comércio: CMV pelo estoque, lojas física e virtual e rateio por área ocupada; NF duplicada de fornecedor vetada e estornada",
+   "registros": 153
+  },
+  {
+   "nome": "fechamento_servicos",
+   "descricao": "Serviços profissionais: mão de obra direta como custo variável e rateio por horas trabalhadas; a gerente aprova o próprio lançamento (SoD) e outro aprovador reaprova",
+   "registros": 153
+  },
+  {
+   "nome": "fechamento_industria",
+   "descricao": "Indústria: custo de produção e rateio dos custos fixos por horas-máquina; NF lançada duas vezes na conta de marketing infla o desvio; o AG-CIN veta e o estorno destrava",
+   "registros": 186
+  },
+  {
+   "nome": "conector_rest_demo",
+   "descricao": "ERP de demonstração em loopback: o conector REST genérico lê o contrato OpenAPI, entende a fonte sem LLM e o mapeamento é confirmado; alçada violada, correção aprovada escrita no ERP pela API",
+   "registros": 153
+  },
+  {
+   "nome": "conector_fora_do_ar",
+   "descricao": "ERP fora do ar (nada escuta na porta): toda leitura falha com o motivo e o fechamento termina em falha explícita, sem travar",
+   "registros": 51
+  },
+  {
+   "nome": "planilha_fora_do_modelo",
+   "descricao": "Planilha da casa (abas e colunas renomeadas e reordenadas, título acima do cabeçalho, R$ em texto, datas, linha de total): entendimento sugere o mapeamento, confirmação e fechamento",
+   "registros": 115
+  },
+  {
+   "nome": "mcp_tools_entendidas",
+   "descricao": "Servidor MCP de Excel por stdio: tools listadas, ler_aba reconhecida como uma tool por aba canônica, amostras, mapeamento confirmado e fechamento pelo cliente MCP",
+   "registros": 116
   }
  ],
  "agentes": {
@@ -200,7 +335,7 @@
   "AG-CUS": {
    "id": "AG-CUS",
    "titulo": "Agente de Custos",
-   "cognicao": "Deliberativo determinístico (regras de rateio + cálculo)",
+   "cognicao": "Dois níveis (ADR-010). Básico: reativo determinístico (rateio fixo + cálculo), mantido como braço de comparação. Local e llm: BDI, com crenças sobre o direcionador de rateio do período (ok, ausente, inconsistente) e a receita por unidade, desejo de definir o critério de rateio e quatro planos alternativos (padrão, última tabela aprovada, proporcional à receita, igualitário) escolhidos pela utilidade de precisão e simplicidade do porte; o plano padrão falha ao perceber um direcionador inutilizável e o agente replaneja",
    "papeis": [
     "ROLE-CUS"
    ],
@@ -218,7 +353,7 @@
   "AG-RES": {
    "id": "AG-RES",
    "titulo": "Agente de Resultados",
-   "cognicao": "Determinístico (DRE, EBITDA, DFC, KPIs) com comentário LLM opcional",
+   "cognicao": "Dois níveis (ADR-010). Básico: reativo determinístico (DRE, EBITDA, KPIs), mantido como braço de comparação. Local e llm: BDI, com crenças sobre a situação de cada insumo e sobre a variação do EBITDA% contra o histórico; desejos de obter insumo, explicar variação relevante e consolidar; replanejamento quando um especialista não responde (consultar de novo, dar por indisponível) e escolha entre consolidar com ressalva e falhar explicitamente pela criticidade do insumo e pelo porte; hipóteses de regras locais sobre a causa da variação, verificadas com o AG-CUS ou no histórico antes de virar explicação",
    "papeis": [
     "ROLE-RES"
    ],
@@ -236,7 +371,7 @@
   "AG-REL": {
    "id": "AG-REL",
    "titulo": "Agente de Relatórios",
-   "cognicao": "Template determinístico + LLM opcional (híbrido)",
+   "cognicao": "Dois níveis (ADR-010). Básico: template determinístico único + LLM opcional, mantido como braço de comparação. Local e llm: BDI, com crenças sobre o que o período teve (correções, waivers, ressalvas, desvios, insights) e sobre o público; desejo de comunicar e três planos de estrutura (relatório de exceção, sumário executivo, relatório completo) escolhidos pela utilidade de clareza, completude e concisão do porte. O texto continua saindo de template determinístico",
    "papeis": [
     "ROLE-REL"
    ],

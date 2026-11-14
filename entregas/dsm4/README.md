@@ -110,4 +110,5 @@ A lista completa está em [`docs/dsm4/limitacoes.md`](../../docs/dsm4/limitacoes
   contra quem lê o disco; pedido sem atestado no PROT-SOL.
 - Uma máquina, só loopback; nenhum conector de fornecedor nem ERP real; algumas funções de acesso só pela
   API, CLI e TUI (sem tela no dashboard).
-- Os roteiros Playwright rodam no CI e por `make web-test`; não foram executados na geração do relatório.
+- Os roteiros Playwright (41, no Chrome headless) rodam por `make web-test` e passaram na versão entregue
+  (14/11/2026); o gerador de números do relatório não os executa, por isso a contagem deles não está no PDF.

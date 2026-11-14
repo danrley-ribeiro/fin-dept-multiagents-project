@@ -111,6 +111,17 @@ que foi corrigido, com o identificador quando ele aparece no código ou nos test
   três rodadas lado a lado, sem tratar nenhuma posterior à primeira como confirmatória
   ([`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md), "Três rodadas").
 
+### Revisão e teste exploratório do coautor (PR #4)
+
+O Jiliard abriu o PR #4 ("DSM3: ajustes finais") depois de rodar o projeto como usuário, no Windows PowerShell
+5.1 e no dashboard em navegador real: o `iniciar.ps1` parava em máquinas sem Python 3.13; as dependências da
+documentação eram instaladas em todo modo e falhavam com Python 3.11; na reincidência, o waiver negado pela
+política aparecia no diálogo e, se escolhido, bloqueava o fechamento sem o aprovador saber; e duas atribuições
+de feedback (DSM1 × DSM2) estavam trocadas. O PR foi integrado à v0.5.0 e à versão final com os commits dele
+preservados, e mesclado na `main`. Na mesma revisão ele registrou uma limitação que ficou para a DSM4 (a POL-06
+só era conferida na emissão do ticket); ela foi fechada nesta versão, com a conferência também na decisão do
+waiver (TEST-424). O detalhe do teste exploratório está em `entregas/dsm3/USO_DE_IA.md`.
+
 ### Autoria
 
 O avaliador escreveu que a autoria fica **"difícil de defender oralmente"**, porque os lotes da DSM4 foram
@@ -149,5 +160,6 @@ Para a apresentação, os autores precisam dominar, sem apoio do texto:
 
 Os números da versão entregue (testes coletados e executados, cenários conferidos, objetos rastreados,
 resultados do experimento) são gerados por `python tools/relatorio_numeros.py --suite` e aparecem no
-relatório técnico; nenhum foi escrito à mão. Os roteiros Playwright não foram executados na geração do
-relatório. Todo código e texto gerado foi revisado pelos autores antes da entrega.
+relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte sobre a versão
+entregue (41 de 41, em 14/11/2026), fora do gerador. A leitura e a revisão de todo o código e texto gerado pelos
+autores, antes da submissão, é o passo que falta e é deles: os pontos a dominar estão na seção "Autoria".

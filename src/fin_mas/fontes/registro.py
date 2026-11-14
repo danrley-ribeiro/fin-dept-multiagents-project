@@ -1,7 +1,8 @@
 """Cadastro das fontes de dados da plataforma (ADR-011): conectores, mapeamentos, rede, envios.
 
 Fica num `ArquivoSelado` (`fontes.json`) ao lado do cofre de credenciais (`cofre.json`), na pasta de
-fontes da instalação. Regras:
+fontes da instalação; com empresas (IAM-09), um registro por empresa em `dados/<empresa>/fontes`, com cofre
+e nomes de credencial próprios (`conector:<id>@<empresa>`). Regras:
 
 - **credencial**: entra uma vez no cadastro, vai para o cofre e nunca volta (a listagem só diz se há
   uma); fica vinculada ao host:porta da URL do momento em que foi guardada. Trocou a URL, a
@@ -58,8 +59,9 @@ def _digest(dados) -> str:
 
 
 class RegistroFontes:
-    def __init__(self, pasta=None, registrar=None, relogio=time.time):
+    def __init__(self, pasta=None, registrar=None, relogio=time.time, empresa: str | None = None):
         self.pasta = Path(pasta) if pasta else None
+        self.empresa = empresa  # IAM-09: registro, pasta e credenciais desta empresa (dados/<empresa>/fontes)
         self._registrar = registrar
         self.relogio = relogio
         self._arq = ArquivoSelado(self.pasta / "fontes.json" if self.pasta else None, "fontes", VERSAO,
@@ -71,8 +73,14 @@ class RegistroFontes:
                 (self.pasta / sub).mkdir(parents=True, exist_ok=True)
 
     # ---- apoio --------------------------------------------------------------------------------
+    def credencial(self, cid: str) -> str:
+        """Nome da credencial do conector no cofre; com empresa, o nome leva a empresa (`conector:<id>@<empresa>`)."""
+        return f"conector:{cid}@{self.empresa}" if self.empresa else f"conector:{cid}"
+
     def _trilha(self, evento, ator, resultado="ok", **campos):
         if self._registrar is not None:
+            if self.empresa:
+                campos.setdefault("empresa", self.empresa)
             self._registrar(evento, ator, resultado, **redigir(campos))
 
     def _dados(self) -> dict:
@@ -105,7 +113,7 @@ class RegistroFontes:
                     for aba, campos in CANONICO.items()}}
 
     def _publico(self, c, d, liberados) -> dict:
-        tem = self.cofre.existe(f"conector:{c['id']}")
+        tem = self.cofre.existe(self.credencial(c['id']))
         saida = {k: c[k] for k in ("id", "nome", "tipo", "criado_por", "criado_em", "atualizado_por", "atualizado_em")
                  if k in c}
         saida["config"] = redigir({k: v for k, v in c["config"].items()})
@@ -161,8 +169,8 @@ class RegistroFontes:
                 d["mapeamentos"].pop(cid, None)
             d["conectores"][cid] = registro
         if credencial:
-            self.cofre.guardar(f"conector:{cid}", credencial, str(ator))
-            self._trilha("credencial_guardada", ator, credencial=f"conector:{cid}")
+            self.cofre.guardar(self.credencial(cid), credencial, str(ator))
+            self._trilha("credencial_guardada", ator, credencial=self.credencial(cid))
         self._trilha("conector_cadastrado", ator, conector=cid, tipo=tipo, novo=antigo is None,
                      credencial="informada" if credencial else "não informada")
         return self._publico(registro, self._dados(), self._dados()["rede"])
@@ -207,8 +215,8 @@ class RegistroFontes:
             d["mapeamentos"].pop(cid, None)
             if d["ativo"] == cid:
                 d["ativo"] = None
-        if self.cofre.remover(f"conector:{cid}", str(ator)):
-            self._trilha("credencial_removida", ator, credencial=f"conector:{cid}")
+        if self.cofre.remover(self.credencial(cid), str(ator)):
+            self._trilha("credencial_removida", ator, credencial=self.credencial(cid))
         self._trilha("conector_removido", ator, conector=cid)
 
     # ---- rede (administrador) -----------------------------------------------------------------
@@ -242,7 +250,7 @@ class RegistroFontes:
             mapeamento = ((self._dados()["mapeamentos"].get(cid) or {}).get("confirmado") or {}).get("mapeamento")
         cfg = dict(c["config"])
         if c["tipo"] == "rest":
-            return ConectorREST(cid, cfg, segredo=self.cofre.ler(f"conector:{cid}"), mapeamento=mapeamento,
+            return ConectorREST(cid, cfg, segredo=self.cofre.ler(self.credencial(cid)), mapeamento=mapeamento,
                                 politica=self.politica(), host_credencial=c.get("credencial_host") or "-")
         if c["tipo"] == "planilhas":
             return ConectorPastaPlanilhas(cid, self._dentro(cfg.get("pasta") or "planilhas"), porte=cfg.get("porte"))

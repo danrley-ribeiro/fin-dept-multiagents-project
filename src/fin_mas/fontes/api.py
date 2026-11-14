@@ -10,7 +10,8 @@
     POST /api/fontes/rede                  {"host", "liberar": true|false}                   PERM-DAD-REDE
     POST /api/fontes/envios                {"nome", "conteudo_base64"}                       PERM-DAD-ENVIAR
 
-Todo corpo é validado como objeto JSON antes do uso (400). O registro fica em `<pasta de dados>/../fontes`.
+Todo corpo é validado como objeto JSON antes do uso (400). O registro fica em `<pasta de dados>/../fontes`; com
+empresas no cadastro (IAM-09), em `dados/<empresa>/fontes`, um por empresa (nada passa de uma para outra).
 """
 import base64
 import binascii
@@ -36,10 +37,16 @@ def _json(status, dados):
 
 
 def registro_de(sim, acesso) -> RegistroFontes:
+    """Registro de fontes da simulação. Com empresas (IAM-09), cada empresa tem o seu, dentro de
+    `dados/<empresa>/fontes` (conectores, mapeamentos, planilhas, envios e cofre de credenciais próprios);
+    sem empresas, o registro único de sempre, em `<pasta de dados>/../fontes`."""
     reg = getattr(sim, "registro_fontes", None)
     if reg is None:
-        pasta = Path(sim.pasta_dados).parent / "fontes" if getattr(sim, "pasta_dados", None) else None
-        reg = RegistroFontes(pasta, registrar=acesso.registrar if acesso is not None else None)
+        empresa = getattr(sim, "empresa", None)
+        pasta = None
+        if getattr(sim, "pasta_dados", None):
+            pasta = Path(sim.pasta_dados) / "fontes" if empresa else Path(sim.pasta_dados).parent / "fontes"
+        reg = RegistroFontes(pasta, registrar=acesso.registrar if acesso is not None else None, empresa=empresa)
         sim.registro_fontes = reg
     return reg
 

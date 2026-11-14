@@ -25,18 +25,19 @@ Terminal 2: `python -m fin_mas serve --demo` e o navegador aberto em `http://127
 | 1 | Capa | D | 0:15 | A dupla e o que vem: o sistema final, o experimento e o que ele mostrou, inclusive contra nós. |
 | 2 | O problema | D | 0:40 | Fechar o mês com fontes que divergem, regras por porte e decisão humana. Por que agentes. A pergunta: com as mesmas funções, agentes valem a pena? |
 | 3 | Arquitetura final | D | 0:50 | Uma frase por camada. Quem calcula não aprova; o AG-CIN veta sozinho; a decisão humana tem dono. BDI onde há escolha sob incerteza (ADR-010). |
-| 4 | Approval Gate | D | 0:40 | A FSM é dado, conferida pelo barramento antes de mudar estado. Cada transição inválida é um teste negativo. |
-| 5 | Coordenação | J | 0:40 | Consulta direta, veto, correção, reserva, negociação. A regra "waiver não se repete" emerge de três componentes. |
-| 6 | Segurança | J | 0:40 | Ataques com o sistema em pé e invariantes conferidos só pelo trace. Fora do modelo: quem controla o processo ou a pasta de chaves. |
-| 7 | Cognição | J | 0:40 | Proposta não é crença; guardrail determinístico, não outro modelo. O AG-REL BDI não se justificou e está escrito. |
-| 8 | Experimento: desenho | J | 0:45 | Pré-registro antes do código; workflow com as mesmas funções; falhas sorteadas por seed; 30 seeds. Responde às duas críticas da DSM3. |
-| 9 | Qualidade e robustez | J | 0:45 | Empate sem falhas; o SMA perde a partir de 15% de perda; empate com humano lento; nenhuma crítica publicada. O workflow ganha por construção. |
-| 10 | Custo, cognição, ablação, rodadas | D | 0:45 | Mais mensagens e ticks; cognição sem ganho significativo; reenvio, reserva e correção valem; a primeira rodada achou um defeito; a segunda não é confirmatória. **Passa para a demonstração.** |
-| 11 | Demonstração | D + J | 2:00 | Comandos abaixo. |
-| 12 | Limitações | J | 0:30 | As que mais pesam; a lista completa está na documentação. |
-| 13 | Lições | D | 0:30 | Linha de base justa mudou a conclusão; falhas sorteadas acharam defeito; o que o SMA entrega é estrutural. |
+| 4 | Approval Gate (FSM) | D | 0:20 | A FSM é dado (`models/protocols.yaml`), conferida pelo barramento antes de mudar estado. |
+| 5 | O que o Approval Gate confere | D | 0:30 | Ticket com hash do veto; decisão pela pessoa (atestado, cargo, alçada, envolvido, solicitante). Cada transição inválida é um teste negativo. |
+| 6 | Coordenação | J | 0:40 | Consulta direta, veto, correção, reserva, negociação. A regra "waiver não se repete" emerge de três componentes. |
+| 7 | Segurança | J | 0:40 | Ataques com o sistema em pé e invariantes conferidos só pelo trace. Fora do modelo: quem controla o processo ou a pasta de chaves. |
+| 8 | Cognição | J | 0:40 | Proposta não é crença; guardrail determinístico, não outro modelo. O AG-REL BDI não se justificou e está escrito. |
+| 9 | Experimento: desenho | J | 0:45 | Pré-registro antes do código; workflow com as mesmas funções; falhas sorteadas por seed; 30 seeds. Responde às duas críticas da DSM3. |
+| 10 | Qualidade e robustez | J | 0:45 | Empate sem falhas; o SMA perde a partir de 15% de perda; empate com humano lento; nenhuma crítica publicada. O workflow ganha por construção. |
+| 11 | Custo, cognição, ablação, rodadas | D | 0:45 | Mais mensagens e ticks; cognição sem ganho significativo; reenvio, reserva e correção valem; a primeira rodada achou um defeito; a segunda não é confirmatória. **Passa para a demonstração.** |
+| 12 | Demonstração | D + J | 2:00 | Comandos abaixo. |
+| 13 | Limitações | J | 0:30 | As que mais pesam; a lista completa está na documentação. |
+| 14 | Lições | D | 0:30 | Linha de base justa mudou a conclusão; falhas sorteadas acharam defeito; o que o SMA entrega é estrutural. |
 
-## Demonstração (slide 11, 2 minutos)
+## Demonstração (slide 12, 2 minutos)
 
 O roteiro longo, com o que observar e o plano B, está em
 [`docs/dsm4/demonstracao.md`](../../../docs/dsm4/demonstracao.md). Na apresentação, a versão curta:
@@ -72,9 +73,9 @@ O roteiro longo, com o que observar e o plano B, está em
 
 | Critério | Slides |
 |---|---|
-| Sistema final e corretude | 3, 4, 6, 11 |
-| Arquitetura e SMA | 3, 4, 5, 7 |
-| Experimentação e análise | 8, 9, 10 |
-| Testes e reprodutibilidade | 8, 11 |
-| Documentação | 12, 13 |
-| Demonstração e autoria | 11 |
+| Sistema final e corretude | 3, 4, 5, 7, 12 |
+| Arquitetura e SMA | 3, 4, 5, 6, 8 |
+| Experimentação e análise | 9, 10, 11 |
+| Testes e reprodutibilidade | 9, 12 |
+| Documentação | 13, 14 |
+| Demonstração e autoria | 12 |

@@ -35,7 +35,9 @@ Uma frase por camada. O ponto: quem calcula não aprova, quem julga conformidade
 
 # Um protocolo: o Approval Gate (PROT-APR)
 
-![](../diagramas/fsm_prot_apr.png){height=60%}
+![FSM do PROT-APR, lida de models/protocols.yaml](../diagramas/fsm_prot_apr.png)
+
+# Approval Gate: o que é conferido
 
 - O veto do AG-CIN vira ticket: hash do veto, aprovador, prazo e opções abertas pela política
 - Decisão vale pela pessoa autenticada: atestado, cargo e alçada, quem participou não decide, quem pediu não aprova

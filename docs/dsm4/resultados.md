@@ -32,7 +32,7 @@ percentual.
 | RQ3 | Quanto custa coordenar? E o controle de acesso? | 15,8 mensagens de coordenação por solicitação contra 0,9. A latência a mais (3,2 ticks sem falhas, 31,1 sob falhas combinadas) depende da premissa de 3 ticks por etapa do workflow: com 4 ticks o sinal sem falhas se inverte. O controle de acesso por pessoa não mudou a latência em nenhuma seed; em 2 de 30 a dupla aprovação acrescentou uma mensagem (o aval) e 4 registros de trace. |
 | RQ4 | O SMA se recupera? | Responde sempre: 100% de resposta explícita em todas as condições (propriedade testada nos parâmetros do experimento e de TEST-420, atraso até 6 ticks; não demonstrada). Recupera o resultado em 87% das execuções atingidas com 5% de perda, 54% com 15% e 29% com 30%; nas outras, falha de forma explícita ou degrada. A recuperação leva de 27 a 59 ticks na mediana. |
 | RQ5 | Depende do porte e dos parâmetros? | A microempresa classifica pior (40,0% contra 86,7%). Tentativas e prazo de subtarefa mexem na robustez e na latência como previsto; o efeito do prazo de aprovação e do TTL da reserva não foi detectado (4 seeds diferentes: o teste não tinha poder para isso); o limiar de 5% não mudou nada. |
-| RQ6 | Os ataques passam quando há falha? | No bloco A, **não**: 1.792 ataques ao Approval Gate, nenhum aceito, e a execução atacada terminou igual à não atacada nos 480 pares. No bloco D, 4 de 435 ataques ao controle de acesso foram aceitos sem que a premissa do ataque valesse (decisão legítima pela política); se o ataque muda o desfecho com o controle de acesso ligado (H6b) **não foi testado**. |
+| RQ6 | Os ataques passam quando há falha? | No bloco A, **não**: 1.792 ataques ao Approval Gate, nenhum aceito, e a execução atacada terminou igual à não atacada nos 480 pares. No bloco D (ataques ao Approval Gate e ao controle de acesso), 4 de 435 foram aceitos sem que a premissa do ataque valesse (decisão legítima pela política); se o ataque muda o desfecho com o controle de acesso ligado (H6b) **não foi testado**. |
 | RQ7 | A cognição local melhora o resultado? | **Na medida registrada, não.** Sem falhas, o resultado é idêntico. Sob perda, a classificação correta difere em 2 seeds de 30 e nenhum teste a distingue do acaso. Numa medida que não estava designada (execução correta), o braço local fica de 7 a 9 pp acima do básico sob perda, sem significância. |
 
 A conclusão que os números sustentam, nas três rodadas: para este problema e este tamanho, um
@@ -327,7 +327,7 @@ pré-registro; MEI e Média empresa II, que entraram no sistema depois, ficam de
 - **H6a confirmada no bloco A.** 1.792 ataques ao Approval Gate em 128 execuções atacadas, com
   perda, atraso, indisponibilidade e humano lento ao mesmo tempo; 0 aceitos.
 - **H6a no bloco D: nenhum aceito indevidamente, mas 4 aceitos.** Com o SVC-IAM ligado, 435 ataques
-  ao controle de acesso em 15 execuções; 4 registrados como aceitos (fechamento, seeds 3, 7, 15 e
+  em 15 execuções (as duas baterias: ao Approval Gate e ao controle de acesso); 4 registrados como aceitos (fechamento, seeds 3, 7, 15 e
   28), todos o mesmo ataque: "aprovador que participou do lançamento vetado decide sobre ele". O
   ataque supõe que a analista ana participou do lançamento; nesses 4 casos ela não estava entre
   os envolvidos do ticket, e a decisão dela é a de uma aprovadora autorizada, com atestado válido
@@ -435,7 +435,7 @@ funções são iguais; é o achado central, nas três rodadas. (2) Na contençã
 bloco A, os 1.792 ataques ao Approval Gate, vindos de identidades falsas, de agentes legítimos
 fora do seu papel e da caixa do aprovador sem a pessoa certa, foram todos rejeitados mesmo com o
 sistema já degradado, e nenhum mudou o desfecho (480 pares). No bloco D, nenhum dos 435 ataques
-ao controle de acesso foi aceito indevidamente, mas 4 foram aceitos porque a premissa do ataque
+(ao Approval Gate e ao controle de acesso) foi aceito indevidamente, mas 4 foram aceitos porque a premissa do ataque
 não valia, e em 2 fechamentos o desfecho mudou por uma decisão legítima emitida pelo roteiro de
 ataque; se o ataque muda o desfecho com o controle de acesso ligado não foi testado (RQ6). A
 contenção depende de cada agente ter um papel, uma credencial e uma lista de ferramentas; no

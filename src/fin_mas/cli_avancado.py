@@ -136,7 +136,8 @@ def _com_sessao(acesso, sessao, args, mostrar) -> int:
                     ["segundo fator ativo. Códigos de recuperação (uso único, mostrados uma única vez):"]
                     + [f"  {c}" for c in codigos])
         elif op == "desativar":
-            acesso.desativar_2fa(sessao, segredo_do_terminal("FIN_MAS_CODIGO_2FA", "código atual"))
+            acesso.desativar_2fa(sessao, segredo_do_terminal("FIN_MAS_CODIGO_2FA", "código atual"),
+                                 segredo_do_terminal("FIN_MAS_SENHA", f"senha atual de {sessao.usuario}"))
             mostrar(args, {"ativo": False}, ["segundo fator desativado"])
         else:
             conta = acesso.redefinir_2fa(sessao, args.usuario)

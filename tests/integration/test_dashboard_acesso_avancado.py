@@ -156,15 +156,16 @@ def test_own_second_factor_status_and_new_recovery_codes(servico):
     assert Navegador(porta).get("/api/2fa")[0] == 401
     carla = entrar(porta, "carla")
     assert carla.get("/api/2fa") == (200, {"ativo": False, "desde": None, "codigos_restantes": 0, "exigido": False})
-    assert carla.post("/api/2fa/recuperacao", {"codigo": "000000"})[0] == 403  # sem segundo fator não há o que trocar
+    assert carla.post("/api/2fa/recuperacao", {"codigo": "000000", "senha": SENHA_DEMO})[0] == 403  # sem segundo fator não há o que trocar
     segredo, codigos = ativar_2fa(carla)
     status, situacao = carla.get("/api/2fa")
     assert status == 200 and situacao["ativo"] is True and situacao["codigos_restantes"] == 10 and situacao["desde"]
     assert segredo not in str(situacao) and codigos[0] not in str(situacao)
-    assert carla.post("/api/2fa/recuperacao", {"codigo": 123456})[0] == 400
-    recusado = carla.post("/api/2fa/recuperacao", {"codigo": "0000-0000"})
+    assert carla.post("/api/2fa/recuperacao", {"codigo": 123456, "senha": SENHA_DEMO})[0] == 400
+    recusado = carla.post("/api/2fa/recuperacao", {"codigo": "0000-0000", "senha": SENHA_DEMO})
     assert recusado[0] == 403 and "IAM-08" in recusado[1]["erro"]
-    status, novos = carla.post("/api/2fa/recuperacao", {"codigo": totp.codigo(segredo, time.time() + 30)})
+    status, novos = carla.post("/api/2fa/recuperacao", {"codigo": totp.codigo(segredo, time.time() + 30),
+                                                         "senha": SENHA_DEMO})
     assert status == 200 and len(novos["codigos_recuperacao"]) == 10 and not set(novos["codigos_recuperacao"]) & set(codigos)
     assert carla.get("/api/2fa")[1]["codigos_restantes"] == 10
     assert carla.post("/api/logout")[0] == 200

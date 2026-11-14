@@ -1,4 +1,5 @@
-// Meu segundo fator (IAM-08, ADR-012): a própria pessoa ativa, confere, troca os códigos de recuperação e desativa.
+// Meu segundo fator (IAM-08, ADR-012): a própria pessoa ativa, confere, troca os códigos de recuperação e desativa
+// (trocar os códigos e desativar pedem a senha atual além do código).
 // O segredo e os códigos de recuperação vêm do servidor uma única vez; saem da memória da página assim que a pessoa
 // confirma que os guardou. Quando a política do cadastro exige o segundo fator, esta é a única tela disponível.
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -28,6 +29,14 @@ function CampoCodigo({ rotulo, valor, aoMudar, ajuda }: { rotulo: string; valor:
   );
 }
 
+function CampoSenhaAtual({ valor, aoMudar }: { valor: string; aoMudar: (v: string) => void }) {
+  return (
+    <TextField label="Senha atual" type="password" value={valor} onChange={(e) => aoMudar(e.target.value)} required
+      fullWidth autoComplete="current-password" helperText="A sua senha de entrada: confirma que é você."
+      inputProps={{ "aria-label": "Senha atual" }} />
+  );
+}
+
 interface PainelProps {
   sessao: Sessao;
   /** A política exige e a conta ainda não tem: a pessoa só sai daqui com o segundo fator ativo (ou saindo da conta). */
@@ -44,6 +53,7 @@ export function PainelSegundoFator({ sessao, obrigatorio, aoMudar, aoReter }: Pa
   const [cadastro, setCadastro] = useState<{ segredo: string; uri: string } | null>(null);
   const [codigos, setCodigos] = useState<string[]>([]);
   const [codigo, setCodigo] = useState("");
+  const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [nota, setNota] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -55,13 +65,13 @@ export function PainelSegundoFator({ sessao, obrigatorio, aoMudar, aoReter }: Pa
   useEffect(() => { carregar(); }, [carregar]);
   useEffect(() => { aoReter?.(fase === "codigos"); }, [fase, aoReter]);
 
-  const ir = (nova: Fase) => { setFase(nova); setCodigo(""); setErro(null); setNota(null); };
+  const ir = (nova: Fase) => { setFase(nova); setCodigo(""); setSenha(""); setErro(null); setNota(null); };
   const executar = async <T,>(acao: () => Promise<{ dados?: T; erro?: string }>): Promise<T | null> => {
     setOcupado(true);
     setErro(null);
     const r = await acao();
     setOcupado(false);
-    if (r.dados === undefined) { setErro(r.erro ?? "não foi possível concluir"); setCodigo(""); return null; }
+    if (r.dados === undefined) { setErro(r.erro ?? "não foi possível concluir"); setCodigo(""); setSenha(""); return null; }
     return r.dados;
   };
 
@@ -76,12 +86,12 @@ export function PainelSegundoFator({ sessao, obrigatorio, aoMudar, aoReter }: Pa
   };
   const renovar = async (e: React.FormEvent) => {
     e.preventDefault();
-    const d = await executar(() => renovarCodigosDeRecuperacao(codigo.trim()));
+    const d = await executar(() => renovarCodigosDeRecuperacao(codigo.trim(), senha));
     if (d) { setCodigos(d.codigos_recuperacao); ir("codigos"); carregar(); }
   };
   const desativar = async (e: React.FormEvent) => {
     e.preventDefault();
-    const d = await executar(() => desativarSegundoFator(codigo.trim()));
+    const d = await executar(() => desativarSegundoFator(codigo.trim(), senha));
     if (d) { ir("resumo"); setNota("Segundo fator desativado: a entrada volta a pedir só usuário e senha."); await carregar(); aoMudar(); }
   };
   const guardei = () => { setCodigos([]); ir("resumo"); aoMudar(); };
@@ -174,12 +184,13 @@ export function PainelSegundoFator({ sessao, obrigatorio, aoMudar, aoReter }: Pa
         <Stack component="form" spacing={2} onSubmit={renovar} aria-label="Gerar novos códigos de recuperação">
           <Typography variant="body2">Os códigos de recuperação atuais deixam de valer e dez novos são mostrados uma
             única vez.</Typography>
+          <CampoSenhaAtual valor={senha} aoMudar={setSenha} />
           <CampoCodigo rotulo="Código atual" valor={codigo} aoMudar={setCodigo}
             ajuda="6 dígitos do aplicativo autenticador ou um código de recuperação ainda não usado." />
           {erro && <Alert severity="error" role="alert">{erro}</Alert>}
           <Stack direction="row" spacing={1} justifyContent="flex-end">
             <Button onClick={() => ir("resumo")}>Cancelar</Button>
-            <Button type="submit" variant="contained" disabled={ocupado || !codigo.trim()}>Gerar novos códigos</Button>
+            <Button type="submit" variant="contained" disabled={ocupado || !codigo.trim() || !senha}>Gerar novos códigos</Button>
           </Stack>
         </Stack>)}
 
@@ -188,12 +199,13 @@ export function PainelSegundoFator({ sessao, obrigatorio, aoMudar, aoReter }: Pa
           <Alert severity="warning">Sem o segundo fator, quem souber a sua senha entra na sua conta.
             {situacao.exigido && " A política do cadastro exige o segundo fator para a sua conta: depois de desativar, "
               + "você só poderá usar o escritório ativando-o de novo."}</Alert>
+          <CampoSenhaAtual valor={senha} aoMudar={setSenha} />
           <CampoCodigo rotulo="Código atual" valor={codigo} aoMudar={setCodigo}
             ajuda="Confirme com os 6 dígitos do aplicativo autenticador ou com um código de recuperação." />
           {erro && <Alert severity="error" role="alert">{erro}</Alert>}
           <Stack direction="row" spacing={1} justifyContent="flex-end">
             <Button onClick={() => ir("resumo")}>Cancelar</Button>
-            <Button type="submit" variant="contained" color="error" disabled={ocupado || !codigo.trim()}>
+            <Button type="submit" variant="contained" color="error" disabled={ocupado || !codigo.trim() || !senha}>
               Desativar o segundo fator</Button>
           </Stack>
         </Stack>)}

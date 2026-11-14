@@ -74,10 +74,10 @@ class SegundoFatorPendente(AcessoNegado):
     """Senha certa, falta o código (IAM-08): `desafio` é o token da pré-sessão, que só serve para
     `confirmar_entrada`. Quem não trata o caso continua negando a entrada (falha fechada)."""
 
-    def __init__(self, desafio: str, expira_em: float):
+    def __init__(self, desafio: str, expira_em: float, tentativas: int | None = None):
         super().__init__("IAM-08", "segundo fator pendente: informe o código do aplicativo autenticador ou um "
                                    "código de recuperação")
-        self.desafio, self.expira_em = desafio, expira_em
+        self.desafio, self.expira_em, self.tentativas = desafio, expira_em, tentativas
 
 
 @dataclass(frozen=True)
@@ -293,7 +293,8 @@ class Acesso(AcessoAvancado):
 
     def desbloquear(self, ator: Sessao, usuario: str) -> dict:
         return self._alterar(ator, usuario, "PERM-IAM-USUARIOS", "conta_desbloqueada",
-                             lambda c: c.update(estado="ativa", bloqueada_ate=None, falhas=0))
+                             lambda c: c.update(estado="ativa", bloqueada_ate=None, falhas=0, falhas_2fa=0,
+                                                bloqueio_2fa_ate=None))
 
     def desativar(self, ator: Sessao, usuario: str) -> dict:
         return self._alterar(ator, usuario, "PERM-IAM-USUARIOS", "conta_desativada", lambda c: c.update(estado="desativada"))
@@ -354,10 +355,16 @@ class Acesso(AcessoAvancado):
             regra, mensagem, motivo = negacao
             self._auditar("entrada", str(usuario)[:64], "negado", regra=regra, motivo=motivo, origem=origem)
             raise AcessoNegado(regra, mensagem)
+        if (copia.get("segundo_fator") or {}).get("ativo") and self.tentativas_2fa(copia) == 0:
+            # IAM-08: o segundo fator está bloqueado por códigos errados; outra senha certa não renova as tentativas
+            restam = int((copia["bloqueio_2fa_ate"] - agora) // 60) + 1
+            self._auditar("entrada", usuario, "negado", regra="IAM-08", motivo="segundo fator bloqueado", origem=origem)
+            raise AcessoNegado("IAM-08", f"segundo fator bloqueado por códigos errados: tente de novo em {restam} min "
+                                         "ou procure o administrador de acesso")
         if (copia.get("segundo_fator") or {}).get("ativo"):  # IAM-08: a senha só abre a pré-sessão do código
             desafio, expira = self._abrir_pre_sessao(usuario, agora, origem)
             self._auditar("entrada", usuario, "pendente", regra="IAM-08", motivo="segundo fator pendente", origem=origem)
-            raise SegundoFatorPendente(desafio, expira)
+            raise SegundoFatorPendente(desafio, expira, self.tentativas_2fa(copia))
         return self._abrir_sessao(usuario, copia, agora, origem)
 
     def _abrir_sessao(self, usuario: str, conta: dict, agora: float, origem: str) -> tuple["Sessao", str]:

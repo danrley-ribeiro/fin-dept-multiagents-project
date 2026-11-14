@@ -155,7 +155,12 @@ test.describe.serial("segundo fator da própria pessoa", () => {
     await expect(login(page)).toBeVisible();
     await expect(login(page)).toContainText("as tentativas para informar o código acabaram");
     await expect(login(page).getByLabel("Usuário")).toBeFocused();
-    await tentarEntrar(page, "carla"); // a conta não ficou bloqueada: nova pré-sessão, outro código de recuperação
+    // o contador é da conta: outra senha certa não renova as tentativas, o segundo fator fica bloqueado (IAM-08)
+    await tentarEntrar(page, "carla");
+    await expect(login(page)).toContainText("segundo fator bloqueado por códigos errados");
+    await expect(passo2(page)).toBeHidden();
+    cliAvancado(["--como", "admin", "usuario", "desbloquear", "carla"]); // só o administrador (ou o prazo) desbloqueia
+    await tentarEntrar(page, "carla");
     await informar(page, codigos[1]);
     await expect(aoVivo(page)).toBeVisible();
   });
@@ -173,9 +178,15 @@ test.describe.serial("segundo fator da própria pessoa", () => {
     const dialogo = page.getByRole("dialog", { name: /Meu segundo fator · carla/ });
     await expect(dialogo.getByLabel("Códigos de recuperação restantes")).toHaveText("Restam 8 códigos de recuperação.");
     await dialogo.getByRole("button", { name: "Gerar novos códigos de recuperação" }).click();
+    await dialogo.getByLabel("Senha atual").fill(SENHA);
     await dialogo.getByLabel("Código atual").fill(codigos[0]); // já usado: não confirma nada
     await dialogo.getByRole("button", { name: "Gerar novos códigos" }).click();
     await expect(dialogo.getByRole("alert").filter({ hasText: "IAM-08" })).toBeVisible();
+    await dialogo.getByLabel("Senha atual").fill("Senha-Errada-2026"); // código certo com a senha errada não serve
+    await dialogo.getByLabel("Código atual").fill(await app.codigo());
+    await dialogo.getByRole("button", { name: "Gerar novos códigos" }).click();
+    await expect(dialogo.getByRole("alert").filter({ hasText: "senha atual não confere" })).toBeVisible();
+    await dialogo.getByLabel("Senha atual").fill(SENHA);
     await dialogo.getByLabel("Código atual").fill(await app.codigo());
     await dialogo.getByRole("button", { name: "Gerar novos códigos" }).click();
     const lista = dialogo.getByRole("list", { name: "Códigos de recuperação" });
@@ -186,9 +197,11 @@ test.describe.serial("segundo fator da própria pessoa", () => {
     await expect(dialogo.getByLabel("Códigos de recuperação restantes")).toHaveText("Restam 10 códigos de recuperação.");
     // desativar pede confirmação com um código; um código antigo já não serve
     await dialogo.getByRole("button", { name: "Desativar" }).click();
+    await dialogo.getByLabel("Senha atual").fill(SENHA);
     await dialogo.getByLabel("Código atual").fill(codigos[2]);
     await dialogo.getByRole("button", { name: "Desativar o segundo fator" }).click();
     await expect(dialogo.getByRole("alert").filter({ hasText: "IAM-08" })).toBeVisible();
+    await dialogo.getByLabel("Senha atual").fill(SENHA);
     await dialogo.getByLabel("Código atual").fill(novos[0]);
     await dialogo.getByRole("button", { name: "Desativar o segundo fator" }).click();
     await expect(dialogo.getByLabel("Situação do segundo fator")).toHaveText("não ativado");

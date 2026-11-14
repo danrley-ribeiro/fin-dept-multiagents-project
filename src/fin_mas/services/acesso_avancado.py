@@ -161,6 +161,36 @@ class AcessoAvancado:
         self.cofre.remover(f"totp:{sessao.usuario}", sessao.usuario)
         self._auditar("2fa_desativado", sessao.usuario, regra="IAM-08")
 
+    def renovar_recuperacao(self, sessao, codigo: str) -> list[str]:
+        """Troca os códigos de recuperação da própria conta (os antigos deixam de valer); confirma com um código
+        válido (TOTP ou recuperação) e devolve os novos uma única vez."""
+        sessao = self._exigir_viva(sessao)
+        novos = totp.codigos_recuperacao()
+        with self._tx(self._contas) as dados:
+            conta = dados["contas"][sessao.usuario]
+            if not (conta.get("segundo_fator") or {}).get("ativo"):
+                raise _negado("IAM-08", "o segundo fator não está ativo")
+            motivo = self._conferir_codigo(conta, codigo)
+            if motivo is None:
+                conta["segundo_fator"]["recuperacao"] = [totp.hash_recuperacao(c) for c in novos]
+        if motivo is not None:
+            self._auditar("2fa_recuperacao_renovada", sessao.usuario, "negado", regra="IAM-08", motivo=motivo)
+            raise _negado("IAM-08", f"códigos novos recusados: {motivo}")
+        self._auditar("2fa_recuperacao_renovada", sessao.usuario, regra="IAM-08")
+        return novos
+
+    def pre_sessao(self, desafio) -> dict | None:
+        """O que a tela do código pode saber da pré-sessão viva (prazo e tentativas que restam); None se acabou."""
+        import hmac
+        from fin_mas.services.iam import _sha
+        alvo = _sha(desafio) if isinstance(desafio, str) and desafio else None
+        registro = next((s for s in self._ler_sessoes().values() if alvo and s.get("pre2fa")
+                         and hmac.compare_digest(s["hash"], alvo)), None)
+        if registro is None or registro["revogada"] or self.relogio() >= registro["expira_em"]:
+            return None
+        return {"expira_em": registro["expira_em"],
+                "tentativas_restantes": max(0, MAX_FALHAS_2FA - registro.get("falhas", 0))}
+
     def redefinir_2fa(self, ator, usuario: str) -> dict:
         """Aparelho perdido e sem códigos: o administrador desliga o segundo fator; as sessões da conta caem."""
         conta = self._alterar(ator, usuario, "PERM-IAM-USUARIOS", "2fa_redefinido",

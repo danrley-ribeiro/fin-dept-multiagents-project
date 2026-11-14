@@ -37,7 +37,7 @@ test("aprovações: fila com prazo, decisão com justificativa e histórico com 
   await ticket.getByRole("button", { name: "Decidir" }).click();
   const dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN · SOL-001/ });
   await expect(dialogo).toContainText("Você decide como");
-  await dialogo.getByRole("textbox").fill("aceito o risco: será corrigido no próximo fechamento");
+  await dialogo.getByRole("textbox", { name: "Justificativa" }).fill("aceito o risco: será corrigido no próximo fechamento");
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
   const linha = central.getByRole("table", { name: "Histórico de aprovações" }).getByRole("row").filter({ hasText: "APR-001" });
   await expect(linha).toContainText("waiver", { timeout: 20_000 });

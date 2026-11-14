@@ -1,0 +1,229 @@
+# Normas organizacionais: escopo, condição e consequência; realizadas por serviços.
+# decisao: ALLOW | REQUIRE_APPROVAL | DENY | OBRIGACAO
+items:
+  - id: NORM-01
+    titulo: Efeito externo exige aprovação humana
+    escopo: Lançar ajuste no ERP, alterar orçamento, publicar relatório à diretoria
+    condicao: Qualquer papel propõe ação com efeito fora do sistema
+    consequencia: Ação retida no Approval Gate até approve; timeout expira sem executar
+    decisao: REQUIRE_APPROVAL
+    imposta_por: [SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-02
+    titulo: Fora da allowlist do papel é negado
+    escopo: Toda tool MCP e ação de escrita
+    condicao: Ação não consta da allowlist do papel solicitante
+    consequencia: Bloqueio fail-closed, sem opção de aprovação, registrado em log
+    decisao: DENY
+    imposta_por: [SVC-POL, SVC-MCP]
+    entrega: DSM1
+
+  - id: NORM-03
+    titulo: Período em fechamento é exclusivo
+    escopo: Par (entidade, competência)
+    condicao: Já existe reserva ativa de outro dono
+    consequencia: reserve-failure explicado; reserva expira por TTL
+    decisao: DENY
+    imposta_por: [SVC-LCK]
+    entrega: DSM1
+
+  - id: NORM-04
+    titulo: Não conformidade crítica bloqueia publicação
+    escopo: Resultado do período e relatório executivo
+    condicao: Parecer do Agente de Controles Internos com severidade crítica
+    consequencia: Publicação vetada até correção reavaliada ou waiver humano justificado
+    decisao: DENY
+    imposta_por: [SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-05
+    titulo: LLM não calcula números nem autoriza ações
+    escopo: Toda saída de LLM (AG-REL, AG-RES, AG-ORC)
+    condicao: Texto gerado contém número divergente do núcleo determinístico ou propõe ação
+    consequencia: Texto descartado e substituído pelo template; proposta tratada como não autorizada
+    decisao: DENY
+    imposta_por: [SVC-MOD, SVC-POL]
+    entrega: DSM1
+
+  - id: NORM-06
+    titulo: Logs e memória sem segredos nem dados pessoais desnecessários
+    escopo: Traces JSONL, logs de prompt, memória de longo prazo
+    condicao: Conteúdo contém credencial, token, chave ou dado pessoal fora da finalidade
+    consequencia: Redaction; se a sanitização falhar, a gravação é recusada (fail-closed)
+    decisao: OBRIGACAO
+    imposta_por: [SVC-AUD, SVC-MEM]
+    entrega: DSM1
+
+  - id: NORM-07
+    titulo: LLM só por flag, só em papéis permitidos, dentro da cota
+    escopo: Configuração de modelos por agente
+    condicao: Flag desligada, papel não permitido (AG-ORQ, AG-CUS, AG-CIN) ou cota de tokens esgotada
+    consequencia: Chamada LLM bloqueada e agente segue em modo determinístico (template)
+    decisao: DENY
+    imposta_por: [SVC-MOD]
+    entrega: DSM1
+
+  - id: NORM-08
+    titulo: Somente saída aprovada vira memória
+    escopo: Serviço de Memória (SVC-MEM)
+    condicao: Saída sem aprovação humana registrada
+    consequencia: Não é indexada em embeddings nem no grafo
+    decisao: DENY
+    imposta_por: [SVC-MEM]
+    entrega: DSM1
+
+  - id: NORM-09
+    titulo: Só mensagem autêntica, do papel certo e bem formada muda o estado de uma conversa
+    escopo: Toda mensagem A2A e toda transição local de FSM (SVC-A2A)
+    condicao: >-
+      Remetente não registrado ou sem credencial, papel sem permissão para o performativo ou evento,
+      destinatário fora da conversa, esquema inválido ou transição fora da FSM
+    consequencia: Mensagem ou transição rejeitada e registrada (`rejected`); nenhum estado muda; a simulação segue
+    decisao: DENY
+    imposta_por: [SVC-A2A]
+    entrega: DSM3
+
+  - id: NORM-10
+    titulo: Decisão humana vinculada, com política explícita e de uso único
+    escopo: Liberação de veto (waiver) e correção no ERP (Approval Gate, SVC-POL)
+    condicao: >-
+      Decisão sem ticket do SVC-POL, de outro aprovador, com hash de veto diferente, fora do prazo, fora das
+      opções abertas, sem justificativa, por pessoa envolvida no lançamento, reutilizada ou repetida após waiver
+      anterior do mesmo padrão
+    consequencia: Decisão rejeitada no barramento; o veto continua valendo; sem decisão válida no prazo, bloqueio
+    decisao: DENY
+    imposta_por: [SVC-POL]
+    entrega: DSM3
+
+  - id: NORM-11
+    titulo: Proposta não é crença; só a evidência determinística muda o que o agente acredita
+    escopo: Hipóteses propostas por regras locais ou por LLM aos agentes cognitivos (AG-ORC)
+    condicao: >-
+      Proposta com tipo ou alvo fora da lista fechada, sem evidência que o agente tenha, com número ou ação no
+      texto, ou resposta de LLM fora do formato; hipótese sem evidência de outro agente, de uma tool ou de um cálculo
+    consequencia: >-
+      Proposta rejeitada e registrada com o motivo; hipótese aceita só pode gerar ação epistêmica, dentro do
+      prazo do solicitante e do teto por tarefa; sem evidência, é arquivada e a avaliação não muda
+    decisao: DENY
+    imposta_por: [SVC-MOD]
+    entrega: DSM3
+
+  - id: NORM-12
+    titulo: Acesso por pessoa autenticada, negado por padrão
+    escopo: Toda rota da API, todo comando do dashboard e toda operação de administração (SVC-IAM)
+    condicao: >-
+      Requisição sem sessão viva, sem o token CSRF da sessão, sem a permissão do papel, com papéis
+      incompatíveis, com cadastro comprometido ou após cinco senhas erradas
+    consequencia: >-
+      401 sem sessão, 403 sem permissão, com a regra IAM aplicada; conta bloqueada por 15 minutos; cadastro
+      comprometido não deixa ninguém entrar; nada é executado
+    decisao: DENY
+    imposta_por: [SVC-IAM]
+    entrega: DSM3
+
+  - id: NORM-13
+    titulo: Todo comando e toda decisão humana têm autor, e a trilha de acesso é íntegra
+    escopo: Comandos do operador, pedidos, decisões no Approval Gate e eventos de acesso
+    condicao: Ação humana sem pessoa identificada; trilha de acesso alterada, truncada ou com a cabeça inválida
+    consequencia: >-
+      O comando leva o ator no trace (registro operador) e a decisão leva a pessoa e a sessão no ticket;
+      entradas, falhas, bloqueios, revogações e mudanças de papel vão para a trilha com cadeia de hash, e a
+      verificação acusa qualquer adulteração
+    decisao: OBRIGACAO
+    imposta_por: [SVC-IAM, SVC-AUD]
+    entrega: DSM3
+
+  - id: NORM-20
+    titulo: Só evidência verificada conta no aprendizado das regras
+    escopo: Registro de aprendizado das regras locais de hipótese (SVC-APD) e seu uso por AG-ORC e AG-RES
+    condicao: >-
+      Hipótese arquivada, sem fonte de evidência, com fonte de proponente (regra local ou LLM), de origem LLM,
+      já contada para a mesma competência, ou arquivo do registro com selo inválido
+    consequencia: >-
+      A observação é recusada e registrada; a confiança da regra numa competência vem só de competências
+      anteriores; com o arquivo comprometido o aprendizado se desliga e as regras voltam à confiança inicial.
+      Confiança aprendida não é crença: só restringe os planos epistêmicos que custam mensagem
+    decisao: DENY
+    imposta_por: [SVC-APD]
+    entrega: DSM4
+
+  - id: NORM-21
+    titulo: Citação normativa tem proveniência; ausência de evidência é declarada, nunca preenchida
+    escopo: Tool `normas.buscar` (base de conhecimento normativo) e os agentes que citam norma (AG-CIN, AG-REL)
+    condicao: >-
+      Consulta sem trecho que cubra pelo menos metade do peso informativo dos seus termos; citação sem
+      documento, trecho ou versão
+    consequencia: >-
+      A busca devolve lista vazia e o agente registra `sem evidência` com a versão do corpus; o achado segue
+      valendo pela regra interna do porte e nenhum trecho aproximado é citado no lugar
+    decisao: OBRIGACAO
+    imposta_por: [SVC-MCP]
+    entrega: DSM4
+
+  - id: NORM-14
+    titulo: Liberação dentro da alçada de quem decide, com quatro olhos acima do limite do porte
+    escopo: Decisões de waiver e correção no Approval Gate com o SVC-IAM ligado (POL-10, POL-11, POL-12, POL-14)
+    condicao: >-
+      Exposição do veto acima da alçada do cargo (ou do teto da delegação); delegação inexistente, de outra
+      pessoa, revogada, expirada, fora do escopo ou repassada; liberação acima de `dupla_aprovacao` sem o aval
+      de outra pessoa; cargo acima do nível do ticket antes do escalonamento
+    consequencia: >-
+      A decisão é recusada no barramento com a regra; o ticket segue pendente até a decisão válida ou o prazo;
+      a decisão aceita registra a alçada, a delegação ("por delegação de") e o aval
+    decisao: DENY
+    imposta_por: [SVC-POL, SVC-IAM]
+    entrega: DSM4
+
+  - id: NORM-15
+    titulo: Segundo fator, segredos e empresas sob falha fechada
+    escopo: Entrada na plataforma, cofre de segredos e escopo de empresas (IAM-08, IAM-09, IAM-10)
+    condicao: >-
+      Código TOTP repetido ou fora da janela, código de recuperação já usado, pré-sessão usada como sessão,
+      conta sem o segundo fator exigido pela política, segredo pedido pela interface, cofre alterado fora do
+      sistema, sessão sem empresa ativa ou com empresa fora do escopo
+    consequencia: >-
+      A entrada ou a ação é negada com a regra e registrada na trilha; o valor de um segredo nunca sai para a
+      interface; cofre comprometido não é lido; nada de outra empresa é mostrado nem decidido
+    decisao: DENY
+    imposta_por: [SVC-IAM]
+    entrega: DSM4
+  # ---- DSM4 (ADR-011): fontes de dados ----
+  - id: NORM-30
+    titulo: Mapeamento de fonte só vale confirmado por uma pessoa
+    escopo: Entendimento automático de fontes e ativação de conectores (aba Fontes de dados, cenários)
+    condicao: >-
+      Mapeamento proposto e não confirmado, confirmado por quem não tem PERM-DAD-CONECTAR, ou que não passa na
+      validação determinística
+    consequencia: >-
+      A fonte não é ativada; a confirmação grava a pessoa, a hora e o digest do mapeamento na trilha; nos cenários
+      em lote, a confirmação é a do roteiro do cenário
+    decisao: DENY
+    imposta_por: [SVC-IAM]
+    entrega: DSM4
+
+  - id: NORM-31
+    titulo: LLM no entendimento de fontes só sugere (extensão da NORM-07 a um consumidor de plataforma)
+    escopo: Sugestão opcional de mapeamento por LLM no entendimento de fontes
+    condicao: >-
+      Flag desligada; provedor externo sem consentimento; sugestão para campo canônico inexistente, coluna que
+      não existe na fonte, tipo incompatível, outro recurso ou campo que já tem sugestão determinística
+    consequencia: >-
+      Nada é enviado (ou só nomes e tipos, sem valores); a sugestão inválida é rejeitada com o motivo; a aceita
+      entra com confiança baixa, marcada como do LLM, e ainda exige a confirmação da NORM-30
+    decisao: DENY
+    imposta_por: [SVC-MOD]
+    entrega: DSM4
+
+  - id: NORM-32
+    titulo: Conector só fala com loopback, e a credencial só com o host a que foi vinculada
+    escopo: Conectores REST e credenciais no cofre
+    condicao: >-
+      Host fora do loopback sem liberação de PERM-DAD-REDE; credencial guardada para outro host; redirecionamento
+      da fonte
+    consequencia: >-
+      A chamada é recusada antes de qualquer conexão (RedeNaoLiberada) ou feita sem a credencial; o
+      redirecionamento não é seguido; liberar e revogar host ficam na trilha de acesso
+    decisao: DENY
+    imposta_por: [SVC-IAM, SVC-MCP]
+    entrega: DSM4

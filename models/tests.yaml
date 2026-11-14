@@ -312,6 +312,10 @@ items:
      esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}
   - {id: TEST-154, nome: test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita", entrega: DSM3, status: executado}
+  - {id: TEST-155, nome: test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua", entrega: DSM3, status: executado}
+  - {id: TEST-156, nome: "reincidência: a política nega o waiver e o diálogo não o oferece", verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: interface,
+     esperado: "no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica", entrega: DSM3, status: executado}
   # ---- DSM4: especialistas BDI, aprendizado, compromisso, memória lida e conhecimento normativo (ADR-010) ----
   # Numeração a partir de 201 para não colidir com os testes das outras frentes da DSM4.
   - {id: TEST-201, nome: test_new_scenarios_deliberate_and_keep_beliefs_with_deterministic_sources, verifica: [REQ-F20], derivado_de: NORM-11, tipo: e2e,
@@ -590,3 +594,5 @@ items:
      esperado: "servidor MCP de Excel responde erro JSON-RPC e segue atendendo", entrega: DSM4, status: executado}
   - {id: TEST-449, nome: test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated, verifica: [REQ-S02, REQ-F30], derivado_de: SVC-MCP, tipo: robustez,
      esperado: "correção aplicada com releitura inválida é registrada como aplicada e não se repete", entrega: DSM4, status: executado}
+  - {id: TEST-424, nome: test_recurrence_is_checked_again_when_the_waiver_is_decided, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "com dois vetos do mesmo padrão pendentes, o segundo waiver é recusado na decisão (POL-06) e a pendência continua", entrega: DSM4, status: executado}

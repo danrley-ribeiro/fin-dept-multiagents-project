@@ -1,0 +1,258 @@
+# Métricas e evidências de sucesso. Coletadas a partir dos traces JSONL e dos
+# cenários sintéticos com gabarito (DSM2 em diante). Baseline: workflow sequencial único.
+items:
+  - id: MET-01
+    titulo: Taxa de conclusão de solicitações
+    formula: >-
+      solicitações concluídas com inform / total (revisada na DSM2 após o feedback da DSM1: failure, refuse e
+      not-understood não contam como conclusão; vão para a MET-13)
+    alvo: ">= 95% nos cenários sem veto nem falha injetada; reportar por cenário"
+    mede: [REQ-F01]
+    entrega: DSM1
+
+  - id: MET-02
+    titulo: Acurácia numérica contra gabarito
+    formula: itens de DRE, margens e desvios com |valor - gabarito| <= R$ 0,01 / total de itens
+    alvo: "100%"
+    mede: [REQ-F02, REQ-F03, REQ-F04]
+    entrega: DSM1
+
+  - id: MET-03
+    titulo: Detecção de inconformidades (precisão e recall)
+    formula: recall e precisão sobre inconformidades plantadas por severidade
+    alvo: "recall 100% em críticas; precisão >= 90%"
+    mede: [REQ-F05]
+    entrega: DSM1
+
+  - id: MET-04
+    titulo: Overhead de comunicação
+    formula: mensagens A2A por solicitação (comparado ao baseline workflow)
+    alvo: "reportar e justificar; sem alvo fixo"
+    mede: [REQ-F01, REQ-F04]
+    entrega: DSM1
+
+  - id: MET-05
+    titulo: Contenção por guardrail
+    formula: ações restritas bloqueadas antes do efeito sem aprovação / ações restritas tentadas
+    alvo: "100%"
+    mede: [REQ-S01, REQ-S02]
+    entrega: DSM1
+
+  - id: MET-06
+    titulo: Consistência numérica do texto gerado
+    formula: relatórios LLM com 100% dos números iguais ao núcleo ou com fallback / relatórios LLM
+    alvo: "100%"
+    mede: [REQ-S03, REQ-F06]
+    entrega: DSM1
+
+  - id: MET-07
+    titulo: Completude de trace
+    formula: solicitações cuja cadeia causal é reconstruível pelo conversation_id / total
+    alvo: "100%"
+    mede: [REQ-O01, REQ-O02, REQ-O04]
+    entrega: DSM1
+
+  - id: MET-08
+    titulo: Custo por solicitação
+    formula: tokens de entrada/saída e custo estimado por solicitação, flag ligada vs desligada
+    alvo: "custo zero com flag desligada; dentro da cota com flag ligada"
+    mede: [REQ-O03, REQ-C01]
+    entrega: DSM1
+
+  - id: MET-09
+    titulo: Latência do fechamento
+    formula: tempo (lógico e de parede) da solicitação até a resposta final vs baseline
+    alvo: "reportar distribuição em 10 seeds"
+    mede: [REQ-F01, REQ-NF01]
+    entrega: DSM1
+
+  - id: MET-10
+    titulo: Reaproveitamento de memória
+    formula: análises que citam memória aprovada relevante / análises com memória disponível
+    alvo: ">= 80% no cenário de dois ciclos"
+    mede: [REQ-F07]
+    entrega: DSM1
+
+  - id: MET-11
+    titulo: Vazamento em logs
+    formula: ocorrências de campos proibidos (segredos, dados pessoais) nos arquivos de log e memória
+    alvo: "0"
+    mede: [REQ-P01]
+    entrega: DSM1
+
+  - id: MET-12
+    titulo: Reprodutibilidade
+    formula: execuções com mesmo seed e mesmas versões que produzem o mesmo hash / execuções
+    alvo: "100%"
+    mede: [REQ-NF01, REQ-NF02]
+    entrega: DSM1
+
+  - id: MET-13
+    titulo: Taxa de resposta explícita
+    formula: solicitações com resposta final explícita (inform, failure, refuse ou not-understood) / total
+    alvo: "100%"
+    mede: [REQ-F01]
+    entrega: DSM2
+    status: implementado
+
+  - id: MET-14
+    titulo: Distribuição decisória
+    formula: >-
+      registros de decisão e deliberação feitos por agentes que não o Orquestrador / total de registros de
+      decisão e deliberação da solicitação (evidência de decisão distribuída x workflow centralizado)
+    alvo: "reportar por cenário contra o baseline (0% por construção)"
+    mede: [REQ-F03, REQ-F05]
+    entrega: DSM2
+    status: implementado
+
+  - id: MET-15
+    titulo: Interações forjadas ou malformadas aceitas
+    formula: >-
+      ataques aceitos / ataques tentados (cenário ataque_decisao_forjada e testes adversariais); toda
+      rejeição precisa aparecer no trace como `rejected` ou `mcp_denied`
+    alvo: "0 aceitos; 100% das rejeições auditadas"
+    mede: [REQ-S04]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-16
+    titulo: Custo de coordenação do Approval Gate
+    formula: >-
+      mensagens A2A e latência (ticks) da solicitação com e sem a decisão humana pelo PROT-APR, por cenário com
+      veto; aprovações expiradas por solicitação
+    alvo: "reportar por cenário (DSM3 x DSM2); +2 mensagens por decisão humana"
+    mede: [REQ-S01]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-17
+    titulo: Acessos indevidos aceitos
+    formula: >-
+      ataques ao controle de acesso aceitos / tentados (cenário ataque_acesso e testes de integração do
+      dashboard e da CLI); toda negação precisa aparecer no trace (`rejected`) ou na trilha de acesso
+    alvo: "0 aceitos; 100% das negações com a regra aplicada"
+    mede: [REQ-S05]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-18
+    titulo: Disciplina das hipóteses
+    formula: >-
+      crenças com um proponente como fonte (regra local ou LLM); hipóteses confirmadas e refutadas sobre as
+      verificadas; mensagens a mais por ação epistêmica, por cenário cognitivo
+    alvo: "0 crenças com fonte de proponente; reportar confirmadas, refutadas, arquivadas e o custo em mensagens"
+    mede: [REQ-F08]
+    entrega: DSM3
+    status: implementado
+
+  - id: MET-30
+    titulo: Deliberação efetiva dos especialistas
+    formula: >-
+      por agente BDI e cenário, lidos do trace (`metricas_cognicao.medir_deliberacao`): deliberações com mais
+      de um plano aplicável, deliberações em que as crenças tornaram um plano não aplicável, replanejamentos após
+      falha, insistências e intenções mantidas (compromisso cego e obstinado), crenças sem fonte determinística
+    alvo: "0 crenças sem fonte; reportar por agente e comparar o resultado com o nível básico (experimento da DSM4)"
+    mede: [REQ-F20]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-31
+    titulo: Citações normativas com proveniência
+    formula: >-
+      achados e exceções fundamentados com documento, trecho e versão; declarados sem evidência; citações
+      incompletas (`metricas_cognicao.medir_fundamentacao`)
+    alvo: "0 citações incompletas; 100% dos achados com fundamento ou com 'sem evidência' declarado"
+    mede: [REQ-F21]
+    entrega: DSM4
+    status: implementado
+
+  # ---- DSM4 (experimento redesenhado): definições operacionais em docs/dsm4/experimento.md. IDs a partir de 41. ----
+  - id: MET-41
+    titulo: Robustez sob falha
+    formula: >-
+      execuções com resposta explícita, sem crítica publicada sem tratamento e com o mesmo resultado (status, DRE,
+      contas sinalizadas e atribuídas, correções) da execução sem falha da mesma seed / execuções, por braço e condição
+    alvo: "reportar por braço e condição, com IC de 95%; comparar SMA x workflow equivalente"
+    mede: [REQ-F01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-42
+    titulo: Recuperação
+    formula: >-
+      ticks entre a primeira falha que atingiu a solicitação (mensagem perdida ou prazo esgotado) e a resposta final;
+      fração das execuções atingidas que termina com o resultado da execução sem falha, e fração sem resposta
+    alvo: "reportar mediana e fração recuperada por condição; 0 execuções sem resposta"
+    mede: [REQ-F01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-43
+    titulo: Custo de coordenação frente ao workflow equivalente
+    formula: >-
+      mensagens de coordenação por solicitação (todas menos as do PROT-SOL) e latência lógica em ticks, SMA x
+      workflow centralizado funcionalmente equivalente, nas mesmas seeds
+    alvo: "reportar a diferença pareada por condição, com IC de 95% e tamanho de efeito"
+    mede: [REQ-F01, REQ-F04]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-44
+    titulo: Equivalência funcional da linha de base
+    formula: >-
+      pares (porte, intenção, seed) em que o workflow equivalente e o SMA básico diferem em status, DRE, contas
+      sinalizadas, contas atribuídas ou correções, sem falhas / pares
+    alvo: "0 pares diferentes"
+    mede: [REQ-F03, REQ-F05]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-45
+    titulo: Ganho da cognição local
+    formula: >-
+      classificação correta com cognição local menos com cognição básica, pareada por seed, por condição e no
+      subgrupo com desvio irregular e pista na planilha; mensagens a mais por solicitação
+    alvo: "reportar a diferença com IC de 95%; 0 na condição sem falhas"
+    mede: [REQ-F08]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-46
+    titulo: Ataques aceitos sob falha
+    formula: >-
+      ataques ao Approval Gate e ao controle de acesso aceitos / tentados, com perda, atraso, indisponibilidade e
+      humano lento ao mesmo tempo; à parte, os aceitos em que a premissa do ataque não vale nos dados sorteados
+    alvo: "0 aceitos indevidamente"
+    mede: [REQ-S04, REQ-S05]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-47
+    titulo: Violações de invariantes sob falha
+    formula: >-
+      execuções do SMA em que o verificador de invariantes acusa violação, por invariante e por condição do
+      experimento
+    alvo: "0 (o experimento mede a frequência do INV-07 sob perda de mensagens)"
+    mede: [REQ-F01, REQ-O01]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-19
+    titulo: Liberações fora da alçada ou com uma pessoa só
+    formula: >-
+      liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação,
+      sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)
+    alvo: "0"
+    mede: [REQ-S06]
+    entrega: DSM4
+    status: implementado
+
+  - id: MET-50
+    titulo: Acerto do entendimento automático de fontes
+    formula: >-
+      campos canônicos sugeridos corretamente / campos do gabarito, por fonte (OpenAPI do ERP de demonstração,
+      planilha fora do modelo, tools MCP); fechamento sobre o conector igual ao da fonte de referência
+    alvo: "100% nas fontes de demonstração; 0 credenciais expostas; 0 chamadas a host externo sem liberação"
+    mede: [REQ-F30, REQ-S20]
+    entrega: DSM4
+    status: implementado

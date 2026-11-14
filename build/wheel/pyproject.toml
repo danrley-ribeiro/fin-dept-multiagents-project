@@ -1,0 +1,34 @@
+[project]
+name = "fin-mas"
+version = "1.0.0"
+description = "Sistema multiagente de controladoria (DSM3): cognição assistida, acesso por pessoa e LLM opcional"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6.0", "openpyxl>=3.1"]
+
+[project.scripts]
+fin-mas = "fin_mas.cli:main"
+
+[project.optional-dependencies]
+llm = ["anthropic>=1.0"]   # SDK do Claude; GPT, Gemini e modelos locais usam HTTP da biblioteca padrão
+tui = ["textual>=8,<9"]    # console de administração de acesso (python -m fin_mas acesso tui)
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["fin_mas._dados*"]
+
+[tool.setuptools.package-data]
+# só existe no diretório de build do `make wheel` (tools/empacotar_wheel.py); nunca versionado
+fin_mas = ["_dados/models/*.yaml", "_dados/web/*", "_dados/web/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+addopts = "-q"
+markers = [
+    "e2e: cenário ponta a ponta dos agentes sobre o bus",
+    "integracao: simulação ao vivo, servidor HTTP local e arquivos gerados",
+]

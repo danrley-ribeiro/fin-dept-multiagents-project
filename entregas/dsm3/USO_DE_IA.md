@@ -45,7 +45,7 @@ A partir do enunciado da DSM3 e do feedback do professor, colados pelos autores:
 
 ## Verificação (entrega inicial, 10/11/2026; números atuais na seção da v0.5.0)
 
-- `python -m pytest`: 247 testes passam, offline (157 na DSM2).
+- `python -m pytest`: 250 testes passam, offline (157 na DSM2).
 - `python tools/trace.py --check`: 0 erros; 89 de 90 testes modelados executados (TEST-19 é de
   entrega futura).
 - `python -m fin_mas run --scenario ataque_decisao_forjada`: 14 ataques, nenhum aceito.
@@ -135,6 +135,40 @@ botão. Desta vez o ambiente tinha Node e bun, e a IA rodou os testes do dashboa
 com 12 de 12 (3 do reducer e 9 da regra da justificativa) e `bun run test:e2e` com 14 de 14 testes
 de uso real no Chromium, incluindo o caso `aaaaaaaaaa`.
 
+### Segunda revisão: regressão encontrada e corrigida pelo Danrley
+
+Ao conferir as correções, o Danrley encontrou uma regressão causada pela troca do pseudônimo
+(issue #2): um arquivo de memória gravado na versão anterior do formato carregava sem aviso, e a
+POL-06 deixava de negar um novo waiver para a mesma violação. Ele reproduziu o caso (agosto
+gravado com o código antigo, setembro com o novo), escreveu a correção e os testes no PR #3: um
+arquivo em outra versão do formato deixa a memória comprometida e o waiver fica suspenso. Essa
+correção é dele; a IA só atualizou depois a contagem de testes (249) e o texto de
+[`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md), que ainda descrevia o comportamento antigo.
+
+## Teste exploratório no dashboard e na inicialização
+
+A pedido dos autores, a IA rodou o projeto como um usuário: `.\iniciar.ps1` no Windows PowerShell
+5.1 e uma sessão no dashboard com navegador real (Playwright), conferindo cada passo por captura
+de tela. Isso encontrou problemas que a suíte não pegava, todos corrigidos e com teste:
+
+| Problema | Correção | Teste |
+|---|---|---|
+| `iniciar.ps1` parava com erro em Windows sem Python 3.13 (o `py -3.13` ausente virava erro fatal no PowerShell 5.1) | a versão ausente é ignorada e a busca segue para 3.12 e 3.11 | rodado no PowerShell 5.1 da máquina dos autores |
+| `tools/iniciar.py` instalava as dependências da documentação (Sphinx 9, Python 3.12+) em todo modo, e falhava com Python 3.11 | só o modo `docs` as instala, e avisa se o Python for antigo | idem (modos `cli` e ao vivo) |
+| Na reincidência, o waiver negado pela política (POL-06) aparecia no diálogo e, ao ser escolhido, virava rejeição: o fechamento era bloqueado sem o aprovador saber | o botão fica desabilitado com a explicação; no servidor, o waiver não oferecido não é enviado e a pendência continua | `test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard`; teste de navegador "reincidência: a política nega o waiver" |
+| O aviso dizia "Simulação pausada por erro" mesmo quando a simulação não pausava (ex.: decisão recusada) | só diz "pausada" quando está pausada | sessão exploratória |
+
+Na revisão final do PR, a IA testou a reincidência com os dois meses pendentes ao mesmo tempo e
+encontrou uma brecha anterior a estas mudanças: a POL-06 só é conferida na emissão do ticket, então
+dois vetos do mesmo padrão pendentes juntos podem receber waiver os dois. Por decisão dos autores,
+a correção (conferir também na decisão, o que muda o PROT-APR) fica para a DSM4, e a limitação está
+registrada em [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md).
+
+Também foram corrigidas duas atribuições: a revisão da MET-01 e a tabela de `docs/dsm2/revisao.md`
+tratam do feedback da **DSM1** (o texto dizia DSM2).
+
+Verificação: 250 testes Python, 12 de 12 do dashboard e 15 de 15 de uso real no navegador.
+
 ## Etapa v0.5.0 (12/11/2026)
 
 Depois da tag `dsm3-base`, os autores planejaram com a IA o que faltava para concluir a DSM3 e a
@@ -187,10 +221,10 @@ IA implementou, em commits locais.
 
 ### Verificação (13/11/2026)
 
-- `python -m pytest`: 436 testes passam, offline (249 na tag `dsm3-base`).
-- `python tools/trace.py --check`: 313 objetos, 21 requisitos, 153 de 154 testes modelados executados, 0 erros.
+- `python -m pytest`: 437 testes passam, offline (249 na tag `dsm3-base`).
+- `python tools/trace.py --check`: 315 objetos, 21 requisitos, 153 de 156 testes modelados executados, 0 erros.
 - `python -m fin_mas cenarios --verificar`: 37 de 37 cenários em ordem.
 - `python -m fin_mas run --scenario ataque_acesso`: 15 de 15 ataques recusados;
   `ataque_decisao_forjada`: 14 de 14, âncora `2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e`.
 - Os 17 cenários revisados, no nível básico, mantêm as métricas da tag `dsm3-base` em 10 seeds.
-- Dashboard: 12 testes vitest e 29 roteiros Playwright no Chrome (14 do escritório, 9 de acesso, 6 das áreas de trabalho).
+- Dashboard: 12 testes vitest e 30 roteiros Playwright no Chrome (15 do escritório, 9 de acesso, 6 das áreas de trabalho).

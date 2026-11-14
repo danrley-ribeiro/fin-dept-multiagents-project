@@ -9,9 +9,9 @@ Cada regra tem um id que aparece no motivo da rejeição e no registro `politica
 | POL-01 | toda liberação de veto exige aprovação humana (REQUIRE_APPROVAL); a proposta tem de ser idêntica ao ticket emitido | emissão do ticket; validador do `propose-action` |
 | POL-02 | só o aprovador designado decide, e só o que o cadastro dele permite (ex.: analista corrige ou bloqueia, não concede waiver) | validador do `approve`/`reject` |
 | POL-03 | quem criou ou aprovou um lançamento vetado não decide sobre ele (segregação de funções da própria aprovação) | idem, com os `envolvidos` que o AG-CIN informa no veto |
-| POL-04 | waiver exige justificativa com pelo menos 10 caracteres | idem |
+| POL-04 | waiver exige justificativa com pelo menos 10 caracteres e duas palavras diferentes | idem |
 | POL-05 | correção aprovada só contém correções sugeridas pelo AG-CIN; o AG-CIN recebe exatamente as executadas | idem; gateway (`autorizar_efeito`); validador do `correcao` |
-| POL-06 | achado crítico reincidente após waiver anterior do mesmo padrão (memória) não admite novo waiver | emissão do ticket |
+| POL-06 | achado crítico reincidente após waiver anterior do mesmo padrão (memória) não admite novo waiver | emissão do ticket (só nela: ver {doc}`limitacoes`) |
 | POL-07 | sem opção de liberação restante, a ação é negada (DENY) e a publicação fica bloqueada | emissão e classificação |
 | POL-08 | ticket de uso único: um veto, uma vez, no prazo, com o hash dos achados apresentados; o prazo é conferido no instante previsto de entrega da decisão | validadores do PROT-APR e do PROT-CMP |
 | POL-09 (v0.5.0) | com o SVC-IAM ligado, a decisão leva o atestado de sessão de uma pessoa autenticada: sem ele, forjado, de outra decisão ou ticket, de sessão revogada ou expirada, repetido ou de quem não é aprovador, é recusada | validador do `approve`/`reject` |

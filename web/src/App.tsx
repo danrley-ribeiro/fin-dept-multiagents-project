@@ -242,7 +242,7 @@ function AoVivo(p: TelaProps) {
         buffer.current.push(ev.registro);
       } else if (ev.tipo === "controle") {
         setControle(ev.estado);
-        if (ev.erro) setAviso({ texto: `Simulação pausada por erro: ${ev.erro}`, grave: true });
+        if (ev.erro) setAviso({ texto: ev.estado?.pausado ? `Simulação pausada por erro: ${ev.erro}` : ev.erro, grave: true });
       }
     }, () => setConectado(false));
     const timer = setInterval(() => {

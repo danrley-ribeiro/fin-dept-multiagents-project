@@ -1,0 +1,130 @@
+# Base de conhecimento normativo com proveniência (CP8, DSM4). Lida por src/fin_mas/conhecimento/base.py e
+# servida pela tool MCP `normas.buscar`.
+#
+# O que é: trechos CURTOS, em PARÁFRASE, das normas que o projeto já cita em models/portes.yaml e
+# models/norms.yaml. Não é o texto oficial e não o substitui: cada trecho aponta a referência para conferência.
+# O que não é: uma base jurídica completa. Onde o projeto usa uma regra interna sem norma externa citada
+# (ex.: lançamento em duplicidade), não há trecho, de propósito: a busca devolve vazio e o agente declara
+# "sem evidência" em vez de citar algo aproximado.
+#
+# Versão: muda quando qualquer trecho muda. Todo resultado de busca leva a versão do corpus e a do documento.
+versao: corpus-v1
+documentos:
+  - id: LC-123-2006
+    titulo: Lei Complementar 123/2006 (Estatuto da Microempresa e da Empresa de Pequeno Porte)
+    referencia: LC 123/2006, art. 3º, I e II
+    versao: paráfrase
+    trechos:
+      - id: LC-123-ART3
+        texto: >-
+          Microempresa é a que tem receita bruta anual de até 360 mil reais; empresa de pequeno porte é a que
+          tem receita bruta anual acima desse valor e de até 4,8 milhões de reais.
+      - id: LC-123-SIMPLES
+        texto: >-
+          Microempresas e empresas de pequeno porte podem optar pelo Simples Nacional, regime tributário
+          unificado, desde que não incorram nas vedações da lei.
+  - id: BNDES-PORTE
+    titulo: Classificação de porte do BNDES por receita operacional bruta
+    referencia: BNDES, classificação de porte de empresa
+    versao: paráfrase
+    trechos:
+      - id: BNDES-MEDIA-GRANDE
+        texto: >-
+          Pela receita operacional bruta anual, a média empresa vai até 300 milhões de reais; acima disso a
+          empresa é classificada como grande.
+  - id: LEI-11638-2007
+    titulo: Lei 11.638/2007 (sociedades de grande porte)
+    referencia: Lei 11.638/2007, art. 3º
+    versao: paráfrase
+    trechos:
+      - id: LEI-11638-ART3
+        texto: >-
+          Sociedade de grande porte é a que teve, no exercício anterior, ativo total acima de 240 milhões de
+          reais ou receita bruta anual acima de 300 milhões de reais. A ela se aplicam as regras da Lei
+          6.404/1976 sobre escrituração e elaboração das demonstrações financeiras e a obrigatoriedade de
+          auditoria independente.
+  - id: LEI-6404-1976
+    titulo: Lei 6.404/1976 (Lei das Sociedades por Ações)
+    referencia: Lei 6.404/1976, art. 177
+    versao: paráfrase
+    trechos:
+      - id: LEI-6404-ART177
+        texto: >-
+          A escrituração registra as mutações patrimoniais segundo o regime de competência: receitas e
+          despesas pertencem ao período a que se referem, independentemente da data do pagamento ou do
+          recebimento.
+  - id: LEI-9718-1998
+    titulo: Lei 9.718/1998 (limite do Lucro Presumido)
+    referencia: Lei 9.718/1998, arts. 13 e 14
+    versao: paráfrase
+    trechos:
+      - id: LEI-9718-PRESUMIDO
+        texto: >-
+          A pessoa jurídica com receita bruta de até 78 milhões de reais no ano anterior pode optar pelo
+          Lucro Presumido; acima desse limite a apuração é obrigatoriamente pelo Lucro Real.
+  - id: ITG-1000
+    titulo: ITG 1000 (CFC) — modelo contábil para microempresa e empresa de pequeno porte
+    referencia: CFC, ITG 1000
+    versao: paráfrase
+    trechos:
+      - id: ITG-1000-SIMPLIFICADO
+        texto: >-
+          Microempresas e empresas de pequeno porte podem adotar um modelo contábil simplificado, com
+          escrituração e demonstrações reduzidas, proporcional à sua estrutura.
+  - id: NBC-TG-1000
+    titulo: NBC TG 1000 (CFC) — contabilidade para pequenas e médias empresas
+    referencia: CFC, NBC TG 1000
+    versao: paráfrase
+    trechos:
+      - id: NBC-TG-1000-PME
+        texto: >-
+          Pequenas e médias empresas que não têm obrigação pública de prestação de contas aplicam um conjunto
+          próprio de práticas contábeis, mais simples que o das normas completas.
+  - id: NBC-TA-320
+    titulo: NBC TA 320 (CFC) — materialidade no planejamento e na execução da auditoria
+    referencia: CFC, NBC TA 320
+    versao: paráfrase
+    trechos:
+      - id: NBC-TA-320-MATERIALIDADE
+        texto: >-
+          A materialidade é definida por julgamento profissional em proporção ao porte e às circunstâncias da
+          entidade: uma distorção ou um desvio é relevante quando pode influenciar a decisão de quem usa as
+          demonstrações. Por isso o limiar absoluto de desvio cresce com o porte.
+  - id: COSO-2013
+    titulo: COSO — Controle Interno, Estrutura Integrada (2013)
+    referencia: COSO 2013, componente Atividades de Controle
+    versao: paráfrase
+    trechos:
+      - id: COSO-SEGREGACAO
+        texto: >-
+          Segregação de funções: quem registra uma transação não deve ser quem a aprova. Quando o porte não
+          permite segregar, adota-se controle compensatório, como a revisão periódica dos lançamentos por um
+          responsável.
+      - id: COSO-ALCADA
+        texto: >-
+          Autorizações e aprovações são atividades de controle: cada transação é aprovada por pessoa com
+          autoridade compatível com o valor, dentro de limites de alçada definidos pela administração.
+  - id: NORMAS-DO-SISTEMA
+    titulo: Normas organizacionais do sistema (models/norms.yaml)
+    referencia: models/norms.yaml
+    versao: paráfrase
+    trechos:
+      - id: NORM-01
+        texto: >-
+          Ação com efeito fora do sistema, como ajuste no ERP, fica retida no Approval Gate até a aprovação de
+          um humano; sem decisão no prazo, expira sem executar.
+      - id: NORM-04
+        texto: >-
+          Não conformidade crítica apontada pelo Agente de Controles Internos veta a publicação do resultado
+          até haver correção reavaliada ou waiver humano justificado.
+      - id: NORM-05
+        texto: >-
+          Texto gerado por modelo de linguagem não calcula números nem autoriza ações: número divergente do
+          núcleo determinístico descarta o texto.
+      - id: NORM-08
+        texto: >-
+          Somente saída aprovada por humano vira memória de longo prazo, com a proveniência da aprovação.
+      - id: NORM-11
+        texto: >-
+          Proposta de hipótese não é crença: só a evidência de fonte determinística muda o que o agente
+          acredita.

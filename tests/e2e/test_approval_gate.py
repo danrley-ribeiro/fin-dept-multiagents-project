@@ -313,3 +313,27 @@ def test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refuse
         assert invariantes.verificar(e.audit.records) == []
     reentregas = [r for r in e.audit.records if r["kind"] == "drop" and r.get("reentrega")]
     assert len(reentregas) == 1 and reentregas[0]["performative"] == "waiver_humano"
+
+
+def test_recurrence_is_checked_again_when_the_waiver_is_decided():
+    """Limitação registrada na revisão do PR #4 (DSM3) e corrigida na DSM4: a POL-06 só era conferida na emissão do
+    ticket. Com agosto e setembro pendentes ao mesmo tempo, o waiver de setembro era oferecido (o de agosto ainda
+    não existia) e os dois podiam ser liberados. Agora a decisão confere de novo."""
+    from fin_mas.env.scenarios import CENARIOS, montar
+
+    s, (agosto, setembro) = montar(CENARIOS["reincidencia_waiver"], interativo=True)
+    while s.bus.proximo_tempo() is not None and len(s.aprovador.pendentes) < 2:
+        s.bus.step()
+    assert set(s.aprovador.pendentes) == {agosto, setembro}
+    tickets = {t["solicitacao"]: t for t in s.politica.tickets.values()}
+    assert "waiver" in tickets[setembro]["opcoes"]  # emitido antes de existir o waiver de agosto
+    assert s.aprovador.decidir(agosto, "waiver", JUSTIFICATIVA) is True
+    while s.bus.proximo_tempo() is not None and not s.memoria.entradas:
+        s.bus.step()
+    with pytest.raises(MensagemRejeitada, match="POL-06: reincidência após waiver anterior"):
+        s.aprovador.decidir(setembro, "waiver", JUSTIFICATIVA)
+    assert setembro in s.aprovador.pendentes and tickets[setembro]["estado"] == "pendente"
+    assert s.aprovador.decidir(setembro, "corrigir") is True
+    s.bus.run()
+    assert s.usuario.resposta(agosto).content["status"] == "publicado_com_ressalva"
+    assert s.usuario.resposta(setembro).content["status"].startswith("publicado")

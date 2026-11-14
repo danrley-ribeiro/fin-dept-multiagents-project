@@ -1,0 +1,113 @@
+# Permissões da plataforma (controle de acesso por papel, ADR-009). Fonte única: o SVC-IAM
+# carrega este arquivo e o campo `permissoes` de models/roles.yaml; nada disso fica no código.
+# Regra geral (NORM-12): o que não está concedido aqui é negado.
+items:
+  - id: PERM-SIM-VER
+    titulo: Ver a simulação
+    descricao: Ler cenários, estado dos agentes, conversas e o fluxo de eventos ao vivo (o fluxo traz os registros do trace da execução em curso; quem vê a simulação vê o que os agentes fazem).
+    entrega: DSM3
+  - id: PERM-SIM-OPERAR
+    titulo: Operar a simulação
+    descricao: Pausar, retomar, avançar passo a passo, mudar o ritmo e reiniciar com outro cenário, porte ou fonte.
+    entrega: DSM3
+  - id: PERM-AGT-ENERGIA
+    titulo: Ligar e desligar agentes
+    descricao: Tirar um especialista de operação e religá-lo (o Orquestrador e as caixas humanas nunca são desligados).
+    entrega: DSM3
+  - id: PERM-SOL-CRIAR
+    titulo: Fazer solicitações
+    descricao: Pedir fechamento do mês ou avaliação orçamentária em nome próprio (PROT-SOL).
+    entrega: DSM3
+  - id: PERM-APR-DECIDIR
+    titulo: Decidir no Approval Gate
+    descricao: Aprovar, corrigir ou bloquear um veto (PROT-APR), dentro do que o cargo permite e da segregação de funções.
+    entrega: DSM3
+  - id: PERM-DAD-VER
+    titulo: Ver fontes de dados
+    descricao: Consultar a planilha em uso, a validação e baixar os modelos de planilha.
+    entrega: DSM3
+  - id: PERM-DAD-ENVIAR
+    titulo: Enviar planilha
+    descricao: Substituir a planilha da pasta de dados por uma nova, depois de validada.
+    entrega: DSM3
+  - id: PERM-DAD-CONECTAR
+    titulo: Conectar e mapear fontes de dados
+    descricao: >-
+      Cadastrar, testar e remover conectores (pasta de planilhas, API REST, servidor MCP de Excel), guardar a
+      credencial no cofre (sem nunca vê-la de volta), entender a fonte, confirmar o mapeamento sugerido e ativar a
+      fonte na simulação. Host fora do loopback só depois da liberação de um administrador (PERM-DAD-REDE).
+    entrega: DSM4
+  - id: PERM-DAD-REDE
+    titulo: Liberar host externo para conectores
+    descricao: >-
+      Liberar ou revogar um host fora do loopback para os conectores REST (por padrão a plataforma só fala com a
+      própria máquina); cada liberação fica na trilha de acesso com a pessoa.
+    entrega: DSM4
+  - id: PERM-MOD-VER
+    titulo: Ver configuração de modelos
+    descricao: Consultar provedor, modelo, usos, cota, tokens e custo de LLM por agente (nunca a chave).
+    entrega: DSM3
+  - id: PERM-MOD-CONFIG
+    titulo: Ajustar modelos e cotas
+    descricao: Ligar ou desligar o LLM de um agente, trocar provedor e modelo, usos, cota e consentimento de envio externo; mudar o nível de cognição.
+    entrega: DSM3
+  - id: PERM-AUD-VER
+    titulo: Ver auditoria
+    descricao: Pesquisar e exportar o trace com filtros, ler a trilha de acesso (quem entrou, quem administrou) e a explicação de decisões. Não é o que protege o fluxo ao vivo, coberto por PERM-SIM-VER.
+    entrega: DSM3
+  - id: PERM-AUD-EXPORTAR
+    titulo: Exportar auditoria
+    descricao: Baixar recortes do trace e da trilha de acesso.
+    entrega: DSM3
+  - id: PERM-IAM-USUARIOS
+    titulo: Administrar contas
+    descricao: Criar, bloquear, desbloquear e desativar contas e redefinir senhas.
+    entrega: DSM3
+  - id: PERM-IAM-PAPEIS
+    titulo: Atribuir papéis
+    descricao: Conceder e retirar papéis de uma conta, respeitando as incompatibilidades.
+    entrega: DSM3
+  - id: PERM-IAM-SESSOES
+    titulo: Administrar sessões
+    descricao: Listar sessões ativas e revogar sessões de qualquer conta.
+    entrega: DSM3
+  # ---- DSM4: acesso avançado (ADR-012) ----
+  - id: PERM-APR-DELEGAR
+    titulo: Delegar a decisão
+    descricao: Delegar a própria alçada de aprovação a outra conta aprovadora, com prazo, teto e escopo (POL-11), e revogar a delegação.
+    entrega: DSM4
+  - id: PERM-IAM-POLITICA
+    titulo: Política do cadastro
+    descricao: Exigir o segundo fator por papel (IAM-08) e definir o escalonamento de tickets sem decisão (POL-14).
+    entrega: DSM4
+  - id: PERM-IAM-EMPRESAS
+    titulo: Administrar empresas
+    descricao: Cadastrar empresas clientes e definir o escopo de empresas de cada conta (IAM-09).
+    entrega: DSM4
+  - id: PERM-MOD-SEGREDOS
+    titulo: Definir segredos
+    descricao: Definir e remover chaves de LLM e credenciais de conector no cofre selado, sem nunca vê-las (IAM-10).
+    entrega: DSM4
+  - id: PERM-MEM-ADOTAR
+    titulo: Adotar memória
+    descricao: Adotar no lugar um arquivo íntegro do SVC-MEM vindo de outra pasta ou de um backup (memoria adotar).
+    entrega: DSM4
+
+# Decisões do Approval Gate por cargo (POL-02): o cargo vem da conta, ligada à pessoa do ERP.
+decisoes_por_cargo:
+  assistente: [corrigir, bloquear]
+  analista: [corrigir, bloquear]
+  gerente: [waiver, corrigir, bloquear]
+  diretor: [waiver, corrigir, bloquear]
+  socio: [waiver, corrigir, bloquear]
+  controller: [waiver, corrigir, bloquear]
+
+# POL-10 (DSM4): cargo da plataforma sem linha em `limites_alcada` do porte usa a alçada de referência:
+# `maior` = a maior alçada do porte (o controller responde pela controladoria inteira). Cargo sem linha e sem
+# referência não decide liberação (falha fechada).
+alcada_de_referencia:
+  controller: maior
+
+# Papéis que a mesma conta não acumula (IAM-06): quem administra o acesso não decide no Approval Gate.
+incompativeis:
+  - [ROLE-ADM, ROLE-APR]

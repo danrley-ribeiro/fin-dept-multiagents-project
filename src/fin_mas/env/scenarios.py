@@ -72,8 +72,10 @@ class Aprovador(Agent):
     "waiver" libera com ressalva; "corrigir" aprova as correções sugeridas pelo AG-CIN
     (o gateway as executa no ERP); "corrigir_parcial" aprova só a primeira; "bloquear"
     rejeita; "nenhuma" não responde e o prazo do ticket esgota. Opção que a política não
-    abriu vira silêncio (corrigir) ou rejeição (waiver). Uma sequência é consumida aviso a
-    aviso (a última se repete). No modo interativo a decisão vem do dashboard (`decidir`).
+    abriu vira silêncio (corrigir) ou rejeição (waiver) no modo em lote; no dashboard, o waiver
+    não oferecido não é enviado e a pendência continua (não vira bloqueio sem o humano saber).
+    Uma sequência é consumida aviso a aviso (a última se repete). No modo interativo a decisão
+    vem do dashboard (`decidir`).
     """
 
     PAPEL = "ROLE-APR"
@@ -149,6 +151,8 @@ class Aprovador(Agent):
             return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
+        if decisao == "waiver" and "waiver" not in msg.content["opcoes"]:
+            return False  # no dashboard, waiver negado pela política não vira bloqueio: a pendência continua
         texto = justificativa.strip() if isinstance(justificativa, str) else ""
         if not texto and decisao != "waiver":
             texto = self.SEM_JUSTIFICATIVA.get(decisao, "")
@@ -274,6 +278,16 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                "AG-CIN": AgenteControlesInternos(bus, gw),
                "AG-REL": (AgenteRelatoriosBDI if cognitivo else AgenteRelatorios)(bus, gw)}
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
+
+    def waiver_anterior(ticket):  # POL-06 conferida também na decisão (vetos do mesmo padrão pendentes juntos)
+        for a in ticket.get("achados", []):
+            chave = agentes["AG-CIN"].chave_reincidencia(a, ticket["competencia"]) if a.get("severidade") == "critica" else None
+            anterior = chave and next((e for e in mem.entradas if e["tipo"] == "waiver" and e["chave"] == chave
+                                       and e["competencia"] < ticket["competencia"]), None)
+            if anterior:
+                return f"{a['lancamento']} ({anterior['id']}, {anterior['competencia']})"
+        return None
+    politica.reincidencia_na_decisao = waiver_anterior
     if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:  # DSM4: direcionador de rateio do segmento
         agentes["AG-CUS"].conhecimento.update(rateio=dict(ds.rateio), versao_rateio=ds.versao_rateio)
     agentes["AG-CIN"].informar_exposicao = acesso is not None  # DSM4: exposição no veto só com o SVC-IAM (POL-10)

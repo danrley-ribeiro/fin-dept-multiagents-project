@@ -136,7 +136,7 @@ python -m pytest tests/tui                  # exige o extra `tui` (textual)
 
 ## Dashboard (Playwright no Chrome)
 
-29 roteiros de uso real em `web/e2e/`, com o servidor Python de verdade e as contas de
+30 roteiros de uso real em `web/e2e/`, com o servidor Python de verdade e as contas de
 demonstração (`web/e2e/preparar.ts`, `web/e2e/apoio.ts`).
 
 `escritorio.spec.ts` (14):
@@ -180,10 +180,10 @@ demonstração (`web/e2e/preparar.ts`, `web/e2e/apoio.ts`).
 ## Como rodar tudo
 
 ```bash
-python -m pytest                              # 436 testes: unit 95, e2e 259, integration 62, tui 20
+python -m pytest                              # 437 testes: unit 95, e2e 260, integration 62, tui 20
 python tools/trace.py --check                 # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar        # 37 de 37 cenários em ordem
-cd web && bun run test && bun run test:e2e    # vitest (12) e Playwright (29)
+cd web && bun run test && bun run test:e2e    # vitest (12) e Playwright (30)
 ```
 
 O comando único também roda a parte Python e a de interface: `./iniciar.sh testes` (ou

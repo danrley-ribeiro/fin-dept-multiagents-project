@@ -54,7 +54,7 @@ demonstração** (abaixo). Para outro modo, passe o nome dele: `.\iniciar.ps1 te
 | `ao-vivo` (padrão) | servidor Python (`serve --demo`) + dashboard com login: agentes executando agora; pausar, desligar agentes, pedir, decidir vetos, logs, LLM, trocar porte, enviar planilha, conforme os papéis da conta |
 | `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline, sem login), em `http://127.0.0.1:4173` |
 | `dev` | servidor Python (8765) + Vite com recarga automática (`http://127.0.0.1:5173`), para desenvolver o dashboard |
-| `testes` | pytest (436: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 29 roteiros de uso real no Chrome |
+| `testes` | pytest (437: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 30 roteiros de uso real no Chrome |
 | `docs` | gera a documentação Sphinx em `docs/_build/html` |
 | `cli` | roda um cenário no terminal: `--cenario veto_correcao --porte micro` |
 | `instalar` | só prepara o ambiente |
@@ -67,8 +67,9 @@ Opções: `--porta N`, `--cenario NOME` (ao-vivo e cli), `--porte micro|pequena|
 1. **Python 3.11+**: o `iniciar.ps1` procura `py -3.13`, `py -3.12`, `py -3.11`, `python` e, se não houver, instala o
    Python 3.12 pelo `winget`; o `iniciar.sh` procura `python3.13`/`python3.12`/`python3.11`/`python3` e, se faltar,
    mostra o comando de instalação (`apt` ou `brew`).
-2. **Ambiente virtual `.venv`** com o projeto e as dependências de testes e de documentação
-   (`pyproject.toml`, `requirements-dev.txt`, `docs/requirements.txt`); reinstala só se esses arquivos mudarem.
+2. **Ambiente virtual `.venv`** com o projeto e as dependências de testes (`pyproject.toml`,
+   `requirements-dev.txt`); reinstala só se esses arquivos mudarem. As dependências da documentação
+   (`docs/requirements.txt`, Sphinx 9, que exige Python 3.12+) só entram no modo `docs`.
 3. **bun**: usa o que estiver no `PATH` ou em `~/.bun/bin`; se não houver, roda o instalador oficial
    (`bun.sh/install`).
 4. **Dependências do dashboard** (`bun install`, conforme `web/bun.lock`) e **build** (`bun run build`) quando o
@@ -186,7 +187,7 @@ protótipo e cenário de depuração: [entregas/dsm2/README.md](entregas/dsm2/RE
 
 ## Como compilar
 
-Pré-requisitos: Python 3.11+, Graphviz e TeX Live (com `latexmk`).
+Pré-requisitos: Python 3.12+ (Sphinx 9), Graphviz e TeX Live (com `latexmk`).
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -r docs/requirements.txt

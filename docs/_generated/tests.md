@@ -1846,6 +1846,30 @@
 **Execução:** DSM3 (status atual: executado).
 ````
 
+````{test} test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard
+:id: TEST-155
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard()` — tipo *seguranca*.  
+**Resultado esperado:** no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} reincidência: a política nega o waiver e o diálogo não o oferece
+:id: TEST-156
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`reincidência: a política nega o waiver e o diálogo não o oferece()` — tipo *interface*.  
+**Resultado esperado:** no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica  
+**Execução:** DSM3 (status atual: executado).
+````
+
 ````{test} test_new_scenarios_deliberate_and_keep_beliefs_with_deterministic_sources
 :id: TEST-201
 :entrega: DSM4
@@ -3463,5 +3487,17 @@
 
 `test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated()` — tipo *robustez*.  
 **Resultado esperado:** correção aplicada com releitura inválida é registrada como aplicada e não se repete  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_recurrence_is_checked_again_when_the_waiver_is_decided
+:id: TEST-424
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_recurrence_is_checked_again_when_the_waiver_is_decided()` — tipo *seguranca*.  
+**Resultado esperado:** com dois vetos do mesmo padrão pendentes, o segundo waiver é recusado na decisão (POL-06) e a pendência continua  
 **Execução:** DSM4 (status atual: executado).
 ````

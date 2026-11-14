@@ -17,12 +17,15 @@ interface Props {
   interativo: boolean;
   quem?: string; // pessoa autenticada que está decidindo (a decisão fica registrada no nome dela)
   aviso?: string; // por que esta conta não pode decidir
-  aoDecidir: (decisao: string, justificativa: string) => void;
+  /** `delegacao`: id de uma delegação recebida (POL-11), quando a pessoa decide com a alçada de quem delegou. */
+  aoDecidir: (decisao: string, justificativa: string, delegacao?: string) => void;
   aoFechar: () => void;
 }
 
 export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar, quem, aviso }: Props) {
   const [justificativa, setJustificativa] = useState("");
+  const [delegacao, setDelegacao] = useState("");
+  const decidir = (decisao: string) => aoDecidir(decisao, justificativa, delegacao.trim() || undefined);
   const podeCorrigir = pendencia.opcoes.includes("corrigir");
   return (
     <Dialog open onClose={aoFechar} maxWidth="sm" fullWidth aria-labelledby="titulo-decisao">
@@ -71,18 +74,24 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar, quem
         ) : (
           <Alert severity="info">Replay: a decisão já está gravada no trace; avance para vê-la.</Alert>
         )}
+        {interativo && (
+          <TextField label="Delegação recebida (opcional)" size="small" value={delegacao} sx={{ mt: 1 }}
+            onChange={(e) => setDelegacao(e.target.value.toUpperCase())} placeholder="DLG-001"
+            helperText="Decide com o cargo e a alçada de quem delegou a você, dentro do teto e do prazo (POL-11)"
+            inputProps={{ "aria-label": "Delegação recebida", maxLength: 12, spellCheck: false }} />
+        )}
       </DialogContent>
       <DialogActions sx={{ flexWrap: "wrap", gap: 1 }}>
         <Button onClick={aoFechar}>Decidir depois</Button>
         {interativo && (
           <>
-            <Button color="error" variant="outlined" onClick={() => aoDecidir("bloquear", justificativa)}>Bloquear</Button>
+            <Button color="error" variant="outlined" onClick={() => decidir("bloquear")}>Bloquear</Button>
             <Button variant="outlined" disabled={!justificativaValida(justificativa)}
-              onClick={() => aoDecidir("waiver", justificativa)}>Waiver (aceitar o risco)</Button>
+              onClick={() => decidir("waiver")}>Waiver (aceitar o risco)</Button>
             {podeCorrigir && pendencia.correcoes_sugeridas.length > 1 && (
-              <Button variant="outlined" onClick={() => aoDecidir("corrigir_parcial", justificativa)}>
+              <Button variant="outlined" onClick={() => decidir("corrigir_parcial")}>
                 Corrigir só a primeira</Button>)}
-            {podeCorrigir && <Button variant="contained" onClick={() => aoDecidir("corrigir", justificativa)}>
+            {podeCorrigir && <Button variant="contained" onClick={() => decidir("corrigir")}>
               Corrigir no ERP</Button>}
           </>
         )}

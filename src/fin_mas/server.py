@@ -70,6 +70,7 @@ from fin_mas.services import consulta, explicacao, provedores
 from fin_mas.services.audit import formatar
 from fin_mas.services.iam import AcessoNegado, SegundoFatorPendente, criar_demo
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
+from fin_mas.services.selado import ArquivoComprometido
 
 MODELOS = {"modelo_controladoria_em_branco.xlsx": None, **{f"exemplo_{p}.xlsx": p for p in PORTES}}
 MODELOS_SEGMENTO = {f"exemplo_{s}.xlsx": s for s in SEGMENTOS if s != SEGMENTO_PADRAO}  # DSM4: média empresa
@@ -449,16 +450,30 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
 
         def _sessao(self):
             try:
-                return acesso.sessao(_cookie(self.headers.get("Cookie")))
+                sessao = acesso.sessao(_cookie(self.headers.get("Cookie")))
             except AcessoNegado:  # cadastro comprometido: ninguém entra (IAM-07)
                 return None
+            acesso.na_empresa(sessao.empresa if sessao is not None else None)
+            return sessao
 
         def do_GET(self):
-            if self.headers.get(CABECALHO_AUTOMATICO) == "1":  # leitura automática do dashboard: não é uso da pessoa
-                with acesso.sem_atividade():
+            acesso.na_empresa(None)  # a empresa da trilha é a da sessão desta requisição (definida em _sessao)
+            try:
+                if self.headers.get(CABECALHO_AUTOMATICO) == "1":  # leitura automática do dashboard: não é uso da pessoa
+                    with acesso.sem_atividade():
+                        self._get()
+                else:
                     self._get()
-            else:
-                self._get()
+            except ArquivoComprometido as erro:
+                self._comprometido(erro)
+
+        def _comprometido(self, erro):
+            """Cofre (ou outro arquivo selado) adulterado, recolocado ou apagado: 503 com o motivo, nunca a conexão
+            derrubada sem resposta (falha fechada, IAM-10)."""
+            acesso.registrar("cofre_comprometido", None, "negado", regra="IAM-10", motivo=str(erro)[:200])
+            self.close_connection = True
+            self._erro(503, f"IAM-10: cofre de segredos comprometido ({erro}); nada foi lido nem gravado: procure o "
+                            "administrador")
 
         def _get(self):
             rota = self.path.split("?", 1)[0]
@@ -506,6 +521,13 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
             self._erro(status, motivo)
 
         def do_POST(self):
+            acesso.na_empresa(None)
+            try:
+                self._post()
+            except ArquivoComprometido as erro:
+                self._comprometido(erro)
+
+        def _post(self):
             rota = self.path.split("?", 1)[0]
             try:
                 tamanho = int(self.headers.get("Content-Length", 0))

@@ -49,7 +49,14 @@ centavos, dos lançamentos críticos sob decisão):
 - POL-12  dupla aprovação: acima de `dupla_aprovacao` do porte, a liberação exige duas pessoas
           diferentes: a primeira dá o aval (`endorse`, o ticket continua PENDENTE e conta o aval),
           a segunda aprova a mesma decisão. As regras de cargo, alçada, envolvimento e
-          solicitante valem para as duas;
+          solicitante valem para as duas. "Pessoas diferentes" é pela conta e pela pessoa do ERP
+          (`pessoa_erp`): duas contas da mesma pessoa não cumprem os dois passos; e o aval é
+          reconferido na segunda aprovação (conta de quem avalizou bloqueada, desativada ou sem o
+          papel de aprovador derruba o aval, que precisa ser dado de novo);
+
+Com o SVC-IAM ligado, veto sem `exposicao` válida (ausente, de outro tipo ou negativa) é tratado
+como acima de qualquer alçada e do limite de dupla aprovação (falha fechada): nada libera, só
+bloquear. Toda entrada da trilha de acesso feita aqui leva a empresa da execução (IAM-09).
 - POL-14  escalonamento: com `escalonamento_percentual` na política do cadastro, o ticket nasce
           no menor nível de cargo cuja alçada cobre a exposição; níveis acima só decidem depois
           que o ticket escala, sem decisão em X% do prazo (um nível, uma vez, registrado).
@@ -121,6 +128,7 @@ class PoliticaAprovacao:
         self.perfil = perfil or {}  # porte: limites_alcada, aprovadores e dupla_aprovacao (POL-10, 12, 14)
         self.empresa: str | None = None  # empresa desta execução (IAM-09), com várias empresas no cadastro
         self.ao_escalar: list = []  # quem é avisado quando um ticket escala (POL-14)
+        self.ao_invalidar_aval: list = []  # quem é avisado quando o aval de um ticket deixa de valer (POL-12)
         self.__credencial = bus.register_service(self.ID, "SVC-POL")
         bus.add_validator("PROT-APR", self._validar_apr)
         bus.add_validator("PROT-CMP", self._validar_cmp)
@@ -171,8 +179,11 @@ class PoliticaAprovacao:
 
     def _avancado(self, ticket: dict, veto: dict) -> dict:
         exposicao = veto.get("exposicao")
-        if not isinstance(exposicao, int) or isinstance(exposicao, bool):
-            return {}
+        if not isinstance(exposicao, int) or isinstance(exposicao, bool) or exposicao < 0:
+            # falha fechada: sem exposição confiável, acima de qualquer alçada e do limite de dupla aprovação
+            ticket.update(exposicao=None, exposicao_invalida=True, endossos=[],
+                          dupla=self.perfil.get("dupla_aprovacao") is not None)
+            return {"exposicao": None, "exposicao_invalida": True, "dupla": ticket["dupla"]}
         ticket["exposicao"] = exposicao
         limite = self.perfil.get("dupla_aprovacao")
         ticket["dupla"] = limite is not None and exposicao > limite
@@ -195,7 +206,7 @@ class PoliticaAprovacao:
         anterior, t["nivel"] = t["nivel"], niveis[niveis.index(t["nivel"]) + 1]
         t["escalado_em"] = self.bus.now
         self._auditar(tid, "escalado", de=anterior, para=t["nivel"], regra="POL-14")
-        self.acesso.registrar("ticket_escalado", None, ticket=tid, de=anterior, para=t["nivel"], regra="POL-14")
+        self._trilha("ticket_escalado", None, ticket=tid, de=anterior, para=t["nivel"], regra="POL-14")
         for ouvinte in list(self.ao_escalar):
             ouvinte(tid)
 
@@ -204,7 +215,7 @@ class PoliticaAprovacao:
         return {"solicitacao": t["solicitacao"], "competencia": t["competencia"], "acao": "liberar_publicacao_vetada",
                 "cmp": t["cmp"], "veto": t["veto"], "achados": t["achados"], "opcoes": t["opcoes"],
                 "negadas": t["negadas"], "correcoes_sugeridas": t["correcoes_sugeridas"], "prazo": t["expira_em"],
-                **({"exposicao": t["exposicao"], "dupla": t["dupla"]} if "exposicao" in t else {})}
+                **({"exposicao": t["exposicao"], "dupla": t["dupla"]} if t.get("exposicao") is not None else {})}
 
     def classificar(self, tid: str) -> str:
         """Aplica no PROT-APR a classificação do ticket (evento local do SVC-POL)."""
@@ -273,8 +284,9 @@ class PoliticaAprovacao:
                     "correcoes": [_par(x) for x in c.get("correcoes") or [] if isinstance(x, dict)],
                     **({"por_delegacao_de": cadastro["por_delegacao_de"]} if "por_delegacao_de" in cadastro else {})}
             t["endossos"].append(aval)
+            t.setdefault("erp_dos_avais", {})[aval["sessao"]] = cadastro.get("pessoas_erp", [])  # fora do trace
             self._auditar(t["id"], "endossado", aval=aval, endossos=len(t["endossos"]), regra="POL-12")
-            self.acesso.registrar("aval", cadastro["pessoa"], ticket=t["id"], decisao=decisao, regra="POL-12")
+            self._trilha("aval", cadastro["pessoa"], ticket=t["id"], decisao=decisao, regra="POL-12")
             return None
         aprovado_por = {"agente": msg.sender, "pessoa": cadastro["pessoa"], "titulo": cadastro["titulo"],
                         **({"sessao": cadastro["sessao"]} if "sessao" in cadastro else {})}
@@ -291,7 +303,7 @@ class PoliticaAprovacao:
                       regra="POL-02..05" if self.acesso is None else "POL-02..05, POL-09, POL-13" + (
                           ", POL-10..12" if "alcada" in extras else ""), **extras)
         if self.acesso is not None:
-            self.acesso.registrar("decisao", cadastro["pessoa"], ticket=t["id"], decisao=decisao,
+            self._trilha("decisao", cadastro["pessoa"], ticket=t["id"], decisao=decisao,
                                   solicitacao=t["solicitacao"], **extras)
         return None
 
@@ -303,12 +315,12 @@ class PoliticaAprovacao:
                                                     corpo=digest_decisao(c))
         except AcessoNegado as erro:
             pessoa = (c.get("atestado") or {}).get("pessoa") if isinstance(c.get("atestado"), dict) else None
-            self.acesso.registrar("decisao", pessoa if isinstance(pessoa, str) else None, "negado", regra=erro.regra,
+            self._trilha("decisao", pessoa if isinstance(pessoa, str) else None, "negado", regra=erro.regra,
                                   motivo=erro.motivo, ticket=t["id"])
             return None, str(erro), None
 
         def negar(regra, motivo):
-            self.acesso.registrar("decisao", sessao.usuario, "negado", regra=regra, motivo=motivo, ticket=t["id"])
+            self._trilha("decisao", sessao.usuario, "negado", regra=regra, motivo=motivo, ticket=t["id"])
             return None, f"{regra}: {motivo}", None
 
         if self.empresa is not None and self.acesso.multiempresa() and sessao.empresa != self.empresa:
@@ -317,7 +329,7 @@ class PoliticaAprovacao:
         delegante, delegacao = None, None
         if c.get("delegacao") is not None:  # POL-11: decide com o cargo e a alçada de quem delegou
             try:
-                achada = self.acesso.delegacao_para_decisao(c.get("delegacao"), sessao.usuario, t)
+                achada = self.acesso.delegacao_para_decisao(c.get("delegacao"), sessao.usuario, t, self.empresa)
             except AcessoNegado as erro:
                 return negar(erro.regra, erro.motivo)
             delegante, delegacao = achada["conta"], achada["delegacao"]
@@ -337,10 +349,11 @@ class PoliticaAprovacao:
                 if not self.controle_compensatorio:
                     return negar("POL-13", f"{nome} fez a solicitação {t['solicitacao']} e não pode decidir sobre ela")
                 compensatorio = self.controle_compensatorio
-        cadastro = {"pessoa": sessao.usuario, "titulo": cargo, "sessao": sessao.id}
+        cadastro = {"pessoa": sessao.usuario, "titulo": cargo, "sessao": sessao.id,
+                    "pessoas_erp": sorted({p for p, _ in pessoas if p})}
         if delegante:
             cadastro.update(por_delegacao_de=delegante["usuario"], delegacao=delegacao["id"])
-        if t.get("exposicao") is None:
+        if t.get("exposicao") is None and not t.get("exposicao_invalida"):
             return cadastro, None, compensatorio
         motivo = self._alcada_e_dupla(t, cadastro, cargo_efetivo, delegacao, decisao, performativo, c, quem)
         if motivo:
@@ -358,6 +371,9 @@ class PoliticaAprovacao:
                                   f"escalar (sem decisão até t={t['escalona_em']})")
         if decisao == "bloquear":
             return None  # bloquear não libera valor: não depende de alçada nem de duas pessoas
+        if t.get("exposicao_invalida"):
+            return ("POL-10", f"o veto do ticket {t['id']} não informou uma exposição válida: nenhuma alçada libera "
+                              "(falha fechada); só bloquear")
         alcada = permissoes.alcada(cargo, limites)
         if delegacao is not None and alcada is not None:
             alcada = min(alcada, float(delegacao["teto"]))
@@ -377,14 +393,39 @@ class PoliticaAprovacao:
             return ("POL-12", f"acima de {_reais(self.perfil['dupla_aprovacao'])} a liberação exige duas pessoas: "
                               f"falta o aval (endorse) da primeira")
         aval = t["endossos"][0]
+        caiu = self._aval_caiu(aval)
+        if caiu:  # o aval é reconferido agora: quem avalizou precisa continuar um aprovador ativo
+            t["endossos"].remove(aval)
+            self._auditar(t["id"], "aval_invalidado", aval=aval, motivo=caiu, regra="POL-12")
+            self._trilha("aval_invalidado", aval["pessoa"], "negado", ticket=t["id"], motivo=caiu, regra="POL-12")
+            for ouvinte in list(self.ao_invalidar_aval):
+                ouvinte(t["id"])
+            return ("POL-12", f"o aval de {aval['pessoa']} não vale mais ({caiu}): é preciso um novo aval")
         avalistas = {aval["pessoa"], aval.get("por_delegacao_de")} - {None}
         if {cadastro["pessoa"], cadastro.get("por_delegacao_de")} & avalistas:
             return ("POL-12", f"{cadastro['pessoa']} já deu o aval deste ticket (diretamente ou por delegação): "
+                              f"a segunda aprovação precisa ser de outra pessoa")
+        mesma = set(cadastro.get("pessoas_erp") or []) & set((t.get("erp_dos_avais") or {}).get(aval["sessao"]) or [])
+        if mesma:
+            return ("POL-12", f"{cadastro['pessoa']} e {aval['pessoa']} são a mesma pessoa do ERP ({', '.join(sorted(mesma))}): "
                               f"a segunda aprovação precisa ser de outra pessoa")
         pedidas = [_par(x) for x in c.get("correcoes") or [] if isinstance(x, dict)]
         if aval["decisao"] != decisao or (decisao == "corrigir" and aval["correcoes"] != pedidas):
             return ("POL-12", f"a segunda aprovação precisa ser a mesma decisão avalizada ({aval['decisao']})")
         cadastro["aval"] = {"pessoa": aval["pessoa"], "sessao": aval["sessao"]}
+        return None
+
+    def _aval_caiu(self, aval: dict) -> str | None:
+        """Motivo pelo qual o aval deixou de valer (conta de quem avalizou, ou de quem delegou, não é mais um
+        aprovador ativo), ou None."""
+        for usuario in (aval["pessoa"], aval.get("por_delegacao_de")):
+            if usuario is None:
+                continue
+            conta = self.acesso.conta(usuario)
+            if conta is None or conta["estado"] != "ativa":
+                return f"a conta {usuario} está {'inexistente' if conta is None else conta['estado']}"
+            if "PERM-APR-DECIDIR" not in permissoes.permissoes_de(conta["papeis"]):
+                return f"a conta {usuario} não tem mais o papel de aprovador"
         return None
 
     def _validar_cmp(self, msg, conv) -> str | None:
@@ -451,6 +492,12 @@ class PoliticaAprovacao:
         if tid not in self.tickets:
             raise ProtocolViolation(f"ticket inexistente: {tid}")
         return self.tickets[tid]
+
+    def _trilha(self, evento, ator, resultado="ok", **campos) -> None:
+        """Trilha de acesso com a empresa desta execução (IAM-09), quando há empresas no cadastro."""
+        if self.empresa is not None:
+            campos.setdefault("empresa", self.empresa)
+        self.acesso.registrar(evento, ator, resultado, **campos)
 
     def _auditar(self, tid, evento, **campos) -> None:
         self.bus.audit.record(self.bus.now, "politica", conversation_id=tid, agente=self.ID, evento=evento, **campos)

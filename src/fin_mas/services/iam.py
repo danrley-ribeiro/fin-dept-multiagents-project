@@ -197,7 +197,14 @@ class Acesso(AcessoAvancado):
         """Registro na trilha de acesso feito por outro serviço (ex.: decisões aceitas e negadas pelo SVC-POL)."""
         self._auditar(evento, ator, resultado, **campos)
 
+    def na_empresa(self, empresa: str | None) -> None:
+        """Empresa ativa da requisição desta thread: entra nos registros da trilha que não dizem a empresa (IAM-09)."""
+        self._local.empresa = empresa
+
     def _auditar(self, evento, ator, resultado="ok", **campos) -> None:
+        empresa = getattr(self._local, "empresa", None)
+        if empresa is not None and "empresa" not in campos:
+            campos["empresa"] = empresa
         try:
             self.trilha.registrar(self.relogio(), evento, ator=ator, resultado=resultado, **campos)
         except Exception:  # a trilha nunca derruba a operação que ela registra; a verificação acusa a falta
@@ -311,48 +318,58 @@ class Acesso(AcessoAvancado):
         return conta
 
     def trocar_senha(self, sessao: Sessao, atual: str, nova: str) -> None:
+        """Troca a própria senha. A senha atual errada conta como senha errada (IAM-03); trocada a senha, as outras
+        sessões da conta caem (quem tinha uma sessão roubada perde o acesso), só a desta troca continua."""
         self._validar_senha(sessao.usuario, nova)
+        if atual == nova:
+            raise AcessoNegado("IAM-02", "a senha nova precisa ser diferente da atual")
+        sessao = self._exigir_viva(sessao)
         with self._tx(self._contas) as dados:
             conta = dados["contas"][sessao.usuario]
-            if not conta["senha"] or not _confere_senha(atual, conta["senha"]):
-                self._auditar("senha_trocada", sessao.usuario, "negado", regra="IAM-02")
-                raise AcessoNegado("IAM-02", "senha atual não confere")
-            if atual == nova:
-                raise AcessoNegado("IAM-02", "a senha nova precisa ser diferente da atual")
-            conta.update(senha=_hash_senha(nova, self.custo), trocar_senha=False)
-        self._auditar("senha_trocada", sessao.usuario)
+            motivo = self._conferir_senha_atual(conta, atual)
+            if motivo is None:
+                conta.update(senha=_hash_senha(nova, self.custo), trocar_senha=False)
+        if motivo is not None:
+            self._auditar("senha_trocada", sessao.usuario, "negado", regra="IAM-02", motivo=motivo)
+            raise AcessoNegado("IAM-02", motivo)
+        outras = [s["id"] for s in self._ler_sessoes().values()
+                  if s["usuario"] == sessao.usuario and not s["revogada"] and s["id"] != sessao.id]
+        if outras:
+            self._revogar(outras, "senha trocada pela própria pessoa")
+        self._auditar("senha_trocada", sessao.usuario, sessoes_revogadas=outras, regra="IAM-04")
 
     # ---- entrada e sessões ---------------------------------------------------------------
     def autenticar(self, usuario: str, senha: str, origem: str = "") -> tuple[Sessao, str]:
         """Devolve a sessão e o token (entregue uma única vez; o cadastro guarda só o hash dele)."""
         agora = self.relogio()
         negacao = None  # (regra, mensagem ao usuário, motivo na trilha): a transação grava as falhas antes de negar
-        with self._transacao_contas() as dados:
-            conta = dados["contas"].get(usuario) if isinstance(usuario, str) else None
-            if conta is None or not conta.get("senha"):
-                _confere_senha(senha if isinstance(senha, str) else "", self._falso)  # mesmo custo, mesma resposta
-                negacao = ("IAM-03", "usuário ou senha inválidos", "usuário inexistente")
-            elif conta["estado"] == "desativada":
-                negacao = ("IAM-04", "usuário ou senha inválidos", "conta desativada")
-            elif conta["estado"] == "bloqueada" and conta["bloqueada_ate"] is None:
-                negacao = ("IAM-03", "conta bloqueada: procure o administrador de acesso",
-                           "conta bloqueada pelo administrador")
-            elif conta["bloqueada_ate"] is not None and agora < conta["bloqueada_ate"]:
-                negacao = ("IAM-03", f"conta bloqueada por tentativas: tente de novo em "
-                                     f"{int((conta['bloqueada_ate'] - agora) // 60) + 1} min", "conta em bloqueio temporário")
-            elif not isinstance(senha, str) or not _confere_senha(senha, conta["senha"]):
-                conta["falhas"] += 1
-                if conta["falhas"] >= MAX_FALHAS:
-                    # bloqueio temporário só de novas entradas: a conta segue ativa e as sessões já abertas
-                    # continuam valendo (senão quem não tem conta derrubaria a sessão de qualquer pessoa — M5)
-                    conta.update(bloqueada_ate=agora + BLOQUEIO_S, falhas=0)
-                    negacao = ("IAM-03", f"conta bloqueada por {MAX_FALHAS} senhas erradas: tente de novo em "
-                                         f"{BLOQUEIO_S // 60} min", "senha errada (conta bloqueada por 15 min)")
-                else:
-                    negacao = ("IAM-03", "usuário ou senha inválidos", "senha errada")
-            else:
-                conta.update(falhas=0, bloqueada_ate=None, estado="ativa")
-                copia = dict(conta)
+        # O scrypt roda FORA da trava do cadastro: uma rajada de entradas erradas (ou de usuários inexistentes) não
+        # segura o cadastro e não nega a entrada de quem acerta; o limite é por conta (IAM-03), nunca global.
+        visto = self._ler_contas().get(usuario) if isinstance(usuario, str) else None
+        if visto is None or not visto.get("senha"):
+            _confere_senha(senha if isinstance(senha, str) else "", self._falso)  # mesmo custo, mesma resposta
+            negacao = ("IAM-03", "usuário ou senha inválidos", "usuário inexistente")
+        else:
+            negacao = self._impedimento_de_entrada(visto, agora)
+        if negacao is None:
+            certa = isinstance(senha, str) and _confere_senha(senha, visto["senha"])
+            with self._transacao_contas() as dados:
+                conta = dados["contas"].get(usuario)
+                negacao = ("IAM-03", "usuário ou senha inválidos", "senha trocada durante a entrada") \
+                    if conta is None or conta.get("senha") != visto["senha"] else self._impedimento_de_entrada(conta, agora)
+                if negacao is None and not certa:
+                    conta["falhas"] += 1
+                    if conta["falhas"] >= MAX_FALHAS:
+                        # bloqueio temporário só de novas entradas: a conta segue ativa e as sessões já abertas
+                        # continuam valendo (senão quem não tem conta derrubaria a sessão de qualquer pessoa — M5)
+                        conta.update(bloqueada_ate=agora + BLOQUEIO_S, falhas=0)
+                        negacao = ("IAM-03", f"conta bloqueada por {MAX_FALHAS} senhas erradas: tente de novo em "
+                                             f"{BLOQUEIO_S // 60} min", "senha errada (conta bloqueada por 15 min)")
+                    else:
+                        negacao = ("IAM-03", "usuário ou senha inválidos", "senha errada")
+                elif negacao is None:
+                    conta.update(falhas=0, bloqueada_ate=None, estado="ativa")
+                    copia = dict(conta)
         if negacao:
             regra, mensagem, motivo = negacao
             self._auditar("entrada", str(usuario)[:64], "negado", regra=regra, motivo=motivo, origem=origem)
@@ -368,6 +385,17 @@ class Acesso(AcessoAvancado):
             self._auditar("entrada", usuario, "pendente", regra="IAM-08", motivo="segundo fator pendente", origem=origem)
             raise SegundoFatorPendente(desafio, expira, self.tentativas_2fa(copia))
         return self._abrir_sessao(usuario, copia, agora, origem)
+
+    @staticmethod
+    def _impedimento_de_entrada(conta: dict, agora: float) -> tuple | None:
+        if conta["estado"] == "desativada":
+            return "IAM-04", "usuário ou senha inválidos", "conta desativada"
+        if conta["estado"] == "bloqueada" and conta["bloqueada_ate"] is None:
+            return "IAM-03", "conta bloqueada: procure o administrador de acesso", "conta bloqueada pelo administrador"
+        if conta["bloqueada_ate"] is not None and agora < conta["bloqueada_ate"]:
+            return ("IAM-03", f"conta bloqueada por tentativas: tente de novo em "
+                              f"{int((conta['bloqueada_ate'] - agora) // 60) + 1} min", "conta em bloqueio temporário")
+        return None
 
     def _abrir_sessao(self, usuario: str, conta: dict, agora: float, origem: str) -> tuple["Sessao", str]:
         token = secrets.token_urlsafe(32)

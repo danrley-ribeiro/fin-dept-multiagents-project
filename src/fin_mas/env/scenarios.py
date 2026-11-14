@@ -135,7 +135,7 @@ class Aprovador(Agent):
         if msg is not None and not self.interativo and self.acesso is not None:
             self._decidir_em_lote(msg)
 
-    def decidir(self, solicitacao, decisao, justificativa=None, sessao=None) -> bool:
+    def decidir(self, solicitacao, decisao, justificativa=None, sessao=None, delegacao=None) -> bool:
         """Decisão humana vinda do dashboard. A pendência só sai da lista depois que a decisão
         foi aceita pelo barramento e pelo SVC-POL: se for recusada (ex.: POL-04), a exceção
         sobe e o aprovador pode decidir de novo. Devolve False se nada foi enviado.
@@ -152,7 +152,7 @@ class Aprovador(Agent):
         texto = justificativa.strip() if isinstance(justificativa, str) else ""
         if not texto and decisao != "waiver":
             texto = self.SEM_JUSTIFICATIVA.get(decisao, "")
-        if not self._responder(msg, decisao, texto, sessao):
+        if not self._responder(msg, decisao, texto, sessao, delegacao):  # delegação recebida (POL-11), se citada
             return False
         if self.ultimo_performativo != "endorse":  # com o aval (POL-12) o ticket segue à espera da segunda pessoa
             self.pendentes.pop(solicitacao, None)
@@ -312,6 +312,8 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     sistema = System(bus, ds, gw, locks, orq, Solicitante(bus),
                      Aprovador(bus, decisao_aprovador, amb, interativo, acesso=acesso),
                      agentes, amb, politica, mem, modelos, acesso, registro)
+    if politica is not None:  # POL-12: aval que deixou de valer, a próxima liberação do APR é um aval novo
+        politica.ao_invalidar_aval.append(sistema.aprovador.avalizados.discard)
     if caos is not None:  # modelo de falhas do experimento (DSM4): instala antes de fechar o registro
         caos.instalar(sistema)
     bus.fechar_registro()  # ninguém fora do diretório entra depois de o sistema estar montado

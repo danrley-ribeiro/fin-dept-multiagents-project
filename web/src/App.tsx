@@ -353,8 +353,9 @@ function AoVivo(p: TelaProps) {
         <DecisaoHumana pendencia={pendencia} interativo={(controle?.interativo ?? true) && decide}
           quem={s ? `${s.nome}${s.cargo ? ` (${s.cargo})` : ""}` : undefined}
           aviso={decide ? undefined : semPapel("aprovador")} aoFechar={() => setDecidindo(null)}
-          aoDecidir={(decisao, justificativa) => {
-            cmd({ tipo: "decidir", solicitacao: pendencia.solicitacao, decisao, justificativa: justificativa || undefined });
+          aoDecidir={(decisao, justificativa, delegacao) => {
+            cmd({ tipo: "decidir", solicitacao: pendencia.solicitacao, decisao, justificativa: justificativa || undefined,
+              ...(delegacao ? { delegacao } : {}) });
             setDecidindo(null);
             setAviso({ texto: `Decisão "${decisao}" enviada para ${pendencia.solicitacao}` });
           }} />

@@ -477,8 +477,10 @@ class AcessoAvancado:
                 saida.append({**d, "situacao": situacao})
         return saida
 
-    def delegacao_para_decisao(self, did, pessoa: str, ticket: dict) -> dict:
-        """Delegação válida para esta pessoa decidir este ticket: devolve a conta de quem delegou, ou nega (POL-11)."""
+    def delegacao_para_decisao(self, did, pessoa: str, ticket: dict, empresa: str | None = None) -> dict:
+        """Delegação válida para esta pessoa decidir este ticket (da `empresa`): devolve a conta de quem delegou, ou
+        nega (POL-11). Com empresas no cadastro, a delegação só vale na empresa em que foi criada, e quem delegou
+        precisa ter ainda acesso a ela."""
         d = (self._contas.ver().get("delegacoes") or {}).get(did) if isinstance(did, str) else None
         if d is None:
             raise _negado("POL-11", f"delegação inexistente ou forjada: {did!r}")
@@ -493,7 +495,12 @@ class AcessoAvancado:
         if ("competencia" in escopo and escopo["competencia"] != ticket["competencia"]) or \
                 ("solicitacao" in escopo and escopo["solicitacao"] != ticket["solicitacao"]):
             raise _negado("POL-11", f"a delegação {did} vale para {escopo}, não para este ticket")
+        if self.multiempresa() and d.get("empresa") != empresa:
+            raise _negado("POL-11", f"a delegação {did} foi feita na empresa {d.get('empresa')}, não vale na empresa "
+                                    f"{empresa} (IAM-09)")
         conta = self._ler_contas().get(d["de"])
         if conta is None or conta["estado"] != "ativa" or "PERM-APR-DECIDIR" not in permissoes.permissoes_de(conta["papeis"]):
             raise _negado("POL-11", f"quem delegou ({d['de']}) não é mais um aprovador ativo")
+        if self.multiempresa() and empresa not in (conta.get("empresas") or []):
+            raise _negado("POL-11", f"quem delegou ({d['de']}) não tem mais acesso à empresa {empresa} (IAM-09)")
         return {"delegacao": d, "conta": {k: v for k, v in conta.items() if k != "senha"}}

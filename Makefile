@@ -108,25 +108,21 @@ docker:
 	docker compose build && docker compose up -d && docker compose ps
 
 # ---- DSM4: relatório técnico, apresentação e pacote final (entregas/dsm4/) ----
-.PHONY: numeros-dsm4 pdf-dsm4 apresentacao-dsm4 entrega-dsm4
+.PHONY: pdf-dsm4 apresentacao-dsm4 entrega-dsm4
 DSM4_DOC = entregas/dsm4/documentacao
 DSM4_FIGS = $(patsubst docs/dsm4/resultados/%.svg,$(DSM4_DOC)/figuras/%.pdf,$(wildcard docs/dsm4/resultados/fig_*.svg))
-
-# numeros.tex, rastreabilidade.tex e docs/dsm4/cenarios-de-teste.md a partir das fontes (com a suíte: ~4 min)
-numeros-dsm4:
-	$(PYTHON) tools/relatorio_numeros.py --suite
 
 $(DSM4_DOC)/figuras/%.pdf: docs/dsm4/resultados/%.svg
 	mkdir -p $(DSM4_DOC)/figuras
 	rsvg-convert -f pdf -o $@ $<
 
-# PDF do relatório (figuras do experimento convertidas de SVG com rsvg-convert; biblatex com bibtex)
+# PDF do relatório; os números vêm de numeros.tex (python tools/relatorio_numeros.py --suite). Figuras do experimento convertidas de SVG com rsvg-convert; biblatex com bibtex.
 pdf-dsm4: $(DSM4_FIGS)
 	cd $(DSM4_DOC) && latexmk -pdf -interaction=nonstopmode -halt-on-error relatorio.tex && latexmk -c relatorio.tex
 
 # slides.md -> DSM4-apresentacao.pptx com o tema do deck da DSM2 (pandoc)
 apresentacao-dsm4:
-	cd entregas/dsm4/apresentacao && $(PYTHON) tema.py && pandoc slides.md -o DSM4-apresentacao.pptx --reference-doc=tema-referencia.pptx
+	$(PYTHON) entregas/dsm4/apresentacao/tema.py && cd entregas/dsm4/apresentacao && pandoc slides.md -o DSM4-apresentacao.pptx --reference-doc=tema-referencia.pptx
 
 entrega-dsm4:
 	$(PYTHON) tools/empacotar_dsm4.py

@@ -416,7 +416,7 @@ com 15% de perda, a execução correta cai de 53,3% para 33,3% quando a cogniç�
 
 **Quem decidiu o quê.** No SMA básico sem falhas, 77% das decisões registradas foram tomadas
 fora do Orquestrador (17,2 decisões por fechamento, contra 6,1 do controlador único, que toma
-todas); com os especialistas BDI, 85% (24,7 decisões por fechamento). O AG-ORC decide a fonte e
+todas); com os especialistas BDI, 84% (24,7 decisões por fechamento). O AG-ORC decide a fonte e
 a classificação de cada desvio e pergunta ao AG-CIN, sem passar pelo Orquestrador, se há
 lançamento irregular na conta. O AG-CIN decide o parecer e, depois de uma correção, percebe o
 ERP de novo e reconsidera (2,0 reconsiderações de intenção por fechamento). O humano decide no

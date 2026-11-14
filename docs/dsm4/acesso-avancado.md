@@ -7,7 +7,7 @@ Decisão de arquitetura: [ADR-012](ADR-012-acesso-avancado.md). Requisito {need}
 
 | Regra | O que exige | Onde |
 |---|---|---|
-| IAM-08 | segundo fator TOTP (±30 s, anti-replay), códigos de recuperação de uso único, pré-sessão de 5 min só para o código, obrigatoriedade pela política do cadastro | `services/totp.py`, `services/acesso_avancado.py` |
+| IAM-08 | segundo fator TOTP (±30 s, anti-replay), códigos de recuperação de uso único, pré-sessão de 5 min só para o código, obrigatoriedade pela política do cadastro; contador de códigos errados por conta (não por pré-sessão), com bloqueio de 15 min, e senha atual exigida para desativar e trocar os códigos (correção simulada da DSM4, C3; o bloqueio pode ser provocado por quem já tem a senha, ver {doc}`limitacoes`) | `services/totp.py`, `services/acesso_avancado.py` |
 | IAM-09 | empresa ativa na sessão, dentro do escopo da conta, para toda permissão que não é do cadastro | `services/acesso_avancado.py`, `server_avancado.py` |
 | IAM-10 | segredos só sob `PERM-MOD-SEGREDOS`; o valor nunca volta à interface | `services/cofre.py` |
 | POL-10 | liberação só com a exposição dentro da alçada do cargo (ou do teto da delegação) | `services/politica.py` |
@@ -33,7 +33,7 @@ FIN_MAS_CODIGO_2FA=123456 python -m fin_mas acesso --como admin 2fa confirmar   
 python -m fin_mas acesso --como admin politica definir --exigir-2fa ROLE-ADM,ROLE-APR --escalonamento 50
 python -m fin_mas acesso --como diego delegacao criar ana --horas 8 --teto 1000000 --competencia 2026-09
 python -m fin_mas acesso alcadas
-python -m fin_mas acesso --como admin empresa criar alfa --nome "Alfa S.A." --porte media
+python -m fin_mas acesso --como admin empresa criar alfa --nome "Alfa S.A." --porte media --segmento comercio
 python -m fin_mas acesso --como admin empresa escopo carla alfa
 FIN_MAS_SEGREDO=... python -m fin_mas acesso --como admin segredo definir llm:ANTHROPIC_API_KEY
 python -m fin_mas memoria --como admin adotar outra/pasta/memoria.json

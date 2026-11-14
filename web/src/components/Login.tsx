@@ -1,37 +1,118 @@
 // Entrada no escritório (ADR-009): cada pessoa entra com a sua conta; o que ela pode fazer vem dos papéis dela.
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Alert, Avatar, Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
-import { useState } from "react";
-import { entrar, trocarSenha, type Saude, type Sessao } from "../api/sessao";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { confirmarCodigo, entrar, trocarSenha, type Saude, type SegundoFatorPendente, type Sessao } from "../api/sessao";
 
+const SEGUNDOS = (n: number) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+
+/** Entrada em dois passos (IAM-08): usuário e senha; com o segundo fator ativo, o código do aplicativo autenticador
+ *  ou um código de recuperação. O prazo e o limite de tentativas são do servidor; quando acabam, volta ao início. */
 export function Login({ saude, aoEntrar, aviso }: { saude: Saude; aoEntrar: (s: Sessao) => void; aviso?: string }) {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [pendente, setPendente] = useState<SegundoFatorPendente | null>(null);
+  const [codigo, setCodigo] = useState("");
+  const [nota, setNota] = useState<string | null>(null); // por que a pessoa voltou ao primeiro passo
+  const [restam, setRestam] = useState(0); // segundos da pré-sessão
+  const campoCodigo = useRef<HTMLInputElement>(null);
+
+  const voltar = useCallback((motivo: string | null) => {
+    setPendente(null);
+    setCodigo("");
+    setSenha("");
+    setErro(null);
+    setNota(motivo);
+  }, []);
+
+  useEffect(() => {
+    if (!pendente) return;
+    const conferir = () => {
+      const segundos = Math.min(300, Math.ceil(pendente.expiraEm - Date.now() / 1000));
+      setRestam(Math.max(0, segundos));
+      if (segundos <= 0) voltar("O tempo para informar o código acabou. Entre de novo com usuário e senha.");
+    };
+    conferir();
+    const t = setInterval(conferir, 1000);
+    return () => clearInterval(t);
+  }, [pendente, voltar]);
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
     setEnviando(true);
     setErro(null);  // a mensagem da tentativa anterior some enquanto a nova é conferida
+    setNota(null);
     const r = await entrar(usuario.trim(), senha);
     setEnviando(false);
     if (r.sessao) aoEntrar(r.sessao);
+    else if (r.segundoFator) { setSenha(""); setCodigo(""); setPendente(r.segundoFator); }
     else { setErro(r.erro ?? "não foi possível entrar"); setSenha(""); }
   };
+
+  const enviarCodigo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEnviando(true);
+    setErro(null);
+    const r = await confirmarCodigo(codigo.trim());
+    setEnviando(false);
+    if (r.sessao) { aoEntrar(r.sessao); return; }
+    if (r.encerrada) {
+      voltar("O prazo ou as tentativas para informar o código acabaram. Entre de novo com usuário e senha.");
+      return;
+    }
+    // o motivo exato (código errado, repetido, fora da janela, recuperação já usada) fica só na trilha do servidor
+    setErro(`Código inválido.${r.tentativasRestantes !== undefined ? ` ${r.tentativasRestantes === 1
+      ? "Resta 1 tentativa" : `Restam ${r.tentativasRestantes} tentativas`}.` : ""}`);
+    setCodigo("");
+    campoCodigo.current?.focus();
+  };
+
+  const cabecalho = (legenda: string) => (
+    <Stack direction="row" spacing={1.5} alignItems="center">
+      <Avatar src="/sma-logo.svg" alt="SMA" variant="rounded" sx={{ width: 44, height: 44 }} />
+      <Box>
+        <Typography variant="h1" component="h1">SMA · Escritório de controladoria</Typography>
+        <Typography variant="caption" color="text.secondary">{legenda} · versão {saude.versao}</Typography>
+      </Box>
+    </Stack>
+  );
+
+  if (pendente) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 2 }}>
+        <Paper component="form" onSubmit={enviarCodigo} aria-label="Confirmar o segundo fator"
+          sx={{ p: 4, width: "100%", maxWidth: 400 }}>
+          <Stack spacing={2}>
+            {cabecalho("Segundo passo da entrada")}
+            <Typography variant="body2">A senha de <b>{usuario.trim()}</b> confere. Falta o segundo fator.</Typography>
+            <TextField label="Código de verificação" value={codigo} onChange={(e) => setCodigo(e.target.value)} autoFocus
+              required autoComplete="one-time-code" inputRef={campoCodigo}
+              helperText="6 dígitos do aplicativo autenticador ou um código de recuperação"
+              inputProps={{ "aria-label": "Código de verificação", maxLength: 32, spellCheck: false,
+                autoCapitalize: "none", autoCorrect: "off" }} />
+            {erro && <Alert severity="error" role="alert">{erro}</Alert>}
+            <Typography variant="caption" color="text.secondary" aria-label="Prazo do código">
+              Este passo expira em {SEGUNDOS(restam)}; depois é preciso entrar de novo.</Typography>
+            <Stack direction="row" spacing={1} justifyContent="space-between">
+              <Button onClick={() => voltar(null)}>Voltar</Button>
+              <Button type="submit" variant="contained" startIcon={<LockOutlinedIcon />} disabled={enviando || !codigo.trim()}>
+                Confirmar código</Button>
+            </Stack>
+          </Stack>
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", p: 2 }}>
       <Paper component="form" onSubmit={enviar} aria-label="Entrar no escritório" sx={{ p: 4, width: "100%", maxWidth: 400 }}>
         <Stack spacing={2}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Avatar src="/sma-logo.svg" alt="SMA" variant="rounded" sx={{ width: 44, height: 44 }} />
-            <Box>
-              <Typography variant="h1" component="h1">SMA · Escritório de controladoria</Typography>
-              <Typography variant="caption" color="text.secondary">Entre com a sua conta · versão {saude.versao}</Typography>
-            </Box>
-          </Stack>
-          {aviso && <Alert severity="warning">{aviso}</Alert>}
+          {cabecalho("Entre com a sua conta")}
+          {aviso && !nota && <Alert severity="warning">{aviso}</Alert>}
+          {nota && <Alert severity="warning">{nota}</Alert>}
           {!saude.acesso.integro && (
             <Alert severity="error">O cadastro de acesso está comprometido (IAM-07): ninguém entra até o administrador
               restaurá-lo.</Alert>)}

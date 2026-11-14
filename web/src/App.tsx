@@ -7,6 +7,8 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PasswordIcon from "@mui/icons-material/Password";
+import PhonelinkLockIcon from "@mui/icons-material/PhonelinkLock";
+import SlideshowIcon from "@mui/icons-material/Slideshow";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -23,11 +25,16 @@ import {
   carregarComparacao, carregarTrace, catalogoAoVivo, catalogoReplay, conectarAoVivo, enviarComando, estadoAoVivo,
   type Catalogo, type EventoAoVivo, type MenteSnapshot, type ResumoComparacao, type TraceExportado,
 } from "./api/fonte";
-import { aoEncerrarSessao, pode, sair, saude, sessaoAtual, type Saude, type Sessao } from "./api/sessao";
+import { empresasDaConta, escolherEmpresa, type EmpresasDaConta } from "./api/avancado";
+import { aoEncerrarSessao, aoMudarAcesso, pode, sair, saude, sessaoAtual, type Saude, type Sessao } from "./api/sessao";
 import { Ajuda } from "./components/Ajuda";
 import { Aprovacoes, ConfigLLM, FichaPorte, Logs, Solicitacoes } from "./components/AreasDeTrabalho";
+import { empresaAtiva, EscolherEmpresa, SeletorEmpresa } from "./components/Empresas";
 import { Fontes } from "./components/Fontes";
+import { GuiaDemo } from "./components/GuiaDemo";
 import { Login, TrocarSenha } from "./components/Login";
+import { SegundoFatorDialog, SegundoFatorObrigatorio } from "./components/SegundoFator";
+import type { PassoDemo } from "./demo/roteiro";
 import { Comparacao } from "./components/Comparacao";
 import { DadosEmpresaDialog, FonteDialog, PeriodosDialog } from "./components/Dialogos";
 import { DecisaoHumana } from "./components/DecisaoHumana";
@@ -39,7 +46,8 @@ import { AGENTES, aplicarTodos, estadoInicial, statusDe } from "./state/reducer"
 import type { Controle, FonteDados, Registro, Solicitacao, ViewState } from "./types";
 import { criarTema, type ModoTema } from "./theme";
 
-type Modo = "carregando" | "login" | "senha" | "aovivo" | "replay";
+// "segundo-fator": a política exige e a conta ainda não tem (IAM-08); "empresa": falta escolher a empresa ativa (IAM-09)
+type Modo = "carregando" | "login" | "senha" | "segundo-fator" | "empresa" | "aovivo" | "replay";
 type AbaPrincipal = "escritorio" | "solicitacoes" | "aprovacoes" | "logs" | "llm" | "porte" | "fontes" | "comparacao";
 
 function lerPreferencia(chave: string): string | null {
@@ -65,15 +73,41 @@ export default function App() {
   const [servidor, setServidor] = useState<Saude | null>(null);
   const [sessao, setSessao] = useState<Sessao | null>(null);
   const [avisoLogin, setAvisoLogin] = useState<string | undefined>();
+  const [empresas, setEmpresas] = useState<EmpresasDaConta | null>(null);
+  const [erroEmpresa, setErroEmpresa] = useState<string | null>(null);
+  const [segundoFator, setSegundoFator] = useState(false); // diálogo "Meu segundo fator"
+  const abaAoVivo = useRef<AbaPrincipal>("escritorio"); // a aba aberta sobrevive à troca de empresa
 
   // Com servidor local, só entra quem tem conta (ADR-009); sem servidor, o replay offline abre sem login.
+  // Antes do escritório: senha temporária (IAM-02), segundo fator exigido (IAM-08) e empresa ativa (IAM-09).
   const abrirAoVivo = useCallback(async (s: Sessao) => {
     setSessao(s);
     setAvisoLogin(undefined);
     if (s.trocar_senha) { setModo("senha"); return; }
+    if (s.pendente_2fa) { setModo("segundo-fator"); return; }
+    const emp = await empresasDaConta();
+    setEmpresas(emp);
+    if (emp?.multiempresa && (!s.empresa || !emp.empresas.some((e) => e.id === s.empresa))) {
+      setErroEmpresa(null);
+      setModo("empresa");
+      return;
+    }
     const vivo = await catalogoAoVivo();
     if (vivo) { setCatalogo(vivo); setModo("aovivo"); } else setErro("não foi possível carregar o escritório");
   }, []);
+
+  const reabrir = useCallback(async () => {
+    const s = await sessaoAtual();
+    if (s) await abrirAoVivo(s); else setModo("login");
+  }, [abrirAoVivo]);
+
+  /** Troca a empresa ativa: a sessão nova fala com a simulação da empresa, e o escritório é remontado sobre ela. */
+  const trocarEmpresa = useCallback(async (id: string) => {
+    const r = await escolherEmpresa(id);
+    if (!r.dados) { setErroEmpresa(r.erro ?? "não foi possível trocar de empresa"); return; }
+    setErroEmpresa(null);
+    await abrirAoVivo(r.dados.sessao);
+  }, [abrirAoVivo]);
 
   useEffect(() => {
     (async () => {
@@ -96,11 +130,30 @@ export default function App() {
   }, [abrirAoVivo]);
 
   useEffect(() => aoEncerrarSessao(() => {  // expirou, foi revogada pelo administrador ou a conta foi bloqueada
+    abaAoVivo.current = "escritorio";
+    setSegundoFator(false);
     setSessao((atual) => { if (atual) setAvisoLogin("Sua sessão foi encerrada. Entre de novo para continuar."); return null; });
     setModo((m) => (m === "replay" ? m : "login"));
   }), []);
 
-  const encerrar = async () => { await sair(); setSessao(null); setAvisoLogin(undefined); setModo("login"); };
+  // a política passou a exigir o segundo fator, ou o escopo de empresas mudou, com a pessoa já dentro: a tela acompanha
+  useEffect(() => aoMudarAcesso(() => {
+    (async () => {
+      const s = await sessaoAtual();
+      if (!s) return;
+      if (s.pendente_2fa) { setSessao(s); setSegundoFator(false); setModo((m) => (m === "replay" ? m : "segundo-fator")); return; }
+      const emp = await empresasDaConta();
+      if (emp?.multiempresa && (!s.empresa || !emp.empresas.some((e) => e.id === s.empresa))) {
+        setSessao(s); setEmpresas(emp); setModo((m) => (m === "replay" ? m : "empresa"));
+      }
+    })();
+  }), []);
+
+  const encerrar = async () => {
+    await sair();
+    abaAoVivo.current = "escritorio"; // a próxima pessoa a entrar pode não ter a aba que esta deixou aberta
+    setSessao(null); setEmpresas(null); setSegundoFator(false); setAvisoLogin(undefined); setModo("login");
+  };
 
   const alternarTema = () => {
     const novo = modoTema === "dark" ? "light" : "dark";
@@ -109,7 +162,8 @@ export default function App() {
   };
   const fecharAjuda = () => { setAjuda(false); gravarPreferencia("sma-ajuda-vista", "1"); };
   const comum = { catalogo: catalogo!, comparacao, modoTema, alternarTema, abrirAjuda: () => setAjuda(true),
-    sessao, aoSair: encerrar, aoTrocarSenha: () => setModo("senha") };
+    sessao, aoSair: encerrar, aoTrocarSenha: () => setModo("senha"), empresas, aoTrocarEmpresa: trocarEmpresa,
+    erroEmpresa, aoSegundoFator: () => setSegundoFator(true), abaInicial: abaAoVivo };
 
   return (
     <ThemeProvider theme={tema}>
@@ -119,13 +173,19 @@ export default function App() {
         : modo === "senha" && sessao ? (
           <TrocarSenha sessao={sessao} obrigatoria={sessao.trocar_senha}
             aoCancelar={sessao.trocar_senha ? undefined : () => setModo("aovivo")}
-            aoConcluir={async () => { const s = await sessaoAtual(); if (s) await abrirAoVivo(s); else setModo("login"); }} />
+            aoConcluir={reabrir} />
+        ) : modo === "segundo-fator" && sessao ? <SegundoFatorObrigatorio sessao={sessao} aoConcluir={reabrir} aoSair={encerrar} />
+        : modo === "empresa" && sessao && empresas ? (
+          <EscolherEmpresa sessao={sessao} empresas={empresas} erro={erroEmpresa} aoEscolher={trocarEmpresa} aoSair={encerrar} />
         ) : modo === "carregando" || !catalogo ? (
           <Stack alignItems="center" spacing={2} sx={{ mt: 10 }}><CircularProgress />
             <Typography color="text.secondary">Abrindo o escritório…</Typography></Stack>
         ) : modo === "aovivo"
-          ? <AoVivo {...comum} aoTrocarModo={() => setModo("replay")} />
+          ? <AoVivo key={sessao?.empresa ?? "empresa-unica"} {...comum} aoTrocarModo={() => setModo("replay")} />
           : <Replay {...comum} aoTrocarModo={temServidor ? () => setModo("aovivo") : undefined} />}
+      {sessao && modo === "aovivo" && (
+        <SegundoFatorDialog aberto={segundoFator} sessao={sessao} aoFechar={() => setSegundoFator(false)}
+          aoMudar={async () => { const s = await sessaoAtual(); if (s?.pendente_2fa) { setSegundoFator(false); await abrirAoVivo(s); } }} />)}
       <Ajuda aberta={ajuda && (modo === "aovivo" || modo === "replay")} aoFechar={fecharAjuda} />
     </ThemeProvider>
   );
@@ -141,6 +201,11 @@ interface TelaProps {
   sessao?: Sessao | null;
   aoSair?: () => void;
   aoTrocarSenha?: () => void;
+  empresas?: EmpresasDaConta | null;
+  aoTrocarEmpresa?: (id: string) => void;
+  erroEmpresa?: string | null;
+  aoSegundoFator?: () => void;
+  abaInicial?: React.MutableRefObject<AbaPrincipal>;
 }
 
 // ---------------------------------------------------------------- ao vivo
@@ -151,7 +216,10 @@ function AoVivo(p: TelaProps) {
   const [conectado, setConectado] = useState(true);
   const [snapshots, setSnapshots] = useState<Record<string, MenteSnapshot>>({});
   const [aviso, setAviso] = useState<{ texto: string; grave?: boolean } | null>(null);
-  const [aba, setAba] = useState<AbaPrincipal>("escritorio");
+  const [aba, definirAba] = useState<AbaPrincipal>(() => p.abaInicial?.current ?? "escritorio");
+  const setAba = useCallback((a: AbaPrincipal) => { definirAba(a); if (p.abaInicial) p.abaInicial.current = a; }, [p.abaInicial]);
+  const [demo, setDemo] = useState(false); // demonstração guiada: opcional, fechada por padrão
+  const [filtroLogs, setFiltroLogs] = useState<Record<string, string> | undefined>(); // só quando a demonstração abre os logs
   const [selecionado, setSelecionado] = useState<string>("AG-ORC");
   const [decidindo, setDecidindo] = useState<string | null>(null);
   const [pedido, setPedido] = useState(false);
@@ -210,11 +278,20 @@ function AoVivo(p: TelaProps) {
   const energia = pode(s, "PERM-AGT-ENERGIA");
   const semPapel = (papel: string) => `Sua conta não tem o papel de ${papel}`;
   const cenarioAtual = p.catalogo.cenarios.find((c) => c.nome === controle?.cenario);
+  const ativa = empresaAtiva(p.empresas ?? null, s);
+  // a demonstração leva à aba do passo só se a conta a enxerga; senão o passo é acompanhado pelo escritório
+  const irParaPasso = (passo: PassoDemo) => {
+    const destino: AbaPrincipal = passo.aba === "logs" && !pode(s, "PERM-AUD-VER") ? "escritorio" : passo.aba ?? "escritorio";
+    setFiltroLogs(destino === "logs" ? passo.filtroLogs ?? {} : undefined);
+    setAba(destino);
+    if (passo.agente) setSelecionado(passo.agente);
+  };
+  const fecharDemo = () => { setDemo(false); setFiltroLogs(undefined); };
 
   return (
     <>
-      <Topo {...p} modo="aovivo" aba={aba} setAba={setAba} conectado={conectado} pendentes={pendentes.length}
-        aoAbrirPendencia={() => setDecidindo(pendentes[0]?.solicitacao ?? null)}>
+      <Topo {...p} modo="aovivo" aba={aba} setAba={(a) => { setFiltroLogs(undefined); setAba(a); }} conectado={conectado}
+        pendentes={pendentes.length} aoAbrirPendencia={() => setDecidindo(pendentes[0]?.solicitacao ?? null)}>
         <FormControl size="small" sx={{ minWidth: 190 }} disabled={!opera}>
           <InputLabel id="cenario-vivo">Cenário</InputLabel>
           <Select labelId="cenario-vivo" label="Cenário" value={controle?.cenario ?? ""}
@@ -243,14 +320,22 @@ function AoVivo(p: TelaProps) {
         </Tooltip>
         <Button variant="outlined" startIcon={<BusinessIcon />} onClick={() => setDados(true)}>Dados da empresa</Button>
         <EmpresaChip estado={estado} />
+        <Tooltip describeChild title={demo ? "Fechar o roteiro (o escritório continua como está)"
+          : "Roteiro opcional, passo a passo, sobre o escritório ao vivo"}>
+          <Button size="small" color="inherit" startIcon={<SlideshowIcon fontSize="small" />} aria-pressed={demo}
+            onClick={() => (demo ? fecharDemo() : setDemo(true))} sx={{ ml: "auto", opacity: demo ? 1 : 0.75 }}>
+            Demonstração guiada</Button>
+        </Tooltip>
       </Topo>
+      {p.erroEmpresa && <Alert severity="error" role="alert" sx={{ m: 2 }}>{p.erroEmpresa}</Alert>}
+      {demo && <GuiaDemo sessao={s} controle={controle} enviar={enviarComando} aoIrPara={irParaPasso} aoFechar={fecharDemo} />}
       {aba === "escritorio" ? (
         <Corpo estado={estado} catalogo={p.catalogo} selecionado={selecionado} setSelecionado={setSelecionado}
           snapshots={snapshots} aoVivo chave={geracao} novidades={novidades}
           aoAbrirFonte={setFonte} aoAbrirPeriodos={() => setPeriodos(true)}
           aoNovoPedido={solicita ? () => setPedido(true) : undefined}
           duracaoVoo={Math.min(1400, Math.max(350, velocidade * 1.6))}
-          rodape={`t=${estado.t} · ${controle?.fila ?? 0} eventos na fila · seed ${controle?.seed ?? "?"}${
+          rodape={`${ativa ? `empresa ${ativa.nome} · ` : ""}t=${estado.t} · ${controle?.fila ?? 0} eventos na fila · seed ${controle?.seed ?? "?"}${
             controle?.offline.length ? ` · fora de operação: ${controle.offline.join(", ")}` : ""} · cognição ${
             controle?.cognicao ?? "basico"}${cenarioAtual?.esperado ? ` · observar: ${cenarioAtual.esperado}` : ""}`}
           aoAlternarEnergia={energia ? (id, online) => {
@@ -259,7 +344,7 @@ function AoVivo(p: TelaProps) {
           } : undefined} />
       ) : aba === "solicitacoes" && s ? <Solicitacoes sessao={s} aoNovoPedido={() => setPedido(true)} />
         : aba === "aprovacoes" && s ? <Aprovacoes sessao={s} aoDecidir={setDecidindo} />
-        : aba === "logs" && s ? <Logs sessao={s} />
+        : aba === "logs" && s ? <Logs key={JSON.stringify(filtroLogs ?? null)} sessao={s} filtroInicial={filtroLogs} />
         : aba === "llm" && s ? <ConfigLLM sessao={s} aoComando={cmd} cenario={controle?.cenario ?? "fechar_mes"} />
         : aba === "porte" ? <FichaPorte />
         : aba === "fontes" && s ? <Fontes sessao={s} fonteAtual={controle?.fonte} />
@@ -450,8 +535,10 @@ interface TopoProps extends TelaProps {
 }
 
 function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes, aoAbrirPendencia, modoTema,
-  alternarTema, abrirAjuda, children, sessao, aoSair, aoTrocarSenha }: TopoProps) {
+  alternarTema, abrirAjuda, children, sessao, aoSair, aoTrocarSenha, empresas, aoTrocarEmpresa, aoSegundoFator }: TopoProps) {
   const logado = modo === "aovivo" && !!sessao;
+  // com empresas no cadastro, o título é o da empresa ativa da sessão: não há dúvida sobre de quem são os dados
+  const ativa = logado ? empresaAtiva(empresas ?? null, sessao) : null;
   return (
     <AppBar position="sticky" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: "divider",
       bgcolor: "background.default" }}>
@@ -459,9 +546,10 @@ function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes,
         <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mr: "auto" }}>
           <Avatar src="/sma-logo.svg" alt="SMA" variant="rounded" sx={{ width: 40, height: 40 }} />
           <Box>
-            <Typography variant="h1" component="h1">{catalogo.empresa.razao_social} · Escritório de controladoria</Typography>
+            <Typography variant="h1" component="h1">{ativa?.nome ?? catalogo.empresa.razao_social} · Escritório de controladoria</Typography>
             <Typography variant="caption" color="text.secondary">Sistema multiagente · empresa e dados fictícios</Typography>
           </Box>
+          {logado && aoTrocarEmpresa && <SeletorEmpresa empresas={empresas ?? null} sessao={sessao} aoTrocar={aoTrocarEmpresa} />}
           <Tooltip title={modo === "aovivo" ? "Agentes executando agora no servidor local"
             : "Reprodução de um trace exportado, sem servidor"}>
             <Chip size="small" color={modo === "aovivo" ? (conectado ? "success" : "warning") : "default"}
@@ -474,7 +562,7 @@ function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes,
           {logado && <Tab value="solicitacoes" label="Solicitações" />}
           {logado && <Tab value="aprovacoes" label="Aprovações" />}
           {logado && pode(sessao, "PERM-AUD-VER") && <Tab value="logs" label="Logs" />}
-          {logado && pode(sessao, "PERM-MOD-VER") && <Tab value="llm" label="Agentes e LLM" />}
+          {logado && (pode(sessao, "PERM-MOD-VER") || pode(sessao, "PERM-MOD-SEGREDOS")) && <Tab value="llm" label="Agentes e LLM" />}
           {logado && <Tab value="porte" label="Porte" />}
           {logado && pode(sessao, "PERM-DAD-VER") && <Tab value="fontes" label="Fontes de dados" />}
           <Tab value="comparacao" label="SMA × workflow" />
@@ -484,6 +572,8 @@ function Topo({ catalogo, modo, aba, setAba, aoTrocarModo, conectado, pendentes,
             <Tooltip title={`Papéis: ${sessao.papeis.join(", ")}`}>
               <Chip aria-label="Conta em uso" variant="outlined" label={`${sessao.nome} · ${sessao.usuario}`} />
             </Tooltip>)}
+          {logado && <Tooltip title="Meu segundo fator (código do aplicativo autenticador)">
+            <IconButton aria-label="Meu segundo fator" onClick={aoSegundoFator}><PhonelinkLockIcon /></IconButton></Tooltip>}
           {logado && <Tooltip title="Trocar senha"><IconButton aria-label="Trocar senha" onClick={aoTrocarSenha}>
             <PasswordIcon /></IconButton></Tooltip>}
           {logado && <Tooltip title="Sair"><IconButton aria-label="Sair" onClick={aoSair}><LogoutIcon /></IconButton></Tooltip>}

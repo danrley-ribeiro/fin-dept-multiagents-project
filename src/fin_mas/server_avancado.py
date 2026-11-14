@@ -6,18 +6,25 @@
     POST /api/2fa/ativar        segredo e URI otpauth:// (mostrados uma única vez)
     POST /api/2fa/confirmar     {"codigo"}: ativa e devolve os códigos de recuperação (uma única vez)
     POST /api/2fa/desativar     {"codigo"}
+    GET  /api/2fa               situação do segundo fator da própria conta (ativo, desde, códigos que restam, exigido)
+    POST /api/2fa/recuperacao   {"codigo"}: troca os códigos de recuperação e devolve os novos (uma única vez)
     GET  /api/empresa           empresas do escopo da conta e a ativa | POST {"empresa"}: troca a ativa (IAM-09)
-    GET  /api/segredos          nomes dos segredos do cofre (nunca o valor) | POST {"nome", "valor"} define
+    GET  /api/segredos          nomes dos segredos do cofre (nunca o valor) e, por provedor de LLM, de onde vem a
+                                chave (ambiente, cofre ou nenhuma) | POST {"nome", "valor"} define
     POST /api/segredos/remover  {"nome"} (PERM-MOD-SEGREDOS, IAM-10)
 
 Corpo de POST: objeto JSON; outro tipo, ou campo de tipo errado, é 400.
 """
 import json
+import os
 
+from fin_mas.services import provedores
+from fin_mas.services.acesso_avancado import MAX_FALHAS_2FA
 from fin_mas.services.iam import AcessoNegado
 
 COOKIE_PRE = "sma_pre2fa"
 SO_SESSAO = {("POST", "/api/2fa/ativar"), ("POST", "/api/2fa/confirmar"), ("POST", "/api/2fa/desativar"),
+             ("GET", "/api/2fa"), ("POST", "/api/2fa/recuperacao"),
              ("GET", "/api/empresa"), ("POST", "/api/empresa")}  # valem mesmo com o segundo fator pendente
 PERMISSAO_ROTA = [("GET", "/api/segredos", "PERM-MOD-SEGREDOS"), ("POST", "/api/segredos", "PERM-MOD-SEGREDOS")]
 
@@ -50,7 +57,8 @@ def texto(pedido: dict, campo: str) -> str:
 
 def pendente(erro, cabecalho_token: str):
     """Resposta da primeira etapa quando falta o código: cookie da pré-sessão, sem sessão de verdade."""
-    return _json(200, {"segundo_fator": "pendente", "expira_em": erro.expira_em, "cabecalho": cabecalho_token},
+    return _json(200, {"segundo_fator": "pendente", "expira_em": erro.expira_em, "cabecalho": cabecalho_token,
+                       "tentativas": MAX_FALHAS_2FA},
                  **{"Set-Cookie": f"{COOKIE_PRE}={erro.desafio}; Path=/api/login/2fa; HttpOnly; SameSite=Strict; "
                                   f"Max-Age=300"})
 
@@ -61,8 +69,8 @@ def login_2fa(acesso, corpo: bytes, desafio: str | None, origem: str, cookie_ses
         sessao, token = acesso.confirmar_entrada(desafio, codigo, origem=origem)
     except PedidoInvalido as erro:
         return _json(400, {"erro": str(erro)})
-    except AcessoNegado as erro:
-        return _json(401, {"erro": str(erro)})
+    except AcessoNegado as erro:  # `pre_sessao`: o que resta dela (prazo, tentativas), ou null quando acabou
+        return _json(401, {"erro": str(erro), "pre_sessao": acesso.pre_sessao(desafio)})
     return 200, {"Content-Type": "application/json; charset=utf-8",
                  "Set-Cookie": f"{cookie_sessao}={token}; Path=/; HttpOnly; SameSite=Strict"}, \
         json.dumps({"sessao": sessao.publico(), "csrf": sessao.csrf, "cabecalho": cabecalho_token},
@@ -74,15 +82,34 @@ def tratar_get(acesso, sessao, rota: str):
         empresas = acesso.empresas()
         return _json(200, {"multiempresa": bool(empresas), "ativa": sessao.empresa,
                            "empresas": [empresas[e] for e in sessao.empresas if e in empresas]})
+    if rota == "/api/2fa":
+        sf = (acesso.conta(sessao.usuario) or {}).get("segundo_fator") or {}
+        return _json(200, {"ativo": bool(sf.get("ativo")), "desde": sf.get("desde"),
+                           "codigos_restantes": sf.get("codigos_restantes", 0),
+                           "exigido": bool(set(acesso.politica()["exigir_2fa_para"]) & set(sessao.papeis))})
     if rota == "/api/segredos":
-        return _json(200, {"segredos": acesso.segredos(sessao)})
+        return _json(200, {"segredos": acesso.segredos(sessao), "provedores": chaves_llm(acesso)})
     return None
+
+
+def chaves_llm(acesso) -> list[dict]:
+    """De onde vem a chave de cada provedor de LLM: variável de ambiente (tem precedência), cofre ou nenhuma.
+    Só diz se existe; o valor nunca sai daqui."""
+    saida = []
+    for p in provedores.REGISTRO.values():
+        if not p.variavel_chave:
+            continue
+        no_cofre = acesso.cofre.existe(f"llm:{p.variavel_chave}")
+        saida.append({"id": p.id, "variavel": p.variavel_chave, "segredo": f"llm:{p.variavel_chave}",
+                      "ambiente": bool(os.environ.get(p.variavel_chave)) or (not no_cofre and p.tem_chave()),
+                      "cofre": no_cofre, "opcional": not getattr(p, "exige_chave", True)})
+    return saida
 
 
 def tratar_post(acesso, sessao, rota: str, corpo: bytes):
     """None = não é rota do acesso avançado. AcessoNegado vira 403; pedido malformado, 400."""
-    if rota not in ("/api/2fa/ativar", "/api/2fa/confirmar", "/api/2fa/desativar", "/api/empresa", "/api/segredos",
-                    "/api/segredos/remover"):
+    if rota not in ("/api/2fa/ativar", "/api/2fa/confirmar", "/api/2fa/desativar", "/api/2fa/recuperacao",
+                    "/api/empresa", "/api/segredos", "/api/segredos/remover"):
         return None
     try:
         pedido = objeto(corpo)
@@ -93,6 +120,9 @@ def tratar_post(acesso, sessao, rota: str, corpo: bytes):
         if rota == "/api/2fa/desativar":
             acesso.desativar_2fa(sessao, texto(pedido, "codigo"))
             return _json(200, {"ativo": False})
+        if rota == "/api/2fa/recuperacao":
+            return _json(200, {"ativo": True,
+                               "codigos_recuperacao": acesso.renovar_recuperacao(sessao, texto(pedido, "codigo"))})
         if rota == "/api/empresa":
             nova = acesso.escolher_empresa(sessao, texto(pedido, "empresa"))
             return _json(200, {"ativa": nova.empresa, "sessao": nova.publico()})

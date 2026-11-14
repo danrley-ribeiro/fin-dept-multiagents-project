@@ -148,3 +148,81 @@ def test_each_company_gets_its_own_simulation_and_nothing_crosses_over(servico):
     # quem perde a empresa do escopo perde o acesso na requisição seguinte
     acesso.definir_escopo(admin, "elisa", [])
     assert elisa.get("/api/estado")[0] == 403
+
+
+# ---- o que o dashboard web passou a usar (telas de segundo fator, código da entrada e chaves de LLM) ----
+def test_own_second_factor_status_and_new_recovery_codes(servico):
+    _, acesso, porta, _ = servico()
+    assert Navegador(porta).get("/api/2fa")[0] == 401
+    carla = entrar(porta, "carla")
+    assert carla.get("/api/2fa") == (200, {"ativo": False, "desde": None, "codigos_restantes": 0, "exigido": False})
+    assert carla.post("/api/2fa/recuperacao", {"codigo": "000000"})[0] == 403  # sem segundo fator não há o que trocar
+    segredo, codigos = ativar_2fa(carla)
+    status, situacao = carla.get("/api/2fa")
+    assert status == 200 and situacao["ativo"] is True and situacao["codigos_restantes"] == 10 and situacao["desde"]
+    assert segredo not in str(situacao) and codigos[0] not in str(situacao)
+    assert carla.post("/api/2fa/recuperacao", {"codigo": 123456})[0] == 400
+    recusado = carla.post("/api/2fa/recuperacao", {"codigo": "0000-0000"})
+    assert recusado[0] == 403 and "IAM-08" in recusado[1]["erro"]
+    status, novos = carla.post("/api/2fa/recuperacao", {"codigo": totp.codigo(segredo, time.time() + 30)})
+    assert status == 200 and len(novos["codigos_recuperacao"]) == 10 and not set(novos["codigos_recuperacao"]) & set(codigos)
+    assert carla.get("/api/2fa")[1]["codigos_restantes"] == 10
+    assert carla.post("/api/logout")[0] == 200
+    n = Navegador(porta)
+    n.pedir("POST", "/api/login", {"usuario": "carla", "senha": SENHA_DEMO})
+    pre = {"Cookie": n.ultimos_cabecalhos["set-cookie"].split(";")[0]}
+    assert n.post("/api/login/2fa", {"codigo": codigos[0]}, **pre)[0] == 401  # os códigos antigos deixaram de valer
+    assert n.post("/api/login/2fa", {"codigo": novos["codigos_recuperacao"][0]}, **pre)[0] == 200
+    eventos = [(r["evento"], r["resultado"]) for r in acesso.trilha.ler() if r.get("ator") == "carla"]
+    assert ("2fa_recuperacao_renovada", "negado") in eventos and ("2fa_recuperacao_renovada", "ok") in eventos
+    assert novos["codigos_recuperacao"][1] not in str(acesso.trilha.ler())
+    admin, _ = acesso.autenticar("admin", SENHA_DEMO)
+    acesso.definir_politica(admin, exigir_2fa_para=["ROLE-APR"])
+    diego = entrar(porta, "diego")  # a política exige e a conta ainda não tem: a tela sabe por quê
+    assert diego.get("/api/2fa")[1] == {"ativo": False, "desde": None, "codigos_restantes": 0, "exigido": True}
+
+
+def test_second_step_reports_remaining_attempts_until_the_pre_session_ends(servico):
+    _, _, porta, _ = servico()
+    carla = entrar(porta, "carla")
+    ativar_2fa(carla)
+    n = Navegador(porta)
+    status, dados = n.pedir("POST", "/api/login", {"usuario": "carla", "senha": SENHA_DEMO})
+    assert status == 200 and dados["segundo_fator"] == "pendente" and dados["tentativas"] == 5
+    pre = {"Cookie": n.ultimos_cabecalhos["set-cookie"].split(";")[0]}
+    for restam in (4, 3, 2, 1):
+        status, dados = n.post("/api/login/2fa", {"codigo": "000000"}, **pre)
+        assert status == 401 and dados["pre_sessao"]["tentativas_restantes"] == restam and dados["pre_sessao"]["expira_em"]
+    status, dados = n.post("/api/login/2fa", {"codigo": "000000"}, **pre)  # a quinta derruba a pré-sessão
+    assert status == 401 and dados["pre_sessao"] is None
+    status, dados = n.post("/api/login/2fa", {"codigo": "000000"}, **pre)
+    assert status == 401 and dados["pre_sessao"] is None and "pré-sessão" in dados["erro"]
+    assert n.post("/api/login/2fa", {"codigo": "000000"}, Cookie="sma_pre2fa=forjado")[1]["pre_sessao"] is None
+
+
+def test_vault_route_tells_where_each_llm_key_comes_from(servico, monkeypatch):
+    _, _, porta, _ = servico()
+    for variavel in ("OPENAI_API_KEY", "GEMINI_API_KEY", "ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "FIN_MAS_LLM_API_KEY"):
+        monkeypatch.delenv(variavel, raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "chave-do-ambiente-" + "g" * 12)
+    valor = "sk-cofre-" + "y" * 24
+    assert entrar(porta, "avaliador").get("/api/segredos")[0] == 403
+    admin = entrar(porta, "admin")
+
+    def provedores():
+        status, dados = admin.get("/api/segredos")
+        assert status == 200 and valor not in str(dados) and "chave-do-ambiente" not in str(dados)
+        return {p["id"]: p for p in dados["provedores"]}
+    antes = provedores()
+    assert "mock" not in antes  # provedor sem chave não entra na lista
+    assert antes["openai"] == {"id": "openai", "variavel": "OPENAI_API_KEY", "segredo": "llm:OPENAI_API_KEY",
+                               "ambiente": False, "cofre": False, "opcional": False}
+    assert antes["gemini"]["ambiente"] is True and antes["gemini"]["cofre"] is False
+    assert antes["openai-compat"]["opcional"] is True
+    assert admin.post("/api/segredos", {"nome": antes["openai"]["segredo"], "valor": valor})[0] == 200
+    assert admin.post("/api/segredos", {"nome": antes["gemini"]["segredo"], "valor": valor})[0] == 200
+    depois = provedores()
+    assert depois["openai"]["cofre"] is True and depois["openai"]["ambiente"] is False
+    assert depois["gemini"]["cofre"] is True and depois["gemini"]["ambiente"] is True  # o ambiente tem precedência
+    assert admin.post("/api/segredos/remover", {"nome": "llm:OPENAI_API_KEY"})[1]["removido"] is True
+    assert provedores()["openai"]["cofre"] is False

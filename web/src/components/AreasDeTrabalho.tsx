@@ -8,7 +8,8 @@ import {
   FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Select, Stack, Switch, Table, TableBody, TableCell,
   TableHead, TableRow, TextField, Tooltip, Typography,
 } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { definirSegredo, removerSegredo, type ChaveProvedor, type Segredos } from "../api/avancado";
 import { ler, pode, type Sessao } from "../api/sessao";
 
 type Json = Record<string, unknown>;
@@ -170,15 +171,19 @@ interface Explicacao { alvo: { texto: string }; agente: string; tarefa: string;
 const TIPOS = ["", "decision", "belief", "hipotese", "deliberation", "intention", "desire", "send", "open", "rejected",
   "politica", "mcp_call", "operador", "llm_prompt", "llm_custo", "llm_fallback", "drop", "timeout", "memoria"];
 
-export function Logs({ sessao }: { sessao: Sessao }) {
-  const [f, setF] = useState({ agente: "", tipo: "", tarefa: "", competencia: "", de_t: "", ate_t: "", custo_min: "", q: "" });
-  const [consulta, setConsulta] = useState("");
-  const { dados, erro, recarregar } = useRota<Auditoria>(`/api/auditoria?limite=400&${consulta}`);
+const SEM_FILTRO = { agente: "", tipo: "", tarefa: "", competencia: "", de_t: "", ate_t: "", custo_min: "", q: "" };
+const consultaDe = (f: Record<string, string>) => new URLSearchParams(Object.entries(f).filter(([, v]) => v !== "")).toString();
+
+/** `filtroInicial`: a demonstração guiada abre os logs já filtrados e acompanhando o cenário (atualiza sozinho). */
+export function Logs({ sessao, filtroInicial }: { sessao: Sessao; filtroInicial?: Record<string, string> }) {
+  const [f, setF] = useState({ ...SEM_FILTRO, ...filtroInicial });
+  const [consulta, setConsulta] = useState(() => consultaDe({ ...SEM_FILTRO, ...filtroInicial }));
+  const { dados, erro, recarregar } = useRota<Auditoria>(`/api/auditoria?limite=400&${consulta}`, filtroInicial ? 2000 : 0);
   const [explicar, setExplicar] = useState<number | null>(null);
   const explicacao = useRota<Explicacao>(explicar !== null ? `/api/explicar?seq=${explicar}` : null);
   const [conversa, setConversa] = useState<string | null>(null);
   const sequencia = useRota<{ mermaid: string }>(conversa ? `/api/sequencia?conversa=${encodeURIComponent(conversa)}` : null);
-  const montar = () => new URLSearchParams(Object.entries(f).filter(([, v]) => v !== "")).toString();
+  const montar = () => consultaDe(f);
   const campo = (nome: keyof typeof f, rotulo: string, largura = 130) => (
     <TextField size="small" label={rotulo} value={f[nome]} sx={{ width: largura }}
       onChange={(e) => setF({ ...f, [nome]: e.target.value })} inputProps={{ "aria-label": rotulo }} />);
@@ -283,14 +288,18 @@ const MODELOS_MOCK = ["mock-analista", "mock-narrador", "mock-analista-ruim", "m
 
 export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cenario: string;
   aoComando: (c: Record<string, unknown>) => void }) {
-  const { dados, erro, recarregar } = useRota<LLMApi>("/api/llm", 2500);
+  // quem só define segredos (administrador de acesso) abre a área sem consultar a configuração dos agentes
+  const ve = pode(sessao, "PERM-MOD-VER");
+  const { dados, erro, recarregar } = useRota<LLMApi>(ve ? "/api/llm" : null, 2500);
   const edita = pode(sessao, "PERM-MOD-CONFIG");
   const opera = pode(sessao, "PERM-SIM-OPERAR");
+  const segredos = pode(sessao, "PERM-MOD-SEGREDOS");
   const [rascunho, setRascunho] = useState<Record<string, Partial<AgenteLLM>>>({});
   if (erro) return <Secao titulo="Agentes e LLM"><Alert severity="error">{erro}</Alert></Secao>;
-  if (!dados) return null;
+  if (ve && !dados) return null;
   return (
     <Secao titulo="Agentes e LLM">
+      {dados && (<>
       <Stack direction="row" spacing={2} alignItems="center" useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
         <FormControl size="small" sx={{ minWidth: 340 }}>
           <InputLabel id="nivel-cognicao">Nível de cognição</InputLabel>
@@ -375,7 +384,102 @@ export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cena
         })}
       </Stack>
       {!edita && <Alert severity="info" sx={{ mt: 1.5 }}>Só o aprovador (controller) ajusta modelos e cotas; você pode consultar.</Alert>}
+      </>)}
+      {segredos && <ChavesLLM aoMudar={recarregar} />}
     </Secao>
+  );
+}
+
+// ---------------------------------------------------------------- chaves de LLM no cofre (IAM-10)
+const situacaoDaChave = (p: ChaveProvedor): { texto: string; cor: "success" | "warning" | "default" } =>
+  p.ambiente && p.cofre ? { texto: "há chave no ambiente (a do cofre fica sem uso)", cor: "success" }
+    : p.ambiente ? { texto: "há chave no ambiente", cor: "success" }
+    : p.cofre ? { texto: "há chave no cofre", cor: "success" }
+    : { texto: p.opcional ? "não há chave (opcional neste provedor)" : "não há chave", cor: p.opcional ? "default" : "warning" };
+
+/** Só com PERM-MOD-SEGREDOS. A chave é digitada num campo de senha não controlado: o valor sai do campo direto para
+ *  o servidor e o campo é esvaziado; não passa pelo estado do React, não volta da API e não é escrito em log. */
+function ChavesLLM({ aoMudar }: { aoMudar: () => void }) {
+  const { dados, erro, recarregar } = useRota<Segredos>("/api/segredos");
+  const campos = useRef<Record<string, HTMLInputElement | null>>({});
+  const [preenchido, setPreenchido] = useState<Record<string, boolean>>({}); // só se há algo digitado, nunca o valor
+  const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(null);
+  const [remover, setRemover] = useState<ChaveProvedor | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const depois = (falha: string | undefined, sucesso: string) => {
+    setOcupado(false);
+    setAviso(falha ? { ok: false, texto: falha } : { ok: true, texto: sucesso });
+    recarregar();
+    aoMudar();
+  };
+  const definir = async (e: React.FormEvent, p: ChaveProvedor) => {
+    e.preventDefault();
+    const campo = campos.current[p.id];
+    if (!campo?.value) return;
+    setOcupado(true);
+    const pedido = definirSegredo(p.segredo, campo.value);
+    campo.value = "";
+    setPreenchido((x) => ({ ...x, [p.id]: false }));
+    depois((await pedido).erro, `Chave de ${p.id} guardada no cofre. Ela não será mostrada de novo.`);
+  };
+  const confirmarRemocao = async () => {
+    if (!remover) return;
+    const p = remover;
+    setRemover(null);
+    setOcupado(true);
+    depois((await removerSegredo(p.segredo)).erro, `Chave de ${p.id} removida do cofre.`);
+  };
+  return (
+    <Box component="section" aria-label="Chaves dos provedores de LLM" sx={{ mt: 3 }}>
+      <Typography variant="h3" component="h3">Chaves dos provedores (cofre)</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1, maxWidth: 900 }}>
+        A chave definida aqui fica no cofre selado do cadastro e nunca mais aparece: a tela só diz se ela existe. A
+        variável de ambiente do servidor, quando existe, tem precedência sobre o cofre.
+      </Typography>
+      {erro && <Alert severity="error" role="alert">{erro}</Alert>}
+      {aviso && <Alert severity={aviso.ok ? "success" : "error"} aria-label="Aviso das chaves" sx={{ mb: 1 }}
+        onClose={() => setAviso(null)}>{aviso.texto}</Alert>}
+      <Stack spacing={1}>
+        {(dados?.provedores ?? []).map((p) => {
+          const s = situacaoDaChave(p);
+          const guardado = dados?.segredos.find((x) => x.nome === p.segredo);
+          return (
+            <Card key={p.id} variant="outlined" role="group" aria-label={`Chave de ${p.id}`}>
+              <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                <Stack component="form" direction="row" spacing={1.5} alignItems="center" useFlexGap flexWrap="wrap"
+                  onSubmit={(e: React.FormEvent) => definir(e, p)} autoComplete="off">
+                  <Typography variant="body1" sx={{ minWidth: 130 }}><b>{p.id}</b></Typography>
+                  <Chip size="small" variant="outlined" color={s.cor} label={s.texto} aria-label={`Situação da chave de ${p.id}`} />
+                  <Typography variant="caption" color="text.secondary" sx={{ mr: "auto" }}>
+                    {p.variavel}{guardado ? ` · no cofre por ${guardado.por} em ${new Date(guardado.em * 1000).toLocaleString("pt-BR")}` : ""}
+                  </Typography>
+                  <TextField size="small" type="password" label={p.cofre ? "Chave nova (substitui a do cofre)" : "Chave"}
+                    sx={{ width: 300 }} autoComplete="new-password" inputRef={(el: HTMLInputElement | null) => { campos.current[p.id] = el; }}
+                    onChange={(e) => setPreenchido((x) => ({ ...x, [p.id]: !!e.target.value }))}
+                    inputProps={{ "aria-label": `Chave nova de ${p.id}`, spellCheck: false }} />
+                  <Button type="submit" variant="contained" size="small" disabled={ocupado || !preenchido[p.id]}>
+                    Guardar no cofre</Button>
+                  <Button size="small" color="error" disabled={ocupado || !p.cofre} onClick={() => setRemover(p)}>
+                    Remover do cofre</Button>
+                </Stack>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Stack>
+      <Dialog open={!!remover} onClose={() => setRemover(null)} aria-labelledby="titulo-remover-chave">
+        <DialogTitle id="titulo-remover-chave">Remover a chave de {remover?.id} do cofre?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">Os agentes que usam {remover?.id} ficam sem chave{remover?.ambiente
+            ? " do cofre; a variável de ambiente continua valendo" : " e passam a seguir sem LLM"}.
+            Para voltar atrás será preciso digitar a chave de novo.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRemover(null)}>Cancelar</Button>
+          <Button color="error" variant="contained" onClick={confirmarRemocao}>Remover</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }
 

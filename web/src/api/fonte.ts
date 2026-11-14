@@ -1,6 +1,6 @@
 // Fontes de dados: servidor Python ao vivo (/api) ou traces exportados (replay offline).
 import type { Cenario, Controle, Empresa, FichaAgente, Registro } from "../types";
-import { postar as postarComSessao, sessaoEncerrada } from "./sessao";
+import { acessoNegado, postar as postarComSessao, sessaoEncerrada } from "./sessao";
 
 export interface Catalogo {
   cenarios: Cenario[];
@@ -80,6 +80,8 @@ export async function estadoAoVivo(): Promise<{ agentes: Record<string, MenteSna
   try {
     const r = await fetch("/api/estado");
     if (r.status === 401) sessaoEncerrada();
+    // 403 por segundo fator exigido ou por empresa: a aplicação leva a pessoa à tela certa
+    else if (r.status === 403) acessoNegado(((await r.json().catch(() => ({}))) as { erro?: string }).erro);
     return r.ok ? await r.json() : null;
   } catch {
     return null;

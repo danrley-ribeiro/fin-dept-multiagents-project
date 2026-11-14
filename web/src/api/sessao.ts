@@ -131,10 +131,15 @@ export async function postar(rota: string, corpo: unknown): Promise<Response> {
   return r;
 }
 
-/** GET JSON de uma rota protegida; devolve o erro do servidor em texto quando não passa. */
-export async function ler<T>(rota: string): Promise<{ dados?: T; erro?: string; status: number }> {
+/** Cabeçalho das leituras periódicas (não da pessoa): o servidor não as conta como uso, então a sessão cai depois
+ *  de 15 minutos sem uso mesmo com o dashboard aberto (IAM-04). */
+export const AUTOMATICO = { "X-SMA-Automatico": "1" };
+
+/** GET JSON de uma rota protegida; devolve o erro do servidor em texto quando não passa. `automatico`: leitura
+ *  periódica, que não conta como uso da pessoa. */
+export async function ler<T>(rota: string, automatico = false): Promise<{ dados?: T; erro?: string; status: number }> {
   try {
-    const r = await fetch(rota);
+    const r = await fetch(rota, automatico ? { headers: AUTOMATICO } : undefined);
     if (r.status === 401) { sessaoEncerrada(); return { erro: "sessão encerrada", status: 401 }; }
     const d = await r.json().catch(() => ({}));
     if (r.status === 403) acessoNegado((d as { erro?: string }).erro);

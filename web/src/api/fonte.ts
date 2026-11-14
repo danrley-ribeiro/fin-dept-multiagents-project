@@ -1,6 +1,6 @@
 // Fontes de dados: servidor Python ao vivo (/api) ou traces exportados (replay offline).
 import type { Cenario, Controle, Empresa, FichaAgente, Registro } from "../types";
-import { acessoNegado, postar as postarComSessao, sessaoEncerrada } from "./sessao";
+import { acessoNegado, AUTOMATICO, postar as postarComSessao, sessaoEncerrada } from "./sessao";
 
 export interface Catalogo {
   cenarios: Cenario[];
@@ -13,7 +13,8 @@ export type EventoAoVivo =
   | { tipo: "reset"; geracao: number; cenario: string; seed: number }
   | { tipo: "registro"; geracao: number; registro: Registro }
   | { tipo: "controle"; geracao: number; estado: Controle; erro?: string }
-  | { tipo: "sessao_encerrada" };
+  | { tipo: "sessao_encerrada" }
+  | { tipo: "fluxo_encerrado"; regra: string; motivo: string };
 
 export interface TraceExportado {
   cenario: { nome: string; descricao: string; seed: number; intencao: string };
@@ -60,6 +61,12 @@ export function conectarAoVivo(aoEvento: (e: EventoAoVivo) => void, aoErro: () =
       sessaoEncerrada();
       return;
     }
+    if (evento.tipo === "fluxo_encerrado") {  // permissão retirada ou empresa fora do escopo: o servidor fecha o fluxo
+      fonte.close();
+      acessoNegado(`${evento.regra}: ${evento.motivo}`);
+      aoErro();
+      return;
+    }
     aoEvento(evento);
   };
   fonte.onerror = () => aoErro();
@@ -78,7 +85,7 @@ export async function enviarComando(cmd: Record<string, unknown>): Promise<strin
 
 export async function estadoAoVivo(): Promise<{ agentes: Record<string, MenteSnapshot> } | null> {
   try {
-    const r = await fetch("/api/estado");
+    const r = await fetch("/api/estado", { headers: AUTOMATICO });
     if (r.status === 401) sessaoEncerrada();
     // 403 por segundo fator exigido ou por empresa: a aplicação leva a pessoa à tela certa
     else if (r.status === 403) acessoNegado(((await r.json().catch(() => ({}))) as { erro?: string }).erro);

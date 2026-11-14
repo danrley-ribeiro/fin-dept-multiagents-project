@@ -40,6 +40,7 @@ import contextlib
 import hashlib
 import hmac
 import secrets
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -151,6 +152,7 @@ class Acesso(AcessoAvancado):
         self._nonces: set = set()
         self._seq_nonce = 0
         self._vista: dict[str, float] = {}  # sessão -> último uso ainda não persistido
+        self._local = threading.local()  # `sem_atividade`: leitura automática não conta como uso da pessoa (IAM-04)
         self._falso = _hash_senha("senha-que-ninguem-usa", self.custo)  # custo igual para usuário inexistente
 
     # ---- cadastro: leitura com falha fechada ---------------------------------------------
@@ -408,6 +410,33 @@ class Acesso(AcessoAvancado):
     def sessao_por_id(self, sid: str) -> Sessao | None:
         return self._viva(self._ler_sessoes().get(sid))
 
+    @contextlib.contextmanager
+    def sem_atividade(self):
+        """Dentro do bloco (nesta thread), conferir a sessão não conta como uso da pessoa: o fluxo de eventos e as
+        leituras automáticas do dashboard não adiam a queda por inatividade (IAM-04)."""
+        anterior = getattr(self._local, "sem_atividade", False)
+        self._local.sem_atividade = True
+        try:
+            yield
+        finally:
+            self._local.sem_atividade = anterior
+
+    def conferir_fluxo(self, sessao: Sessao, permissao: str, empresa: str | None) -> tuple[str, str] | None:
+        """(regra, motivo) quando um fluxo aberto por `sessao` (ex.: eventos ao vivo da empresa `empresa`) tem de
+        fechar: sessão encerrada ou inativa, conta bloqueada, permissão retirada ou empresa trocada ou fora do
+        escopo. Não conta como uso da pessoa."""
+        with self.sem_atividade():
+            atual = self.sessao_por_id(sessao.id)
+        if atual is None:
+            return "IAM-04", "sessão encerrada, expirada ou inativa"
+        if atual.pendente_2fa:
+            return "IAM-08", "segundo fator exigido pela política do cadastro"
+        if not atual.pode(permissao):
+            return "IAM-05", f"{atual.usuario} não tem mais a permissão {permissao}"
+        if self.multiempresa() and (atual.empresa != empresa or atual.empresa not in atual.empresas):
+            return "IAM-09", f"{atual.usuario} não está mais na empresa {empresa}"
+        return None
+
     def _viva(self, registro) -> Sessao | None:
         if registro is None or registro["revogada"] or registro.get("pre2fa"):  # pré-sessão só confirma o código
             return None
@@ -418,6 +447,8 @@ class Acesso(AcessoAvancado):
         conta = self._ler_contas().get(registro["usuario"])
         if conta is None or conta["estado"] != "ativa":
             return None
+        if getattr(self._local, "sem_atividade", False):
+            return self._sessao(registro, conta)
         self._vista[registro["id"]] = agora
         if agora - registro["vista_em"] > PERSISTIR_VISTA_S and not self.simulado:
             with self._tx(self._sessoes) as dados:

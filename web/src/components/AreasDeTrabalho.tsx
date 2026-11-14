@@ -19,16 +19,17 @@ const NIVEIS: [string, string][] = [["basico", "Básico (ciclo BDI, sem hipótes
 function useRota<T>(rota: string | null, intervalo = 0): { dados: T | null; erro: string | null; recarregar: () => void } {
   const [dados, setDados] = useState<T | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const recarregar = useCallback(() => {
+  const buscar = useCallback((automatico: boolean) => {
     if (!rota) return;
-    ler<T>(rota).then((r) => { if (r.dados) { setDados(r.dados); setErro(null); } else if (r.status !== 401) setErro(r.erro ?? "erro"); });
+    ler<T>(rota, automatico).then((r) => { if (r.dados) { setDados(r.dados); setErro(null); } else if (r.status !== 401) setErro(r.erro ?? "erro"); });
   }, [rota]);
+  const recarregar = useCallback(() => buscar(false), [buscar]);
   useEffect(() => {
     recarregar();
     if (!intervalo) return;
-    const t = setInterval(recarregar, intervalo);
+    const t = setInterval(() => buscar(true), intervalo);  // a releitura periódica não conta como uso (IAM-04)
     return () => clearInterval(t);
-  }, [recarregar, intervalo]);
+  }, [recarregar, buscar, intervalo]);
   return { dados, erro, recarregar };
 }
 

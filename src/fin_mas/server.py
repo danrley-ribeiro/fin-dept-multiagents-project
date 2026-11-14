@@ -32,7 +32,9 @@ não seja `127.0.0.1`/`localhost` (DNS rebinding e páginas de outros sites). De
 - os POST exigem ainda o cabeçalho `X-SMA-Token` com o token CSRF **da sessão**: outro site não
   o conhece e não consegue forjar comandos;
 - a sessão é conferida a cada requisição no cadastro selado: revogar pela TUI vale na hora, e o
-  fluxo de eventos (SSE) se fecha quando a sessão morre;
+  fluxo de eventos (SSE) reconfere sessão, permissão e empresa a cada intervalo e se fecha quando
+  qualquer uma delas cai; nem o fluxo nem as leituras periódicas marcadas com `X-SMA-Automatico: 1`
+  contam como uso da pessoa, então a queda por 15 minutos de inatividade vale com o dashboard aberto;
 - toda resposta leva cabeçalhos de segurança (CSP, `nosniff`, sem embutir em outra página).
 
 DSM4 (ADR-012): login em dois passos, cofre e empresa ficam em `server_avancado.py`; aqui só o
@@ -79,6 +81,7 @@ LOOPBACK = {"127.0.0.1", "localhost"}
 LEITURA_SEGUNDOS = 5  # tempo máximo para receber o corpo de um POST
 DESCARTE_MAXIMO = 64 * 1024  # corpo de requisição recusada que ainda é lido e descartado
 CABECALHO_TOKEN = "X-SMA-Token"
+CABECALHO_AUTOMATICO = "X-SMA-Automatico"  # "1": leitura periódica do dashboard, não conta como uso (IAM-04)
 LIMITE_LOGIN = 4 * 1024  # corpo máximo de /api/login
 VERIFICAR_SESSAO_S = 2  # o fluxo de eventos confere a sessão a cada tanto
 
@@ -451,6 +454,13 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                 return None
 
         def do_GET(self):
+            if self.headers.get(CABECALHO_AUTOMATICO) == "1":  # leitura automática do dashboard: não é uso da pessoa
+                with acesso.sem_atividade():
+                    self._get()
+            else:
+                self._get()
+
+        def _get(self):
             rota = self.path.split("?", 1)[0]
             if not self._origem_ok():
                 self._erro(403, "origem não permitida: use http://127.0.0.1 ou http://localhost")
@@ -620,7 +630,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                               or tratar(sim, "POST", self.path, corpo)))
 
         def _eventos(self, sessao):
-            sim = simulacoes.de(sessao)
+            sim, empresa = simulacoes.de(sessao), sessao.empresa
             fila: queue.Queue = queue.Queue()
             with sim.lock:  # histórico e assinatura atômicos: nenhum registro perdido ou duplicado
                 historico = [{"tipo": "reset", "geracao": sim.geracao, "cenario": sim.cenario.nome,
@@ -648,12 +658,17 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                     if time.monotonic() - conferida < VERIFICAR_SESSAO_S:
                         continue  # a sessão é conferida a cada intervalo, não a cada registro enviado
                     conferida = time.monotonic()
-                    try:
-                        viva = acesso.sessao_por_id(sessao.id) is not None
-                    except AcessoNegado:
-                        viva = False
-                    if not viva:  # sessão revogada ou expirada: o fluxo fecha em até um intervalo (IAM-04)
-                        self._enviar({"tipo": "sessao_encerrada"})
+                    try:  # sessão, permissão e empresa de novo, sem contar como uso da pessoa (IAM-04/05/09)
+                        fechar = acesso.conferir_fluxo(sessao, "PERM-SIM-VER", empresa)
+                    except AcessoNegado as erro:
+                        fechar = (erro.regra, erro.motivo)
+                    if fechar is not None:  # o fluxo fecha em até um intervalo, e a trilha registra por quê
+                        regra, motivo = fechar
+                        acesso.registrar("eventos_encerrados", sessao.usuario, "negado", regra=regra, motivo=motivo,
+                                         sessao=sessao.id, empresa=empresa)
+                        self._enviar({"tipo": "sessao_encerrada"} if regra == "IAM-04" else
+                                     {"tipo": "fluxo_encerrado", "regra": regra, "motivo": motivo})
+                        self.close_connection = True  # o fluxo acabou: a conexão também
                         return
             except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
                 pass

@@ -189,7 +189,8 @@ def formatar(r: dict) -> str:
         resultado = json.dumps(r["resultado"], sort_keys=True, ensure_ascii=False)
         return f"{cab} DECISAO {r['agente']}: {r['regra']} => {resultado}"
     if k == "mcp_call":
-        return f"{cab} MCP {r['agente']} chama {r['tool']}"
+        efeito = f" ({r['situacao']}: {r.get('motivo')})" if r.get("situacao") else ""
+        return f"{cab} MCP {r['agente']} chama {r['tool']}{efeito}"
     if k == "mcp_denied":
         if r.get("motivo"):
             return f"{cab} MCP INDISPONIVEL {r['agente']} em {r['tool']} ({r['motivo']})"

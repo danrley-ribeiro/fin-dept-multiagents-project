@@ -3045,3 +3045,135 @@
 **Resultado esperado:** modelos, envio e histórico; só o administrador libera host externo  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} segundo fator: ativar mostra o segredo e os códigos uma vez e a entrada passa a ter dois passos
+:id: TEST-400
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06, REQ-O04
+:derived_from: NORM-15
+
+`segundo fator: ativar mostra o segredo e os códigos uma vez e a entrada passa a ter dois passos()` — tipo *interface*.  
+**Resultado esperado:** no navegador: ativação com TOTP calculado no teste; segredo e códigos fora da página depois; senha abre só o pedido do código; código errado recusado com erro genérico  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} segundo fator: código de recuperação entra uma vez só e cinco códigos errados devolvem ao início
+:id: TEST-401
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`segundo fator: código de recuperação entra uma vez só e cinco códigos errados devolvem ao início()` — tipo *interface*.  
+**Resultado esperado:** código de recuperação vale uma vez; as tentativas que restam vêm do servidor; a quinta recusa volta ao usuário e senha  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} segundo fator: novos códigos de recuperação e desativação pela própria pessoa
+:id: TEST-402
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`segundo fator: novos códigos de recuperação e desativação pela própria pessoa()` — tipo *interface*.  
+**Resultado esperado:** códigos novos invalidam os antigos; desativar pede um código válido; a entrada volta a um passo  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} política que exige o segundo fator leva a conta sem ele à ativação e só depois libera o escritório
+:id: TEST-403
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`política que exige o segundo fator leva a conta sem ele à ativação e só depois libera o escritório()` — tipo *interface*.  
+**Resultado esperado:** política ligada pela CLI: quem entra e quem já estava dentro caem na ativação; a API nega com IAM-08; ativado, o escritório abre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} chave de LLM no cofre: definir, ver que há chave e remover, sem o valor aparecer em lugar nenhum
+:id: TEST-404
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`chave de LLM no cofre: definir, ver que há chave e remover, sem o valor aparecer em lugar nenhum()` — tipo *interface*.  
+**Resultado esperado:** só com PERM-MOD-SEGREDOS; situação por provedor; valor fora das respostas, do HTML, do console e da trilha  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} troca de empresa: seletor só para quem tem mais de uma, empresa ativa inequívoca e dados isolados
+:id: TEST-405
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06, REQ-O04
+:derived_from: NORM-15
+
+`troca de empresa: seletor só para quem tem mais de uma, empresa ativa inequívoca e dados isolados()` — tipo *interface*.  
+**Resultado esperado:** empresas e escopo criados pela CLI; escolha na entrada; a troca recarrega estado e fluxo de eventos; nada cruza  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} demonstração guiada: abre por opção, dispara os comandos de cada passo e fecha sem mudar o escritório
+:id: TEST-406
+:entrega: DSM4
+:status: executado
+:verifies: REQ-O04
+:derived_from: ROLE-OPE
+
+`demonstração guiada: abre por opção, dispara os comandos de cada passo e fecha sem mudar o escritório()` — tipo *interface*.  
+**Resultado esperado:** desligada por padrão; fechamento, veto, agente desligado (reenvio e falha) e ataque recusado disparados pelo roteiro; fechada, o escritório funciona igual  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} demonstração guiada respeita as permissões: o auditor lê o roteiro, mas não dispara comandos
+:id: TEST-407
+:entrega: DSM4
+:status: executado
+:verifies: REQ-O04, REQ-S05
+:derived_from: ROLE-OPE
+
+`demonstração guiada respeita as permissões: o auditor lê o roteiro, mas não dispara comandos()` — tipo *interface*.  
+**Resultado esperado:** botões de comando desligados com o motivo; o servidor nega o comando forçado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_own_second_factor_status_and_new_recovery_codes
+:id: TEST-408
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_own_second_factor_status_and_new_recovery_codes()` — tipo *integracao*.  
+**Resultado esperado:** GET /api/2fa e POST /api/2fa/recuperacao: situação, códigos novos, antigos inválidos, trilha sem os códigos  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_second_step_reports_remaining_attempts_until_the_pre_session_ends
+:id: TEST-409
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_second_step_reports_remaining_attempts_until_the_pre_session_ends()` — tipo *integracao*.  
+**Resultado esperado:** a recusa do código diz quantas tentativas restam; na quinta a pré-sessão acaba  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_vault_route_tells_where_each_llm_key_comes_from
+:id: TEST-410
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_vault_route_tells_where_each_llm_key_comes_from()` — tipo *integracao*.  
+**Resultado esperado:** por provedor: ambiente, cofre ou nenhuma; o valor nunca sai  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -43,10 +43,29 @@ Console (`python -m fin_mas acesso tui`): F6 segundo fator, F7 delegações, F9 
 política do cadastro, F11 cofre, F12 empresas; a entrada pede o código quando o segundo fator está
 ativo.
 
-API do dashboard: `POST /api/login` (com segundo fator: `{"segundo_fator": "pendente"}` e o cookie
-da pré-sessão), `POST /api/login/2fa`, `POST /api/2fa/ativar|confirmar|desativar`,
-`GET|POST /api/empresa`, `GET|POST /api/segredos`, `POST /api/segredos/remover`. O seletor de
-empresa e as telas de 2FA/cofre **no front** (`web/src/App.tsx`) não foram feitos: só a API.
+API do dashboard: `POST /api/login` (com segundo fator: `{"segundo_fator": "pendente"}`, o número de
+tentativas e o cookie da pré-sessão), `POST /api/login/2fa` (a recusa diz quantas tentativas restam
+ou que a pré-sessão acabou), `GET /api/2fa`, `POST /api/2fa/ativar|confirmar|recuperacao|desativar`,
+`GET|POST /api/empresa`, `GET|POST /api/segredos` (com a origem da chave de cada provedor de LLM:
+ambiente, cofre ou nenhuma), `POST /api/segredos/remover`.
+
+## No dashboard web
+
+Decisão do dono do produto: o console (TUI) e a CLI são para **gerenciar** (contas, papéis, sessões,
+política do cadastro, delegações, empresas e escopos); a web é para **usar** a plataforma. Por isso
+o dashboard traz só o que a própria pessoa usa:
+
+| O quê | Onde | Regra |
+|---|---|---|
+| Entrada em dois passos: depois da senha, o código do aplicativo ou um código de recuperação; erro genérico, tentativas e prazo vindos do servidor, volta ao início quando a pré-sessão acaba | tela de entrada (`components/Login.tsx`) | IAM-08 |
+| Meu segundo fator: ativar (segredo, endereço `otpauth://` e códigos de recuperação mostrados uma vez), ver a situação, gerar novos códigos, desativar com confirmação | botão “Meu segundo fator” no cabeçalho (`components/SegundoFator.tsx`) | IAM-08 |
+| Segundo fator exigido pela política: a conta sem ele cai direto na tela de ativação, inclusive quem já estava dentro quando a política mudou | antes do escritório | IAM-08 |
+| Empresa ativa: escolha na entrada (conta com várias), seletor no cabeçalho só para quem tem mais de uma; a troca remonta o escritório sobre a simulação da empresa escolhida | cabeçalho (`components/Empresas.tsx`) | IAM-09 |
+| Chave de LLM no cofre, por provedor: “há chave no ambiente / no cofre / não há”, definir (campo de senha, nunca reexibido) e remover | aba “Agentes e LLM”, só com `PERM-MOD-SEGREDOS` | IAM-10 |
+
+Contas, papéis, sessões, política do cadastro, delegações e cadastro de empresas continuam só na
+TUI e na CLI. Roteiros de interface: `web/e2e/avancado.spec.ts` (servidor e cadastro próprios, com o
+TOTP calculado no teste pela RFC 6238).
 
 ## Cenários
 
@@ -75,5 +94,7 @@ pública (`Memoria`, `VisaoMemoria`, `gravar`, `consultar`, `expirar`, `pseudoni
   (ver a tabela da ADR-012).
 - A trilha de acesso é uma por cadastro (o cadastro de contas é global); os eventos levam a empresa.
 - O escalonamento sobe um nível, uma vez.
-- Delegações e o seletor de empresa não têm tela no dashboard web (só API para a empresa; CLI e TUI
-  para delegações).
+- Delegações, política do cadastro e gestão de contas e de empresas não têm tela no dashboard web
+  (decisão de produto: ficam na TUI e na CLI).
+- A ativação do segundo fator pela web mostra o segredo e o endereço `otpauth://` em texto; não há
+  QR code (o dashboard não carrega bibliotecas além das que já usa).

@@ -517,3 +517,26 @@ items:
      esperado: "no navegador: aba Fontes de ponta a ponta; o token nunca aparece", entrega: DSM4, status: executado}
   - {id: TEST-265, nome: "fontes: modelos para baixar, envio de planilha e histórico; host externo só pelo administrador", verifica: [REQ-S20], derivado_de: NORM-32, tipo: interface,
      esperado: "modelos, envio e histórico; só o administrador libera host externo", entrega: DSM4, status: executado}
+  # ---- DSM4 (entrega final): o acesso avançado no dashboard web e a demonstração guiada ----
+  - {id: TEST-400, nome: "segundo fator: ativar mostra o segredo e os códigos uma vez e a entrada passa a ter dois passos", verifica: [REQ-S06, REQ-O04], derivado_de: NORM-15, tipo: interface,
+     esperado: "no navegador: ativação com TOTP calculado no teste; segredo e códigos fora da página depois; senha abre só o pedido do código; código errado recusado com erro genérico", entrega: DSM4, status: executado}
+  - {id: TEST-401, nome: "segundo fator: código de recuperação entra uma vez só e cinco códigos errados devolvem ao início", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "código de recuperação vale uma vez; as tentativas que restam vêm do servidor; a quinta recusa volta ao usuário e senha", entrega: DSM4, status: executado}
+  - {id: TEST-402, nome: "segundo fator: novos códigos de recuperação e desativação pela própria pessoa", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "códigos novos invalidam os antigos; desativar pede um código válido; a entrada volta a um passo", entrega: DSM4, status: executado}
+  - {id: TEST-403, nome: "política que exige o segundo fator leva a conta sem ele à ativação e só depois libera o escritório", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "política ligada pela CLI: quem entra e quem já estava dentro caem na ativação; a API nega com IAM-08; ativado, o escritório abre", entrega: DSM4, status: executado}
+  - {id: TEST-404, nome: "chave de LLM no cofre: definir, ver que há chave e remover, sem o valor aparecer em lugar nenhum", verifica: [REQ-S06], derivado_de: NORM-15, tipo: interface,
+     esperado: "só com PERM-MOD-SEGREDOS; situação por provedor; valor fora das respostas, do HTML, do console e da trilha", entrega: DSM4, status: executado}
+  - {id: TEST-405, nome: "troca de empresa: seletor só para quem tem mais de uma, empresa ativa inequívoca e dados isolados", verifica: [REQ-S06, REQ-O04], derivado_de: NORM-15, tipo: interface,
+     esperado: "empresas e escopo criados pela CLI; escolha na entrada; a troca recarrega estado e fluxo de eventos; nada cruza", entrega: DSM4, status: executado}
+  - {id: TEST-406, nome: "demonstração guiada: abre por opção, dispara os comandos de cada passo e fecha sem mudar o escritório", verifica: [REQ-O04], derivado_de: ROLE-OPE, tipo: interface,
+     esperado: "desligada por padrão; fechamento, veto, agente desligado (reenvio e falha) e ataque recusado disparados pelo roteiro; fechada, o escritório funciona igual", entrega: DSM4, status: executado}
+  - {id: TEST-407, nome: "demonstração guiada respeita as permissões: o auditor lê o roteiro, mas não dispara comandos", verifica: [REQ-O04, REQ-S05], derivado_de: ROLE-OPE, tipo: interface,
+     esperado: "botões de comando desligados com o motivo; o servidor nega o comando forçado", entrega: DSM4, status: executado}
+  - {id: TEST-408, nome: test_own_second_factor_status_and_new_recovery_codes, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "GET /api/2fa e POST /api/2fa/recuperacao: situação, códigos novos, antigos inválidos, trilha sem os códigos", entrega: DSM4, status: executado}
+  - {id: TEST-409, nome: test_second_step_reports_remaining_attempts_until_the_pre_session_ends, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "a recusa do código diz quantas tentativas restam; na quinta a pré-sessão acaba", entrega: DSM4, status: executado}
+  - {id: TEST-410, nome: test_vault_route_tells_where_each_llm_key_comes_from, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+     esperado: "por provedor: ambiente, cofre ou nenhuma; o valor nunca sai", entrega: DSM4, status: executado}

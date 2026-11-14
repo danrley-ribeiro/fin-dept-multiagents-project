@@ -346,7 +346,8 @@ na DSM2) e \code{ataque\_acesso} (\V{ataques.acesso.rejeitados} de \V{ataques.ac
 só o trace e confere \V{invariantes} propriedades em qualquer execução: nenhuma publicação de pacote vetado sem
 tratamento, nenhum efeito externo sem aprovação decidida, toda transição existe na FSM, toda decisão aceita tem pessoa e
 sessão quando o acesso está ligado, nenhuma crença tem proponente como fonte, hipótese só muda de estado com evidência,
-toda solicitação recebe resposta explícita e nenhum segredo aparece no trace. A Seção~\ref{sec:rq6} mostra que essas
+toda solicitação recebe resposta explícita e nenhum segredo aparece no trace; o lote de acesso avançado acrescenta
+invariantes próprios, como o aval da dupla aprovação (INV-09). A Seção~\ref{sec:rq6} mostra que essas
 garantias se mantiveram com o sistema degradado.
 
 Fora do modelo, e declarado: código com acesso ao objeto Python de outro agente (a raiz de confiança é o processo),

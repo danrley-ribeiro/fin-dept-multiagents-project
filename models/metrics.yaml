@@ -246,3 +246,13 @@ items:
     mede: [REQ-S06]
     entrega: DSM4
     status: implementado
+
+  - id: MET-50
+    titulo: Acerto do entendimento automático de fontes
+    formula: >-
+      campos canônicos sugeridos corretamente / campos do gabarito, por fonte (OpenAPI do ERP de demonstração,
+      planilha fora do modelo, tools MCP); fechamento sobre o conector igual ao da fonte de referência
+    alvo: "100% nas fontes de demonstração; 0 credenciais expostas; 0 chamadas a host externo sem liberação"
+    mede: [REQ-F30, REQ-S20]
+    entrega: DSM4
+    status: implementado

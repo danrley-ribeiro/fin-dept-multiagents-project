@@ -54,6 +54,22 @@ Consultar a planilha em uso, a validação e baixar os modelos de planilha.
 Substituir a planilha da pasta de dados por uma nova, depois de validada.
 ````
 
+````{perm} Conectar e mapear fontes de dados
+:id: PERM-DAD-CONECTAR
+:entrega: DSM4
+:status: especificado
+
+Cadastrar, testar e remover conectores (pasta de planilhas, API REST, servidor MCP de Excel), guardar a credencial no cofre (sem nunca vê-la de volta), entender a fonte, confirmar o mapeamento sugerido e ativar a fonte na simulação. Host fora do loopback só depois da liberação de um administrador (PERM-DAD-REDE).
+````
+
+````{perm} Liberar host externo para conectores
+:id: PERM-DAD-REDE
+:entrega: DSM4
+:status: especificado
+
+Liberar ou revogar um host fora do loopback para os conectores REST (por padrão a plataforma só fala com a própria máquina); cada liberação fica na trilha de acesso com a pessoa.
+````
+
 ````{perm} Ver configuração de modelos
 :id: PERM-MOD-VER
 :entrega: DSM3

@@ -201,3 +201,39 @@
 **Consequência:** A entrada ou a ação é negada com a regra e registrada na trilha; o valor de um segredo nunca sai para a interface; cofre comprometido não é lido; nada de outra empresa é mostrado nem decidido  
 **Decisão:** `DENY`
 ````
+
+````{norm} Mapeamento de fonte só vale confirmado por uma pessoa
+:id: NORM-30
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-IAM
+
+**Escopo:** Entendimento automático de fontes e ativação de conectores (aba Fontes de dados, cenários)  
+**Condição:** Mapeamento proposto e não confirmado, confirmado por quem não tem PERM-DAD-CONECTAR, ou que não passa na validação determinística  
+**Consequência:** A fonte não é ativada; a confirmação grava a pessoa, a hora e o digest do mapeamento na trilha; nos cenários em lote, a confirmação é a do roteiro do cenário  
+**Decisão:** `DENY`
+````
+
+````{norm} LLM no entendimento de fontes só sugere (extensão da NORM-07 a um consumidor de plataforma)
+:id: NORM-31
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-MOD
+
+**Escopo:** Sugestão opcional de mapeamento por LLM no entendimento de fontes  
+**Condição:** Flag desligada; provedor externo sem consentimento; sugestão para campo canônico inexistente, coluna que não existe na fonte, tipo incompatível, outro recurso ou campo que já tem sugestão determinística  
+**Consequência:** Nada é enviado (ou só nomes e tipos, sem valores); a sugestão inválida é rejeitada com o motivo; a aceita entra com confiança baixa, marcada como do LLM, e ainda exige a confirmação da NORM-30  
+**Decisão:** `DENY`
+````
+
+````{norm} Conector só fala com loopback, e a credencial só com o host a que foi vinculada
+:id: NORM-32
+:entrega: DSM4
+:status: especificado
+:enforced_by: SVC-IAM, SVC-MCP
+
+**Escopo:** Conectores REST e credenciais no cofre  
+**Condição:** Host fora do loopback sem liberação de PERM-DAD-REDE; credencial guardada para outro host; redirecionamento da fonte  
+**Consequência:** A chamada é recusada antes de qualquer conexão (RedeNaoLiberada) ou feita sem a credencial; o redirecionamento não é seguido; liberar e revogar host ficam na trilha de acesso  
+**Decisão:** `DENY`
+````

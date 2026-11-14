@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 # ADR-010 — Todos os especialistas BDI, com as variantes reativas como braço de comparação
 
 - **Status:** aceita (DSM4, 13/11/2026)

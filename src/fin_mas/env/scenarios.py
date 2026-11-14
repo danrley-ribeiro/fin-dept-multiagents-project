@@ -227,7 +227,7 @@ PRAZO_APROVACAO_INTERATIVO = 1800  # ticks: ~10 min de parede no ritmo padrão d
 def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", ttl=200, agenda=None,
                  interativo=False, porte=PORTE_PADRAO, pasta=None, memoria=None, aprovadores=None,
                  prazo_aprovacao=None, llm=None, cognicao="basico", acesso=None, compromisso=None,
-                 aprendizado=None, parametros=None, caos=None, segmento=SEGMENTO_PADRAO) -> System:
+                 aprendizado=None, parametros=None, caos=None, segmento=SEGMENTO_PADRAO, ambiente=None) -> System:
     """`pasta`: planilha preenchida de uma empresa real sem ERP (substitui os dados sintéticos).
 
     DSM4 (ADR-010): fora do nível `basico`, AG-RES, AG-CUS e AG-REL são as variantes BDI; em `basico` são as
@@ -250,8 +250,10 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
     if cognicao not in NIVEIS:
         raise ValueError(f"nível de cognição desconhecido: {cognicao} (use {', '.join(NIVEIS)})")
     bus = Bus(faults=[Fault(**f) if isinstance(f, dict) else f for f in faults], caos=caos)
-    amb = Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte,
-                                                           segmento=segmento)
+    # `ambiente`: fonte por conector (Ambiente.de_conector, ADR-011); substitui `pasta` e os dados sintéticos
+    amb = ambiente if ambiente is not None else \
+        Ambiente.de_pasta(pasta) if pasta else Ambiente(seed, plantar=plantar, agenda=agenda, porte=porte,
+                                                         segmento=segmento)
     ds = amb.dataset()
     if parametros is not None:
         ttl, prazo_aprovacao = parametros.ttl_reserva, parametros.prazo_aprovacao or prazo_aprovacao
@@ -343,6 +345,7 @@ class Scenario:
     esperado: str = ""  # o que observar ao rodar o cenário (catálogo de cenários de teste)
     compromisso: tuple = ()  # ((agente, estratégia), ...): cego | obstinado | aberto (ADR-010); vazio = a do porte
     segmento: str = SEGMENTO_PADRAO  # DSM4: comércio, serviços, indústria (models/segmentos.yaml)
+    conector: str | None = None  # fonte por conector (conectores/cenarios.py), ADR-011; None = dados sintéticos
 
 
 CENARIOS = {c.nome: c for c in [
@@ -624,6 +627,23 @@ CENARIOS = {c.nome: c for c in [
              "lançada duas vezes na conta de marketing infla o desvio; o AG-CIN veta e o estorno destrava",
              "fechar_mes", segmento="industria", plantar=("desvio_irregular",), decisao_aprovador="corrigir",
              esperado="AG-CUS rateia por horas-máquina (70/30); desvio atribuído a controle; estorno aprovado"),
+    # ---- DSM4 (ADR-011): conectores e entendimento automático de fontes, sem LLM ----
+    Scenario("conector_rest_demo", "ERP de demonstração em loopback: o conector REST genérico lê o contrato OpenAPI, "
+             "entende a fonte sem LLM e o mapeamento é confirmado; alçada violada, correção aprovada escrita no ERP "
+             "pela API", "fechar_mes", decisao_aprovador="corrigir", conector="erp_demo:alcada",
+             esperado="mesmo resultado do veto_correcao sobre o ERP simulado; a correção só chega ao ERP com o ticket "
+                      "aprovado"),
+    Scenario("conector_fora_do_ar", "ERP fora do ar (nada escuta na porta): toda leitura falha com o motivo e o "
+             "fechamento termina em falha explícita, sem travar", "fechar_mes", conector="erp_fora_do_ar",
+             esperado="failure com 'fonte indisponível'; leituras negadas auditadas; nada publicado"),
+    Scenario("planilha_fora_do_modelo", "Planilha da casa (abas e colunas renomeadas e reordenadas, título acima do "
+             "cabeçalho, R$ em texto, datas, linha de total): entendimento sugere o mapeamento, confirmação e "
+             "fechamento", "fechar_mes", seed=7, porte="pequena", conector="planilha_fora_do_modelo",
+             esperado="mesmo resultado da mesma empresa no modelo canônico; linha de total excluída e conferida"),
+    Scenario("mcp_tools_entendidas", "Servidor MCP de Excel por stdio: tools listadas, ler_aba reconhecida como uma "
+             "tool por aba canônica, amostras, mapeamento confirmado e fechamento pelo cliente MCP", "fechar_mes",
+             seed=11, porte="micro", conector="mcp_excel",
+             esperado="mesmo resultado da planilha lida pela pasta; proveniência mcp://mcp-excel/ler_aba#Aba"),
 ]}
 
 PEDIDOS_PLANILHA = (("avaliar_orcamento", None, 1), ("fechar_mes", None, 4))
@@ -652,19 +672,23 @@ class Execucao:
 
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
            llm=None, cognicao=None, acesso=None, compromisso=None, aprendizado=None, parametros=None,
-           caos=None, segmento=None) -> tuple[System, list]:
+           caos=None, segmento=None, ambiente=None) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
-    avaliar orçamento + fechar o mês da competência da planilha).
+    avaliar orçamento + fechar o mês da competência da planilha). `ambiente` (ou `sc.conector`) usa
+    a fonte de um conector (ADR-011).
     """
+    if ambiente is None and sc.conector:
+        from fin_mas.conectores.cenarios import ambiente_do_cenario
+        ambiente = ambiente_do_cenario(sc.conector, seed if seed is not None else sc.seed, porte or sc.porte)
     sistema = build_system(seed if seed is not None else sc.seed, () if pasta else sc.plantar, sc.faults,
                            sc.decisao_aprovador, agenda=None if pasta else dict(sc.agenda) or None,
                            interativo=interativo, porte=porte or sc.porte, pasta=pasta, memoria=memoria,
                            aprovadores=sc.aprovadores, llm=llm or {a: dict(campos) for a, campos in sc.llm} or None,
                            cognicao=cognicao or sc.cognicao, acesso=acesso or ("simulado" if sc.acesso else None),
                            compromisso=compromisso or dict(sc.compromisso) or None, aprendizado=aprendizado,
-                           parametros=parametros, caos=caos, segmento=segmento or sc.segmento)
+                           parametros=parametros, caos=caos, segmento=segmento or sc.segmento, ambiente=ambiente)
     ds = sistema.dataset
     extras = {} if (cognicao or sc.cognicao) == "basico" else {"cognicao": cognicao or sc.cognicao}
     estrategias = {a: ag.compromisso for a, ag in sistema.agentes.items() if getattr(ag, "compromisso", "aberto") != "aberto"}
@@ -684,11 +708,13 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
         extras["parametros"] = parametros.diferencas()
     if caos is not None:
         extras["caos"] = caos.descricao()
+    if ambiente is not None and hasattr(ambiente, "descricao_fonte"):  # ADR-011: qual conector alimenta os agentes
+        extras["conector"] = ambiente.descricao_fonte()
     sistema.bus.audit.record(0, "meta", **extras, empresa={**EMPRESA, "razao_social": getattr(ds, "razao_social", None)
                                                  or EMPRESA["razao_social"], "sigla": ds.entidade},
                              cenario=sc.nome, seed=sistema.ambiente.seed, porte=ds.porte,
                              porte_titulo=ds.perfil["titulo"], tem_erp=ds.perfil["tem_erp"],
-                             fonte="planilha" if pasta else "sintetico",
+                             fonte=getattr(ambiente, "fonte", None) or ("planilha" if pasta else "sintetico"),
                              arquivo=str(getattr(ds, "arquivo", "")) or None,
                              versoes={"pacote": __version__, "normas": ds.perfil["versao"], "template": VERSAO_TEMPLATE,
                                       "rateio": VERSAO_RATEIO, "prompt": VERSAO_PROMPT},
@@ -727,10 +753,16 @@ def _preparar_acesso_avancado(sistema, sc) -> None:
 
 
 def run_scenario(cenario, seed=None, porte=None, pasta=None, memoria=None, llm=None, cognicao=None,
-                 compromisso=None, aprendizado=None, parametros=None, caos=None, segmento=None) -> Execucao:
+                 compromisso=None, aprendizado=None, parametros=None, caos=None, segmento=None,
+                 ambiente=None) -> Execucao:
     sc = CENARIOS[cenario] if isinstance(cenario, str) else cenario
     sistema, sids = montar(sc, seed, porte=porte, pasta=pasta, memoria=memoria, llm=llm, cognicao=cognicao,
                            compromisso=compromisso, aprendizado=aprendizado, parametros=parametros, caos=caos,
-                           segmento=segmento)
-    sistema.bus.run()
+                           segmento=segmento, ambiente=ambiente)
+    try:
+        sistema.bus.run()
+    finally:
+        fechar = getattr(sistema.ambiente, "fechar", None)  # conector: encerra o que o cenário subiu (ADR-011)
+        if fechar is not None:
+            fechar()
     return Execucao(sc, sistema, sids[0], sistema.usuario.resposta(sids[0]), sids)

@@ -469,6 +469,12 @@ class Ambiente:
 
     pasta = None
 
+    @classmethod
+    def de_conector(cls, conector, competencia: str | None = None, porte: str | None = None) -> "Ambiente":
+        """Fonte da empresa por um conector (ERP por API, pasta de planilhas, MCP): ver fin_mas/conectores (ADR-011)."""
+        from fin_mas.conectores.base import AmbienteConector
+        return AmbienteConector(conector, competencia=competencia, porte=porte)
+
     @property
     def principal(self) -> str:
         return COMPETENCIA if COMPETENCIA in self.agenda else next(iter(self.agenda))

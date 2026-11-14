@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 # ADR-012 — Acesso avançado: segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas
 
 - **Status:** aceita (DSM4)

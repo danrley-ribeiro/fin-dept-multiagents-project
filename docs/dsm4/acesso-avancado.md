@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 # Acesso avançado (DSM4)
 
 Decisão de arquitetura: [ADR-012](ADR-012-acesso-avancado.md). Requisito {need}`REQ-S06`; normas

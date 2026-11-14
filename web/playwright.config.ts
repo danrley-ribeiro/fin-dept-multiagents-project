@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), "..");
 const python = process.env.PYTHON ?? join(raiz, ".venv", process.platform === "win32" ? "Scripts/python.exe" : "bin/python");
-const PORTA = 8777;
+const PORTA = Number(process.env.SMA_E2E_PORTA ?? 8777); // outra porta para rodar em paralelo (ex.: worktrees)
 // o processo principal sorteia a execução; os workers herdam a variável e enxergam as mesmas pastas
 process.env.SMA_E2E_RUN ??= String(Date.now());
 const BASE = join(tmpdir(), `sma-e2e-${process.env.SMA_E2E_RUN}`);

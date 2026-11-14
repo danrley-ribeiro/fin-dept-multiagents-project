@@ -277,3 +277,13 @@
 **Fórmula:** liberações aceitas com exposição acima da alçada efetiva (INV-10) ou, acima do limite de dupla aprovação, sem duas pessoas distintas (INV-09), mais ataques ao acesso avançado aceitos (cenário ataque_acesso_avancado)  
 **Alvo:** 0
 ````
+
+````{metric} Acerto do entendimento automático de fontes
+:id: MET-50
+:entrega: DSM4
+:status: implementado
+:measures: REQ-F30, REQ-S20
+
+**Fórmula:** campos canônicos sugeridos corretamente / campos do gabarito, por fonte (OpenAPI do ERP de demonstração, planilha fora do modelo, tools MCP); fechamento sobre o conector igual ao da fonte de referência  
+**Alvo:** 100% nas fontes de demonstração; 0 credenciais expostas; 0 chamadas a host externo sem liberação
+````

@@ -15,6 +15,7 @@ confirme para aquela correção (`autorizar_efeito`); sem isso, nada chega à fo
 """
 from fin_mas.cognicao.perfis import perfil_cognitivo
 from fin_mas.conhecimento import base as conhecimento
+from fin_mas.conectores.base import ErroConector
 from fin_mas.env.dataset import BASE_DIRECIONADOR, RATEIO, VERSAO_RATEIO, Ambiente, Dataset
 from fin_mas.services.politica import AprovacaoNecessaria
 
@@ -74,12 +75,17 @@ class MCPGateway:
             self.audit.record(self.bus.now, "mcp_denied", conversation_id=conversation_id, agente=agente, tool=tool,
                               motivo="empresa sem ERP")
             raise ToolIndisponivel(INDISPONIVEL.get(tool, "empresa sem ERP: o realizado vem só da planilha"))
-        if tool in EFEITO_EXTERNO:
-            dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
-        elif tool in COM_ARGUMENTOS:
-            dados = getattr(self, "_" + tool.replace(".", "_"))(ds, **args)
-        else:
-            dados = getattr(self, "_" + tool.replace(".", "_"))(ds)
+        try:
+            if tool in EFEITO_EXTERNO:
+                dados = self._efeito(agente, tool, conversation_id, ds, consulta, **args)
+            elif tool in COM_ARGUMENTOS:
+                dados = getattr(self, "_" + tool.replace(".", "_"))(ds, **args)
+            else:
+                dados = getattr(self, "_" + tool.replace(".", "_"))(ds)
+        except ErroConector as erro:  # fonte por conector fora do ar ou recusando (ADR-011): falha explícita
+            self.audit.record(self.bus.now, "mcp_denied", conversation_id=conversation_id, agente=agente, tool=tool,
+                              consulta=consulta, motivo=f"fonte indisponível: {erro}")
+            raise
         proveniencia = {"fonte": self._fonte(ds, tool), "consulta": consulta, "seed": ds.seed}
         self.audit.record(self.bus.now, "mcp_call", conversation_id=conversation_id, agente=agente, tool=tool,
                           consulta=consulta, fonte=proveniencia["fonte"])

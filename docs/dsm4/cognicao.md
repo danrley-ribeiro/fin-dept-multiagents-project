@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 # Cognição dos agentes na DSM4
 
 Decisão e justificativa em {doc}`ADR-010-especialistas-bdi`. Esta página descreve o que cada

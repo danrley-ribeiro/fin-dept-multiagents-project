@@ -49,7 +49,10 @@ items:
 
   - id: ENV-BD
     titulo: Base analítica histórica (data warehouse)
-    observabilidade: Leitura via MCP (séries históricas, fechamentos anteriores)
+    observabilidade: >-
+      Leitura via MCP (séries históricas, fechamentos anteriores). Desde a DSM4 (ADR-011) é real: o recurso
+      canônico Historico vem de qualquer conector (API REST, servidor MCP, planilha) pelo mapeamento confirmado e
+      alimenta a tool erp.historico
     acionabilidade: Nenhuma (somente leitura)
     exclusividade: Não exclusiva
     autoridade: TI do cliente (STK-05)
@@ -58,7 +61,10 @@ items:
 
   - id: ENV-API
     titulo: APIs financeiras de mercado (câmbio, IPCA, Selic)
-    observabilidade: Leitura via MCP; pode falhar ou atrasar
+    observabilidade: >-
+      Leitura via MCP; pode falhar ou atrasar. Desde a DSM4 (ADR-011) há o conector REST JSON genérico (contrato
+      OpenAPI ou amostras, autenticação por cabeçalho, Bearer ou chave, tempo limite, erros redigidos), exercitado
+      contra o ERP de demonstração em loopback; host externo só com liberação de um administrador (NORM-32)
     acionabilidade: Nenhuma
     exclusividade: Não exclusiva (cota de chamadas)
     autoridade: Provedor externo

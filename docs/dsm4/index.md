@@ -10,6 +10,8 @@ Páginas da DSM4 disponíveis até aqui.
 | {doc}`cognicao` | Especialistas BDI, aprendizado local, estratégias de compromisso e base normativa. |
 | {doc}`implantacao` | Um comando, Docker, pacote instalável, backup e restauração. |
 | {doc}`portes-e-segmentos` | MEI, Média empresa II e os segmentos (comércio, serviços, indústria). |
+| {doc}`acesso-avancado` | Segundo fator, alçada por pessoa, delegação, dupla aprovação, cofre e várias empresas. |
+| {doc}`ADR-011-conectores-e-entendimento` | Conectores genéricos e entendimento automático de fontes, sem IA generativa. |
 
 ```bash
 python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # ou: make experimento (cerca de 3 minutos)
@@ -26,4 +28,7 @@ cognicao
 ADR-010-especialistas-bdi
 implantacao
 portes-e-segmentos
+acesso-avancado
+ADR-012-acesso-avancado
+ADR-011-conectores-e-entendimento
 ```

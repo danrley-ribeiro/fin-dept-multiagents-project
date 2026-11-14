@@ -60,6 +60,7 @@ from fin_mas.env.portes import PORTES, perfil
 from fin_mas.env.scenarios import CENARIOS
 from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, ficha
 from fin_mas.exportar import agentes_info, empresa_info
+from fin_mas.fontes import api as fontes_api
 from fin_mas.fontes import planilha
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.recursos import web_dist
@@ -208,6 +209,7 @@ PERMISSAO_ROTA = [  # (método, prefixo da rota, permissão); a primeira que cas
     ("GET", "/api/llm", "PERM-MOD-VER"), ("GET", "/api/modelos", "PERM-DAD-VER"), ("GET", "/api/dados", "PERM-DAD-VER"),
     ("POST", "/api/dados/planilha", "PERM-DAD-ENVIAR"),
     *av.PERMISSAO_ROTA,
+    *fontes_api.ROTAS,  # aba Fontes de dados (ADR-011)
 ]
 SEGURANCA = {  # cabeçalhos de toda resposta: o dashboard não carrega nada de fora nem é embutido em outra página
     "Content-Security-Policy": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
@@ -472,6 +474,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
             else:
                 sim = simulacoes.de(sessao)
                 self._responder(*(av.tratar_get(acesso, sessao, rota) or tratar_protegidas(sim, acesso, sessao, "GET", self.path)
+                                  or fontes_api.tratar(sim, acesso, sessao, "GET", self.path)
                                   or tratar(sim, "GET", self.path)))
 
         def _ler(self, tamanho: int) -> bytes | None:
@@ -613,7 +616,8 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                 return
             if rota == "/api/dados/planilha":
                 acesso.registrar("planilha_enviada", sessao.usuario)
-            self._responder(*tratar(sim, "POST", self.path, corpo))
+            self._responder(*(fontes_api.tratar(sim, acesso, sessao, "POST", self.path, corpo)
+                              or tratar(sim, "POST", self.path, corpo)))
 
         def _eventos(self, sessao):
             sim = simulacoes.de(sessao)

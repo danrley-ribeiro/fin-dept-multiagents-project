@@ -5,9 +5,9 @@
     POST /api/login/2fa         {"codigo"}: código TOTP ou de recuperação; abre a sessão de verdade (IAM-08)
     POST /api/2fa/ativar        segredo e URI otpauth:// (mostrados uma única vez)
     POST /api/2fa/confirmar     {"codigo"}: ativa e devolve os códigos de recuperação (uma única vez)
-    POST /api/2fa/desativar     {"codigo"}
+    POST /api/2fa/desativar     {"codigo", "senha"}: código válido e a senha atual (IAM-08)
     GET  /api/2fa               situação do segundo fator da própria conta (ativo, desde, códigos que restam, exigido)
-    POST /api/2fa/recuperacao   {"codigo"}: troca os códigos de recuperação e devolve os novos (uma única vez)
+    POST /api/2fa/recuperacao   {"codigo", "senha"}: troca os códigos de recuperação e devolve os novos (uma única vez)
     GET  /api/empresa           empresas do escopo da conta e a ativa | POST {"empresa"}: troca a ativa (IAM-09)
     GET  /api/segredos          nomes dos segredos do cofre (nunca o valor) e, por provedor de LLM, de onde vem a
                                 chave (ambiente, cofre ou nenhuma) | POST {"nome", "valor"} define
@@ -17,6 +17,7 @@ Corpo de POST: objeto JSON; outro tipo, ou campo de tipo errado, é 400.
 """
 import json
 import os
+import threading
 
 from fin_mas.services import provedores
 from fin_mas.services.acesso_avancado import MAX_FALHAS_2FA
@@ -58,7 +59,7 @@ def texto(pedido: dict, campo: str) -> str:
 def pendente(erro, cabecalho_token: str):
     """Resposta da primeira etapa quando falta o código: cookie da pré-sessão, sem sessão de verdade."""
     return _json(200, {"segundo_fator": "pendente", "expira_em": erro.expira_em, "cabecalho": cabecalho_token,
-                       "tentativas": MAX_FALHAS_2FA},
+                       "tentativas": MAX_FALHAS_2FA if erro.tentativas is None else erro.tentativas},
                  **{"Set-Cookie": f"{COOKIE_PRE}={erro.desafio}; Path=/api/login/2fa; HttpOnly; SameSite=Strict; "
                                   f"Max-Age=300"})
 
@@ -118,11 +119,12 @@ def tratar_post(acesso, sessao, rota: str, corpo: bytes):
         if rota == "/api/2fa/confirmar":
             return _json(200, {"ativo": True, "codigos_recuperacao": acesso.confirmar_2fa(sessao, texto(pedido, "codigo"))})
         if rota == "/api/2fa/desativar":
-            acesso.desativar_2fa(sessao, texto(pedido, "codigo"))
+            acesso.desativar_2fa(sessao, texto(pedido, "codigo"), texto(pedido, "senha"))
             return _json(200, {"ativo": False})
         if rota == "/api/2fa/recuperacao":
             return _json(200, {"ativo": True,
-                               "codigos_recuperacao": acesso.renovar_recuperacao(sessao, texto(pedido, "codigo"))})
+                               "codigos_recuperacao": acesso.renovar_recuperacao(sessao, texto(pedido, "codigo"),
+                                                                                 texto(pedido, "senha"))})
         if rota == "/api/empresa":
             nova = acesso.escolher_empresa(sessao, texto(pedido, "empresa"))
             return _json(200, {"ativa": nova.empresa, "sessao": nova.publico()})
@@ -144,14 +146,18 @@ class Simulacoes:
     def __init__(self, padrao, acesso, fabrica=None):
         self.padrao, self.acesso, self.fabrica = padrao, acesso, fabrica
         self.por_empresa: dict = {}
+        self._trava = threading.Lock()  # duas requisições ao mesmo tempo não criam duas simulações da mesma empresa
 
     def de(self, sessao):
         if self.fabrica is None or sessao is None or not sessao.empresa or not self.acesso.multiempresa():
             return self.padrao
-        if sessao.empresa not in self.por_empresa:
-            self.por_empresa[sessao.empresa] = self.fabrica(sessao.empresa)
-        return self.por_empresa[sessao.empresa]
+        with self._trava:  # uma simulação por empresa: a criação (e a thread dela) acontece uma vez só
+            if sessao.empresa not in self.por_empresa:
+                self.por_empresa[sessao.empresa] = self.fabrica(sessao.empresa)
+            return self.por_empresa[sessao.empresa]
 
     def parar(self) -> None:
-        for sim in self.por_empresa.values():
+        with self._trava:
+            simulacoes = list(self.por_empresa.values())
+        for sim in simulacoes:
             sim.parar()

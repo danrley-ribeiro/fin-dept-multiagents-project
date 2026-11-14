@@ -30,10 +30,13 @@ export const iniciarSegundoFator = () => resposta<{ segredo: string; uri: string
 export const confirmarSegundoFator = (codigo: string) =>
   resposta<{ codigos_recuperacao: string[] }>("/api/2fa/confirmar", { codigo });
 
-export const renovarCodigosDeRecuperacao = (codigo: string) =>
-  resposta<{ codigos_recuperacao: string[] }>("/api/2fa/recuperacao", { codigo });
+/** Troca os códigos de recuperação: exige a senha atual e um código válido (IAM-08). */
+export const renovarCodigosDeRecuperacao = (codigo: string, senha: string) =>
+  resposta<{ codigos_recuperacao: string[] }>("/api/2fa/recuperacao", { codigo, senha });
 
-export const desativarSegundoFator = (codigo: string) => resposta<{ ativo: boolean }>("/api/2fa/desativar", { codigo });
+/** Desativa o segundo fator: exige a senha atual e um código válido (IAM-08). */
+export const desativarSegundoFator = (codigo: string, senha: string) =>
+  resposta<{ ativo: boolean }>("/api/2fa/desativar", { codigo, senha });
 
 // ---------------------------------------------------------------- empresa ativa (IAM-09)
 export interface EmpresaDaConta { id: string; nome: string; porte: string }

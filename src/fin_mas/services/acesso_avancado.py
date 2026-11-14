@@ -6,7 +6,13 @@ Regras novas (toda negação vai para a trilha de acesso com a regra):
 - IAM-08  segundo fator (TOTP, RFC 6238): com ele ativo, a senha certa só abre uma **pré-sessão**
           de 5 minutos que não serve para nada além de confirmar o código; o código vale uma vez
           (anti-replay pelo passo), dentro de ±30 s; cada código de recuperação vale uma vez; cinco
-          códigos errados derrubam a pré-sessão. Quando a política do cadastro exige o segundo
+          códigos errados derrubam a pré-sessão. O contador de códigos errados é **da conta** (no
+          cadastro selado), vale para a entrada em dois passos, a confirmação da ativação, a
+          desativação e a troca dos códigos de recuperação, e só zera com um código certo: depois de
+          cinco erros o segundo fator fica bloqueado por 15 minutos e, enquanto o contador não zerar,
+          cada novo erro bloqueia de novo (uma senha certa não renova as tentativas). Desativar e
+          gerar códigos novos exigem ainda a senha atual (que conta como senha errada na IAM-03).
+          Quando a política do cadastro exige o segundo
           fator para um papel da conta (`exigir_2fa_para`), a conta sem ele só consegue ativá-lo;
 - IAM-09  empresa (multiempresa): com empresas cadastradas, a sessão escolhe uma empresa ativa
           dentro do escopo da conta, e toda permissão que não é da administração do cadastro
@@ -26,6 +32,7 @@ from fin_mas.services.cofre import Cofre, SegredoInvalido
 
 PRE2FA_S = 5 * 60
 MAX_FALHAS_2FA = 5
+BLOQUEIO_2FA_S = 15 * 60  # bloqueio do segundo fator da conta depois de MAX_FALHAS_2FA códigos errados
 POLITICA_PADRAO = {"exigir_2fa_para": [], "escalonamento_percentual": None}
 PAPEIS_2FA = ("ROLE-ADM", "ROLE-APR")
 # permissões da administração do cadastro: valem fora de qualquer empresa (o cadastro é um só)
@@ -131,28 +138,41 @@ class AcessoAvancado:
         segredo = self.cofre.ler(f"totp-pendente:{sessao.usuario}")
         if segredo is None:
             raise _negado("IAM-08", "nenhum cadastro de segundo fator em andamento: comece pela ativação")
-        aceito = totp.verificar(segredo, codigo, self.relogio())
-        if aceito is None:
-            self._auditar("2fa_ativado", sessao.usuario, "negado", regra="IAM-08", motivo="código inválido")
-            raise _negado("IAM-08", "código não confere: confira o relógio do aparelho e digite o código atual")
         codigos = totp.codigos_recuperacao()
-        self.cofre.guardar(f"totp:{sessao.usuario}", segredo, sessao.usuario)
-        self.cofre.remover(f"totp-pendente:{sessao.usuario}", sessao.usuario)
+        aceito = []
+
+        def conferir():
+            if not isinstance(codigo, str):
+                return "código ausente"
+            passo = totp.verificar(segredo, codigo, self.relogio())
+            if passo is None:
+                return "código não confere: confira o relógio do aparelho e digite o código atual"
+            aceito.append(passo)
+            return None
         with self._tx(self._contas) as dados:
-            dados["contas"][sessao.usuario]["segundo_fator"] = {
-                "ativo": True, "desde": round(self.relogio(), 3), "ultimo_passo": aceito,
-                "recuperacao": [totp.hash_recuperacao(c) for c in codigos]}
+            conta = dados["contas"][sessao.usuario]
+            motivo = self._com_limite(conta, conferir)
+            if motivo is None:  # o segredo vai ao cofre dentro da transação: falhou o cofre, nada se ativa
+                self.cofre.guardar(f"totp:{sessao.usuario}", segredo, sessao.usuario)
+                conta["segundo_fator"] = {
+                    "ativo": True, "desde": round(self.relogio(), 3), "ultimo_passo": aceito[0],
+                    "recuperacao": [totp.hash_recuperacao(c) for c in codigos]}
+        if motivo is not None:
+            self._auditar("2fa_ativado", sessao.usuario, "negado", regra="IAM-08", motivo=motivo)
+            raise _negado("IAM-08", motivo)
+        self.cofre.remover(f"totp-pendente:{sessao.usuario}", sessao.usuario)
         self._auditar("2fa_ativado", sessao.usuario, regra="IAM-08")
         return codigos
 
-    def desativar_2fa(self, sessao, codigo: str) -> None:
-        """A própria pessoa desativa, confirmando com um código válido (TOTP ou recuperação)."""
+    def desativar_2fa(self, sessao, codigo: str, senha: str) -> None:
+        """A própria pessoa desativa, confirmando com a senha atual e um código válido (TOTP ou recuperação)."""
         sessao = self._exigir_viva(sessao)
         with self._tx(self._contas) as dados:
             conta = dados["contas"][sessao.usuario]
             if not (conta.get("segundo_fator") or {}).get("ativo"):
                 raise _negado("IAM-08", "o segundo fator não está ativo")
-            motivo = self._conferir_codigo(conta, codigo)
+            motivo = self._conferir_senha_atual(conta, senha) or \
+                self._com_limite(conta, lambda: self._conferir_codigo(conta, codigo))
             if motivo is None:
                 conta["segundo_fator"] = {"ativo": False}
         if motivo is not None:
@@ -161,16 +181,17 @@ class AcessoAvancado:
         self.cofre.remover(f"totp:{sessao.usuario}", sessao.usuario)
         self._auditar("2fa_desativado", sessao.usuario, regra="IAM-08")
 
-    def renovar_recuperacao(self, sessao, codigo: str) -> list[str]:
-        """Troca os códigos de recuperação da própria conta (os antigos deixam de valer); confirma com um código
-        válido (TOTP ou recuperação) e devolve os novos uma única vez."""
+    def renovar_recuperacao(self, sessao, codigo: str, senha: str) -> list[str]:
+        """Troca os códigos de recuperação da própria conta (os antigos deixam de valer); confirma com a senha atual
+        e um código válido (TOTP ou recuperação) e devolve os novos uma única vez."""
         sessao = self._exigir_viva(sessao)
         novos = totp.codigos_recuperacao()
         with self._tx(self._contas) as dados:
             conta = dados["contas"][sessao.usuario]
             if not (conta.get("segundo_fator") or {}).get("ativo"):
                 raise _negado("IAM-08", "o segundo fator não está ativo")
-            motivo = self._conferir_codigo(conta, codigo)
+            motivo = self._conferir_senha_atual(conta, senha) or \
+                self._com_limite(conta, lambda: self._conferir_codigo(conta, codigo))
             if motivo is None:
                 conta["segundo_fator"]["recuperacao"] = [totp.hash_recuperacao(c) for c in novos]
         if motivo is not None:
@@ -178,6 +199,46 @@ class AcessoAvancado:
             raise _negado("IAM-08", f"códigos novos recusados: {motivo}")
         self._auditar("2fa_recuperacao_renovada", sessao.usuario, regra="IAM-08")
         return novos
+
+    def _conferir_senha_atual(self, conta: dict, senha) -> str | None:
+        """Senha atual de quem desativa o segundo fator ou troca os códigos; errada conta na IAM-03 (em transação)."""
+        from fin_mas.services.iam import BLOQUEIO_S, MAX_FALHAS, _confere_senha
+        agora = self.relogio()
+        if conta.get("bloqueada_ate") is not None and agora < conta["bloqueada_ate"]:
+            return "conta em bloqueio temporário por senhas erradas: tente mais tarde"
+        if not isinstance(senha, str) or not senha or not conta.get("senha") or not _confere_senha(senha, conta["senha"]):
+            conta["falhas"] = conta.get("falhas", 0) + 1
+            if conta["falhas"] >= MAX_FALHAS:
+                conta.update(bloqueada_ate=round(agora + BLOQUEIO_S, 3), falhas=0)
+            return "senha atual não confere"
+        conta["falhas"] = 0
+        return None
+
+    def _com_limite(self, conta: dict, conferir) -> str | None:
+        """IAM-08: contador de códigos errados **da conta** (no cadastro selado, em transação). Bloqueado, nem confere;
+        acerto zera; o quinto erro (e cada erro seguinte, até um acerto) bloqueia o segundo fator por 15 minutos."""
+        agora = self.relogio()
+        ate = conta.get("bloqueio_2fa_ate")
+        if ate is not None and agora < ate:
+            return (f"segundo fator bloqueado por {MAX_FALHAS_2FA} códigos errados: tente de novo em "
+                    f"{int((ate - agora) // 60) + 1} min")
+        motivo = conferir()
+        if motivo is None:
+            conta.update(falhas_2fa=0, bloqueio_2fa_ate=None)
+            return None
+        conta["falhas_2fa"] = conta.get("falhas_2fa", 0) + 1
+        if conta["falhas_2fa"] >= MAX_FALHAS_2FA:
+            conta["bloqueio_2fa_ate"] = round(agora + BLOQUEIO_2FA_S, 3)
+            self._auditar("2fa_bloqueado", conta["usuario"], "negado", regra="IAM-08", falhas=conta["falhas_2fa"],
+                          ate=conta["bloqueio_2fa_ate"])
+        return motivo
+
+    def tentativas_2fa(self, conta: dict) -> int:
+        """Quantos códigos a conta ainda pode errar agora (0 enquanto o segundo fator está bloqueado)."""
+        ate = conta.get("bloqueio_2fa_ate")
+        if ate is not None and self.relogio() < ate:
+            return 0
+        return max(1, MAX_FALHAS_2FA - conta.get("falhas_2fa", 0))
 
     def pre_sessao(self, desafio) -> dict | None:
         """O que a tela do código pode saber da pré-sessão viva (prazo e tentativas que restam); None se acabou."""
@@ -188,13 +249,17 @@ class AcessoAvancado:
                          and hmac.compare_digest(s["hash"], alvo)), None)
         if registro is None or registro["revogada"] or self.relogio() >= registro["expira_em"]:
             return None
+        conta = self._ler_contas().get(registro["usuario"]) or {}
         return {"expira_em": registro["expira_em"],
-                "tentativas_restantes": max(0, MAX_FALHAS_2FA - registro.get("falhas", 0))}
+                "tentativas_restantes": min(max(0, MAX_FALHAS_2FA - registro.get("falhas", 0)),
+                                            self.tentativas_2fa(conta)),
+                "bloqueado_ate": conta.get("bloqueio_2fa_ate") if self.tentativas_2fa(conta) == 0 else None}
 
     def redefinir_2fa(self, ator, usuario: str) -> dict:
         """Aparelho perdido e sem códigos: o administrador desliga o segundo fator; as sessões da conta caem."""
         conta = self._alterar(ator, usuario, "PERM-IAM-USUARIOS", "2fa_redefinido",
-                              lambda c: c.update(segundo_fator={"ativo": False}), regra="IAM-08")
+                              lambda c: c.update(segundo_fator={"ativo": False}, falhas_2fa=0, bloqueio_2fa_ate=None),
+                              regra="IAM-08")
         self.cofre.remover(f"totp:{usuario}", ator.usuario)
         self._revogar_de(usuario, ator.usuario, "segundo fator redefinido")
         return conta
@@ -250,14 +315,16 @@ class AcessoAvancado:
         usuario = registro["usuario"]
         with self._tx(self._contas) as dados:
             conta = dados["contas"].get(usuario)
-            motivo = "conta inativa" if conta is None or conta["estado"] != "ativa" else self._conferir_codigo(conta, codigo)
+            motivo = "conta inativa" if conta is None or conta["estado"] != "ativa" else \
+                self._com_limite(conta, lambda: self._conferir_codigo(conta, codigo))
             copia = dict(conta) if conta is not None else None
         if motivo is not None:
+            bloqueado = copia is not None and self.tentativas_2fa(copia) == 0
             with self._tx(self._sessoes) as dados:
                 pre = dados["sessoes"].get(registro["id"])
                 if pre is not None:
                     pre["falhas"] = pre.get("falhas", 0) + 1
-                    if pre["falhas"] >= MAX_FALHAS_2FA:
+                    if pre["falhas"] >= MAX_FALHAS_2FA or bloqueado:  # segundo fator da conta bloqueado: a pré-sessão cai
                         pre["revogada"] = f"{MAX_FALHAS_2FA} códigos errados"
             self._auditar("segundo_fator", usuario, "negado", regra="IAM-08", motivo=motivo, origem=origem)
             raise _negado("IAM-08", motivo)
@@ -278,22 +345,27 @@ class AcessoAvancado:
     def multiempresa(self) -> bool:
         return bool(self._contas.ver().get("empresas"))
 
-    def criar_empresa(self, ator, empresa: str, nome: str, porte: str = "media") -> dict:
+    def criar_empresa(self, ator, empresa: str, nome: str, porte: str = "media", segmento: str | None = None) -> dict:
+        """O porte (alçadas, dupla aprovação) e o segmento cadastrados valem para a simulação da empresa; só quem
+        administra empresas (PERM-IAM-EMPRESAS) os escolhe."""
         from fin_mas.env.portes import PORTES
+        from fin_mas.env.segmentos import SEGMENTOS
         self.exigir(ator, "PERM-IAM-EMPRESAS")
         self._validar_usuario(empresa)  # mesmo formato: vira o nome da pasta dados/<empresa>/
         if porte not in PORTES:
             raise _negado("IAM-09", f"porte desconhecido: {porte} (use {', '.join(PORTES)})")
+        if segmento is not None and segmento not in SEGMENTOS:
+            raise _negado("IAM-09", f"segmento desconhecido: {segmento} (use {', '.join(SEGMENTOS)})")
         with self._tx(self._contas) as dados:
             empresas = dados.setdefault("empresas", {})
             if empresa in empresas:
                 raise _negado("IAM-09", f"a empresa {empresa} já existe")
             empresas[empresa] = {"id": empresa, "nome": str(nome)[:120] or empresa, "porte": porte,
-                                 "criada_em": round(self.relogio(), 3)}
+                                 "criada_em": round(self.relogio(), 3), **({"segmento": segmento} if segmento else {})}
             if not ator.empresas and len(empresas) == 1:  # a primeira empresa entra no escopo de quem a criou
                 dados["contas"][ator.usuario]["empresas"] = [empresa]
             criada = dict(empresas[empresa])
-        self._auditar("empresa_criada", ator.usuario, empresa=empresa, porte=porte, regra="IAM-09")
+        self._auditar("empresa_criada", ator.usuario, empresa=empresa, porte=porte, segmento=segmento, regra="IAM-09")
         return criada
 
     def definir_escopo(self, ator, usuario: str, empresas) -> dict:
@@ -405,8 +477,10 @@ class AcessoAvancado:
                 saida.append({**d, "situacao": situacao})
         return saida
 
-    def delegacao_para_decisao(self, did, pessoa: str, ticket: dict) -> dict:
-        """Delegação válida para esta pessoa decidir este ticket: devolve a conta de quem delegou, ou nega (POL-11)."""
+    def delegacao_para_decisao(self, did, pessoa: str, ticket: dict, empresa: str | None = None) -> dict:
+        """Delegação válida para esta pessoa decidir este ticket (da `empresa`): devolve a conta de quem delegou, ou
+        nega (POL-11). Com empresas no cadastro, a delegação só vale na empresa em que foi criada, e quem delegou
+        precisa ter ainda acesso a ela."""
         d = (self._contas.ver().get("delegacoes") or {}).get(did) if isinstance(did, str) else None
         if d is None:
             raise _negado("POL-11", f"delegação inexistente ou forjada: {did!r}")
@@ -421,7 +495,12 @@ class AcessoAvancado:
         if ("competencia" in escopo and escopo["competencia"] != ticket["competencia"]) or \
                 ("solicitacao" in escopo and escopo["solicitacao"] != ticket["solicitacao"]):
             raise _negado("POL-11", f"a delegação {did} vale para {escopo}, não para este ticket")
+        if self.multiempresa() and d.get("empresa") != empresa:
+            raise _negado("POL-11", f"a delegação {did} foi feita na empresa {d.get('empresa')}, não vale na empresa "
+                                    f"{empresa} (IAM-09)")
         conta = self._ler_contas().get(d["de"])
         if conta is None or conta["estado"] != "ativa" or "PERM-APR-DECIDIR" not in permissoes.permissoes_de(conta["papeis"]):
             raise _negado("POL-11", f"quem delegou ({d['de']}) não é mais um aprovador ativo")
+        if self.multiempresa() and empresa not in (conta.get("empresas") or []):
+            raise _negado("POL-11", f"quem delegou ({d['de']}) não tem mais acesso à empresa {empresa} (IAM-09)")
         return {"delegacao": d, "conta": {k: v for k, v in conta.items() if k != "senha"}}

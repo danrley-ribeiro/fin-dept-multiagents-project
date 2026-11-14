@@ -549,3 +549,44 @@ items:
      esperado: "texto livre, fonte de proponente ou vazia não contam como evidência no aprendizado", entrega: DSM4, status: executado}
   - {id: TEST-423, nome: test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2", entrega: DSM4, status: executado}
+  # ---- correção simulada da DSM4: achados de segurança (acesso, fontes, backup) ----
+  - {id: TEST-430, nome: test_brute_force_through_disable_route_locks_the_second_factor_and_needs_the_password, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-431, nome: test_new_pre_sessions_do_not_renew_the_attempts_and_parallel_guesses_respect_the_limit, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-432, nome: test_lock_holds_for_fifteen_minutes_counts_activation_and_only_a_correct_code_resets, verifica: [REQ-S06], derivado_de: NORM-15, tipo: seguranca,
+     esperado: "segundo fator com contador por conta, bloqueio e senha exigida", entrega: DSM4, status: executado}
+  - {id: TEST-433, nome: test_sources_of_one_company_cannot_be_listed_activated_removed_downloaded_or_overwritten_by_another, verifica: [REQ-S06, REQ-S20], derivado_de: NORM-32, tipo: seguranca,
+     esperado: "fontes, planilhas e credenciais isoladas por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-434, nome: test_forged_backup_never_writes_outside_the_destination_and_malformed_ones_are_refused, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "restauração validada antes de gravar; cofre viaja no pacote de chaves", entrega: DSM4, status: executado}
+  - {id: TEST-435, nome: test_backup_carries_the_vault_and_the_restored_install_keeps_2fa_llm_key_and_connector_credential, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "restauração validada antes de gravar; cofre viaja no pacote de chaves", entrega: DSM4, status: executado}
+  - {id: TEST-436, nome: test_confirmed_mapping_stops_counting_when_the_source_renames_a_column_or_changes_the_unit, verifica: [REQ-F30], derivado_de: NORM-30, tipo: seguranca,
+     esperado: "mapeamento confirmado perde a validade quando a fonte muda de coluna ou de escala", entrega: DSM4, status: executado}
+  - {id: TEST-437, nome: test_open_dashboard_does_not_keep_an_idle_session_alive, verifica: [REQ-S05, REQ-S06], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade", entrega: DSM4, status: executado}
+  - {id: TEST-438, nome: test_stream_closes_when_the_account_loses_the_company_or_the_permission, verifica: [REQ-S05, REQ-S06], derivado_de: NORM-12, tipo: seguranca,
+     esperado: "fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade", entrega: DSM4, status: executado}
+  - {id: TEST-439, nome: test_company_size_comes_from_the_registry_and_an_operator_cannot_change_it, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "porte vem do cadastro da empresa; uma simulação por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-440, nome: test_simultaneous_requests_create_a_single_simulation_per_company, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "porte vem do cadastro da empresa; uma simulação por empresa", entrega: DSM4, status: executado}
+  - {id: TEST-441, nome: test_delegation_is_usable_live_and_does_not_cross_companies, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-442, nome: test_delegation_made_in_one_company_is_refused_in_another, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-443, nome: test_double_approval_needs_two_real_people_and_a_still_valid_endorsement, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-444, nome: test_veto_without_exposure_fails_closed, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-445, nome: test_password_change_revokes_other_sessions_and_wrong_current_password_counts, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-446, nome: test_burst_of_anonymous_logins_does_not_hold_the_registry_lock, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-447, nome: test_infinite_price_is_refused_and_a_tampered_vault_answers_503, verifica: [REQ-S06], derivado_de: NORM-14, tipo: seguranca,
+     esperado: "delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre", entrega: DSM4, status: executado}
+  - {id: TEST-448, nome: test_excel_mcp_server_answers_malformed_requests_with_json_rpc_errors_and_keeps_serving, verifica: [REQ-S04], derivado_de: SVC-MCP, tipo: robustez,
+     esperado: "servidor MCP de Excel responde erro JSON-RPC e segue atendendo", entrega: DSM4, status: executado}
+  - {id: TEST-449, nome: test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated, verifica: [REQ-S02, REQ-F30], derivado_de: SVC-MCP, tipo: robustez,
+     esperado: "correção aplicada com releitura inválida é registrada como aplicada e não se repete", entrega: DSM4, status: executado}

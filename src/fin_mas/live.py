@@ -15,6 +15,7 @@ grava um registro `operador` com quem agiu, liga o pedido à pessoa (`solicitado
 entrega a decisão humana com a sessão dela, que vira o atestado exigido pela política.
 Comandos novos: `modelo` (LLM de um agente) e, em `reiniciar`, o nível de cognição.
 """
+import math
 import queue
 import re
 import threading
@@ -60,8 +61,17 @@ class Simulacao:
         self._montar(cenario, seed, interativo)
 
     # ---- montagem ---------------------------------------------------------
+    def cadastro_da_empresa(self) -> dict:
+        """Porte e segmento da empresa desta simulação no cadastro (IAM-09); vazio sem empresa cadastrada."""
+        if not self.empresa or self.acesso is None:
+            return {}
+        e = self.acesso.empresas().get(self.empresa) or {}
+        return {k: e[k] for k in ("porte", "segmento") if e.get(k)}
+
     def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", segmento=None) -> None:
         sc = CENARIOS[cenario]
+        cadastro = self.cadastro_da_empresa()  # empresa cadastrada: o porte (alçadas, dupla aprovação) é o do cadastro
+        porte, segmento = porte or cadastro.get("porte"), segmento or cadastro.get("segmento")
         pasta = self.pasta_dados if fonte == "planilha" else None
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
         if fonte == "conector" and self.fabrica_fonte is None:
@@ -105,6 +115,11 @@ class Simulacao:
             self.acesso.exigir(ator, PERMISSAO_COMANDO[cmd["tipo"]])
             if cmd["tipo"] == "reiniciar" and cmd.get("cognicao") not in (None, self.cognicao or self.cenario.cognicao):
                 self.acesso.exigir(ator, "PERM-MOD-CONFIG")  # mudar o nível de cognição é ajuste de modelo
+            cadastro = self.cadastro_da_empresa()
+            if cmd["tipo"] == "reiniciar" and any(cmd.get(k) not in (None, cadastro[k]) for k in cadastro):
+                # porte e segmento da empresa cadastrada definem alçadas e dupla aprovação: trocá-los é administrar
+                # a empresa, não operar a simulação (IAM-09)
+                self.acesso.exigir(ator, "PERM-IAM-EMPRESAS")
         if cmd["tipo"] == "agente" and cmd.get("agente") not in self.sistema.bus.agents:
             raise ComandoInvalido(f"agente desconhecido: {cmd.get('agente')!r}")
         self.comandos.put((cmd, ator))
@@ -141,7 +156,7 @@ class Simulacao:
         elif tipo == "decidir":
             try:
                 enviada = self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"],
-                                                         cmd.get("justificativa"), ator)
+                                                         cmd.get("justificativa"), ator, cmd.get("delegacao"))
             except (ProtocolViolation, PermissionError) as erro:  # a política, o barramento ou o acesso recusou
                 self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
                               "erro": f"decisão recusada: {erro} (a pendência continua aberta)"})
@@ -267,6 +282,8 @@ class ComandoInvalido(ValueError):
     pass
 
 
+DELEGACAO = re.compile(r"DLG-\d{3,6}")
+PRECO_MAXIMO = 1_000_000  # preço por milhão de tokens: 1e999 vira inf e deixaria o JSON das respostas inválido
 CAMPOS = {  # campo -> (validador, descrição) para os comandos que vêm do navegador
     "n": (lambda v: _inteiro(v) and 1 <= v <= 1000, "inteiro entre 1 e 1000"),
     "ms_por_tick": (lambda v: _inteiro(v) and 0 <= v <= 10_000, "inteiro entre 0 e 10000"),
@@ -295,10 +312,16 @@ CAMPOS = {  # campo -> (validador, descrição) para os comandos que vêm do nav
     "pseudonimizar": (lambda v: v is None or isinstance(v, bool), "booleano"),
     "max_tokens": (lambda v: _inteiro(v) and 1 <= v <= 200_000, "inteiro entre 1 e 200000"),
     "cota_tokens": (lambda v: _inteiro(v) and 1 <= v <= 100_000_000, "inteiro positivo"),
-    "preco_entrada": (lambda v: v is None or (isinstance(v, (int, float)) and not isinstance(v, bool) and v >= 0), "número"),
-    "preco_saida": (lambda v: v is None or (isinstance(v, (int, float)) and not isinstance(v, bool) and v >= 0), "número"),
+    "preco_entrada": (lambda v: v is None or _preco(v), f"número finito entre 0 e {PRECO_MAXIMO}"),
+    "preco_saida": (lambda v: v is None or _preco(v), f"número finito entre 0 e {PRECO_MAXIMO}"),
+    "delegacao": (lambda v: v is None or (isinstance(v, str) and DELEGACAO.fullmatch(v) is not None),
+                  "id de delegação (DLG-001) ou nada (POL-11)"),
 }
 COMPETENCIA = FORMATOS["aaaa-mm"][0]  # mesma regra do barramento (core/schema.py)
+
+
+def _preco(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and 0 <= v <= PRECO_MAXIMO
 
 
 def _inteiro(v) -> bool:

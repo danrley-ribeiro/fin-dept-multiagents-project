@@ -26,6 +26,7 @@ from fin_mas.services.redacao import SEGREDO, redigir_texto
 
 LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 TEMPO_LIMITE = 10.0
+APLICADO_SEM_CONFIRMACAO = "aplicado, confirmação inválida"  # a fonte aceitou a escrita, a releitura falhou
 
 
 class ErroConector(RuntimeError):
@@ -268,6 +269,7 @@ class DatasetConector:
     def __init__(self, conector: Conector, dados: DadosCanonicos):
         self.conector = conector
         self.correcoes: list = []
+        self.sem_confirmacao = None  # erro da releitura depois de uma escrita aceita: o dado em memória é o de antes
         self._carregar(dados)
 
     def _carregar(self, d: DadosCanonicos) -> None:
@@ -308,8 +310,16 @@ class DatasetConector:
         if not any(x["id"] == lancamento for x in self.lancamentos):
             raise ValueError(f"lançamento desconhecido: {lancamento}")
         registro = self.conector.corrigir(self.competencia, lancamento, acao)
-        self._carregar(self.conector.ler(self.competencia))  # a fonte é a verdade: relê depois de escrever
         registro = {"lancamento": lancamento, "acao": acao, "detalhe": registro.get("detalhe") or f"{lancamento} {acao}"}
+        try:
+            self._carregar(self.conector.ler(self.competencia))  # a fonte é a verdade: relê depois de escrever
+        except (ErroConector, ValueError, LookupError, TypeError) as erro:
+            # a escrita foi aceita pela fonte: o efeito ocorreu e não pode ser repetido nem dado como não executado;
+            # o que falhou foi a confirmação. Fica registrado assim (trace e resposta). O dado em memória continua o
+            # de antes da correção: a reavaliação do AG-CIN vê o achado de novo e mantém o veto (falha fechada).
+            registro.update(situacao=APLICADO_SEM_CONFIRMACAO, confirmacao=f"releitura falhou: {erro}"[:300],
+                            detalhe=f"{registro['detalhe']} ({APLICADO_SEM_CONFIRMACAO}: a releitura da fonte falhou)")
+            self.sem_confirmacao = erro
         self.correcoes.append(registro)
         return registro
 

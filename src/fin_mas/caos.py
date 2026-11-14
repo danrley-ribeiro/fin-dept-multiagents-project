@@ -44,6 +44,7 @@ PLANTIOS_BASE = ("alcada", "sod", "duplicidade", "competencia", "desvio_orcament
 PERFIS = (("diligente", 0.75), ("cauteloso", 0.15), ("rigoroso", 0.10))
 P_VARIANTE_OBSERVACAO = 0.3  # observação parafraseada (desvio_irregular) ou alarme falso (desvio_orcamentario)
 ATRASO_HUMANO = (0.3, 1.3)  # fração do prazo de aprovação que o aprovador lento demora
+SEGUNDA_PESSOA = "avaliador"  # segunda conta com cargo para a dupla aprovação no bloco com acesso
 P_AUSENTE = 0.15
 INICIO_INDISPONIBILIDADE = (1, 30)  # tick em que o especialista sai do ar
 DURACAO_INDISPONIBILIDADE = (8, 30)  # ticks fora do ar
@@ -166,8 +167,14 @@ class ModeloFalhas:
 
         def decidir(msg) -> None:
             if not bus.conversations[msg.conversation_id].is_final:
-                decisao = prefixo + escolher_decisao(perfil, msg.content["opcoes"])
+                escolha = escolher_decisao(perfil, msg.content["opcoes"])
+                decisao = prefixo + escolha
                 aprovador.decisoes, aprovador.decisao = [decisao], decisao
+                if self.persona and escolha not in ("bloquear", "nenhuma"):
+                    # com o SVC-IAM, a liberação acima do limite do porte exige duas pessoas (POL-12): o roteiro
+                    # tem uma segunda pessoa com cargo para aprovar depois do aval da primeira. Com uma só, o
+                    # ticket expirava e o bloco D media a falta da segunda pessoa, não o custo do acesso (M2).
+                    aprovador.decisoes = [decisao, f"{SEGUNDA_PESSOA}:{escolha}"]
             original(msg)
 
         def decidir_depois(msg) -> None:

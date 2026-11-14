@@ -3225,3 +3225,243 @@
 **Resultado esperado:** combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_brute_force_through_disable_route_locks_the_second_factor_and_needs_the_password
+:id: TEST-430
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_brute_force_through_disable_route_locks_the_second_factor_and_needs_the_password()` — tipo *seguranca*.  
+**Resultado esperado:** segundo fator com contador por conta, bloqueio e senha exigida  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_new_pre_sessions_do_not_renew_the_attempts_and_parallel_guesses_respect_the_limit
+:id: TEST-431
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_new_pre_sessions_do_not_renew_the_attempts_and_parallel_guesses_respect_the_limit()` — tipo *seguranca*.  
+**Resultado esperado:** segundo fator com contador por conta, bloqueio e senha exigida  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_lock_holds_for_fifteen_minutes_counts_activation_and_only_a_correct_code_resets
+:id: TEST-432
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-15
+
+`test_lock_holds_for_fifteen_minutes_counts_activation_and_only_a_correct_code_resets()` — tipo *seguranca*.  
+**Resultado esperado:** segundo fator com contador por conta, bloqueio e senha exigida  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_sources_of_one_company_cannot_be_listed_activated_removed_downloaded_or_overwritten_by_another
+:id: TEST-433
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06, REQ-S20
+:derived_from: NORM-32
+
+`test_sources_of_one_company_cannot_be_listed_activated_removed_downloaded_or_overwritten_by_another()` — tipo *seguranca*.  
+**Resultado esperado:** fontes, planilhas e credenciais isoladas por empresa  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_forged_backup_never_writes_outside_the_destination_and_malformed_ones_are_refused
+:id: TEST-434
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_forged_backup_never_writes_outside_the_destination_and_malformed_ones_are_refused()` — tipo *seguranca*.  
+**Resultado esperado:** restauração validada antes de gravar; cofre viaja no pacote de chaves  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_backup_carries_the_vault_and_the_restored_install_keeps_2fa_llm_key_and_connector_credential
+:id: TEST-435
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_backup_carries_the_vault_and_the_restored_install_keeps_2fa_llm_key_and_connector_credential()` — tipo *seguranca*.  
+**Resultado esperado:** restauração validada antes de gravar; cofre viaja no pacote de chaves  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_confirmed_mapping_stops_counting_when_the_source_renames_a_column_or_changes_the_unit
+:id: TEST-436
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F30
+:derived_from: NORM-30
+
+`test_confirmed_mapping_stops_counting_when_the_source_renames_a_column_or_changes_the_unit()` — tipo *seguranca*.  
+**Resultado esperado:** mapeamento confirmado perde a validade quando a fonte muda de coluna ou de escala  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_open_dashboard_does_not_keep_an_idle_session_alive
+:id: TEST-437
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05, REQ-S06
+:derived_from: NORM-12
+
+`test_open_dashboard_does_not_keep_an_idle_session_alive()` — tipo *seguranca*.  
+**Resultado esperado:** fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_stream_closes_when_the_account_loses_the_company_or_the_permission
+:id: TEST-438
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05, REQ-S06
+:derived_from: NORM-12
+
+`test_stream_closes_when_the_account_loses_the_company_or_the_permission()` — tipo *seguranca*.  
+**Resultado esperado:** fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_company_size_comes_from_the_registry_and_an_operator_cannot_change_it
+:id: TEST-439
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_company_size_comes_from_the_registry_and_an_operator_cannot_change_it()` — tipo *seguranca*.  
+**Resultado esperado:** porte vem do cadastro da empresa; uma simulação por empresa  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_simultaneous_requests_create_a_single_simulation_per_company
+:id: TEST-440
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_simultaneous_requests_create_a_single_simulation_per_company()` — tipo *seguranca*.  
+**Resultado esperado:** porte vem do cadastro da empresa; uma simulação por empresa  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_delegation_is_usable_live_and_does_not_cross_companies
+:id: TEST-441
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_delegation_is_usable_live_and_does_not_cross_companies()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_delegation_made_in_one_company_is_refused_in_another
+:id: TEST-442
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_delegation_made_in_one_company_is_refused_in_another()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_double_approval_needs_two_real_people_and_a_still_valid_endorsement
+:id: TEST-443
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_double_approval_needs_two_real_people_and_a_still_valid_endorsement()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_veto_without_exposure_fails_closed
+:id: TEST-444
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_veto_without_exposure_fails_closed()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_password_change_revokes_other_sessions_and_wrong_current_password_counts
+:id: TEST-445
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_password_change_revokes_other_sessions_and_wrong_current_password_counts()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_burst_of_anonymous_logins_does_not_hold_the_registry_lock
+:id: TEST-446
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_burst_of_anonymous_logins_does_not_hold_the_registry_lock()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_infinite_price_is_refused_and_a_tampered_vault_answers_503
+:id: TEST-447
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S06
+:derived_from: NORM-14
+
+`test_infinite_price_is_refused_and_a_tampered_vault_answers_503()` — tipo *seguranca*.  
+**Resultado esperado:** delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_excel_mcp_server_answers_malformed_requests_with_json_rpc_errors_and_keeps_serving
+:id: TEST-448
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-MCP
+
+`test_excel_mcp_server_answers_malformed_requests_with_json_rpc_errors_and_keeps_serving()` — tipo *robustez*.  
+**Resultado esperado:** servidor MCP de Excel responde erro JSON-RPC e segue atendendo  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated
+:id: TEST-449
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-F30
+:derived_from: SVC-MCP
+
+`test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated()` — tipo *robustez*.  
+**Resultado esperado:** correção aplicada com releitura inválida é registrada como aplicada e não se repete  
+**Execução:** DSM4 (status atual: executado).
+````

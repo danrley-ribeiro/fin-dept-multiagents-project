@@ -87,8 +87,11 @@ class MCPGateway:
                               consulta=consulta, motivo=f"fonte indisponível: {erro}")
             raise
         proveniencia = {"fonte": self._fonte(ds, tool), "consulta": consulta, "seed": ds.seed}
+        efeito = {}  # escrita aceita pela fonte e releitura falha: o efeito ocorreu e fica registrado como tal
+        if tool in EFEITO_EXTERNO and isinstance(dados, dict) and dados.get("situacao"):
+            efeito = {"situacao": dados["situacao"], "motivo": dados.get("confirmacao")}
         self.audit.record(self.bus.now, "mcp_call", conversation_id=conversation_id, agente=agente, tool=tool,
-                          consulta=consulta, fonte=proveniencia["fonte"])
+                          consulta=consulta, fonte=proveniencia["fonte"], **efeito)
         return {"dados": dados, "proveniencia": proveniencia}
 
     def _efeito(self, agente, tool, conversation_id, ds, consulta, aprovacao=None, lancamento=None, acao=None):

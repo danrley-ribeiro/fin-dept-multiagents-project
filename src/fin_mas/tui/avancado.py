@@ -4,7 +4,7 @@ Nenhuma regra mora aqui: cada ação chama o SVC-IAM e mostra a negação com a 
 
 - F6 Segundo fator (toda conta): ativar (o segredo e a URI aparecem **uma vez**, num formulário
   que pede o primeiro código; depois os dez códigos de recuperação aparecem **uma vez**) e
-  desativar (pede um código válido);
+  desativar (pede a senha atual e um código válido);
 - F7 Delegações (PERM-APR-DELEGAR): lista, nova delegação (para, horas, teto, competência), revogar;
 - F9 Alçadas (toda conta): alçada por cargo e limite de dupla aprovação de cada porte;
 - F10 Política do cadastro (PERM-IAM-POLITICA): segundo fator obrigatório por papel e escalonamento;
@@ -12,7 +12,7 @@ Nenhuma regra mora aqui: cada ação chama o SVC-IAM e mostra a negação com a 
 - F12 Empresas (PERM-IAM-EMPRESAS): lista, nova empresa, escopo de uma conta.
 
 Ids estáveis (os testes de interface dirigem por eles): `#estado-2fa`, `#ativar-2fa`,
-`#desativar-2fa`, `#segredo-2fa`, `#codigo-2fa`, `#codigos-recuperacao`, `#fechar-codigos`,
+`#desativar-2fa`, `#segredo-2fa`, `#codigo-2fa`, `#senha-2fa`, `#codigos-recuperacao`, `#fechar-codigos`,
 `#tabela-delegacoes`, `#nova-delegacao`, `#revogar-delegacao`, `#delegacao-para`, `#delegacao-horas`,
 `#delegacao-teto`, `#delegacao-competencia`, `#tabela-alcadas`, `#politica-atual`, `#editar-politica`,
 `#politica-2fa`, `#politica-escalonamento`, `#tabela-cofre`, `#definir-segredo`, `#remover-segredo`,
@@ -64,21 +64,29 @@ COLUNAS_AVANCADAS = {
 class FormCodigo(Formulario):
     """Pede um código TOTP (ou de recuperação); com `segredo`, mostra-o (uma vez) para o cadastro no aplicativo."""
 
-    def __init__(self, aplicar, titulo: str, segredo: str | None = None, uri: str | None = None):
+    def __init__(self, aplicar, titulo: str, segredo: str | None = None, uri: str | None = None,
+                 pedir_senha: bool = False):
         super().__init__(aplicar, titulo)
-        self.segredo, self.uri = segredo, uri
+        self.segredo, self.uri, self.pedir_senha = segredo, uri, pedir_senha
 
     def campos(self) -> ComposeResult:
         if self.segredo:
             yield Static(f"segredo (cadastre no aplicativo autenticador; não aparece de novo):\n{self.segredo}\n{self.uri}",
                          id="segredo-2fa", markup=False)
+        if self.pedir_senha:  # desativar exige a senha atual além do código (IAM-08)
+            yield _linha("senha atual", Input(id="senha-2fa", password=True, compact=True))
         yield _linha("código", Input(id="codigo-2fa", compact=True))
 
     def valores(self) -> dict:
         codigo = self._texto("codigo-2fa")
         if not codigo:
             raise Invalido("digite o código do aplicativo (ou um código de recuperação)")
-        return {"codigo": codigo}
+        if not self.pedir_senha:
+            return {"codigo": codigo}
+        senha = self._texto("senha-2fa", limpar=False)
+        if not senha:
+            raise Invalido("digite a sua senha atual")
+        return {"codigo": codigo, "senha": senha}
 
 
 class MostrarCodigos(ModalScreen):
@@ -276,8 +284,9 @@ class AbasAvancadas:
 
     def action_desativar_2fa(self) -> None:
         if self._ator() is not None:
-            self.app.push_screen(FormCodigo(lambda codigo: self.app.acesso.desativar_2fa(self._vivo(), codigo),
-                                            "Desativar o segundo fator: confirme com um código válido"),
+            self.app.push_screen(FormCodigo(lambda codigo, senha: self.app.acesso.desativar_2fa(self._vivo(), codigo, senha),
+                                            "Desativar o segundo fator: confirme com a senha atual e um código válido",
+                                            pedir_senha=True),
                                  self._feito("segundo fator desativado"))
 
     def action_nova_delegacao(self) -> None:

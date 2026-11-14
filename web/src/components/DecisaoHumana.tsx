@@ -22,6 +22,7 @@ interface Props {
 export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Props) {
   const [justificativa, setJustificativa] = useState("");
   const podeCorrigir = pendencia.opcoes.includes("corrigir");
+  const podeWaiver = pendencia.opcoes.includes("waiver"); // a política pode negar (ex.: reincidência, POL-06)
   return (
     <Dialog open onClose={aoFechar} maxWidth="sm" fullWidth aria-labelledby="titulo-decisao">
       <DialogTitle id="titulo-decisao">
@@ -60,7 +61,9 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
           </>
         )}
         {interativo ? (
-          <TextField label="Justificativa" helperText="Obrigatória para waiver: mínimo de 10 caracteres e duas palavras diferentes (POL-04)" fullWidth multiline minRows={2}
+          <TextField label="Justificativa" fullWidth multiline minRows={2}
+            helperText={podeWaiver ? "Obrigatória para waiver: mínimo de 10 caracteres e duas palavras diferentes (POL-04)"
+              : "Waiver não admitido pela política para este veto (ex.: reincidência, POL-06): corrija ou bloqueie"}
             value={justificativa} onChange={(e) => setJustificativa(e.target.value)} sx={{ mt: 1 }}
             placeholder="ex.: risco aceito; lançamento será corrigido no próximo ciclo" />
         ) : (
@@ -72,7 +75,7 @@ export function DecisaoHumana({ pendencia, interativo, aoDecidir, aoFechar }: Pr
         {interativo && (
           <>
             <Button color="error" variant="outlined" onClick={() => aoDecidir("bloquear", justificativa)}>Bloquear</Button>
-            <Button variant="outlined" disabled={!justificativaValida(justificativa)}
+            <Button variant="outlined" disabled={!podeWaiver || !justificativaValida(justificativa)}
               onClick={() => aoDecidir("waiver", justificativa)}>Waiver (aceitar o risco)</Button>
             {podeCorrigir && pendencia.correcoes_sugeridas.length > 1 && (
               <Button variant="outlined" onClick={() => aoDecidir("corrigir_parcial", justificativa)}>

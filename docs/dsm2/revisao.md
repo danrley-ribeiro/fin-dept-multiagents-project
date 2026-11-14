@@ -1,6 +1,6 @@
 # Revisão pós-feedback
 
-Cada ponto do feedback do professor sobre a DSM2, o que mudou e onde está a evidência.
+Cada ponto do feedback do professor sobre a DSM1, tratado na DSM2: o que mudou e onde está a evidência.
 
 | Ponto do feedback | O que foi feito | Evidência |
 |---|---|---|

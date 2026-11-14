@@ -24,6 +24,11 @@ Registro por entrega.
 - Issue #2: arquivo do SVC-MEM em outra versão do formato (ex.: v3, pseudônimo sem chave) deixa a memória
   comprometida ao carregar (falha fechada), em vez de carregar chaves de reincidência que não casam e
   desativar a POL-06. 2 casos novos no teste de falha fechada (249 no total).
+- Teste exploratório: `iniciar.ps1` funciona sem Python 3.13 no PowerShell 5.1; dependências da documentação
+  (Python 3.12+) só no modo `docs`; waiver negado pela política não aparece nem vira bloqueio no dashboard;
+  aviso de erro só diz "pausada" quando pausou; MET-01 e `docs/dsm2/revisao.md` atribuídas ao feedback da
+  DSM1. 250 testes Python e 15 de uso real. Limitação registrada: POL-06 conferida só na emissão do
+  ticket (dois vetos do mesmo padrão pendentes juntos podem receber waiver), correção na DSM4.
 - Rastreabilidade: REQ-S04, NORM-09, NORM-10, MET-15, MET-16, TEST-46 a TEST-71; COMP-MEM, COMP-POL, COMP-MOD,
   COMP-RED e COMP-SCH implementados. Resultados da DSM3 em `docs/dsm3/resultados/` (os da DSM2 preservados).
 - Dashboard: pendências humanas pelo PROT-APR, rejeições no feed, decisão recusada vira aviso; API só aceita

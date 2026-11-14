@@ -10,7 +10,9 @@ function Encontrar-Python {
         $exe = Get-Command $cmd[0] -ErrorAction SilentlyContinue
         if (-not $exe) { continue }
         $args_ = @($cmd | Select-Object -Skip 1) + @("-c", "import sys; print(sys.version_info >= (3, 11))")
-        $ok = & $cmd[0] @args_ 2>$null
+        # Versão ausente (ex.: "py -3.13" sem o 3.13) escreve no stderr; no Windows PowerShell 5.1,
+        # com ErrorActionPreference=Stop, isso vira erro fatal. Aqui é só "não serve": tenta a próxima.
+        try { $ok = & $cmd[0] @args_ 2>$null } catch { $ok = $null }
         if ($ok -eq "True") { return ,$cmd }
     }
     return $null

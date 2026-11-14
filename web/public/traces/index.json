@@ -147,6 +147,41 @@
    "registros": 138
   },
   {
+   "nome": "aprovador_sem_alcada",
+   "descricao": "Microempresa: uma gerente com papel de aprovadora tenta liberar a correção, mas as normas do porte só dão alçada ao assistente e ao sócio (POL-10); o controller corrige",
+   "registros": 151
+  },
+  {
+   "nome": "delegacao_valida",
+   "descricao": "O gerente delega à analista a sua alçada para a competência, com teto de R$ 10 mil; ela concede o waiver que o cargo dela sozinho não permitiria, e a decisão registra a delegação",
+   "registros": 139
+  },
+  {
+   "nome": "delegacao_expirada",
+   "descricao": "Mesma delegação, mas com prazo que termina antes do veto: a analista não decide mais por ela (POL-11) e o próprio gerente concede o waiver",
+   "registros": 140
+  },
+  {
+   "nome": "dupla_aprovacao",
+   "descricao": "Grande empresa: a correção de R$ 30 mil passa do limite de quatro olhos (R$ 25 mil); uma gerente dá o aval e o outro gerente aprova",
+   "registros": 157
+  },
+  {
+   "nome": "dupla_mesma_pessoa_recusada",
+   "descricao": "Grande empresa: a gerente que deu o aval tenta também aprovar; a política recusa (POL-12) e a segunda aprovação vem de outra pessoa",
+   "registros": 158
+  },
+  {
+   "nome": "escalonamento",
+   "descricao": "Ticket no nível de gerente: a diretora tenta decidir antes e é recusada (POL-14); sem decisão na metade do prazo o ticket escala para diretor e a decisão dela vale",
+   "registros": 156
+  },
+  {
+   "nome": "ataque_acesso_avancado",
+   "descricao": "Veto pendente sob ataques ao acesso avançado: código TOTP repetido e fora da janela, código de recuperação reutilizado, pré-sessão usada como sessão, delegação forjada, expirada e subdelegada, a mesma pessoa nos dois passos, decisão acima da alçada e sessão de outra empresa. Tudo recusado; nada é publicado",
+   "registros": 136
+  },
+  {
    "nome": "orc_hipotese_llm",
    "descricao": "A planilha descreve o lançamento repetido com outras palavras: as regras locais não propõem nada, o LLM (mock) propõe, o AG-CIN confirma e o desvio é reclassificado",
    "registros": 148
@@ -240,6 +275,51 @@
    "nome": "normas_sem_evidencia",
    "descricao": "NF duplicada vetada e estornada: a base normativa não tem trecho sobre duplicidade, a busca devolve vazio e o AG-CIN declara 'sem evidência' em vez de citar algo aproximado",
    "registros": 218
+  },
+  {
+   "nome": "fechamento_mei",
+   "descricao": "MEI: uma pessoa só, sem ERP; toda a segregação é impossível e vira controle compensatório; a NF duplicada é vetada e estornada, a competência errada fica como ressalva",
+   "registros": 150
+  },
+  {
+   "nome": "fechamento_media_ii",
+   "descricao": "Média empresa II (BNDES, R$ 90 a 300 milhões): alçadas e materialidade da faixa de cima; alçada violada é reaprovada e os desvios orçamentários entram no relatório",
+   "registros": 209
+  },
+  {
+   "nome": "fechamento_comercio",
+   "descricao": "Comércio: CMV pelo estoque, lojas física e virtual e rateio por área ocupada; NF duplicada de fornecedor vetada e estornada",
+   "registros": 153
+  },
+  {
+   "nome": "fechamento_servicos",
+   "descricao": "Serviços profissionais: mão de obra direta como custo variável e rateio por horas trabalhadas; a gerente aprova o próprio lançamento (SoD) e outro aprovador reaprova",
+   "registros": 153
+  },
+  {
+   "nome": "fechamento_industria",
+   "descricao": "Indústria: custo de produção e rateio dos custos fixos por horas-máquina; NF lançada duas vezes na conta de marketing infla o desvio; o AG-CIN veta e o estorno destrava",
+   "registros": 186
+  },
+  {
+   "nome": "conector_rest_demo",
+   "descricao": "ERP de demonstração em loopback: o conector REST genérico lê o contrato OpenAPI, entende a fonte sem LLM e o mapeamento é confirmado; alçada violada, correção aprovada escrita no ERP pela API",
+   "registros": 153
+  },
+  {
+   "nome": "conector_fora_do_ar",
+   "descricao": "ERP fora do ar (nada escuta na porta): toda leitura falha com o motivo e o fechamento termina em falha explícita, sem travar",
+   "registros": 51
+  },
+  {
+   "nome": "planilha_fora_do_modelo",
+   "descricao": "Planilha da casa (abas e colunas renomeadas e reordenadas, título acima do cabeçalho, R$ em texto, datas, linha de total): entendimento sugere o mapeamento, confirmação e fechamento",
+   "registros": 115
+  },
+  {
+   "nome": "mcp_tools_entendidas",
+   "descricao": "Servidor MCP de Excel por stdio: tools listadas, ler_aba reconhecida como uma tool por aba canônica, amostras, mapeamento confirmado e fechamento pelo cliente MCP",
+   "registros": 116
   }
  ],
  "agentes": {

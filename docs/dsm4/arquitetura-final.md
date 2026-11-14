@@ -65,7 +65,7 @@ não mudaram. O experimento não encontrou ganho significativo do nível `local`
 | Veto independente | só ROLE-CIN emite `veto`; publicar em VETADO é transição inválida | TEST-08, INV-01 |
 | Decisão humana atestada pela pessoa | POL-09, POL-02, POL-03, POL-13 | `ataque_acesso`, INV-04 |
 | Efeito externo só com aprovação | gateway + SVC-POL | INV-02, TEST-12 |
-| Toda solicitação tem resposta | prazos em todo estado de espera; aviso de mensagem perdida ao iniciador | INV-07, experimento (2.ª rodada) |
+| Toda solicitação tem resposta (testado nos parâmetros do experimento e dos testes de caos, não demonstrado) | prazos em todo estado de espera; aviso de mensagem perdida ao iniciador, com a perda marcada pela posição da mensagem na conversa; reentrega dos avisos de decisão humana ao AG-CIN | INV-07, TEST-420, TEST-421, experimento (2.ª e 3.ª rodada) |
 | Proposta de modelo não vira crença | cinco regras da NORM-11; evidência determinística | INV-05, INV-06 |
 | Reprodutibilidade | relógio lógico, seed, ordem fixa | `cenarios --verificar`, `execucoes.csv` byte a byte |
 

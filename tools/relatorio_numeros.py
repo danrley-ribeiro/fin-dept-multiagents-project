@@ -38,6 +38,7 @@ DOC = RAIZ / "entregas" / "dsm4" / "documentacao"
 CATALOGO = RAIZ / "docs" / "dsm4" / "cenarios-de-teste.md"
 TAG_DSM3 = "dsm3-v0.5.0"  # catálogo de cenários e testes entregues na DSM3
 RODADA1 = "cfa6b6f"       # commit com os dados da primeira rodada do experimento (antes da correção)
+RODADA2 = "174e7b6"       # commit com os dados da segunda rodada (depois da correção, antes da correção simulada)
 sys.path.insert(0, str(RAIZ / "src"))
 
 CONDICOES = ("perda_baixa", "perda_media", "perda_alta", "indisponibilidade", "humano_lento", "combinadas",
@@ -558,47 +559,130 @@ def numeros_experimento(M: Macros, E: Experimento):
         familias[x["familia"]] = familias.get(x["familia"], 0) + 1
     M["exp.testes"] = len(E.resumo["testes"])
     M["exp.familias"] = len(familias)
+    criticas_metodo(M, E)
+
+
+def criticas_metodo(M: Macros, E: Experimento):
+    """Números das ressalvas de método apontadas na correção simulada da DSM4 (M1, M2 e M9), das mesmas fontes."""
+    from fin_mas import baseline_eq, estatistica, estudo
+    linhas = estudo.ler_csv(RES / "execucoes.csv")
+    t = E.t
+    # M9 (i): RQ4 com a seed como unidade
+    for chave, comp in (("tipo", "sma_basico: perda de mensagens x indisponibilidade"),
+                        ("local", "sma_local x sma_basico, falhas de comunicação")):
+        x = E.teste("RQ4", comp, "recuperacao_ticks")
+        M[f"rq4.{chave}.n"] = tex(x["n"])
+    # M9 (iii): Holm com as comparações idênticas na família (p = 1), onde o p ajustado muda
+    por_familia: dict[str, list] = {}
+    for x in E.resumo["testes"]:
+        por_familia.setdefault(x["familia"], []).append(x)
+    viradas = 0
+    for fam, xs in por_familia.items():
+        todos = estatistica.holm([x["p"] if x["p_holm"] is not None else 1.0 for x in xs])
+        for x, ph in zip(xs, todos):
+            if x["p_holm"] is not None and (x["p_holm"] < 0.05) != (ph < 0.05):
+                viradas += 1
+            x["_holm_todos"] = ph
+    M["holm.todos.viradas"] = viradas
+    M["holm.todos.familias"] = len(por_familia)
+    for chave, fam, comp, met in (("perda_baixa", "RQ2", "sma_basico x wf_equivalente, perda_baixa", "execucao_correta"),
+                                  ("limiar20", "RQ5-parametros", "sma_basico, nominal, limiar_percentual=20 x padrao", "classificacao_correta"),
+                                  ("prazo_aprovacao", "RQ5-parametros", "sma_basico, combinadas, prazo_aprovacao=10 x prazo_aprovacao=40", "concluida"),
+                                  ("cognicao", "Ablação", "sem_cognicao_local x completo, consulta_instavel", "classificacao_correta")):
+        x = E.teste(fam, comp, met)
+        M[f"holm.todos.{chave}"], M[f"holm.{chave}"] = pval(x["_holm_todos"]), pval(x["p_holm"])
+    # M9 (iv): menor p bilateral possível do Wilcoxon exato com k pares diferentes
+    for k in (2, 3, 4, 5, 6):
+        M[f"wilcoxon.pmin.{k}"] = pval(estatistica.wilcoxon_pareado([1.0] * k, [0.0] * k)["p"])
+    # M9 (ii): latência do workflow com outra premissa de ticks por etapa (exploratório; o pré-registro fixa 3)
+    celulas = [c for c in estudo.plano(30) if c.bloco == "A" and c.braco == "wf_equivalente"
+               and c.condicao in ("nominal", "combinadas")]
+    original = baseline_eq.TICKS_POR_ETAPA
+    M["premissa.ticks"] = original
+    try:
+        for k in (2, 3, 4, 5):
+            baseline_eq.TICKS_POR_ETAPA = k
+            with estudo.protocolos_em_cache():
+                sel = [estudo.executar_celula(c)[0] for c in celulas]
+            for cond in ("nominal", "combinadas"):
+                s = estudo.por_seed([r for r in sel if r["condicao"] == cond], "latencia_ticks")
+                M[f"premissa.{k}.{cond}"] = num(sum(s.values()) / len(s), 1)
+    finally:
+        baseline_eq.TICKS_POR_ETAPA = original
+    # Responder não é acertar: execuções do SMA básico com 30% de perda que terminam em falha explícita
+    pa = estudo.selecionar(linhas, bloco="A", braco="sma_basico", condicao="perda_alta")
+    M["rq2.perda_alta.falhou"] = sum(1 for r in pa if r["status"] == "falhou")
+    M["rq2.perda_alta.execucoes"] = len(pa)
+    # M1: bloco D com ataques; aceitos sem a premissa e o par (não designado) com o bloco A sem o SVC-IAM
+    D = estudo.selecionar(linhas, bloco="D", condicao="combinadas_ataque")
+    seeds = sorted({r["seed"] for r in D if r["ataques_aceitos"]})
+    M["rq6.D.seeds_aceitos"] = ", ".join(str(s) for s in seeds[:-1]) + f" e {seeds[-1]}" if len(seeds) > 1 else str(seeds[0]) if seeds else "nenhuma"
+    A = {(r["intencao"], r["seed"]): r for r in estudo.selecionar(linhas, bloco="A", braco="sma_basico",
+                                                                    condicao="combinadas_ataque", porte="media")}
+    dif = sorted(r["seed"] for r in D if estudo.assinatura(r) != estudo.assinatura(A[(r["intencao"], r["seed"])]))
+    M["rq6.DxA.diferentes"] = len(dif)
+    M["rq6.DxA.seeds"] = ", ".join(str(s) for s in dif[:-1]) + f" e {dif[-1]}" if len(dif) > 1 else (str(dif[0]) if dif else "nenhuma")
+    M["rq6.DxA.pares"] = len(D)
+    # M2: comparação real do controle de acesso (sem falhas e com ataques)
+    for c in ("nominal", "combinadas_ataque"):
+        for lado in ("com_acesso", "sem_acesso"):
+            v = t["rq3_acesso"][c][lado]
+            for met, casas in (("mensagens", 2), ("latencia_ticks", 1), ("registros_trace", 1), ("mensagens_rejeitadas", 2),
+                               ("ataques_tentados", 2)):
+                M[f"acesso.{c}.{lado}.{met}"] = num(v[met]["media"], casas)
+            M[f"acesso.{c}.{lado}.correta"] = pct(v["execucao_correta"]["media"])
 
 
 def numeros_rodada1(M: Macros, E: Experimento):
-    """Primeira rodada (antes da correção do barramento), lida do histórico do git, ao lado da segunda."""
-    def git_json(caminho):
-        r = rodar(["git", "show", f"{RODADA1}:{caminho}"])
+    """Três rodadas do experimento lado a lado: a primeira (antes da correção do barramento) e a segunda (depois
+    dela, antes da correção simulada da DSM4), lidas do histórico do git, e a terceira (versão final, versionada)."""
+    def git_json(commit, caminho):
+        r = rodar(["git", "show", f"{commit}:{caminho}"])
         if r.returncode != 0:
-            raise SystemExit(f"não consegui ler {caminho} no commit {RODADA1}: {r.stderr}")
+            raise SystemExit(f"não consegui ler {caminho} no commit {commit}: {r.stderr}")
         return json.loads(r.stdout)
-    r1 = git_json("docs/dsm4/resultados/resumo.json")
-    m1 = git_json("docs/dsm4/resultados/manifesto.json")
-    M["r1.commit"], M["r2.commit"] = RODADA1, rodar(["git", "log", "-1", "--format=%h", "--", "docs/dsm4/resultados/execucoes.csv"]).stdout.strip()
+    r1 = git_json(RODADA1, "docs/dsm4/resultados/resumo.json")
+    m1 = git_json(RODADA1, "docs/dsm4/resultados/manifesto.json")
+    r2 = git_json(RODADA2, "docs/dsm4/resultados/resumo.json")
+    m2 = git_json(RODADA2, "docs/dsm4/resultados/manifesto.json")
+    M["r1.commit"], M["r2.commit"] = RODADA1, RODADA2
+    M["r3.commit"] = rodar(["git", "log", "-1", "--format=%h", "--", "docs/dsm4/resultados/execucoes.csv"]).stdout.strip()
     M["r1.sha"] = m1["arquivos"]["execucoes.csv"]["sha256"][:8]
-    t1, t2 = r1["tabelas"], E.t
+    M["r2.sha"] = m2["arquivos"]["execucoes.csv"]["sha256"][:8]
+    M["r1.versao"], M["r2.versao"] = m1.get("versao_do_pacote", "?"), m2.get("versao_do_pacote", "?")
+    M["r3.versao"] = E.manifesto.get("versao_do_pacote", "?")
+    rodadas = (r1, r2, E.resumo)
+    t1, t3 = r1["tabelas"], E.t
     linhas = []
 
     def linha(rotulo, f, extra="---"):
-        linhas.append(f"{rotulo} & {f(t1)} & {f(t2)} & {extra} \\\\")
-    linha("pares diferentes do workflow, sem falhas (RQ1)",
-          lambda t: f"{(r1 if t is t1 else E.resumo)['identidade']['sma_basico_x_wf_equivalente']['diferentes']} de "
-                    f"{(r1 if t is t1 else E.resumo)['identidade']['sma_basico_x_wf_equivalente']['pares']}")
+        linhas.append(f"{rotulo} & " + " & ".join(f(r["tabelas"]) for r in rodadas) + f" & {extra} \\\\")
+    idt = (lambda t: next(f"{r['identidade']['sma_basico_x_wf_equivalente']['diferentes']} de "
+                          f"{r['identidade']['sma_basico_x_wf_equivalente']['pares']}" for r in rodadas if r["tabelas"] is t))
+    linha("pares diferentes do workflow, sem falhas (RQ1)", idt)
     for c in ("perda_baixa", "perda_media", "perda_alta", "indisponibilidade", "humano_lento", "combinadas"):
         linha(f"execução correta, {COND_ROTULO[c]}", lambda t, c=c: pct(t["rq2_robustez"][c]["sma_basico"]["execucao_correta"]["media"]),
-              pct(t2["rq2_robustez"][c]["wf_equivalente"]["execucao_correta"]["media"]))
-        M[f"r1.rq2.{c}"] = pct(t1["rq2_robustez"][c]["sma_basico"]["execucao_correta"]["media"])
-        M[f"r1.rq2.{c}.resposta"] = pct(t1["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"])
-    linha("resposta explícita, perda de 5\\% / 15\\% / 30\\%",
-          lambda t: " / ".join(pct(t["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"])
-                               for c in ("perda_baixa", "perda_media", "perda_alta")), "100\\%")
+              pct(t3["rq2_robustez"][c]["wf_equivalente"]["execucao_correta"]["media"]))
+        for k, r in (("r1", r1), ("r2", r2)):
+            M[f"{k}.rq2.{c}"] = pct(r["tabelas"]["rq2_robustez"][c]["sma_basico"]["execucao_correta"]["media"])
+            M[f"{k}.rq2.{c}.resposta"] = pct(r["tabelas"]["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"])
+    def resposta(t):
+        v = [t["rq2_robustez"][c]["sma_basico"]["resposta_explicita"]["media"] for c in ("perda_baixa", "perda_media", "perda_alta")]
+        return "100\\% nas três" if all(x == 1 for x in v) else " / ".join(pct(x) for x in v)
+    linha("resposta explícita, perda de 5 / 15 / 30\\%", resposta, "100\\%")
     linha("execuções do SMA com invariante violado",
           lambda t: f"{inteiro(t['invariantes']['execucoes_com_violacao'])} de {inteiro(t['invariantes']['execucoes_do_sma'])}"
                     + (" (" + ", ".join(t["invariantes"]["execucoes_por_invariante"]) + ")" if t["invariantes"]["execucoes_por_invariante"] else ""),
           "não se aplica")
     linha("mensagens de coordenação, sem falhas", lambda t: num(t["rq3_custo"]["nominal"]["sma_basico"]["mensagens_coordenacao"]["media"], 2),
-          num(t2["rq3_custo"]["nominal"]["wf_equivalente"]["mensagens_coordenacao"]["media"], 2))
+          num(t3["rq3_custo"]["nominal"]["wf_equivalente"]["mensagens_coordenacao"]["media"], 2))
     linha("latência sem falhas (ticks)", lambda t: num(t["rq3_custo"]["nominal"]["sma_basico"]["latencia_ticks"]["media"], 1),
-          num(t2["rq3_custo"]["nominal"]["wf_equivalente"]["latencia_ticks"]["media"], 1))
+          num(t3["rq3_custo"]["nominal"]["wf_equivalente"]["latencia_ticks"]["media"], 1))
     lat1 = t1["rq3_custo"]["combinadas"]["sma_basico"]["latencia_ticks"]
-    linhas.append(f"latência, combinadas (ticks) & {num(lat1['media'], 1)} (só as {lat1['n']} seeds com resposta)"
-                  f" & {num(t2['rq3_custo']['combinadas']['sma_basico']['latencia_ticks']['media'], 1)}"
-                  f" & {num(t2['rq3_custo']['combinadas']['wf_equivalente']['latencia_ticks']['media'], 1)} \\\\")
+    linhas.append(f"latência, combinadas (ticks) & {num(lat1['media'], 1)} ({lat1['n']} seeds com resposta)"
+                  f" & {num(r2['tabelas']['rq3_custo']['combinadas']['sma_basico']['latencia_ticks']['media'], 1)}"
+                  f" & {num(t3['rq3_custo']['combinadas']['sma_basico']['latencia_ticks']['media'], 1)}"
+                  f" & {num(t3['rq3_custo']['combinadas']['wf_equivalente']['latencia_ticks']['media'], 1)} \\\\")
     M["r1.lat.combinadas"], M["r1.lat.combinadas.n"] = num(lat1["media"], 1), lat1["n"]
     linha("críticas publicadas sem tratamento (SMA)", lambda t: inteiro(sum(
         t["rq2_robustez"][c][b]["criticas_publicadas_sem_tratamento"]["media"] for c in t["rq2_robustez"]
@@ -606,11 +690,29 @@ def numeros_rodada1(M: Macros, E: Experimento):
     linha("ataques aceitos indevidamente",
           lambda t: f"0 de {inteiro(t['invariantes']['ataques_tentados'])}" if t["invariantes"]["ataques_aceitos"]
           == t["invariantes"]["ataques_sem_premissa"] else "ver CSV", "não atacado")
+    linha("aceitos sem a premissa (bloco D)",
+          lambda t: inteiro(t["rq6_ataques"]["bloco D: com ataques ao controle de acesso"]["aceitos_sem_a_premissa_do_ataque"]),
+          "não atacado")
+    linha("execução correta, bloco D com ataques",
+          lambda t: pct(t["rq3_acesso"]["combinadas_ataque"]["com_acesso"]["execucao_correta"]["media"]), "---")
+
     def abl(r):
         x = [y for y in r["testes"] if y["familia"] == "Ablação" and y["comparacao"].startswith("sem_reenvio")][0]
-        return f"{pct(x['media_b'])} $\\times$ {pct(x['media_a'])} (p ajustado {pval(x['p_holm'])})"
-    linhas.append(f"ablação do reenvio, perda de 15\\% (com $\\times$ sem) & {abl(r1)} & {abl(E.resumo)} & --- \\\\")
-    M.tabela("TabDuasRodadas", linhas)
+        return f"{pct(x['media_b'])} $\\times$ {pct(x['media_a'])} (p {pval(x['p_holm'])})"
+    linhas.append("ablação do reenvio, perda de 15\\% (com $\\times$ sem) & " + " & ".join(abl(r) for r in rodadas) + " & --- \\\\")
+
+    def rq4(r):
+        x = [y for y in r["testes"] if y["familia"] == "RQ4" and y["comparacao"].startswith("sma_local x sma_basico")][0]
+        unidade = "seeds" if "seeds" in str(x["n"]) else "execuções"
+        return f"p {pval(x['p_holm'])} ({unidade})"
+    linhas.append("RQ4, recuperação local $\\times$ básico (p ajustado; unidade) & " + " & ".join(rq4(r) for r in rodadas) + " & --- \\\\")
+    M.tabela("TabTresRodadas", linhas)
+    for k, r in (("r2", r2),):
+        x = [y for y in r["testes"] if y["familia"] == "RQ4" and y["comparacao"].startswith("sma_local x sma_basico")][0]
+        M[f"{k}.rq4.local.p"], M[f"{k}.rq4.local.n"] = pval(x["p_holm"]), tex(x["n"])
+        M[f"{k}.rq4.local.a"], M[f"{k}.rq4.local.b"] = num(x["media_a"], 1), num(x["media_b"], 1)
+        x = [y for y in r["testes"] if y["familia"] == "RQ4" and y["comparacao"].startswith("sma_basico: perda")][0]
+        M[f"{k}.rq4.tipo.p"], M[f"{k}.rq4.tipo.cliff"] = pval(x["p_holm"]), num(x["cliff"], 2)
     inv1 = t1["invariantes"]
     M["r1.violacoes"], M["r1.inv03"] = inteiro(inv1["execucoes_com_violacao"]), inteiro(inv1["avisos_de_prazo_sem_transicao"])
     M["r1.ataques"] = inteiro(inv1["ataques_tentados"])

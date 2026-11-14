@@ -9,7 +9,7 @@ usa a internet depois da instalação das dependências.
 | Ferramenta | Para quê | Obrigatória |
 |---|---|---|
 | Python 3.11 ou mais novo | sistema, testes, experimento, documentação | sim |
-| git | gerador de números do relatório (lê a primeira rodada do experimento no histórico) | para o relatório |
+| git | gerador de números do relatório (lê a primeira e a segunda rodada do experimento no histórico) | para o relatório |
 | bun | dashboard (build, vitest, Playwright) | para o dashboard |
 | Google Chrome (ou `PW_CHANNEL=chromium`) | roteiros Playwright e PNG dos diagramas | para o dashboard |
 | TeX Live com `latexmk` e `rsvg-convert` (librsvg) | PDF do relatório | para o PDF |
@@ -64,8 +64,9 @@ python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # o exp
 sha256sum docs/dsm4/resultados/execucoes.csv                             # shasum -a 256 no macOS
 ```
 
-O SHA-256 do `execucoes.csv` tem de ser o de `docs/dsm4/resultados/manifesto.json`: o arquivo sai
-idêntico byte a byte numa segunda execução. `tempo_parede.csv` muda a cada máquina e não entra em
+O SHA-256 do `execucoes.csv` tem de ser o de `docs/dsm4/resultados/manifesto.json` (na versão 1.0.0,
+`9d5126a6…`): o arquivo sai idêntico byte a byte numa segunda execução. O hash de cada trace leva a
+versão do pacote, então outra versão dá outro SHA-256 mesmo com as mesmas métricas. `tempo_parede.csv` muda a cada máquina e não entra em
 nenhuma análise. O desenho está em {doc}`experimento` (pré-registro) e a leitura em {doc}`resultados`.
 
 ## 6. Documentação (cerca de 1 minuto)
@@ -78,7 +79,7 @@ python -m sphinx -W --keep-going -b html docs docs/_build/html # make docs; sem 
 ## 7. Relatório, apresentação e pacote
 
 ```bash
-python tools/relatorio_numeros.py --suite   # números do relatório (roda a suíte: cerca de 4 minutos; sem --suite, segundos)
+python tools/relatorio_numeros.py --suite   # números do relatório (roda a suíte: cerca de 6 minutos; sem --suite, cerca de 20 s)
 make pdf-dsm4                               # figuras SVG -> PDF (rsvg-convert) e latexmk: entregas/dsm4/documentacao/relatorio.pdf (cerca de 30 s)
 make apresentacao-dsm4                      # slides.md -> DSM4-apresentacao.pptx com o tema da DSM2 (pandoc, segundos)
 (cd web && node ../tools/diagramas.mjs ../entregas/dsm4)   # PNG dos .mmd da entrega (Playwright e mermaid do web/node_modules)

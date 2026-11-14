@@ -103,27 +103,42 @@ Responde às duas críticas da DSM3: funções diferentes e variância zero.
 |---|---|---|
 | sem falhas (pares diferentes) | 0 de 240 | — |
 | perda de 5% | 94,2% | 100% (n.s.) |
-| perda de 15% | 62,5% | 100% |
-| perda de 30% | 32,5% | 100% |
+| perda de 15% | 64,2% | 100% |
+| perda de 30% | 35,0% | 100% |
 | humano lento | 75,8% | 75,8% |
 | combinadas | 50,8% | 75,8% |
 
 **Com as mesmas funções, o SMA empata em qualidade e perde em robustez.** Nenhuma crítica publicada sem tratamento, em nenhum braço.
 
 ::: notes
-O workflow ganha por construção: o modelo de falhas só atinge mensagens entre componentes. O experimento mede o tamanho da conta. A vantagem de qualidade da DSM3 era das funções, não do paradigma.
+O workflow ganha por construção: o modelo de falhas só atinge mensagens entre componentes, e o workflow não troca mensagens. O empate de qualidade também é em boa parte construído: o workflow foi escrito e testado até igualar. Com 5% de perda, 5 seeds diferentes: o menor p possível é 0,0625, então "não significativo" é falta de poder. A queda com a perda é em parte artefato das perdas aninhadas (números aleatórios comuns).
 :::
 
-# Resultados: custo, cognição, ablação, duas rodadas
+# Resultados: custo, cognição, ablação, ataques
 
-- Custo sem falhas: 15,75 mensagens de coordenação contra 0,88; 15,9 ticks contra 12,7
-- Cognição local: **sem ganho significativo** na medida registrada (sinal exploratório, não significativo)
-- Ablação: reenvio (61,7% → 31,7% sem ele), reserva (2 publicações do mesmo mês sem ela) e correção têm efeito; negociação, não
-- Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente
-- Duas rodadas: a primeira achou um defeito (807 execuções sem resposta); corrigido, 0 na segunda, que **não é confirmatória**
+- Custo sem falhas: 15,75 mensagens de coordenação contra 0,88 (firme); 15,9 ticks contra 12,7 só sob a premissa de 3 ticks por etapa no workflow (com 4, o sinal se inverte)
+- Cognição local: **sem ganho significativo** na medida registrada (sinal exploratório, não significativo); na recuperação, com a seed como unidade, também não (p = 0,26)
+- Ablação: reenvio (63,3% → 31,7% sem ele), reserva (2 publicações do mesmo mês sem ela) e correção têm efeito; negociação, não
+- Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente; no bloco A, nenhum mudou o desfecho; no bloco D, 4 aceitos sem a premissa do ataque, e o efeito sobre o desfecho com o controle de acesso ligado **não foi testado**
 
 ::: notes
-O que não mudou entre as rodadas é o que vale como resultado: empate de qualidade, custo maior, robustez menor, zero ataque aceito, zero crítica publicada.
+O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida.
+:::
+
+# Três rodadas do experimento
+
+| Execução correta (SMA básico) | 1.ª | 2.ª | 3.ª (1.0.0) |
+|---|---|---|---|
+| perda de 15% | 48,8% | 62,5% | 64,2% |
+| perda de 30% | 22,5% | 32,5% | 35,0% |
+| sem resposta, 6.480 execuções | 807 | 0 | 0 |
+
+- 1.ª: revelou "resposta perdida vira silêncio"; 2.ª: depois da correção do barramento
+- 3.ª: depois da correção simulada da DSM4 (marca da perda, reentrega dos avisos humanos, bloco D com duas pessoas, RQ4 por seed)
+- Correções feitas **depois de ver resultados**: nenhuma rodada posterior à primeira é confirmatória
+
+::: notes
+O que não mudou nas três é o que vale como resultado: empate de qualidade, mais mensagens, robustez menor que a do workflow, zero ataque aceito indevidamente, zero crítica publicada.
 :::
 
 # Demonstração
@@ -147,6 +162,8 @@ Seguir docs/dsm4/demonstracao.md: veto e correção, falha explícita com reenvi
 
 - O SMA não ganha do workflow em nenhuma métrica de resultado; recuperação é um reenvio por subtarefa
 - Orquestrador é ponto único de falha, não exercitado; a robustez favorece o workflow por construção
+- Latência modelada, pouco poder com poucas seeds diferentes; H6b não testada com o controle de acesso ligado
+- Em aberto da correção simulada: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
 - Cognição local sem ganho; nenhum LLM real avaliado
 - Raiz de confiança no processo e na pasta de chaves; o cofre não cifra
 - Dados sintéticos; uma máquina, só loopback; nenhum conector de fornecedor
@@ -158,7 +175,7 @@ A lista completa está em docs/dsm4/limitacoes.md, sem suavizar.
 # Lições
 
 - Comparar com uma linha de base **com as mesmas funções** mudou a conclusão
-- Falhas sorteadas acharam um defeito que os cenários fixos nunca exercitaram
+- Falhas sorteadas acharam um defeito que os cenários fixos nunca exercitaram; uma correção simulada independente achou mais dois no mesmo transporte e dois problemas de método
 - O que o SMA entrega é estrutural: separação auditável, veto independente, decisão humana atestada, negociação, extensibilidade, e isso se manteve com o sistema degradado
 - Agentificar tudo não ajudou: cognição só onde há escolha sob incerteza
 - Pré-registro e números gerados das fontes tornam o relato honesto verificável

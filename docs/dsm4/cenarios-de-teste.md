@@ -93,13 +93,13 @@ Arquivos de `tests/` que citam o nome do cenário.
 | Cenário | Arquivos de teste |
 |---|---|
 | `aprovador_sem_alcada` | `tests/e2e/test_acesso_avancado.py` |
-| `delegacao_valida` | `tests/e2e/test_acesso_avancado.py` |
+| `delegacao_valida` | `tests/e2e/test_acesso_avancado.py`, `tests/integration/test_aprovacao_e_acesso_dsm4.py` |
 | `delegacao_expirada` | `tests/e2e/test_acesso_avancado.py` |
-| `dupla_aprovacao` | `tests/e2e/test_acesso_avancado.py` |
+| `dupla_aprovacao` | `tests/e2e/test_acesso_avancado.py`, `tests/integration/test_aprovacao_e_acesso_dsm4.py`, `tests/integration/test_empresa_porte_simulacao.py` |
 | `dupla_mesma_pessoa_recusada` | `tests/e2e/test_acesso_avancado.py` |
 | `escalonamento` | `tests/e2e/test_acesso_avancado.py` |
 | `ataque_acesso_avancado` | `tests/e2e/test_acesso_avancado.py` |
-| `res_explica_variacao` | `tests/e2e/test_aprendizado_compromisso.py`, `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
+| `res_explica_variacao` | `tests/e2e/test_aprendizado_compromisso.py`, `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_acesso_cli.py`, `tests/integration/test_cognicao_dsm4.py` |
 | `res_insumo_faltante` | `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
 | `cus_rateio_alternativo` | `tests/e2e/test_aprendizado_compromisso.py`, `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
 | `rel_relatorio_de_excecao` | `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
@@ -115,7 +115,7 @@ Arquivos de `tests/` que citam o nome do cenário.
 | `fechamento_comercio` | `tests/e2e/test_portes_segmentos.py` |
 | `fechamento_servicos` | `tests/e2e/test_portes_segmentos.py` |
 | `fechamento_industria` | `tests/e2e/test_portes_segmentos.py`, `tests/integration/test_implantacao_dsm4.py` |
-| `conector_rest_demo` | `tests/integration/test_conectores.py` |
+| `conector_rest_demo` | `tests/e2e/test_escrita_sem_confirmacao.py`, `tests/integration/test_conectores.py` |
 | `conector_fora_do_ar` | `tests/integration/test_conectores.py` |
 | `planilha_fora_do_modelo` | `tests/integration/test_conectores.py` |
 | `mcp_tools_entendidas` | `tests/integration/test_conectores.py` |
@@ -227,3 +227,38 @@ existe); o título é o campo `esperado` do modelo.
 | TEST-263 | `test_spreadsheet_uploads_history_and_off_model_activation` | `tests/integration/test_dashboard_fontes.py` | integracao | envio no modelo e fora dele, histórico, planilha fora do modelo entendida, confirmada e ativada |
 | TEST-264 | `fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele` | `web/e2e/fontes.spec.ts` | interface | no navegador: aba Fontes de ponta a ponta; o token nunca aparece |
 | TEST-265 | `fontes: modelos para baixar, envio de planilha e histórico; host externo só pelo administrador` | `web/e2e/fontes.spec.ts` | interface | modelos, envio e histórico; só o administrador libera host externo |
+| TEST-400 | `segundo fator: ativar mostra o segredo e os códigos uma vez e a entrada passa a ter dois passos` | `web/e2e/avancado.spec.ts` | interface | no navegador: ativação com TOTP calculado no teste; segredo e códigos fora da página depois; senha abre só o pedido do código; código errado recusado com erro genérico |
+| TEST-401 | `segundo fator: código de recuperação entra uma vez só e cinco códigos errados devolvem ao início` | `web/e2e/avancado.spec.ts` | interface | código de recuperação vale uma vez; as tentativas que restam vêm do servidor; a quinta recusa volta ao usuário e senha |
+| TEST-402 | `segundo fator: novos códigos de recuperação e desativação pela própria pessoa` | `web/e2e/avancado.spec.ts` | interface | códigos novos invalidam os antigos; desativar pede um código válido; a entrada volta a um passo |
+| TEST-403 | `política que exige o segundo fator leva a conta sem ele à ativação e só depois libera o escritório` | `web/e2e/avancado.spec.ts` | interface | política ligada pela CLI: quem entra e quem já estava dentro caem na ativação; a API nega com IAM-08; ativado, o escritório abre |
+| TEST-404 | `chave de LLM no cofre: definir, ver que há chave e remover, sem o valor aparecer em lugar nenhum` | `web/e2e/avancado.spec.ts` | interface | só com PERM-MOD-SEGREDOS; situação por provedor; valor fora das respostas, do HTML, do console e da trilha |
+| TEST-405 | `troca de empresa: seletor só para quem tem mais de uma, empresa ativa inequívoca e dados isolados` | `web/e2e/avancado.spec.ts` | interface | empresas e escopo criados pela CLI; escolha na entrada; a troca recarrega estado e fluxo de eventos; nada cruza |
+| TEST-406 | `demonstração guiada: abre por opção, dispara os comandos de cada passo e fecha sem mudar o escritório` | `web/e2e/demo.spec.ts` | interface | desligada por padrão; fechamento, veto, agente desligado (reenvio e falha) e ataque recusado disparados pelo roteiro; fechada, o escritório funciona igual |
+| TEST-407 | `demonstração guiada respeita as permissões: o auditor lê o roteiro, mas não dispara comandos` | `web/e2e/demo.spec.ts` | interface | botões de comando desligados com o motivo; o servidor nega o comando forçado |
+| TEST-408 | `test_own_second_factor_status_and_new_recovery_codes` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | GET /api/2fa e POST /api/2fa/recuperacao: situação, códigos novos, antigos inválidos, trilha sem os códigos |
+| TEST-409 | `test_second_step_reports_remaining_attempts_until_the_pre_session_ends` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | a recusa do código diz quantas tentativas restam; na quinta a pré-sessão acaba |
+| TEST-410 | `test_vault_route_tells_where_each_llm_key_comes_from` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | por provedor: ambiente, cofre ou nenhuma; o valor nunca sai |
+| TEST-420 | `test_late_delivery_of_an_earlier_message_does_not_hide_a_lost_final_answer` | `tests/e2e/test_caos.py` | robustez | com atraso de entrega de 3 a 6 ticks e perda, toda solicitação recebe resposta e nenhum invariante é violado |
+| TEST-421 | `test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refused` | `tests/e2e/test_approval_gate.py` | seguranca | aviso de waiver perdido é reentregue: a reincidência segue barrada (POL-06) e há um ticket por veto |
+| TEST-422 | `test_learning_only_counts_evidence_from_a_deterministic_source` | `tests/e2e/test_aprendizado_compromisso.py` | seguranca | texto livre, fonte de proponente ou vazia não contam como evidência no aprendizado |
+| TEST-423 | `test_scenario_options_the_data_cannot_support_give_a_message_not_a_traceback` | `tests/integration/test_acesso_cli.py` | robustez | combinação de cenário, porte e segmento que os dados não comportam sai com mensagem e código 2 |
+| TEST-430 | `test_brute_force_through_disable_route_locks_the_second_factor_and_needs_the_password` | `tests/integration/test_segundo_fator_forca_bruta.py` | seguranca | segundo fator com contador por conta, bloqueio e senha exigida |
+| TEST-431 | `test_new_pre_sessions_do_not_renew_the_attempts_and_parallel_guesses_respect_the_limit` | `tests/integration/test_segundo_fator_forca_bruta.py` | seguranca | segundo fator com contador por conta, bloqueio e senha exigida |
+| TEST-432 | `test_lock_holds_for_fifteen_minutes_counts_activation_and_only_a_correct_code_resets` | `tests/integration/test_segundo_fator_forca_bruta.py` | seguranca | segundo fator com contador por conta, bloqueio e senha exigida |
+| TEST-433 | `test_sources_of_one_company_cannot_be_listed_activated_removed_downloaded_or_overwritten_by_another` | `tests/integration/test_fontes_por_empresa.py` | seguranca | fontes, planilhas e credenciais isoladas por empresa |
+| TEST-434 | `test_forged_backup_never_writes_outside_the_destination_and_malformed_ones_are_refused` | `tests/integration/test_backup_seguro.py` | seguranca | restauração validada antes de gravar; cofre viaja no pacote de chaves |
+| TEST-435 | `test_backup_carries_the_vault_and_the_restored_install_keeps_2fa_llm_key_and_connector_credential` | `tests/integration/test_backup_seguro.py` | seguranca | restauração validada antes de gravar; cofre viaja no pacote de chaves |
+| TEST-436 | `test_confirmed_mapping_stops_counting_when_the_source_renames_a_column_or_changes_the_unit` | `tests/integration/test_mapeamento_impressao.py` | seguranca | mapeamento confirmado perde a validade quando a fonte muda de coluna ou de escala |
+| TEST-437 | `test_open_dashboard_does_not_keep_an_idle_session_alive` | `tests/integration/test_fluxo_eventos_acesso.py` | seguranca | fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade |
+| TEST-438 | `test_stream_closes_when_the_account_loses_the_company_or_the_permission` | `tests/integration/test_fluxo_eventos_acesso.py` | seguranca | fluxo de eventos reconfere sessão, permissão e empresa e não conta como atividade |
+| TEST-439 | `test_company_size_comes_from_the_registry_and_an_operator_cannot_change_it` | `tests/integration/test_empresa_porte_simulacao.py` | seguranca | porte vem do cadastro da empresa; uma simulação por empresa |
+| TEST-440 | `test_simultaneous_requests_create_a_single_simulation_per_company` | `tests/integration/test_empresa_porte_simulacao.py` | seguranca | porte vem do cadastro da empresa; uma simulação por empresa |
+| TEST-441 | `test_delegation_is_usable_live_and_does_not_cross_companies` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-442 | `test_delegation_made_in_one_company_is_refused_in_another` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-443 | `test_double_approval_needs_two_real_people_and_a_still_valid_endorsement` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-444 | `test_veto_without_exposure_fails_closed` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-445 | `test_password_change_revokes_other_sessions_and_wrong_current_password_counts` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-446 | `test_burst_of_anonymous_logins_does_not_hold_the_registry_lock` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-447 | `test_infinite_price_is_refused_and_a_tampered_vault_answers_503` | `tests/integration/test_aprovacao_e_acesso_dsm4.py` | seguranca | delegação ao vivo, dupla aprovação por pessoas distintas, veto sem exposição, senha e cofre |
+| TEST-448 | `test_excel_mcp_server_answers_malformed_requests_with_json_rpc_errors_and_keeps_serving` | `tests/integration/test_mcp_excel_robusto.py` | robustez | servidor MCP de Excel responde erro JSON-RPC e segue atendendo |
+| TEST-449 | `test_write_accepted_by_the_erp_with_an_invalid_reread_is_recorded_as_applied_and_never_repeated` | `tests/e2e/test_escrita_sem_confirmacao.py` | robustez | correção aplicada com releitura inválida é registrada como aplicada e não se repete |

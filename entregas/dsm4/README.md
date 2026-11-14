@@ -13,7 +13,9 @@ encadeado.
 **O resultado do experimento, em uma frase:** com as mesmas funções, o SMA empata com um workflow
 centralizado em qualidade e perde em custo e em robustez quando mensagens se perdem; a cognição local não
 mostrou ganho significativo; nenhuma crítica foi publicada sem tratamento e nenhum ataque foi aceito
-indevidamente, em nenhuma condição. Os números estão no relatório e em
+indevidamente, em nenhuma condição. O experimento rodou três vezes; as correções entre as rodadas foram
+feitas depois de ver resultados, e nenhuma rodada posterior à primeira é confirmatória. Os números
+(versão 1.0.0, terceira rodada) estão no relatório e em
 [`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md).
 
 ## Conteúdo do pacote
@@ -56,7 +58,7 @@ Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com
 |---|---|
 | Sistema final e corretude (25%) | `codigo/src/fin_mas/`; cenários do catálogo, todos com resposta explícita, invariantes e repetibilidade conferidos por `cenarios --verificar` ([catálogo da DSM4](../../docs/dsm4/cenarios-de-teste.md), [da DSM3](../../docs/dsm3/cenarios-de-teste.md)); invariantes de segurança sobre qualquer trace (`fin-mas invariantes`); cenários adversariais com todos os ataques recusados; relatório §3 a §8 |
 | Arquitetura e SMA (20%) | [arquitetura final](../../docs/dsm4/arquitetura-final.md) e ADR-002 a ADR-012; quem é BDI, quem é reativo e por quê ([ADR-010](../../docs/dsm4/ADR-010-especialistas-bdi.md), incluindo onde a cognição não se justificou); protocolos com transições inválidas testadas ([protocolos](../../docs/dsm3/protocolos.md)); coordenação e comportamento coletivo (relatório §5 e §10.5); proposta de modelo ≠ crença ([ADR-008](../../docs/dsm3/ADR-008-cognicao-local-e-llm.md)) |
-| Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as duas rodadas, o que não se confirmou, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (reproduzível byte a byte, SHA-256 em `manifesto.json`); relatório §10 |
+| Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as três rodadas, o que não se confirmou, o que não foi testado, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (reproduzível byte a byte, SHA-256 em `manifesto.json`); relatório §10 |
 | Testes e reprodutibilidade (15%) | `codigo/tests/` (unit, e2e, integração, TUI), `codigo/web/e2e/` (Playwright), vitest; `tools/trace.py --check`; mesmo hash por seed; [reprodução do zero](../../docs/dsm4/reproducao.md); números do relatório gerados por `tools/relatorio_numeros.py` |
 | Documentação (10%) | relatório técnico (`documentacao/relatorio.pdf`); documentação navegável (`docs/`, Sphinx, <https://fin-dept-multiagents-project.readthedocs.io>); [limitações](../../docs/dsm4/limitacoes.md); diagramas editáveis; este README |
 | Demonstração e autoria (10%) | [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
@@ -69,7 +71,14 @@ Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com
   acesso); estatística por seed com bootstrap, Wilcoxon, delta de Cliff e Holm; pré-registro antes do código.
 - **Defeito encontrado pelo experimento e corrigido:** a resposta de um especialista perdida na entrega
   deixava a solicitação sem resposta (a conversa já constava concluída). Agora a perda avisa o iniciador,
-  que reenvia uma vez ou falha de forma explícita. As duas rodadas estão relatadas lado a lado.
+  que reenvia uma vez ou falha de forma explícita.
+- **Correção simulada independente da DSM4** (nota 7,2 ao estado anterior às correções, sem reavaliação):
+  5 achados críticos, 10 moderados e 7 menores; os críticos e quase todos os demais corrigidos, cada um com
+  teste (TEST-420 a TEST-449). No transporte, a marca da perda não é mais apagada por entrega atrasada e os
+  avisos de decisão humana têm reentrega; segundo fator com contador por conta; fontes por empresa;
+  restauração validada antes de gravar. No experimento, bloco D com duas pessoas no roteiro de aprovação e
+  RQ4 com a seed como unidade. O experimento rodou uma terceira vez na versão 1.0.0; as três rodadas estão
+  relatadas lado a lado. O que ficou em aberto está em [`USO_DE_IA.md`](USO_DE_IA.md) e nas limitações.
 - **Especialistas BDI** (AG-RES, AG-CUS, AG-REL) como variantes nos níveis `local` e `llm`, com as classes
   reativas preservadas no `basico`; aprendizado local auditável; estratégias de compromisso; base normativa
   com proveniência e "sem evidência" (ADR-010).
@@ -94,7 +103,9 @@ A lista completa está em [`docs/dsm4/limitacoes.md`](../../docs/dsm4/limitacoes
 - A cognição local não mostrou ganho na medida registrada; o AG-REL BDI não acrescenta capacidade; nenhum
   LLM real foi avaliado.
 - A robustez favorece o workflow por construção; um workflow distribuído não foi construído. Dados
-  sintéticos com plantio. A segunda rodada não é confirmatória.
+  sintéticos com plantio. Nenhuma rodada depois da primeira é confirmatória. A latência entre os braços é
+  modelada (3 ticks por etapa no workflow, premissa que decide o sinal sem falhas); com 5 seeds diferentes ou
+  menos os testes não têm poder; H6b não foi testada com o controle de acesso ligado.
 - Raiz de confiança no processo e na pasta de chaves; o cofre garante integridade, não confidencialidade
   contra quem lê o disco; pedido sem atestado no PROT-SOL.
 - Uma máquina, só loopback; nenhum conector de fornecedor nem ERP real; algumas funções de acesso só pela

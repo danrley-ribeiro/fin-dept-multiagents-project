@@ -80,3 +80,6 @@ htmlcov/
 build/
 dist/
 src/fin_mas/_dados/
+
+# --- Pacote de entrega gerado por tools/empacotar_dsm4.py ---
+entregas/dsm4/DSM4-entrega.zip

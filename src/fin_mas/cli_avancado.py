@@ -52,6 +52,7 @@ def configurar_acesso(a) -> None:
     ce.add_argument("id")
     ce.add_argument("--nome", required=True)
     ce.add_argument("--porte", default="media")
+    ce.add_argument("--segmento", default=None, help="segmento da empresa (sem ele, o do cenário)")
     es = e.add_parser("escopo")
     es.add_argument("usuario")
     es.add_argument("empresas", nargs="*")
@@ -171,7 +172,7 @@ def _com_sessao(acesso, sessao, args, mostrar) -> int:
         return 0
     if acao == "empresa":
         if op == "criar":
-            e = acesso.criar_empresa(sessao, args.id, args.nome, args.porte)
+            e = acesso.criar_empresa(sessao, args.id, args.nome, args.porte, args.segmento)
             mostrar(args, e, [f"empresa {e['id']} ({e['nome']}, porte {e['porte']}) criada"])
         else:
             c = acesso.definir_escopo(sessao, args.usuario, args.empresas)

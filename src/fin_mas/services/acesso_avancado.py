@@ -345,22 +345,27 @@ class AcessoAvancado:
     def multiempresa(self) -> bool:
         return bool(self._contas.ver().get("empresas"))
 
-    def criar_empresa(self, ator, empresa: str, nome: str, porte: str = "media") -> dict:
+    def criar_empresa(self, ator, empresa: str, nome: str, porte: str = "media", segmento: str | None = None) -> dict:
+        """O porte (alçadas, dupla aprovação) e o segmento cadastrados valem para a simulação da empresa; só quem
+        administra empresas (PERM-IAM-EMPRESAS) os escolhe."""
         from fin_mas.env.portes import PORTES
+        from fin_mas.env.segmentos import SEGMENTOS
         self.exigir(ator, "PERM-IAM-EMPRESAS")
         self._validar_usuario(empresa)  # mesmo formato: vira o nome da pasta dados/<empresa>/
         if porte not in PORTES:
             raise _negado("IAM-09", f"porte desconhecido: {porte} (use {', '.join(PORTES)})")
+        if segmento is not None and segmento not in SEGMENTOS:
+            raise _negado("IAM-09", f"segmento desconhecido: {segmento} (use {', '.join(SEGMENTOS)})")
         with self._tx(self._contas) as dados:
             empresas = dados.setdefault("empresas", {})
             if empresa in empresas:
                 raise _negado("IAM-09", f"a empresa {empresa} já existe")
             empresas[empresa] = {"id": empresa, "nome": str(nome)[:120] or empresa, "porte": porte,
-                                 "criada_em": round(self.relogio(), 3)}
+                                 "criada_em": round(self.relogio(), 3), **({"segmento": segmento} if segmento else {})}
             if not ator.empresas and len(empresas) == 1:  # a primeira empresa entra no escopo de quem a criou
                 dados["contas"][ator.usuario]["empresas"] = [empresa]
             criada = dict(empresas[empresa])
-        self._auditar("empresa_criada", ator.usuario, empresa=empresa, porte=porte, regra="IAM-09")
+        self._auditar("empresa_criada", ator.usuario, empresa=empresa, porte=porte, segmento=segmento, regra="IAM-09")
         return criada
 
     def definir_escopo(self, ator, usuario: str, empresas) -> dict:

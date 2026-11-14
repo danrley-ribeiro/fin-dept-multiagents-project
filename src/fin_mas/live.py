@@ -60,8 +60,17 @@ class Simulacao:
         self._montar(cenario, seed, interativo)
 
     # ---- montagem ---------------------------------------------------------
+    def cadastro_da_empresa(self) -> dict:
+        """Porte e segmento da empresa desta simulação no cadastro (IAM-09); vazio sem empresa cadastrada."""
+        if not self.empresa or self.acesso is None:
+            return {}
+        e = self.acesso.empresas().get(self.empresa) or {}
+        return {k: e[k] for k in ("porte", "segmento") if e.get(k)}
+
     def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", segmento=None) -> None:
         sc = CENARIOS[cenario]
+        cadastro = self.cadastro_da_empresa()  # empresa cadastrada: o porte (alçadas, dupla aprovação) é o do cadastro
+        porte, segmento = porte or cadastro.get("porte"), segmento or cadastro.get("segmento")
         pasta = self.pasta_dados if fonte == "planilha" else None
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
         if fonte == "conector" and self.fabrica_fonte is None:
@@ -105,6 +114,11 @@ class Simulacao:
             self.acesso.exigir(ator, PERMISSAO_COMANDO[cmd["tipo"]])
             if cmd["tipo"] == "reiniciar" and cmd.get("cognicao") not in (None, self.cognicao or self.cenario.cognicao):
                 self.acesso.exigir(ator, "PERM-MOD-CONFIG")  # mudar o nível de cognição é ajuste de modelo
+            cadastro = self.cadastro_da_empresa()
+            if cmd["tipo"] == "reiniciar" and any(cmd.get(k) not in (None, cadastro[k]) for k in cadastro):
+                # porte e segmento da empresa cadastrada definem alçadas e dupla aprovação: trocá-los é administrar
+                # a empresa, não operar a simulação (IAM-09)
+                self.acesso.exigir(ator, "PERM-IAM-EMPRESAS")
         if cmd["tipo"] == "agente" and cmd.get("agente") not in self.sistema.bus.agents:
             raise ComandoInvalido(f"agente desconhecido: {cmd.get('agente')!r}")
         self.comandos.put((cmd, ator))

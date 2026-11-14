@@ -123,8 +123,17 @@
 \draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
 \draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
 \draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-3.36) {\textbf{REQ-F30} (DSM4)\\Fonte de dados por conector genérico e entendimento automático sem IA generativa};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-3.36) {ROLE-OPE, ROLE-ORQ};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-3.36) {PROT-DEL, NORM-02, NORM-30, NORM-31};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-3.36) {12 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-3.36) {MET-50};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
 \end{tikzpicture}
-\caption{Rastreabilidade, funcional: REQ-F20 a REQ-F21. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\caption{Rastreabilidade, funcional: REQ-F20 a REQ-F30. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
 \label{fig:trace3}
 \end{figure}
 
@@ -194,8 +203,26 @@
 \draw[->, black!55] ([yshift=-0.22cm]c1r9.north east) -- ([yshift=-0.22cm]c1r9.north east -| c2r10.west);
 \draw[->, black!55] ([yshift=-0.22cm]c2r10.north east) -- ([yshift=-0.22cm]c2r10.north east -| c3r11.west);
 \draw[->, black!55] ([yshift=-0.22cm]c3r11.north east) -- ([yshift=-0.22cm]c3r11.north east -| c4r12.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r17) at (0.0,-1.68) {\textbf{REQ-S06} (DSM4)\\Acesso avançado — segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r18) at (4.0,-1.68) {ROLE-ADM, ROLE-APR};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r19) at (7.5,-1.68) {PROT-APR, PROT-CMP, NORM-14, NORM-15};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r20) at (11.8,-1.68) {24 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r21) at (13.9,-1.68) {MET-19};
+\draw[->, black!55] ([yshift=-0.22cm]c0r17.north east) -- ([yshift=-0.22cm]c0r17.north east -| c1r18.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r18.north east) -- ([yshift=-0.22cm]c1r18.north east -| c2r19.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r19.north east) -- ([yshift=-0.22cm]c2r19.north east -| c3r20.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r20.north east) -- ([yshift=-0.22cm]c3r20.north east -| c4r21.west);
+\node[caixa, fill=trreq, text width=3.45cm] (c0r26) at (0.0,-4.04) {\textbf{REQ-S20} (DSM4)\\Credencial de conector selada e rede só em loopback salvo liberação do administrador};
+\node[caixa, fill=trpapel, text width=2.95cm] (c1r27) at (4.0,-4.04) {ROLE-ADM, ROLE-OPE};
+\node[caixa, fill=trprot, text width=3.75cm] (c2r28) at (7.5,-4.04) {PROT-APR, NORM-06, NORM-12, NORM-32};
+\node[caixa, fill=trteste, text width=1.55cm] (c3r29) at (11.8,-4.04) {8 teste(s)};
+\node[caixa, fill=trmet, text width=3.35cm] (c4r30) at (13.9,-4.04) {MET-50};
+\draw[->, black!55] ([yshift=-0.22cm]c0r26.north east) -- ([yshift=-0.22cm]c0r26.north east -| c1r27.west);
+\draw[->, black!55] ([yshift=-0.22cm]c1r27.north east) -- ([yshift=-0.22cm]c1r27.north east -| c2r28.west);
+\draw[->, black!55] ([yshift=-0.22cm]c2r28.north east) -- ([yshift=-0.22cm]c2r28.north east -| c3r29.west);
+\draw[->, black!55] ([yshift=-0.22cm]c3r29.north east) -- ([yshift=-0.22cm]c3r29.north east -| c4r30.west);
 \end{tikzpicture}
-\caption{Rastreabilidade, segurança: REQ-S05. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
+\caption{Rastreabilidade, segurança: REQ-S05 a REQ-S20. Cadeia requisito $\rightarrow$ papéis $\rightarrow$ protocolos e normas $\rightarrow$ testes $\rightarrow$ métricas, lida de \texttt{models/*.yaml}.}
 \label{fig:trace5}
 \end{figure}
 

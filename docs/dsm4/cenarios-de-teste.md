@@ -6,7 +6,7 @@ modelados com `entrega: DSM4` em `models/tests.yaml`. O catálogo da DSM3 (37 ce
 {doc}`../dsm3/cenarios-de-teste`; aqui ficam só os cenários que não existiam na tag
 `dsm3-v0.5.0`. Não edite à mão: rode o gerador de novo.
 
-Conferência no momento da geração: **53 de 53 cenário(s) em ordem**.
+Conferência no momento da geração: **64 de 64 cenário(s) em ordem**.
 
 ## Terminal
 
@@ -18,6 +18,13 @@ python -m fin_mas run --scenario <nome> --trace t.jsonl && python -m fin_mas inv
 
 | Cenário | Cognição | Porte | Segmento | Resposta | Invariantes | Repetível | O que observar |
 |---|---|---|---|---|---|---|---|
+| `aprovador_sem_alcada` | `basico` | micro | software_servicos | `inform` | ok | sim | correção de carla recusada (POL-10, gerente sem alçada no porte); o controller corrige; publicado |
+| `delegacao_valida` | `basico` | media | software_servicos | `inform` | ok | sim | waiver de ana por delegação de diego (DLG-001) aceito; publicado com ressalva |
+| `delegacao_expirada` | `basico` | media | software_servicos | `inform` | ok | sim | waiver de ana recusado (POL-11, delegação expirada); waiver de diego aceito |
+| `dupla_aprovacao` | `basico` | grande | software_servicos | `inform` | ok | sim | endorse de carla (PENDENTE->PENDENTE), approve de diego; aprovado_por com o aval; publicado |
+| `dupla_mesma_pessoa_recusada` | `basico` | grande | software_servicos | `inform` | ok | sim | aprovação de carla depois do próprio aval recusada (POL-12); diego aprova; publicado |
+| `escalonamento` | `basico` | media | software_servicos | `inform` | ok | sim | elisa recusada (POL-14) antes; ticket escalado de gerente para diretor; elisa aprova depois |
+| `ataque_acesso_avancado` | `basico` | grande | software_servicos | `failure` | ok | sim | ataques rejeitados (IAM-04, 08, 09, POL-10, 11, 12); prazo esgota; nada publicado |
 | `res_explica_variacao` | `local` | media | software_servicos | `inform` | ok | sim | hipótese causa_custo_fixo confirmada por cálculo sobre AG-CUS e histórico; explicação aponta CC-OPS; insight no relatório |
 | `res_insumo_faltante` | `local` | media | software_servicos | `inform` | ok | sim | P-CONSULTAR-ESPECIALISTA falha, P-CONSULTAR-DE-NOVO falha, P-DAR-POR-INDISPONIVEL; P-CONSOLIDAR-COM-RESSALVA; publicado com ressalva, sem reenvio do Orquestrador |
 | `cus_rateio_alternativo` | `local` | media | software_servicos | `inform` | ok | sim | P-RATEIO-PADRAO falha; P-RATEIO-PROPORCIONAL-RECEITA escolhido (média); resultado por UN igual ao gabarito do critério; ressalva no relatório |
@@ -34,6 +41,10 @@ python -m fin_mas run --scenario <nome> --trace t.jsonl && python -m fin_mas inv
 | `fechamento_comercio` | `basico` | media | comercio | `inform` | ok | sim | AG-CUS rateia por m² (80/20); estorno aprovado; relatório publicado |
 | `fechamento_servicos` | `basico` | media | servicos | `inform` | ok | sim | AG-CUS rateia por horas (65/35); SoD vetado e reaprovado; relatório publicado |
 | `fechamento_industria` | `basico` | media | industria | `inform` | ok | sim | AG-CUS rateia por horas-máquina (70/30); desvio atribuído a controle; estorno aprovado |
+| `conector_rest_demo` | `basico` | media | software_servicos | `inform` | ok | sim | mesmo resultado do veto_correcao sobre o ERP simulado; a correção só chega ao ERP com o ticket aprovado |
+| `conector_fora_do_ar` | `basico` | media | software_servicos | `failure` | ok | sim | failure com 'fonte indisponível'; leituras negadas auditadas; nada publicado |
+| `planilha_fora_do_modelo` | `basico` | pequena | software_servicos | `inform` | ok | sim | mesmo resultado da mesma empresa no modelo canônico; linha de total excluída e conferida |
+| `mcp_tools_entendidas` | `basico` | micro | software_servicos | `inform` | ok | sim | mesmo resultado da planilha lida pela pasta; proveniência mcp://mcp-excel/ler_aba#Aba |
 
 ## Dashboard
 
@@ -47,6 +58,13 @@ python -m fin_mas serve --demo --scenario <nome>        # ao vivo: http://127.0.
 
 | Cenário | Ao vivo | Replay (trace exportado) | Onde olhar |
 |---|---|---|---|
+| `aprovador_sem_alcada` | `serve --demo --scenario aprovador_sem_alcada` | sim | aba Porte e o relatório publicado |
+| `delegacao_valida` | `serve --demo --scenario delegacao_valida` | sim | feed de eventos |
+| `delegacao_expirada` | `serve --demo --scenario delegacao_expirada` | sim | feed de eventos |
+| `dupla_aprovacao` | `serve --demo --scenario dupla_aprovacao` | sim | aba Porte e o relatório publicado |
+| `dupla_mesma_pessoa_recusada` | `serve --demo --scenario dupla_mesma_pessoa_recusada` | sim | aba Porte e o relatório publicado |
+| `escalonamento` | `serve --demo --scenario escalonamento` | sim | feed de eventos |
+| `ataque_acesso_avancado` | `serve --demo --scenario ataque_acesso_avancado` | sim | aba Porte e o relatório publicado |
 | `res_explica_variacao` | `serve --demo --scenario res_explica_variacao` | sim | mente do agente (crenças, desejos, deliberações) |
 | `res_insumo_faltante` | `serve --demo --scenario res_insumo_faltante` | sim | mente do agente (crenças, desejos, deliberações) |
 | `cus_rateio_alternativo` | `serve --demo --scenario cus_rateio_alternativo` | sim | mente do agente (crenças, desejos, deliberações) |
@@ -58,11 +76,15 @@ python -m fin_mas serve --demo --scenario <nome>        # ao vivo: http://127.0.
 | `memoria_reincidencia_orc` | `serve --demo --scenario memoria_reincidencia_orc` | sim | mente do agente (crenças, desejos, deliberações) |
 | `normas_fundamentam_achado` | `serve --demo --scenario normas_fundamentam_achado` | sim | mente do agente (crenças, desejos, deliberações) |
 | `normas_sem_evidencia` | `serve --demo --scenario normas_sem_evidencia` | sim | mente do agente (crenças, desejos, deliberações) |
-| `fechamento_mei` | `serve --demo --scenario fechamento_mei` | não (rode `fin-mas export`) | aba Porte e o relatório publicado |
-| `fechamento_media_ii` | `serve --demo --scenario fechamento_media_ii` | não (rode `fin-mas export`) | aba Porte e o relatório publicado |
-| `fechamento_comercio` | `serve --demo --scenario fechamento_comercio` | não (rode `fin-mas export`) | aba Porte e o relatório publicado |
-| `fechamento_servicos` | `serve --demo --scenario fechamento_servicos` | não (rode `fin-mas export`) | aba Porte e o relatório publicado |
-| `fechamento_industria` | `serve --demo --scenario fechamento_industria` | não (rode `fin-mas export`) | aba Porte e o relatório publicado |
+| `fechamento_mei` | `serve --demo --scenario fechamento_mei` | sim | aba Porte e o relatório publicado |
+| `fechamento_media_ii` | `serve --demo --scenario fechamento_media_ii` | sim | aba Porte e o relatório publicado |
+| `fechamento_comercio` | `serve --demo --scenario fechamento_comercio` | sim | aba Porte e o relatório publicado |
+| `fechamento_servicos` | `serve --demo --scenario fechamento_servicos` | sim | aba Porte e o relatório publicado |
+| `fechamento_industria` | `serve --demo --scenario fechamento_industria` | sim | aba Porte e o relatório publicado |
+| `conector_rest_demo` | `serve --demo --scenario conector_rest_demo` | sim | feed de eventos |
+| `conector_fora_do_ar` | `serve --demo --scenario conector_fora_do_ar` | sim | feed de eventos |
+| `planilha_fora_do_modelo` | `serve --demo --scenario planilha_fora_do_modelo` | sim | aba Porte e o relatório publicado |
+| `mcp_tools_entendidas` | `serve --demo --scenario mcp_tools_entendidas` | sim | aba Porte e o relatório publicado |
 
 ## Testes que exercitam cada cenário
 
@@ -70,6 +92,13 @@ Arquivos de `tests/` que citam o nome do cenário.
 
 | Cenário | Arquivos de teste |
 |---|---|
+| `aprovador_sem_alcada` | `tests/e2e/test_acesso_avancado.py` |
+| `delegacao_valida` | `tests/e2e/test_acesso_avancado.py` |
+| `delegacao_expirada` | `tests/e2e/test_acesso_avancado.py` |
+| `dupla_aprovacao` | `tests/e2e/test_acesso_avancado.py` |
+| `dupla_mesma_pessoa_recusada` | `tests/e2e/test_acesso_avancado.py` |
+| `escalonamento` | `tests/e2e/test_acesso_avancado.py` |
+| `ataque_acesso_avancado` | `tests/e2e/test_acesso_avancado.py` |
 | `res_explica_variacao` | `tests/e2e/test_aprendizado_compromisso.py`, `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
 | `res_insumo_faltante` | `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
 | `cus_rateio_alternativo` | `tests/e2e/test_aprendizado_compromisso.py`, `tests/e2e/test_cognicao_local.py`, `tests/e2e/test_especialistas_bdi.py`, `tests/integration/test_cognicao_dsm4.py` |
@@ -86,6 +115,10 @@ Arquivos de `tests/` que citam o nome do cenário.
 | `fechamento_comercio` | `tests/e2e/test_portes_segmentos.py` |
 | `fechamento_servicos` | `tests/e2e/test_portes_segmentos.py` |
 | `fechamento_industria` | `tests/e2e/test_portes_segmentos.py`, `tests/integration/test_implantacao_dsm4.py` |
+| `conector_rest_demo` | `tests/integration/test_conectores.py` |
+| `conector_fora_do_ar` | `tests/integration/test_conectores.py` |
+| `planilha_fora_do_modelo` | `tests/integration/test_conectores.py` |
+| `mcp_tools_entendidas` | `tests/integration/test_conectores.py` |
 
 ## Testes modelados da DSM4
 
@@ -154,3 +187,43 @@ existe); o título é o campo `esperado` do modelo.
 | TEST-180 | `test_dashboard_api_lists_sizes_segments_templates_and_restarts_with_a_segment` | `tests/integration/test_implantacao_dsm4.py` | integracao | /api/portes com segmentos, /api/modelos com os portes novos e os segmentos, reiniciar com segmento e segmento desconhecido recusado |
 | TEST-181 | `test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository` | `tests/integration/test_implantacao_dsm4.py` | integracao | wheel com YAML e dashboard embutidos instalado num venv limpo: list, run (mesmo hash do checkout), instalar --demo e doctor fora do repositório |
 | TEST-182 | `test_container_files_publish_only_on_loopback_and_keep_keys_apart` | `tests/integration/test_implantacao_dsm4.py` | configuracao | compose publica só em 127.0.0.1, volumes de dados e chaves separados, usuário sem privilégio, healthcheck em /api/saude |
+| TEST-300 | `test_new_scenarios_hold_every_invariant_and_repeat` | `tests/e2e/test_acesso_avancado.py` | e2e | os sete cenários novos repetem o hash e respeitam todos os invariantes |
+| TEST-301 | `test_person_without_authority_in_the_size_cannot_release` | `tests/e2e/test_acesso_avancado.py` | e2e | liberação sem alçada no porte recusada (POL-10); exposição no veto |
+| TEST-302 | `test_without_iam_the_veto_carries_no_exposure` | `tests/e2e/test_acesso_avancado.py` | e2e | sem SVC-IAM o veto e o ticket são os da v0.5.0 |
+| TEST-303 | `test_delegated_decision_records_who_delegated` | `tests/e2e/test_acesso_avancado.py` | e2e | decisão por delegação aceita e registrada com quem delegou (POL-11) |
+| TEST-304 | `test_expired_delegation_is_refused_and_the_delegator_decides` | `tests/e2e/test_acesso_avancado.py` | e2e | delegação expirada recusada (POL-11) |
+| TEST-305 | `test_four_eyes_endorse_then_approve_by_another_person` | `tests/e2e/test_acesso_avancado.py` | e2e | endorse PENDENTE->PENDENTE e approve de outra pessoa (POL-12) |
+| TEST-306 | `test_same_person_cannot_endorse_and_approve` | `tests/e2e/test_acesso_avancado.py` | e2e | a mesma pessoa nos dois passos é recusada (POL-12) |
+| TEST-307 | `test_approval_without_endorsement_is_refused_above_the_limit` | `tests/e2e/test_acesso_avancado.py` | e2e | aprovação direta acima do limite recusada (POL-12) |
+| TEST-308 | `test_ticket_escalates_after_half_the_deadline` | `tests/e2e/test_acesso_avancado.py` | e2e | nível acima recusado antes; escalonamento registrado na metade do prazo (POL-14) |
+| TEST-309 | `test_advanced_access_attacks_are_all_rejected` | `tests/e2e/test_acesso_avancado.py` | seguranca | doze ataques ao acesso avançado, nenhum aceito |
+| TEST-310 | `test_invariants_catch_a_single_person_release_and_one_above_authority` | `tests/e2e/test_acesso_avancado.py` | seguranca | INV-09 e INV-10 acusam trace adulterado |
+| TEST-311 | `test_one_company_memory_is_never_remembered_in_another` | `tests/e2e/test_acesso_avancado.py` | e2e | memória de uma empresa não vira reincidência em outra; cópia fica comprometida |
+| TEST-312 | `test_second_factor_from_the_terminal_with_policy_replay_and_recovery_codes` | `tests/integration/test_acesso_avancado_cli.py` | integracao | 2FA pela CLI: política, replay, janela, recuperação de uso único |
+| TEST-313 | `test_vault_keeps_llm_keys_without_ever_showing_them` | `tests/integration/test_acesso_avancado_cli.py` | integracao | cofre 0600 fora da pasta de dados, chave de LLM pelo cofre, valor nunca mostrado |
+| TEST-314 | `test_delegation_policy_and_companies_from_the_terminal` | `tests/integration/test_acesso_avancado_cli.py` | integracao | delegação, escalonamento e escopo de empresas pela CLI |
+| TEST-315 | `test_memory_copied_to_another_folder_is_adopted_under_permission` | `tests/integration/test_acesso_avancado_cli.py` | integracao | cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada |
+| TEST-316 | `test_two_runs_writing_the_same_memory_at_once_keep_both_entries` | `tests/integration/test_acesso_avancado_cli.py` | integracao | quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida |
+| TEST-317 | `test_two_step_login_with_short_lived_pre_session` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | login em dois passos no servidor; pré-sessão só vale em /api/login/2fa |
+| TEST-318 | `test_policy_requiring_second_factor_only_lets_the_account_enrol` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | conta sem o 2FA exigido só consegue ativá-lo |
+| TEST-319 | `test_vault_routes_store_llm_keys_without_returning_them` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | rotas do cofre nunca devolvem o valor |
+| TEST-320 | `test_each_company_gets_its_own_simulation_and_nothing_crosses_over` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | uma simulação por empresa; seletor /api/empresa; nada cruza |
+| TEST-321 | `test_enrol_second_factor_then_log_in_with_a_recovery_code` | `tests/tui/test_tui_acesso_avancado.py` | interface | TUI: ativar 2FA, segredo e códigos uma vez, entrada em dois passos |
+| TEST-322 | `test_approver_creates_and_revokes_a_delegation` | `tests/tui/test_tui_acesso_avancado.py` | interface | TUI: criar e revogar delegação |
+| TEST-323 | `test_administrator_sets_policy_vault_companies_and_sees_authority_limits` | `tests/tui/test_tui_acesso_avancado.py` | interface | TUI: política, cofre, empresas e alçadas |
+| TEST-250 | `test_understanding_openapi_samples_spreadsheet_and_mcp_match_the_answer_key` | `tests/integration/test_conectores.py` | integracao | OpenAPI, amostras JSON, planilha fora do modelo e tools MCP: sugestões iguais ao gabarito, com confiança e motivo |
+| TEST-251 | `test_quality_report_flags_missing_duplicates_out_of_period_totals_and_negatives` | `tests/integration/test_conectores.py` | integracao | faltantes, duplicados, fora da competência, total que não fecha e negativos acusados; prévia redigida |
+| TEST-252 | `test_rest_demo_closes_the_month_like_the_simulated_erp_and_writes_only_with_approval` | `tests/integration/test_conectores.py` | integracao | fechamento sobre o ERP de demonstração igual ao ERP simulado; correção só com ticket aprovado |
+| TEST-253 | `test_source_down_fails_explicitly_and_does_not_hang` | `tests/integration/test_conectores.py` | integracao | failure com o motivo, leituras negadas auditadas, nada publicado, em segundos |
+| TEST-254 | `test_rest_connector_errors_401_500_timeout_invalid_json_and_redirect_are_redacted` | `tests/integration/test_conectores.py` | seguranca | erros tipados e redigidos; redirecionamento não seguido; credencial não vai a outro host |
+| TEST-255 | `test_external_host_is_denied_without_admin_release` | `tests/integration/test_conectores.py` | seguranca | host externo recusado antes de qualquer conexão; liberado, só o ambiente offline bloqueia |
+| TEST-256 | `test_simulated_connector_and_spreadsheet_folder_preserve_the_current_behavior` | `tests/integration/test_conectores.py` | integracao | ERP simulado por conector com o mesmo trace; pasta com uma planilha igual a --pasta; várias competências |
+| TEST-257 | `test_spreadsheet_off_model_and_mcp_scenarios_match_the_canonical_reading` | `tests/integration/test_conectores.py` | e2e | planilha_fora_do_modelo e mcp_tools_entendidas iguais à leitura canônica e repetíveis |
+| TEST-258 | `test_mcp_client_talks_to_the_excel_server_over_stdio` | `tests/integration/test_conectores.py` | integracao | initialize, tools/list, tools/call e erro de tool contra o servidor embutido |
+| TEST-259 | `test_optional_llm_only_suggests_and_goes_through_the_same_validation` | `tests/integration/test_conectores.py` | integracao | LLM só sugere pendentes, envia só nomes e tipos; inválidas rejeitadas; externo sem consentimento não envia |
+| TEST-260 | `test_cli_understands_tests_and_serves_the_demo_erp` | `tests/integration/test_conectores.py` | integracao | fontes entender, fontes testar e erp-demo pela CLI; token fora da saída |
+| TEST-261 | `test_sources_flow_register_test_understand_adjust_confirm_activate_and_close` | `tests/integration/test_dashboard_fontes.py` | integracao | cadastro, teste, entendimento, ajuste, confirmação e ativação pelo HTTP; token fora de resposta, trace, trilha e cofre |
+| TEST-262 | `test_sources_permissions_external_host_and_body_validation` | `tests/integration/test_dashboard_fontes.py` | seguranca | 403 sem permissão, 400 para corpo não objeto, host externo só pelo administrador, credencial desvinculada |
+| TEST-263 | `test_spreadsheet_uploads_history_and_off_model_activation` | `tests/integration/test_dashboard_fontes.py` | integracao | envio no modelo e fora dele, histórico, planilha fora do modelo entendida, confirmada e ativada |
+| TEST-264 | `fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele` | `web/e2e/fontes.spec.ts` | interface | no navegador: aba Fontes de ponta a ponta; o token nunca aparece |
+| TEST-265 | `fontes: modelos para baixar, envio de planilha e histórico; host externo só pelo administrador` | `web/e2e/fontes.spec.ts` | interface | modelos, envio e histórico; só o administrador libera host externo |

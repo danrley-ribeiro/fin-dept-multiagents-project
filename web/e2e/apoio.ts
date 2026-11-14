@@ -57,13 +57,19 @@ export async function paginaDe(browser: Browser, usuario: string) {
 }
 
 /** `python -m fin_mas acesso ...` no cadastro do servidor em teste (o que o administrador faria no terminal). */
-export function cliAcesso(args: string[], env: Record<string, string> = {}): string {
+export function cliAcesso(args: string[], env: Record<string, string> = {},
+  cadastro = { acesso: process.env.SMA_E2E_ACESSO!, chaves: process.env.SMA_E2E_CHAVES! }): string {
   const raiz = process.env.SMA_E2E_RAIZ!;
-  return execFileSync(process.env.SMA_E2E_PYTHON!, ["-m", "fin_mas", "acesso", "--acesso", process.env.SMA_E2E_ACESSO!, ...args], {
+  return execFileSync(process.env.SMA_E2E_PYTHON!, ["-m", "fin_mas", "acesso", "--acesso", cadastro.acesso, ...args], {
     cwd: raiz, encoding: "utf-8",
-    env: { ...process.env, PYTHONPATH: join(raiz, "src"), PYTHONUTF8: "1", FIN_MAS_DIR_CHAVES: process.env.SMA_E2E_CHAVES!,
+    env: { ...process.env, PYTHONPATH: join(raiz, "src"), PYTHONUTF8: "1", FIN_MAS_DIR_CHAVES: cadastro.chaves,
       FIN_MAS_SENHA: SENHA, ...env },
   });
+}
+
+/** A mesma linha de comando, no cadastro do segundo servidor (o de `avancado.spec.ts`). */
+export function cliAvancado(args: string[], env: Record<string, string> = {}): string {
+  return cliAcesso(args, env, { acesso: process.env.SMA_E2E_ACESSO_AVANCADO!, chaves: process.env.SMA_E2E_CHAVES_AVANCADO! });
 }
 
 export function chipAgente(page: Page, id: string) {

@@ -17,6 +17,21 @@ process.env.SMA_E2E_CHAVES = join(BASE, "chaves");
 process.env.SMA_E2E_PYTHON = python;
 process.env.SMA_E2E_RAIZ = raiz;
 export const SESSAO_PADRAO = join(BASE, "sessao-avaliador.json");
+// Segundo servidor, com cadastro próprio, só para `avancado.spec.ts`: segundo fator, política do cadastro, cofre e
+// empresas mexem em estado que vale para todas as contas (criar uma empresa tira o acesso de quem não tem escopo, e
+// não há como desfazer). Assim os roteiros do servidor principal nunca veem esse estado.
+const PORTA_AVANCADO = Number(process.env.SMA_E2E_PORTA_AVANCADO ?? PORTA + 1);
+process.env.SMA_E2E_ACESSO_AVANCADO = join(BASE, "avancado", "acesso");
+process.env.SMA_E2E_CHAVES_AVANCADO = join(BASE, "avancado", "chaves");
+const ROTEIRO_AVANCADO = /avancado\.spec\.ts$/;
+const servidor = (porta: number, dados: string, acesso: string, chaves: string, env: Record<string, string> = {}) => ({
+  command: `"${python}" -m fin_mas serve --porta ${porta} --ms-por-tick 40 --pasta-dados "${dados}" --acesso "${acesso}" --demo`,
+  cwd: raiz,
+  env: { PYTHONPATH: join(raiz, "src"), PYTHONUTF8: "1", FIN_MAS_DIR_CHAVES: chaves, ...env },
+  url: `http://127.0.0.1:${porta}/api/saude`,
+  reuseExistingServer: false,
+  timeout: 60_000,
+});
 
 export default defineConfig({
   testDir: "e2e",
@@ -34,13 +49,15 @@ export default defineConfig({
     trace: "retain-on-failure",
     storageState: SESSAO_PADRAO, // conta `avaliador` (opera, solicita, aprova e audita); os testes de acesso trocam
   },
-  webServer: {
-    command: `"${python}" -m fin_mas serve --porta ${PORTA} --ms-por-tick 40 --pasta-dados "${join(BASE, "dados")}" `
-      + `--acesso "${process.env.SMA_E2E_ACESSO}" --demo`,
-    cwd: raiz,
-    env: { PYTHONPATH: join(raiz, "src"), PYTHONUTF8: "1", FIN_MAS_DIR_CHAVES: process.env.SMA_E2E_CHAVES },
-    url: `http://127.0.0.1:${PORTA}/api/saude`,
-    reuseExistingServer: false,
-    timeout: 60_000,
-  },
+  projects: [
+    { name: "escritorio", testIgnore: ROTEIRO_AVANCADO },
+    { name: "avancado", testMatch: ROTEIRO_AVANCADO,
+      use: { baseURL: `http://127.0.0.1:${PORTA_AVANCADO}`, storageState: { cookies: [], origins: [] } } },
+  ],
+  webServer: [
+    servidor(PORTA, join(BASE, "dados"), process.env.SMA_E2E_ACESSO!, process.env.SMA_E2E_CHAVES!),
+    // sem chave de LLM no ambiente: o roteiro do cofre precisa ver "não há chave" antes de definir uma
+    servidor(PORTA_AVANCADO, join(BASE, "avancado", "dados"), process.env.SMA_E2E_ACESSO_AVANCADO!,
+      process.env.SMA_E2E_CHAVES_AVANCADO!, { OPENAI_API_KEY: "" }),
+  ],
 });

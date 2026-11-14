@@ -2,6 +2,41 @@
 
 Registro por entrega.
 
+## DSM4 v1.0.0 (14/11/2026)
+
+- Especialistas BDI (ADR-010, REQ-F20): variantes BDI de AG-RES, AG-CUS e AG-REL nos níveis `local` e `llm`; as classes
+  reativas seguem como nível `basico` e braço de comparação. Aprendizado local auditável das regras de hipótese
+  (registro selado, só evidência de fonte determinística), estratégias de compromisso (cego, obstinado, aberto) e
+  leitura da memória aprovada por tipo. Base normativa com proveniência (REQ-F21, CP8): `normas.buscar` devolve
+  documento, trecho e versão, ou "sem evidência".
+- Experimento redesenhado (CP12): pré-registro versionado antes do código, modelo de falhas por seed (`caos.py`),
+  parâmetros injetáveis, workflow centralizado funcionalmente equivalente com teste de equivalência, estatística só com
+  a biblioteca padrão (bootstrap, Wilcoxon exato, Mann-Whitney por seed, Holm, delta de Cliff), ablação; 9.360 execuções
+  em 30 seeds, reproduzíveis byte a byte. Resultado: com funções iguais o SMA empata em qualidade e perde em custo e em
+  robustez sob perda de mensagens; a cognição local não mostrou ganho significativo (`docs/dsm4/resultados.md`).
+- Defeito achado pelo próprio experimento e corrigido: mensagem perdida depois da abertura da conversa deixava o
+  solicitante sem resposta; o barramento avisa o iniciador (posição da mensagem na conversa) e reentrega os avisos de
+  decisão humana ao AG-CIN.
+- Acesso avançado (ADR-012, REQ-S06): segundo fator TOTP com códigos de recuperação e contador por conta; alçada por
+  pessoa (POL-10), delegação (POL-11), dupla aprovação por pessoas distintas (POL-12), escalonamento (POL-14); cofre
+  selado sem cifra própria; várias empresas com dados, fontes, memória e simulação isolados; SVC-MEM sobre o arquivo
+  selado com `memoria adotar`.
+- Conectores e entendimento automático de fontes (ADR-011, REQ-F30, REQ-S20): interface `Conector` (ERP simulado,
+  planilhas, REST JSON genérico, cliente MCP), ERP de demonstração em loopback, entendimento determinístico (tipos,
+  sinônimos, qualidade) com confirmação humana e impressão digital da fonte; aba Fontes de dados no dashboard.
+- Portes e segmentos: MEI e Média empresa II (BNDES), segmentos comércio, serviços e indústria com rateio próprio.
+- Implantação: wheel com modelos e dashboard embutidos, Dockerfile e compose, `backup`, `restaurar` (validado antes de
+  gravar; o cofre viaja no pacote de chaves) e `migrar`.
+- Dashboard: entrada em dois passos, meu segundo fator, empresa ativa, chave de LLM no cofre e demonstração guiada
+  opcional.
+- Correção simulada independente da DSM4 (nota 7,2 antes das correções, sem reavaliação): cinco achados críticos e os
+  moderados de acesso, fontes e backup corrigidos, cada um com teste (TEST-420 a 449).
+- Relatório técnico (`entregas/dsm4/documentacao/relatorio.pdf`), apresentação, roteiro de demonstração, páginas de
+  arquitetura final, limitações e reprodução; `make pdf-dsm4`, `make entrega-dsm4`.
+- Testes: 667 no pytest (unit 95, e2e 426, integração 123, TUI 23), 40 roteiros Playwright, 12 vitest; 64 cenários com
+  10 invariantes; rastreabilidade com 510 objetos, 26 requisitos, 289 testes modelados e 29 métricas, 0 erros. As 280
+  linhas da comparação da DSM3 seguem idênticas fora do hash do trace (que leva a versão do pacote).
+
 ## DSM3 v0.5.0 (12/11/2026)
 
 - Cognição assistida (ADR-008, NORM-11, REQ-F08): proposta → validação (cinco regras) → hipótese → ação

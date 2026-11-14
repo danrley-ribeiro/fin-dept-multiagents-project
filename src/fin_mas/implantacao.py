@@ -36,7 +36,7 @@ from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, ficha
 from fin_mas.recursos import models_dir, origem, web_dist
 from fin_mas.services import provedores
 from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
-from fin_mas.services.selado import pasta_de_chaves
+from fin_mas.services.selado import ArquivoComprometido, pasta_de_chaves
 
 PASTA_PADRAO = "dados"
 
@@ -181,6 +181,16 @@ def diagnosticar(pasta) -> list[dict]:
         adms = [c["usuario"] for c in contas if "ROLE-ADM" in c["papeis"] and c["estado"] == "ativa"]
         itens.append(_item("cadastro de acesso", "ok" if adms else ("aviso" if not contas else "erro"),
                            f"{len(contas)} conta(s), administrador(es) ativo(s): {', '.join(adms) or 'nenhum'}"))
+        com_2fa = [c["usuario"] for c in contas if c["segundo_fator"]["ativo"]]
+        try:  # conta com segundo fator ativo e sem o segredo no cofre não entra (ex.: restaurada sem o cofre)
+            orfas = [u for u in com_2fa if not acesso.cofre.existe(f"totp:{u}")]
+            itens.append(_item("segundo fator no cofre", "aviso" if orfas else "ok",
+                               f"conta(s) com segundo fator ativo sem o segredo no cofre: {', '.join(orfas)} (não "
+                               "entram; restaure o cofre com o pacote de chaves ou peça ao administrador para "
+                               "redefinir o segundo fator)" if orfas else
+                               f"{len(com_2fa)} conta(s) com segundo fator, todas com o segredo no cofre"))
+        except ArquivoComprometido as erro:
+            itens.append(_item("segundo fator no cofre", "erro", f"cofre comprometido: {erro}"))
         resumo = acesso.trilha.verificar()
         itens.append(_item("trilha de acesso", "ok", f"íntegra, {resumo['registros']} registro(s)"))
     except AcessoNegado as erro:

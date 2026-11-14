@@ -104,7 +104,9 @@ class ServidorExcel:
         return alvo
 
     # ---- JSON-RPC -----------------------------------------------------------
-    def tratar(self, req: dict) -> dict | None:
+    def tratar(self, req) -> dict | None:
+        if not isinstance(req, dict):  # null, número, texto ou lote: requisição inválida, responde e segue
+            return _erro(None, -32600, "requisição inválida: esperado um objeto JSON-RPC")
         metodo, rid = req.get("method"), req.get("id")
         if rid is None:  # notificação (ex.: notifications/initialized): sem resposta
             return None
@@ -118,6 +120,8 @@ class ServidorExcel:
                 resultado = {"tools": FERRAMENTAS}
             elif metodo == "tools/call":
                 params = req.get("params") or {}
+                if not isinstance(params, dict) or not isinstance(params.get("arguments") or {}, dict):
+                    return _erro(rid, -32602, "params e arguments precisam ser objetos")
                 nome, args = params.get("name"), params.get("arguments") or {}
                 if nome not in {f["name"] for f in FERRAMENTAS}:
                     return _erro(rid, -32602, f"ferramenta desconhecida: {nome}")
@@ -140,10 +144,13 @@ class ServidorExcel:
                 continue
             try:
                 req = json.loads(linha)
-            except json.JSONDecodeError:
+            except (ValueError, RecursionError):  # inclusive JSON aninhado demais: responde e segue
                 resposta = _erro(None, -32700, "JSON inválido")
             else:
-                resposta = self.tratar(req)
+                try:
+                    resposta = self.tratar(req)
+                except Exception as e:  # nenhuma requisição derruba o servidor
+                    resposta = _erro(None, -32603, f"{type(e).__name__}")
             if resposta is not None:
                 saida.write(json.dumps(resposta, ensure_ascii=False) + "\n")
                 saida.flush()

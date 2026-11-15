@@ -32,7 +32,7 @@ def cli(tmp_path):
         if nova:
             env["FIN_MAS_SENHA_NOVA"] = nova
         comando = [sys.executable, "-m", "fin_mas"] + (["acesso", "--acesso", pasta] if acesso else []) + list(args)
-        return subprocess.run(comando, capture_output=True, text=True, cwd=RAIZ, env=env, input=entrada)
+        return subprocess.run(comando, capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env, input=entrada)
     rodar.pasta = Path(pasta)
     return rodar
 

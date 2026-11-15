@@ -228,3 +228,18 @@ IA implementou, em commits locais.
   `ataque_decisao_forjada`: 14 de 14, âncora `2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e`.
 - Os 17 cenários revisados, no nível básico, mantêm as métricas da tag `dsm3-base` em 10 seeds.
 - Dashboard: 12 testes vitest e 30 roteiros Playwright no Chrome (15 do escritório, 9 de acesso, 6 das áreas de trabalho).
+
+## Verificação final no Windows (15/11/2026)
+
+Antes de gerar o pacote, a IA rodou a tag `dsm3-v0.5.0` inteira numa máquina Windows (Python 3.11,
+Windows PowerShell 5.1). Encontrou falhas que não aparecem em Linux nem na CI (Python 3.13), todas
+corrigidas:
+
+| Problema | Correção |
+|---|---|
+| 10 testes que chamam a linha de comando falhavam: o processo filho escreve em UTF-8 (`PYTHONUTF8=1`), mas o teste lia a saída na codificação do Windows (cp1252), e os acentos chegavam trocados | os testes leem a saída como UTF-8 (`encoding="utf-8"`) |
+| `fin-mas instalar` sem terminal e sem senha quebrava com `EOFError` em vez de pedir `FIN_MAS_SENHA_NOVA` (2 testes): no Windows, o dispositivo nulo (`NUL`) responde `isatty()` verdadeiro | `fin_mas/terminal.py`: só há terminal se a entrada for um console de verdade; usado na instalação e na CLI de acesso |
+| O roteiro de navegador da reincidência dependia do ritmo da simulação: com os vetos de agosto e setembro pendentes juntos, a POL-06 não age (limitação registrada) | o roteiro começa pausado e decide agosto antes de o veto de setembro ser emitido |
+
+Verificação depois das correções, no Windows: 437 testes Python, `trace.py --check` sem erros,
+12 testes vitest e 30 roteiros Playwright (o da reincidência repetido 3 vezes).

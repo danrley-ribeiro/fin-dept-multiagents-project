@@ -22,6 +22,7 @@ import sys
 from fin_mas.core import permissoes
 from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
 from fin_mas.services.trilha import TrilhaAdulterada
+from fin_mas.terminal import tem_terminal
 
 PASTA_PADRAO = "dados/acesso"
 
@@ -71,7 +72,7 @@ def configurar(sub) -> None:
 def _senha(variavel: str, pergunta: str, confirmar=False) -> str:
     if os.environ.get(variavel):
         return os.environ[variavel]
-    if not sys.stdin.isatty():
+    if not tem_terminal():
         raise AcessoNegado("IAM-02", f"defina {variavel} ou rode num terminal para digitar a senha")
     senha = getpass.getpass(pergunta + ": ")
     if confirmar and getpass.getpass("repita: ") != senha:

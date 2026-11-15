@@ -309,8 +309,9 @@ def _mcp_excel(args) -> int:
 
 
 def main(argv=None) -> int:
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: saída redirecionada usa cp1252 (sem "✓", "→")
+        if hasattr(fluxo, "reconfigure"):
+            fluxo.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(prog="fin-mas", description="Sistema multiagente de controladoria da SMA (fictícia)")
     sub = parser.add_subparsers(dest="comando", required=True)
     sub.add_parser("list", help="lista os cenários")

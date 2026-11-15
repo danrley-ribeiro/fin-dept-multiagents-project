@@ -486,6 +486,9 @@ def generate_docs(data: dict, index: dict, back: dict) -> None:
 
 # --------------------------------------------------------------------- main
 def main() -> int:
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: saída redirecionada usa cp1252, que não tem "✓"
+        if hasattr(fluxo, "reconfigure"):
+            fluxo.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="apenas validar")
     args = ap.parse_args()

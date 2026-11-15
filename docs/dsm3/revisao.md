@@ -185,13 +185,24 @@ foram corrigidos depois, cada um com teste (`tests/integration/test_correcao_sim
 |---|---|---|
 | Promover o cargo de uma conta (`acesso usuario vinculo carla --cargo diretor`) apagava o vínculo com a pessoa do ERP; sem ele, a POL-03 deixava de reconhecer os lançamentos de carla, que aprovava a correção do próprio lançamento e o fechamento era publicado (grave) | campo não informado fica como está; remover exige `--sem-pessoa` / `--sem-cargo` (ou `None` explícito na API) | TEST-157 |
 | Um participante abria, com outro protocolo, um `conversation_id` que o sistema ainda ia gerar (`APR-001`, `CMP-001`, `DEL-001`): o envio do Orquestrador era recusado e o pedido ficava sem resposta, com o período reservado (moderado) | o gerador pula ids já abertos; e qualquer erro do Orquestrador ao tratar uma mensagem, inclusive envio recusado, vira `failure` para o solicitante e libera o período | TEST-158, TEST-159 |
-| Quem só opera a simulação reiniciava um cenário e criava pedidos em nome de outra pessoa (`solicitado_por: elisa`), sem ter a permissão de solicitar (moderado) | no reinício pelo dashboard, os pedidos do roteiro não ficam no nome de ninguém (nem de quem reiniciou, que assim continua podendo decidir sem esbarrar na POL-13); o trace registra quem reiniciou | TEST-160 |
+| Quem só opera a simulação reiniciava um cenário e criava pedidos em nome de outra pessoa (`solicitado_por: elisa`), sem ter a permissão de solicitar (moderado) | corrigido em parte: no reinício pelo dashboard, os pedidos do roteiro não ficam no nome de ninguém, e o trace registra quem reiniciou. Quem só opera ainda dispara pedidos ao reiniciar, e quem opera e aprova pode decidir sobre eles (a POL-13 só conhece pedidos de pessoas): assumido por decisão dos autores e registrado em {doc}`limitacoes` | TEST-160 |
 | O atraso de entrega de `Bus.send` não era validado: texto ou `None` levantavam `TypeError` sem auditoria; zero ou negativo furavam a fila e punham a entrega prevista (POL-08) no passado (menor) | rejeição na etapa `envelope`, com registro | TEST-161 |
 
 Também da rodada: o README da entrega passou a ter os comandos para Windows (não há `make` nem
 `.venv/bin`). Ficaram registrados em {doc}`limitacoes`: competência sem dados reais fechada no
 ambiente sintético, ROLE-APR com permissão de configurar o LLM, conta-fantoche do administrador
 (sem quatro olhos) e a instabilidade da TUI no Windows.
+
+**Recorreção (mesmo avaliador, depois das correções):** rodou de novo os próprios scripts sem
+alterá-los e confirmou corrigidos o vínculo do cargo, o id de conversa ocupado, a atribuição do
+pedido a outra pessoa e o atraso; procurou contornos no diff e não os encontrou. Nota: **8,95**
+(comunicação 9,5; coordenação 9,0; corretude 8,5; testes 9,0; documentação 8,5). Achados novos:
+
+| Achado (gravidade) | Tratamento | Teste |
+|---|---|---|
+| A: com os pedidos do roteiro sem dono, quem opera e aprova reinicia um cenário e concede waiver ao pedido que disparou, sem esbarrar na POL-13; quem só opera dispara pedidos sem `PERM-SOL-CRIAR` (moderado) | decisão dos autores: o reinício é operação da simulação e recria a demanda do roteiro; registrado em {doc}`limitacoes`, com a alternativa para a DSM4 | — |
+| B: `usuario vinculo diego --pessoa ""` removia o vínculo sem o pedido explícito (menor) | pessoa do ERP vazia, só com espaços ou não textual é recusada (IAM-05) | TEST-157 |
+| C: comando de Windows do README da entrega com um TAB literal no lugar da barra invertida em `tools\trace.py`, e a contagem antiga de testes (menor) | corrigidos | — |
 
 ## Ressalva sobre a comparação experimental
 

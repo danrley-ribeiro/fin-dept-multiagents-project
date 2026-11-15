@@ -30,6 +30,10 @@ def test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit(
     assert (removido["pessoa_erp"], removido["cargo"]) == (None, "diretor")
     with pytest.raises(AcessoNegado, match="IAM-05"):
         acesso.definir_vinculo(adm, "carla")  # nada a alterar
+    for vazio in ("", "   ", 7):  # recorreção (achado B): texto vazio não remove o vínculo às escondidas
+        with pytest.raises(AcessoNegado, match="IAM-05"):
+            acesso.definir_vinculo(adm, "diego", pessoa_erp=vazio)
+    assert acesso.conta("diego")["pessoa_erp"] == "diego"
 
 
 # ---- 2. id de conversa ocupado e erro interno do Orquestrador --------------------------------------

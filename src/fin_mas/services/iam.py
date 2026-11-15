@@ -263,6 +263,10 @@ class Acesso:
         """
         if cargo is not MANTER and cargo is not None and cargo not in permissoes.cargos():
             raise AcessoNegado("IAM-05", f"cargo desconhecido: {cargo}")
+        if pessoa_erp is not MANTER and pessoa_erp is not None and (not isinstance(pessoa_erp, str)
+                                                                    or not pessoa_erp.strip()):
+            # "" apagaria o vínculo sem pedido explícito (e a POL-03 deixaria de reconhecer a pessoa)
+            raise AcessoNegado("IAM-05", "pessoa do ERP vazia: para remover o vínculo, peça explicitamente")
         novos = {k: v for k, v in (("pessoa_erp", pessoa_erp), ("cargo", cargo)) if v is not MANTER}
         if not novos:
             raise AcessoNegado("IAM-05", "informe a pessoa do ERP, o cargo ou ambos")

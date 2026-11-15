@@ -127,6 +127,16 @@ A 5ª rodada ({doc}`revisao`) rodou a v0.5.0 no Windows. Os achados de autoriza�
 corrigidos (vínculo do cargo, id de conversa ocupado, pedido em nome de outra pessoa, atraso de
 entrega); estes ficam registrados:
 
+- **Reiniciar cria a demanda do roteiro sem dono, e a POL-13 não vale para ela.** Reiniciar um
+  cenário pelo dashboard é operar a simulação (`PERM-SIM-OPERAR`): recria os pedidos do roteiro do
+  cenário, que representam a demanda simulada da diretoria, não um pedido de quem reiniciou. Por
+  isso esses pedidos não ficam no nome de ninguém (nunca no de outra pessoa) e o trace registra
+  quem reiniciou. Consequências, assumidas por decisão dos autores: (1) quem só opera, sem
+  `PERM-SOL-CRIAR`, dispara pedidos ao reiniciar; (2) quem opera e aprova (a conta `avaliador`)
+  pode reiniciar e decidir sobre o pedido que disparou, porque a POL-13 (quem pede não aprova) só
+  conhece pedidos de pessoas, feitos por `solicitar`. A alternativa, ligar o pedido do roteiro a
+  quem reiniciou e estender a POL-13 a ele, obriga a demonstração a usar duas contas (uma reinicia,
+  outra decide); fica para a DSM4, junto com a separação entre operar e aprovar.
 - **Competência sem dados reais é fechada.** No ambiente sintético, `2099-12` ou `2001-01` passam
   no formato (`AAAA-MM`, ano 2000 a 2099) e o fechamento é publicado, porque o gerador cria dados
   para qualquer mês. Só o modo planilha confere se a competência existe na fonte. Numa empresa

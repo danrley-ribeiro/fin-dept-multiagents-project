@@ -267,3 +267,11 @@ Verificação depois das correções, no Windows: 437 testes Python, `trace.py -
   do roteiro no nome de quem reiniciou; os roteiros de navegador mostraram que, assim, o avaliador
   ficava impedido de decidir sobre eles (POL-13). Ficou: pedidos do roteiro sem pessoa, e o trace
   registra quem reiniciou.
+- **Recorreção pelo mesmo avaliador:** **8,95** (comunicação 9,5; coordenação 9,0; corretude 8,5;
+  testes 9,0; documentação 8,5). Confirmou as quatro correções com os próprios scripts, sem alterá-los.
+  Achou três pontos novos: (A) com os pedidos do roteiro sem dono, quem opera e aprova pode reiniciar
+  e decidir sobre o pedido que disparou, contornando a POL-13; (B) `--pessoa ""` removia o vínculo;
+  (C) um TAB no comando de Windows do README, introduzido pela IA, e uma contagem antiga. B e C foram
+  corrigidos. Para A, os autores escolheram registrar como limitação, em vez de mudar a política e os
+  roteiros de navegador a três dias da entrega; a alternativa está em
+  [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md).

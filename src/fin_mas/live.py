@@ -56,13 +56,19 @@ class Simulacao:
         self._montar(cenario, seed, interativo)
 
     # ---- montagem ---------------------------------------------------------
-    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico") -> None:
+    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", ator=None) -> None:
         sc = CENARIOS[cenario]
         pasta = self.pasta_dados if fonte == "planilha" else None
         llm = {a: {k: v for k, v in c.items() if k != "llm"} for a, c in self.config_llm.items() if c.get("llm")}
+        extra = {}
+        if ator is not None:
+            # reinício pelo dashboard: os pedidos do roteiro do cenário não ficam no nome de ninguém (nunca no de
+            # outra pessoa, nem no de quem reiniciou, que pode só operar ou precisar decidir); o trace registra
+            # quem reiniciou. Pedido no nome de uma pessoa é o que ela faz por `solicitar`.
+            extra["solicitante"] = None
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
-                               llm=llm or None)  # se a planilha for inválida, levanta antes de trocar o estado
+                               llm=llm or None, **extra)  # se a planilha for inválida, levanta antes de trocar o estado
         self.cenario, self.interativo = sc, interativo
         self.seed = seed if seed is not None else sc.seed
         self.sistema, self.sids = sistema, sids
@@ -144,7 +150,8 @@ class Simulacao:
                 self.cognicao = cmd["cognicao"]
             try:
                 self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
-                             cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"))
+                             cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"),
+                             ator)
             except (ValueError, LookupError) as erro:  # planilha inválida: mantém a simulação atual
                 self.cognicao = anterior
                 self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),

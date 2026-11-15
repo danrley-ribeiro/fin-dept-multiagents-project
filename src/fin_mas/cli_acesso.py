@@ -55,8 +55,10 @@ def configurar(sub) -> None:
     pap.add_argument("papeis", nargs="+")
     vin = u.add_parser("vinculo")
     vin.add_argument("usuario")
-    vin.add_argument("--pessoa", default=None)
-    vin.add_argument("--cargo", default=None)
+    vin.add_argument("--pessoa", default=None, help="pessoa do ERP (omitida: mantém a atual)")
+    vin.add_argument("--cargo", default=None, help="cargo (omitido: mantém o atual)")
+    vin.add_argument("--sem-pessoa", action="store_true", help="remove o vínculo com a pessoa do ERP")
+    vin.add_argument("--sem-cargo", action="store_true", help="remove o cargo")
     s = a.add_parser("sessao", help="sessões abertas").add_subparsers(dest="operacao", required=True)
     s.add_parser("listar")
     s.add_parser("revogar").add_argument("id")
@@ -157,7 +159,12 @@ def _usuarios(acesso, adm, args) -> int:
     elif op == "papeis":
         conta = acesso.atribuir_papeis(adm, args.usuario, args.papeis)
     elif op == "vinculo":
-        conta = acesso.definir_vinculo(adm, args.usuario, pessoa_erp=args.pessoa, cargo=args.cargo)
+        mudar = {}
+        if args.pessoa is not None or args.sem_pessoa:
+            mudar["pessoa_erp"] = None if args.sem_pessoa else args.pessoa
+        if args.cargo is not None or args.sem_cargo:
+            mudar["cargo"] = None if args.sem_cargo else args.cargo
+        conta = acesso.definir_vinculo(adm, args.usuario, **mudar)
     else:
         conta = {"bloquear": acesso.bloquear, "desbloquear": acesso.desbloquear, "desativar": acesso.desativar}[op](
             adm, args.usuario)

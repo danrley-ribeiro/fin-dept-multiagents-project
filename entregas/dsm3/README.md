@@ -52,15 +52,31 @@ Requer Python 3.11+ (versões exatas em que a suíte passou: `requirements-lock.
 internet em tempo de execução. Para o dashboard, use o comando único descrito no
 [README da raiz](../../README.md#um-comando).
 
+Linux e macOS:
+
 ```bash
-python -m venv .venv
-.venv/bin/pip install -e . -r requirements-dev.txt            # Windows: .venv\Scripts\pip
-.venv/bin/python -m pytest                                     # 437 testes, offline (unit 95, e2e 260, integração 62, TUI 20)
-.venv/bin/python tools/trace.py --check                        # 315 objetos, 21 requisitos, 156 de 156 testes executados, 0 erros
+python3 -m venv .venv
+.venv/bin/pip install -e . -r requirements-dev.txt
+.venv/bin/python -m pytest                                     # 450 testes, offline
+.venv/bin/python tools/trace.py --check                        # rastreabilidade: 0 erros
 .venv/bin/python -m fin_mas cenarios --verificar               # 37 de 37 cenários em ordem
 cd web && bun run test && bun run test:e2e                     # vitest (12) e Playwright no Chrome (30)
 make verificar-tudo                                            # tudo acima e a documentação, parando no primeiro erro
 ```
+
+Windows (PowerShell; não há `make`, e o Python do ambiente fica em `.venv\Scripts`):
+
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\pip install -e . -r requirements-dev.txt
+.venv\Scripts\python -m pytest                                 # 450 testes, offline
+.venv\Scripts\python tools	race.py --check                    # rastreabilidade: 0 erros
+.venv\Scripts\python -m fin_mas cenarios --verificar           # 37 de 37 cenários em ordem
+cd web; bun run test; $env:PW_CHANNEL="chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
+```
+
+Ou, nos três sistemas, o comando único: `./iniciar.sh testes` (Linux e macOS) ou
+`.\iniciar.ps1 testes` (Windows). A CI roda a suíte em Linux, macOS e Windows, com Python 3.11 e 3.13.
 
 Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subprocessos da CLI
 (`python -m fin_mas ...` chamados pelos testes) não entram na medição.
@@ -68,6 +84,7 @@ Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subpro
 ### Roteiro de demonstração
 
 ```bash
+# no Windows, troque `python` por `.venv\Scripts\python` (ou ative o ambiente com .venv\Scripts\Activate.ps1)
 python -m fin_mas run --scenario ataque_decisao_forjada --trace ataque.jsonl
 #   14 ataques ao barramento (os 4 do feedback e outros 10 da mesma família): 0 aceitos; o ticket expira, nada é publicado
 python -m fin_mas verificar ataque.jsonl --ancora 2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e

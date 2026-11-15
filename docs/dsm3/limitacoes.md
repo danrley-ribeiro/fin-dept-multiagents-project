@@ -69,7 +69,10 @@ entrega em um tick e o código de saída de `verificar --ancora` sobre trace sem
 
 ## Interfaces
 
-- **TUI** não verificada em Windows nem em terminais com menos de 80 colunas; o bloqueio por
+- **TUI** instável no Windows: na 5ª rodada da correção simulada, 2 de 4 execuções de `tests/tui`
+  tiveram uma falha, cada vez num teste diferente, sempre por foco nulo do widget (corrida do
+  Textual no console do Windows; no Mac e no Linux a suíte passa). A TUI também não foi verificada
+  em terminais com menos de 80 colunas; o bloqueio por
   cinco senhas e a expiração por inatividade não têm teste pela TUI. O bloqueio tem teste pelo
   servidor e pelo Playwright; a expiração da sessão por tempo (8 horas ou 15 minutos sem uso)
   não tem teste automatizado em nenhuma interface: as revogações testadas são explícitas.
@@ -117,6 +120,24 @@ A 4ª rodada da correção simulada ({doc}`revisao`) deixou estes pontos sem cor
   perda é avisada ao iniciador.
 - **AG-CUS e AG-REL** continuam reativos, e o `tools/trace.py` confere a existência do teste pelo
   nome, não o que ele verifica.
+
+## Achados da 5ª rodada da correção simulada (Windows) que continuam
+
+A 5ª rodada ({doc}`revisao`) rodou a v0.5.0 no Windows. Os achados de autorização e robustez foram
+corrigidos (vínculo do cargo, id de conversa ocupado, pedido em nome de outra pessoa, atraso de
+entrega); estes ficam registrados:
+
+- **Competência sem dados reais é fechada.** No ambiente sintético, `2099-12` ou `2001-01` passam
+  no formato (`AAAA-MM`, ano 2000 a 2099) e o fechamento é publicado, porque o gerador cria dados
+  para qualquer mês. Só o modo planilha confere se a competência existe na fonte. Numa empresa
+  real, a fonte (ERP ou planilha) é quem limita.
+- **Quem decide vetos também liga o LLM.** O papel ROLE-APR inclui `PERM-MOD-CONFIG`: um aprovador
+  com cargo de analista pode ligar o LLM do AG-REL, apontar um `base_url` e dar o consentimento de
+  envio externo. Está na tabela de papéis ({doc}`acesso`), mas a separação é fraca; separar o papel
+  de configuração de modelos fica para a DSM4.
+- **Conta-fantoche do administrador.** O administrador não pode dar ROLE-APR a si mesmo (IAM-06),
+  mas pode criar outra conta com ROLE-APR e cargo diretor, saber a senha temporária e decidir por
+  ela. Fica tudo na trilha de acesso; impedir exige quatro olhos (aprovação em dupla), que não há.
 
 ## Plano para a DSM4
 

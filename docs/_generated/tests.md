@@ -1869,3 +1869,63 @@
 **Resultado esperado:** no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit
+:id: TEST-157
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit()` — tipo *seguranca*.  
+**Resultado esperado:** mudar o cargo não apaga o vínculo com a pessoa do ERP (a POL-03 continua valendo); remover exige pedido explícito  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_squatted_conversation_id_does_not_leave_the_request_unanswered
+:id: TEST-158
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_squatted_conversation_id_does_not_leave_the_request_unanswered()` — tipo *seguranca*.  
+**Resultado esperado:** id de conversa ocupado por um participante: o sistema gera o próximo livre e o pedido é atendido  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_orchestrator_internal_error_becomes_an_explicit_failure
+:id: TEST-159
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F01
+:derived_from: PROT-SOL
+
+`test_orchestrator_internal_error_becomes_an_explicit_failure()` — tipo *robustez*.  
+**Resultado esperado:** erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_restart_never_creates_requests_in_someone_elses_name
+:id: TEST-160
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_restart_never_creates_requests_in_someone_elses_name()` — tipo *seguranca*.  
+**Resultado esperado:** reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_invalid_delivery_delay_is_rejected_and_audited
+:id: TEST-161
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_invalid_delivery_delay_is_rejected_and_audited()` — tipo *robustez*.  
+**Resultado esperado:** atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado  
+**Execução:** DSM3 (status atual: executado).
+````

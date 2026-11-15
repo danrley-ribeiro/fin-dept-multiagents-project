@@ -171,6 +171,28 @@ visível a quem vê a simulação (M9, assumido e descrito em `PERM-SIM-VER`); o
 mesmas funções (M10, DSM4); esquemas de conteúdo só no primeiro nível; a raiz de confiança das
 chaves no disco; a POL-04 só léxica; lacunas da redação; AG-CUS e AG-REL reativos.
 
+### Correção simulada no Windows (5ª rodada, 15/11/2026)
+
+Um avaliador independente (agente de IA, só leitura do repositório, com o enunciado, a rubrica e o
+feedback da DSM2) corrigiu a candidata à entrega (`dsm3-v0.5.0` com as correções para Windows) numa
+máquina Windows 11, com mais de 40 ataques próprios ao barramento, aos agentes e à API HTTP. Ele
+confirmou as quatro falhas do feedback da DSM2 como corrigidas (nada foi publicado indevidamente),
+reproduziu a âncora do cenário de ataque e o experimento byte a byte, e deu **8,6** (comunicação 9,0;
+coordenação 9,0; corretude 7,5; testes 8,5; documentação 9,0). Os achados de autorização e robustez
+foram corrigidos depois, cada um com teste (`tests/integration/test_correcao_simulada_5.py`):
+
+| Achado (gravidade) | Correção | Teste |
+|---|---|---|
+| Promover o cargo de uma conta (`acesso usuario vinculo carla --cargo diretor`) apagava o vínculo com a pessoa do ERP; sem ele, a POL-03 deixava de reconhecer os lançamentos de carla, que aprovava a correção do próprio lançamento e o fechamento era publicado (grave) | campo não informado fica como está; remover exige `--sem-pessoa` / `--sem-cargo` (ou `None` explícito na API) | TEST-157 |
+| Um participante abria, com outro protocolo, um `conversation_id` que o sistema ainda ia gerar (`APR-001`, `CMP-001`, `DEL-001`): o envio do Orquestrador era recusado e o pedido ficava sem resposta, com o período reservado (moderado) | o gerador pula ids já abertos; e qualquer erro do Orquestrador ao tratar uma mensagem, inclusive envio recusado, vira `failure` para o solicitante e libera o período | TEST-158, TEST-159 |
+| Quem só opera a simulação reiniciava um cenário e criava pedidos em nome de outra pessoa (`solicitado_por: elisa`), sem ter a permissão de solicitar (moderado) | no reinício pelo dashboard, os pedidos do roteiro não ficam no nome de ninguém (nem de quem reiniciou, que assim continua podendo decidir sem esbarrar na POL-13); o trace registra quem reiniciou | TEST-160 |
+| O atraso de entrega de `Bus.send` não era validado: texto ou `None` levantavam `TypeError` sem auditoria; zero ou negativo furavam a fila e punham a entrega prevista (POL-08) no passado (menor) | rejeição na etapa `envelope`, com registro | TEST-161 |
+
+Também da rodada: o README da entrega passou a ter os comandos para Windows (não há `make` nem
+`.venv/bin`). Ficaram registrados em {doc}`limitacoes`: competência sem dados reais fechada no
+ambiente sintético, ROLE-APR com permissão de configurar o LLM, conta-fantoche do administrador
+(sem quatro olhos) e a instabilidade da TUI no Windows.
+
 ## Ressalva sobre a comparação experimental
 
 O professor observou que o baseline centralizado foi construído **sem** veto e correção, e

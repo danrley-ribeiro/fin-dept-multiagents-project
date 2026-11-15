@@ -243,3 +243,27 @@ corrigidas:
 
 Verificação depois das correções, no Windows: 437 testes Python, `trace.py --check` sem erros,
 12 testes vitest e 30 roteiros Playwright (o da reincidência repetido 3 vezes).
+
+## Correção simulada no Windows (5ª rodada, 15/11/2026)
+
+- **Quem avaliou:** o mesmo tipo de avaliador das rodadas anteriores (Claude Opus 5.5, só leitura do
+  repositório, sem acesso ao nosso raciocínio), agora numa máquina Windows 11, sobre a candidata à
+  entrega (`dsm3-v0.5.0` com as correções para Windows). Rodou a suíte, os cenários, o experimento,
+  o Playwright e `.\iniciar.ps1`, e escreveu mais de 40 ataques próprios (barramento, agentes, API HTTP,
+  administração de acesso).
+- **Nota dada ao estado avaliado:** **8,6** (comunicação 9,0; coordenação 9,0; corretude 7,5; testes
+  8,5; documentação 9,0). É uma estimativa da simulação, não uma avaliação oficial.
+- **Achados:** 1 grave, 2 moderados e 5 menores. A pedido dos autores, a IA corrigiu o grave, os dois
+  moderados e um menor, cada um com teste (TEST-157 a TEST-161), e registrou os demais em
+  [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md). A tabela está em
+  [`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md).
+- **Decisões dos autores:** corrigir antes da entrega o que afeta autorização e robustez; registrar
+  como limitação o que é decisão de projeto (ROLE-APR configurando o LLM, sem quatro olhos) ou
+  depende da fonte de dados (competência sem dados reais).
+- **Verificação depois das correções, no Windows:** 450 testes Python; `trace.py --check` sem erros
+  (161 de 161 testes modelados executados); 37 de 37 cenários; 12 testes vitest e 30 roteiros
+  Playwright; âncora do ataque e comparação em 10 seeds idênticas às geradas no Mac.
+- **Uma correção teve de ser refeita:** na primeira versão, o reinício pelo dashboard punha os pedidos
+  do roteiro no nome de quem reiniciou; os roteiros de navegador mostraram que, assim, o avaliador
+  ficava impedido de decidir sobre eles (POL-13). Ficou: pedidos do roteiro sem pessoa, e o trace
+  registra quem reiniciou.

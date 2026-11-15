@@ -126,6 +126,9 @@ class Aprovador(Agent):
         msg = self.pendentes.get(solicitacao)
         if msg is None:
             return False
+        if self.bus.conversations[msg.conversation_id].is_final:
+            self.pendentes.pop(solicitacao, None)  # prazo esgotado (ou ticket encerrado): não há mais o que decidir
+            return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
         if decisao == "waiver" and "waiver" not in msg.content["opcoes"]:

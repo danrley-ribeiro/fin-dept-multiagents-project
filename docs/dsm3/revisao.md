@@ -66,7 +66,7 @@ e apontou os pontos abaixo, também corrigidos:
 | Achado da recorreção | Correção | Teste |
 |---|---|---|
 | apagar ou corromper a memória liberava novo waiver; chave HMAC ao lado do arquivo | selo do arquivo inteiro com contador; chave e contador fora da pasta de dados; memória comprometida falha fechada (sem waiver) | `test_memory_removal_corruption_or_rollback_fails_closed`, `test_memory_key_and_counter_live_outside_the_data_folder` |
-| ids de memória duplicados | id = maior existente + 1 | `test_memory_ids_stay_unique` |
+| ids de memória duplicados | id = maior existente + 1 (ainda repetia depois de uma expiração; corrigido de vez na 6ª rodada, abaixo) | `test_memory_ids_stay_unique` |
 | decisão no último tick aceita e depois expirada | recusada explicitamente (POL-08) se não puder ser entregue no prazo | `test_decision_that_cannot_be_delivered_in_time_is_rejected` |
 | servidor lia o corpo antes de autenticar; token não-ASCII gerava exceção | autentica antes, leitura com tempo limite, comparação em bytes | `test_dashboard_authenticates_before_reading_the_body` |
 | CPF/CNPJ sem máscara em texto livre | padrão de 11/14 dígitos | `test_redaction_catches_unmasked_documents_in_free_text` |
@@ -203,6 +203,27 @@ pedido a outra pessoa e o atraso; procurou contornos no diff e não os encontrou
 | A: com os pedidos do roteiro sem dono, quem opera e aprova reinicia um cenário e concede waiver ao pedido que disparou, sem esbarrar na POL-13; quem só opera dispara pedidos sem `PERM-SOL-CRIAR` (moderado) | decisão dos autores: o reinício é operação da simulação e recria a demanda do roteiro; registrado em {doc}`limitacoes`, com a alternativa para a DSM4 | — |
 | B: `usuario vinculo diego --pessoa ""` removia o vínculo sem o pedido explícito (menor) | pessoa do ERP vazia, só com espaços ou não textual é recusada (IAM-05) | TEST-157 |
 | C: comando de Windows do README da entrega com um TAB literal no lugar da barra invertida em `tools\trace.py`, e a contagem antiga de testes (menor) | corrigidos | — |
+
+### Correção simulada com avaliador novo (6ª rodada, 15/11/2026)
+
+Para não depender de um avaliador que já conhecia os achados anteriores, um avaliador novo (agente
+de IA, só leitura, com o enunciado, a rubrica e os feedbacks da DSM1 e da DSM2) corrigiu a versão
+candidata no Windows 11, com 26 ataques próprios ao barramento e outros pela API HTTP. Confirmou os
+feedbacks da DSM1 e da DSM2 como atendidos (nenhuma decisão forjada aceita), reproduziu a âncora e o
+experimento byte a byte, e deu **8,1** (comunicação 8,5; coordenação 8,0; corretude 7,5; testes 8,0;
+documentação 8,5). A nota menor que a da recorreção anterior vem de caminhos que as rodadas
+anteriores não exploraram (governança da memória e troca de porte), não de regressão.
+
+| Achado (gravidade) | Tratamento | Teste |
+|---|---|---|
+| 1: um pedido de competência distante (`2099-12`) apagava do arquivo a memória de waivers, porque a retenção era aplicada a partir da competência pedida; em setembro a POL-06 não reconhecia mais o waiver de agosto (moderado/grave) | a retenção virou filtro da consulta, sem apagar; a remoção física é a manutenção explícita `Memoria.expirar` | TEST-162, TEST-163 |
+| 4: ids de memória se repetiam depois de uma expiração (`maior existente + 1`), ao contrário do que esta página dizia (menor) | o id nunca é reaproveitado: considera o maior já emitido e o contador selado do arquivo | TEST-164 |
+| 7: decisão depois do prazo recebia 202 e era descartada sem aviso; a pendência vencida continuava listada (menor) | o dashboard avisa que o ticket foi encerrado por prazo; a pendência vencida sai da lista | TEST-165 |
+| 2: no dashboard a memória não persiste, e cada reinício recomeça o histórico de reincidência (moderado) | registrado em {doc}`limitacoes`; a documentação deixou de chamá-la de persistente sem ressalva | — |
+| 3: trocar o porte para micro dispensa a POL-13 pelo controle compensatório (moderado) | registrado em {doc}`limitacoes` | — |
+| 5: o barramento confere o papel, não o lado da conversa (menor) | registrado em {doc}`limitacoes` | — |
+| 6: "não publicar com veto pendente" é verificado depois (INV-01), não bloqueado no envio (menor) | registrado em {doc}`limitacoes` | — |
+| 8: POL-04 léxica | já registrado | — |
 
 ## Ressalva sobre a comparação experimental
 

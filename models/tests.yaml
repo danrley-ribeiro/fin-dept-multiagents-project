@@ -326,3 +326,11 @@ items:
      esperado: "reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir", entrega: DSM3, status: executado}
   - {id: TEST-161, nome: test_invalid_delivery_delay_is_rejected_and_audited, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado", entrega: DSM3, status: executado}
+  - {id: TEST-162, nome: test_far_future_request_does_not_erase_the_waiver_memory, verifica: [REQ-F07, REQ-S02], derivado_de: SVC-MEM, tipo: seguranca,
+     esperado: "um pedido de 2099-12 não apaga a memória de waivers; em setembro a POL-06 ainda nega o waiver reincidente", entrega: DSM3, status: executado}
+  - {id: TEST-163, nome: test_retention_is_a_query_filter_and_removal_is_explicit, verifica: [REQ-F07, REQ-P01], derivado_de: SVC-MEM, tipo: seguranca,
+     esperado: "a retenção filtra a consulta sem apagar; a remoção física é manutenção explícita", entrega: DSM3, status: executado}
+  - {id: TEST-164, nome: test_memory_ids_are_never_reused_after_expiry, verifica: [REQ-F07], derivado_de: SVC-MEM, tipo: robustez,
+     esperado: "depois de uma expiração, a entrada nova recebe outro id, também entre processos", entrega: DSM3, status: executado}
+  - {id: TEST-165, nome: test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: robustez,
+     esperado: "decidir depois do prazo avisa quem decidiu, e a pendência vencida sai da lista", entrega: DSM3, status: executado}

@@ -115,7 +115,9 @@ def test_late_approval_after_deadline_is_discarded():
     s, sid, proposta = pendente(prazo_aprovacao=15)
     s.bus.run()  # ninguém decide: o prazo do ticket esgota
     assert s.bus.conversations[proposta.conversation_id].state == "EXPIRADA"
-    s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)  # decisão atrasada
+    assert s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA) is False  # pelo dashboard: não envia, avisa (6ª rodada)
+    s.aprovador.send("AG-ORQ", "approve", "PROT-APR", proposta.conversation_id,  # envio direto atrasado
+                     decisao(sid, proposta, decisao="waiver"))
     s.bus.run()
     assert any(r["kind"] == "discard" and r["conversation_id"] == proposta.conversation_id
                for r in s.bus.audit.records)

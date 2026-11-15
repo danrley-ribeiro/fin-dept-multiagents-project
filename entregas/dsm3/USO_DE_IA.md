@@ -275,3 +275,26 @@ Verificação depois das correções, no Windows: 437 testes Python, `trace.py -
   corrigidos. Para A, os autores escolheram registrar como limitação, em vez de mudar a política e os
   roteiros de navegador a três dias da entrega; a alternativa está em
   [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md).
+
+## Correção simulada com avaliador novo (6ª rodada, 15/11/2026)
+
+- **Por que um avaliador novo:** para não depender de quem já conhecia os achados anteriores. Mesmo
+  formato (Claude Opus 5.5, só leitura do repositório, com o enunciado, a rubrica e os feedbacks da
+  DSM1 e da DSM2), no Windows 11, sobre a versão candidata.
+- **Nota:** **8,1** (comunicação 8,5; coordenação 8,0; corretude 7,5; testes 8,0; documentação 8,5).
+  Os feedbacks da DSM1 e da DSM2 foram confirmados como atendidos; a nota menor que a da recorreção
+  (8,95) vem de caminhos novos (memória e troca de porte), não de regressão.
+- **Corrigido a pedido dos autores, com teste (TEST-162 a TEST-165):** memória apagada por um pedido de
+  competência distante (desligava a POL-06), ids de memória repetidos depois de uma expiração e decisão
+  depois do prazo sem aviso.
+- **Registrado em [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md), por decisão dos autores:**
+  memória do dashboard sem arquivo, troca de porte dispensando a POL-13, lado da conversa não conferido
+  pelo barramento e a regra de veto pendente verificada depois. As correções desses pontos mexem no
+  servidor e na política de acesso; a três dias da entrega, os autores preferiram declarar.
+- **Documentação corrigida:** memória "persistente" sem ressalva para o dashboard, ids de memória dados
+  como corrigidos e o efeito da competência irreal sobre a memória.
+- **Verificação depois das correções, no Windows:** 454 testes Python; `trace.py --check` sem erros
+  (165 de 165 testes modelados executados); 37 de 37 cenários; 12 testes vitest e 30 roteiros
+  Playwright; âncora do ataque e comparação em 10 seeds inalteradas. Um teste do grupo foi adaptado:
+  a decisão atrasada pelo dashboard agora não é enviada (e avisa quem decidiu); o descarte pelo
+  barramento continua testado com o envio direto.

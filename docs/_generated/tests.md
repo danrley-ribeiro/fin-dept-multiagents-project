@@ -1929,3 +1929,51 @@
 **Resultado esperado:** atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado  
 **Execução:** DSM3 (status atual: executado).
 ````
+
+````{test} test_far_future_request_does_not_erase_the_waiver_memory
+:id: TEST-162
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-S02
+:derived_from: SVC-MEM
+
+`test_far_future_request_does_not_erase_the_waiver_memory()` — tipo *seguranca*.  
+**Resultado esperado:** um pedido de 2099-12 não apaga a memória de waivers; em setembro a POL-06 ainda nega o waiver reincidente  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_retention_is_a_query_filter_and_removal_is_explicit
+:id: TEST-163
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07, REQ-P01
+:derived_from: SVC-MEM
+
+`test_retention_is_a_query_filter_and_removal_is_explicit()` — tipo *seguranca*.  
+**Resultado esperado:** a retenção filtra a consulta sem apagar; a remoção física é manutenção explícita  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_memory_ids_are_never_reused_after_expiry
+:id: TEST-164
+:entrega: DSM3
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_memory_ids_are_never_reused_after_expiry()` — tipo *robustez*.  
+**Resultado esperado:** depois de uma expiração, a entrada nova recebe outro id, também entre processos  
+**Execução:** DSM3 (status atual: executado).
+````
+
+````{test} test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears
+:id: TEST-165
+:entrega: DSM3
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears()` — tipo *robustez*.  
+**Resultado esperado:** decidir depois do prazo avisa quem decidiu, e a pendência vencida sai da lista  
+**Execução:** DSM3 (status atual: executado).
+````

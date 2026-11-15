@@ -9,8 +9,9 @@ funcionalidades previstas. O barramento valida **remetente, destinatário, papel
 performativo e esquema** antes de mudar qualquer estado. As decisões humanas passam por um
 **Approval Gate** formal (PROT-APR): cada uma fica vinculada à solicitação, ao veto (hash), ao
 aprovador e a um prazo, é de uso único e segue uma política explícita. Há **memória
-persistente** só de decisões aprovadas, **redaction** fail-closed e trace com cadeia de hashes e
-selo HMAC.
+persistente** só de decisões aprovadas (em arquivo com `run --memoria ARQ`; no dashboard ela vale
+só enquanto o servidor roda, ver `docs/dsm3/limitacoes.md`), **redaction** fail-closed e trace com
+cadeia de hashes e selo HMAC.
 
 A versão 0.5.0 acrescenta:
 
@@ -37,7 +38,7 @@ A resposta a cada ponto do feedback está em [`docs/dsm3/revisao.md`](../../docs
 | Protocolo de interação documentado | seis FSMs + [`modelos-editaveis/`](modelos-editaveis/) (validação, PROT-APR, decisão atestada, login, PROT-DEL com negociação, ciclo de hipóteses) |
 | Coordenação, negociação, cooperação ou planejamento | [`docs/dsm3/coordenacao.md`](../../docs/dsm3/coordenacao.md), [`docs/dsm3/cognicao.md`](../../docs/dsm3/cognicao.md); negociação de prazo e ação epistêmica ORC→CIN |
 | Tratamento de conflito, falha ou alternativa | [`docs/dsm3/seguranca.md`](../../docs/dsm3/seguranca.md) (modelo de ameaças, invariantes); reenvio, replanejamento, prazo, negação, reincidência, hipótese arquivada, extensão recusada, fallback de LLM |
-| Testes integrados ou cenários automatizados | `codigo/tests/` (450 testes) e `codigo/web/e2e/` (30 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
+| Testes integrados ou cenários automatizados | `codigo/tests/` (454 testes) e `codigo/web/e2e/` (30 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
 | Evidências de comportamento coletivo | traces dos 37 cenários, `docs/dsm3/resultados/` (10 seeds), cenários `ataque_decisao_forjada` e `ataque_acesso` |
 | Segurança e acesso | [`docs/dsm3/acesso.md`](../../docs/dsm3/acesso.md), [`docs/dsm3/dashboard.md`](../../docs/dsm3/dashboard.md) |
 | Implantação | [`docs/dsm3/implantacao.md`](../../docs/dsm3/implantacao.md) |
@@ -57,7 +58,7 @@ Linux e macOS:
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e . -r requirements-dev.txt
-.venv/bin/python -m pytest                                     # 450 testes, offline
+.venv/bin/python -m pytest                                     # 454 testes, offline
 .venv/bin/python tools/trace.py --check                        # rastreabilidade: 0 erros
 .venv/bin/python -m fin_mas cenarios --verificar               # 37 de 37 cenários em ordem
 cd web && bun run test && bun run test:e2e                     # vitest (12) e Playwright no Chrome (30)
@@ -69,7 +70,7 @@ Windows (PowerShell; não há `make`, e o Python do ambiente fica em `.venv\Scri
 ```powershell
 py -3 -m venv .venv
 .venv\Scripts\pip install -e . -r requirements-dev.txt
-.venv\Scripts\python -m pytest                                 # 450 testes, offline
+.venv\Scripts\python -m pytest                                 # 454 testes, offline
 .venv\Scripts\python tools\trace.py --check                    # rastreabilidade: 0 erros
 .venv\Scripts\python -m fin_mas cenarios --verificar           # 37 de 37 cenários em ordem
 cd web; bun run test; $env:PW_CHANNEL="chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
@@ -133,7 +134,7 @@ Contas de demonstração (senha pública `Demonstracao-SMA-2026`, só para avali
 |---|---|---|
 | `core/bus.py`, `core/schema.py`, `core/diretorio.py`, `core/agent.py` | `COMP-A2A`, `COMP-SCH` | autenticação, papel, contraparte, esquema, integridade, isolamento de erros; prazo vigente por conversa (v0.5.0) |
 | `services/politica.py` | `COMP-POL` (SVC-POL) | tickets do Approval Gate e política POL-01..09 e POL-13 |
-| `services/memoria.py` | `COMP-MEM` (SVC-MEM) | memória aprovada, persistente, com retenção e pseudônimos |
+| `services/memoria.py` | `COMP-MEM` (SVC-MEM) | memória aprovada, persistente em arquivo (`--memoria`), com retenção e pseudônimos |
 | `services/redacao.py`, `services/audit.py` | `COMP-RED` | redaction fail-closed e JSONL com hash encadeado |
 | `services/modelos.py` | `COMP-MOD` (SVC-MOD) | LLM opcional com usos por agente, validação numérica por rótulo, cota, consentimento, disjuntor e logs |
 | `services/provedores.py`, `services/pseudonimos.py` | `COMP-PRV` | provedores de LLM (mocks, Claude, GPT, Gemini, compatível OpenAI) e pseudônimos do envio externo |

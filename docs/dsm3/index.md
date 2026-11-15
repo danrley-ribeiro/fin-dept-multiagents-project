@@ -5,7 +5,8 @@
 A DSM3 consolida a **segurança e a robustez das interações** apontadas no feedback da DSM2 e
 conclui as funcionalidades que estavam previstas: barramento que valida remetente,
 destinatário, papel, conversa, performativo e esquema; **Approval Gate** formal (PROT-APR) com
-política de aprovação explícita; **memória persistente** aprovada (SVC-MEM); **proteção de
+política de aprovação explícita; **memória persistente** aprovada (SVC-MEM; em arquivo pela linha de comando, só em memória no
+dashboard); **proteção de
 informações** (redaction fail-closed, pseudônimos, trace com hash encadeado); **LLM opcional**
 com validação numérica, sempre offline nos testes. O que mudou em resposta ao feedback, ponto
 a ponto, está em {doc}`revisao`.

@@ -132,6 +132,13 @@ class Simulacao:
                 return
             self.config_llm[cmd["agente"]] = {**self.config_llm.get(cmd["agente"], {}), **campos}
         elif tipo == "decidir":
+            pendente = self.sistema.aprovador.pendentes.get(cmd["solicitacao"])
+            if pendente is not None and bus.conversations[pendente.conversation_id].is_final:
+                self.sistema.aprovador.pendentes.pop(cmd["solicitacao"], None)
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": f"decisão não enviada: o ticket {pendente.conversation_id} já foi encerrado "
+                                      "(prazo esgotado); a decisão não tem efeito"})
+                return
             try:
                 enviada = self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"],
                                                          cmd.get("justificativa"), ator)
@@ -244,7 +251,8 @@ class Simulacao:
                                     "contraparte": c.counterpart, "final": c.is_final}
                               for cid, c in s.bus.conversations.items()},
                 "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content}
-                                      for sid, m in s.aprovador.pendentes.items()],
+                                      for sid, m in s.aprovador.pendentes.items()
+                                      if not s.bus.conversations[m.conversation_id].is_final],  # vencidas saem
                 "solicitacoes": {sid: (lambda r: None if r is None else {"performative": r.performative,
                                                                          "content": r.content})(
                     s.usuario.resposta(sid)) for sid in self.sids},

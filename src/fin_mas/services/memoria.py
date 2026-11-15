@@ -98,6 +98,7 @@ class Memoria:
         self._acessos: dict[str, str] = {}  # agente -> token da visão emitida
         self.comprometida: str | None = None  # motivo, quando a integridade do arquivo não pôde ser garantida
         self.contador = 0
+        self._ultimo_id = 0  # maior número de MEM-… já emitido neste processo (ids nunca são reaproveitados)
         self._chave = self._carregar_chave()
         if self.caminho:
             self._carregar()
@@ -160,7 +161,11 @@ class Memoria:
                          (tipo, chave, competencia, aprovacao)), None)
         if repetida:
             return repetida
-        proximo = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0) + 1
+        # nunca reaproveita um id: além do maior existente, o maior já emitido neste processo e o contador
+        # selado do arquivo (cada gravação o incrementa), que sobrevive a entradas expiradas entre processos
+        existentes = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0)
+        proximo = max(existentes, self._ultimo_id, self.contador) + 1
+        self._ultimo_id = proximo
         entrada = {
             "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
             "competencia": competencia, "agente": agente,
@@ -179,22 +184,29 @@ class Memoria:
     # ---- leitura --------------------------------------------------------------------
     def consultar(self, agente: str, tipo: str, chave: str | None = None, *, competencia_atual: str,
                   cid: str | None = None, token: str | None = None) -> list[dict]:
-        """Entradas do tipo (e chave) de competências anteriores, dentro da retenção."""
+        """Entradas do tipo (e chave) de competências anteriores, dentro da retenção.
+
+        A retenção é um filtro desta consulta: nada é apagado aqui. Antes, a consulta apagava do arquivo
+        tudo o que estivesse fora da janela da competência *pedida*; um pedido de `2099-12` apagava o
+        waiver de 2026 e, com ele, a POL-06. A remoção física é a manutenção explícita `expirar`.
+        """
         if not self._autentico(agente, token) or tipo not in ACESSO or agente not in ACESSO[tipo][1]:
             self._registrar(cid, "negada", agente=agente, tipo=tipo, chave=chave)
             return []
         if self.comprometida:
             self._registrar(cid, "indisponivel", agente=agente, tipo=tipo, motivo=self.comprometida)
             return []
-        self.expirar(competencia_atual, cid)
+        atual = _meses(competencia_atual)
         achadas = [e for e in self.entradas if e["tipo"] == tipo and (chave is None or e["chave"] == chave)
-                   and _meses(e["competencia"]) < _meses(competencia_atual)]
+                   and atual - self.retencao <= _meses(e["competencia"]) < atual]
         if achadas:
             self._registrar(cid, "consultada", agente=agente, tipo=tipo, chave=chave,
                             memorias=[e["id"] for e in achadas])
         return achadas
 
     def expirar(self, competencia_atual: str, cid: str | None = None) -> None:
+        """Manutenção: remove do arquivo as entradas fora da retenção em relação a `competencia_atual`.
+        Não é chamada por consulta nem por pedido (ver `consultar`)."""
         limite = _meses(competencia_atual) - self.retencao
         vencidas = [e for e in self.entradas if _meses(e["competencia"]) < limite]
         if vencidas:

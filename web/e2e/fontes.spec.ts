@@ -80,7 +80,11 @@ test("fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fe
   await comando(request, { tipo: "retomar" });
   await expect.poll(async () => (await (await request.get("/api/aprovacoes")).json()).aprovacoes.length, { timeout: 30_000 }).toBe(1);
   await comando(request, { tipo: "decidir", solicitacao: "SOL-001", decisao: "corrigir", justificativa: "reaprovar com alçada" });
-  await expect.poll(async () => (await estado(request)).solicitacoes["SOL-001"]?.performative, { timeout: 30_000 }).toBe("inform");
+  await expect.poll(async () => (await estado(request)).solicitacoes["SOL-001"]?.performative, { timeout: 30_000 }).toBe("inform")
+    .catch(async (e) => {  // diagnóstico: os últimos registros do trace dizem onde o fechamento parou
+      const ultimos = (await (await request.get("/api/auditoria?limite=40")).json()).textos as string[];
+      throw new Error(`${e.message}\núltimos registros do trace:\n${ultimos.join("\n")}`);
+    });
   await linha.page().reload();
   await page.getByRole("tab", { name: "Fontes de dados" }).click();
   await area.getByRole("row", { name: "Conector erp-simulado" }).getByRole("button", { name: "Ativar" }).click();

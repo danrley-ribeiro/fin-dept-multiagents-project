@@ -18,7 +18,7 @@ crença com evidência) e pode **negociar prazo** com o Orquestrador. A IA gener
 desligada por padrão** (Orçamento, Resultados e Relatórios; nunca Orquestrador, Custos ou Controles
 Internos), com cinco provedores, consentimento para envio externo e números conferidos contra o núcleo.
 
-Na **versão final (1.0.0, DSM4)**: Resultados, Custos e Relatórios ganham variantes BDI (as reativas seguem como
+Na **versão final (1.0.1, DSM4)**: Resultados, Custos e Relatórios ganham variantes BDI (as reativas seguem como
 nível `basico` e braço de comparação), com aprendizado local auditável, estratégias de compromisso e base normativa
 com proveniência; acesso avançado (segundo fator, alçada por pessoa, delegação, dupla aprovação, cofre, várias
 empresas); conectores genéricos e entendimento automático de fontes, sem IA generativa; portes MEI e Média empresa II
@@ -54,7 +54,7 @@ demonstração** (abaixo). Para outro modo, passe o nome dele: `.\iniciar.ps1 te
 | `ao-vivo` (padrão) | servidor Python (`serve --demo`) + dashboard com login: agentes executando agora; pausar, desligar agentes, pedir, decidir vetos, logs, LLM, trocar porte, enviar planilha, conforme os papéis da conta |
 | `replay` | dashboard sem servidor Python, reproduzindo os traces exportados (offline, sem login), em `http://127.0.0.1:4173` |
 | `dev` | servidor Python (8765) + Vite com recarga automática (`http://127.0.0.1:5173`), para desenvolver o dashboard |
-| `testes` | pytest (437: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 30 roteiros de uso real no Chrome |
+| `testes` | pytest (686: unit, e2e, integração e TUI), `tools/trace.py --check`, vitest (12) e os 41 roteiros de uso real no Chrome |
 | `docs` | gera a documentação Sphinx em `docs/_build/html` |
 | `cli` | roda um cenário no terminal: `--cenario veto_correcao --porte micro` |
 | `instalar` | só prepara o ambiente |
@@ -95,8 +95,8 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
 | **DSM1 v2** — revisão pós-feedback | [`entregas/dsm1/documentacao/main-v2.pdf`](entregas/dsm1/documentacao/main-v2.pdf) | ✅ concluída |
 | **DSM2** — Arquitetura e protótipo (revisados após o feedback) | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ concluída (prazo 31/10) |
-| **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.0) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
-| **DSM4** — Experimentação, documentação e entrega final (v1.0.0) | [`entregas/dsm4/`](entregas/dsm4/README.md) | ✅ concluída (prazo 02/12) |
+| **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.1) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
+| **DSM4** — Experimentação, documentação e entrega final (v1.0.1) | [`entregas/dsm4/`](entregas/dsm4/README.md) | ✅ concluída (prazo 02/12) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
@@ -130,8 +130,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM4, v1.0.0): **26/26 requisitos (100%) com cadeia completa**, 513 objetos rastreados,
-292 testes modelados (292 **executados**), 29 métricas, 0 erros.
+Situação atual (DSM4, v1.0.1): **26/26 requisitos (100%) com cadeia completa**, 522 objetos rastreados,
+301 testes modelados (301 **executados**), 29 métricas, 0 erros.
 
 ## Como executar
 
@@ -145,7 +145,7 @@ python -m fin_mas run --scenario orc_hipotese_local               # hipótese ve
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
 python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # o experimento da DSM4 (make experimento, ~3 min)
-python -m pytest                                                  # 669 testes: unit 95, e2e 428, integração 123, TUI 23 (make test)
+python -m pytest                                                  # 686 testes: unit 95, e2e 428, integração 140, TUI 23 (make test)
 ```
 
 Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).

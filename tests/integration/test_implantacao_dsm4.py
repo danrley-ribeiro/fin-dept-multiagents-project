@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pytest
 
+from fin_mas import __version__
+
 pytestmark = pytest.mark.integracao
 RAIZ = Path(__file__).resolve().parents[2]
 
@@ -121,7 +123,7 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     if gerar.returncode != 0 and ("Could not find" in gerar.stderr or "NewConnectionError" in gerar.stderr):
         pytest.skip("sem rede para o setuptools do isolamento de build do pip: " + gerar.stderr[-200:])
     assert gerar.returncode == 0, gerar.stderr
-    wheel = next(dist.glob("fin_mas-1.0.0-*.whl"))
+    wheel = next(dist.glob(f"fin_mas-{__version__}-*.whl"))
     ambiente = tmp_path / "venv"
     venv.EnvBuilder(with_pip=True, clear=True).create(ambiente)
     py = ambiente / ("Scripts/python.exe" if os.name == "nt" else "bin/python")

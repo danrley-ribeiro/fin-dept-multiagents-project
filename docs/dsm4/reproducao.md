@@ -65,7 +65,9 @@ sha256sum docs/dsm4/resultados/execucoes.csv                             # shasu
 ```
 
 O SHA-256 do `execucoes.csv` tem de ser o de `docs/dsm4/resultados/manifesto.json` (na versão 1.0.0,
-`9d5126a6…`): o arquivo sai idêntico byte a byte numa segunda execução. O hash de cada trace leva a
+`9d5126a6…`): o arquivo sai idêntico byte a byte numa segunda execução. Os dados publicados são os da
+versão 1.0.0 (tag `dsm4-v1.0.0`); as correções da 1.0.1 não mudam nenhuma execução: o experimento inteiro
+rodado com elas, ainda com a versão 1.0.0 no registro `meta`, deu o mesmo `9d5126a6…`. O hash de cada trace leva a
 versão do pacote, então outra versão dá outro SHA-256 mesmo com as mesmas métricas. `tempo_parede.csv` muda a cada máquina e não entra em
 nenhuma análise. O desenho está em {doc}`experimento` (pré-registro) e a leitura em {doc}`resultados`.
 

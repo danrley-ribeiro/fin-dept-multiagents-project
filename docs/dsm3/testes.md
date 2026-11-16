@@ -76,7 +76,7 @@ fechada da memória (249).
 
 | Evidência | Como gerar |
 |---|---|
-| Trace do cenário adversarial, verificado | `make ataque` (grava `saidas/ataque.jsonl` e roda `verificar`); âncora `2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e` |
+| Trace do cenário adversarial, verificado | `make ataque` (grava `saidas/ataque.jsonl` e roda `verificar`); âncora `0708373769e1b329fe0a3e51dd83e8852dc82aaf3d37e3c3f85aa50c4173f488` |
 | Comparação em 10 seeds (CSV, JSON, Markdown, SVG) | `python -m fin_mas comparar --seeds 10` → `docs/dsm3/resultados/` |
 | Traces de todos os cenários para o replay do dashboard | `python -m fin_mas export` → `web/public/traces/` (37 cenários) |
 | Trilha causal legível | `python -m fin_mas run --scenario <nome>` (inclui `REJEITADA`, `POLITICA`, `MEMORIA`, `ATAQUES`, `HIPOTESE`) |

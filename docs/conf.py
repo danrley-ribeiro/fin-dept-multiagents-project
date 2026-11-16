@@ -18,7 +18,7 @@ project = "Sistema Multiagente de Controladoria"
 author = "Danrley Moreira Ribeiro, Jiliard Mai Peifer"
 copyright = "2026, " + author
 language = "pt_BR"
-release = "DSM4 (v1.0.0)"
+release = "DSM4 (v1.0.1)"
 
 extensions = [
     "myst_parser",

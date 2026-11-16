@@ -69,7 +69,10 @@ entrega em um tick e o código de saída de `verificar --ancora` sobre trace sem
 
 ## Interfaces
 
-- **TUI** não verificada em Windows nem em terminais com menos de 80 colunas; o bloqueio por
+- **TUI** instável no Windows: na 5ª rodada da correção simulada, 2 de 4 execuções de `tests/tui`
+  tiveram uma falha, cada vez num teste diferente, sempre por foco nulo do widget (corrida do
+  Textual no console do Windows; no Mac e no Linux a suíte passa). A TUI também não foi verificada
+  em terminais com menos de 80 colunas; o bloqueio por
   cinco senhas e a expiração por inatividade não têm teste pela TUI. O bloqueio tem teste pelo
   servidor e pelo Playwright; a expiração da sessão por tempo (8 horas ou 15 minutos sem uso)
   não tem teste automatizado em nenhuma interface: as revogações testadas são explícitas.
@@ -117,6 +120,72 @@ A 4ª rodada da correção simulada ({doc}`revisao`) deixou estes pontos sem cor
   perda é avisada ao iniciador.
 - **AG-CUS e AG-REL** continuam reativos, e o `tools/trace.py` confere a existência do teste pelo
   nome, não o que ele verifica.
+
+## Achados da 5ª rodada da correção simulada (Windows) que continuam
+
+A 5ª rodada ({doc}`revisao`) rodou a v0.5.0 no Windows. Os achados de autorização e robustez foram
+corrigidos (vínculo do cargo, id de conversa ocupado, pedido em nome de outra pessoa, atraso de
+entrega); estes ficam registrados:
+
+- **Reiniciar cria a demanda do roteiro sem dono, e a POL-13 não vale para ela.** Reiniciar um
+  cenário pelo dashboard é operar a simulação (`PERM-SIM-OPERAR`): recria os pedidos do roteiro do
+  cenário, que representam a demanda simulada da diretoria, não um pedido de quem reiniciou. Por
+  isso esses pedidos não ficam no nome de ninguém (nunca no de outra pessoa) e o trace registra
+  quem reiniciou. Consequências, assumidas por decisão dos autores: (1) quem só opera, sem
+  `PERM-SOL-CRIAR`, dispara pedidos ao reiniciar; (2) quem opera e aprova (a conta `avaliador`)
+  pode reiniciar e decidir sobre o pedido que disparou, porque a POL-13 (quem pede não aprova) só
+  conhece pedidos de pessoas, feitos por `solicitar`. A alternativa, ligar o pedido do roteiro a
+  quem reiniciou e estender a POL-13 a ele, obriga a demonstração a usar duas contas (uma reinicia,
+  outra decide); fica para a DSM4, junto com a separação entre operar e aprovar.
+- **Competência sem dados reais é fechada.** No ambiente sintético, `2099-12` ou `2001-01` passam
+  no formato (`AAAA-MM`, ano 2000 a 2099) e o fechamento é publicado, porque o gerador cria dados
+  para qualquer mês. Só o modo planilha confere se a competência existe na fonte. Numa empresa
+  real, a fonte (ERP ou planilha) é quem limita. Até a 6ª rodada, um pedido assim também apagava
+  a memória de waivers (a retenção era aplicada a partir da competência pedida) e desligava a
+  POL-06; isso foi corrigido: a consulta filtra e não apaga.
+- **Quem decide vetos também liga o LLM.** O papel ROLE-APR inclui `PERM-MOD-CONFIG`: um aprovador
+  com cargo de analista pode ligar o LLM do AG-REL, apontar um `base_url` e dar o consentimento de
+  envio externo. Está na tabela de papéis ({doc}`acesso`), mas a separação é fraca; separar o papel
+  de configuração de modelos fica para a DSM4.
+- **Conta-fantoche do administrador.** O administrador não pode dar ROLE-APR a si mesmo (IAM-06),
+  mas pode criar outra conta com ROLE-APR e cargo diretor, saber a senha temporária e decidir por
+  ela. Fica tudo na trilha de acesso; impedir exige quatro olhos (aprovação em dupla), que não há.
+
+## Achados da 6ª rodada da correção simulada que continuam
+
+A 6ª rodada ({doc}`revisao`), com um avaliador novo, achou três problemas corrigidos (memória
+apagada por competência distante, ids de memória repetidos, decisão depois do prazo sem aviso) e
+estes, registrados por decisão dos autores:
+
+- **No dashboard a memória não persiste.** O servidor ao vivo (`serve`) monta a memória sem arquivo:
+  ela vale enquanto o servidor roda, e cada reinício de cenário recomeça o histórico de reincidência
+  (POL-06). A memória em arquivo, entre execuções, existe pela linha de comando (`run --memoria ARQ`).
+  Gravar a memória do dashboard na pasta de dados fica para a DSM4.
+- **Trocar o porte para micro dispensa a POL-13.** No porte micro vale o controle compensatório (o
+  sócio revisa os lançamentos do mês), e com ele a política aceita que quem pediu também decida. Quem
+  opera e aprova (a conta `avaliador`) reinicia com `porte: micro`, pede e decide sobre o próprio
+  pedido; a decisão registra o controle compensatório, embora quem decidiu não seja o sócio e o texto
+  trate de segregação de funções, não de solicitante e aprovador. Trocar o porte é operação
+  (`PERM-SIM-OPERAR`); exigir uma permissão própria fica para a DSM4, junto com a separação entre
+  operar e aprovar.
+- **O barramento confere o papel, não o lado da conversa.** Emissores são declarados por papel; o
+  barramento não confere se quem responde é o respondente da conversa. Um agente defeituoso ou
+  comprometido que inicia uma consulta (PROT-QRY) pode responder a ela mesma; a resposta legítima é
+  então recusada e o pedido falha (falha fechada, sem publicação indevida). Pares de consulta que o
+  modelo não prevê (ex.: AG-RES consultando o AG-CIN) também são aceitos.
+- **"Não publicar com veto pendente" é verificado depois, não bloqueado.** A regra que liga
+  protocolos (PROT-CMP vetado e PROT-SOL publicado) é conferida pelo verificador de invariantes
+  (INV-01) sobre o trace, não pelo barramento no envio. O próprio Orquestrador, se defeituoso,
+  conseguiria responder "publicado" com o veto pendente; o INV-01 acusa. Complementa a "raiz de
+  confiança em processo" acima.
+- **Avisos de comando vão para todos os que acompanham o dashboard.** Erros de comando (decisão
+  recusada ou não enviada, planilha inválida, comando malformado) são emitidos no fluxo ao vivo da
+  simulação, que todos com `PERM-SIM-VER` recebem, e não só a quem enviou o comando. A resposta HTTP
+  do comando é `202` (aceito para processamento): o resultado da decisão aparece no fluxo e no trace
+  (`rejected` ou `decisao_nao_enviada`), não na resposta.
+- **Remoção física da memória não é automática.** Para que um pedido não apague o histórico, a
+  consulta só filtra pela retenção; tirar do arquivo as entradas vencidas exige a manutenção
+  explícita (`Memoria.expirar`), que nenhum comando agenda ainda.
 
 ## Plano para a DSM4
 

@@ -168,7 +168,7 @@ interface Explicacao { alvo: { texto: string }; agente: string; tarefa: string;
   cadeia: { seq: number; papel: string; texto: string }[] }
 
 const TIPOS = ["", "decision", "belief", "hipotese", "deliberation", "intention", "desire", "send", "open", "rejected",
-  "politica", "mcp_call", "operador", "llm_prompt", "llm_custo", "llm_fallback", "drop", "timeout", "memoria"];
+  "politica", "mcp_call", "operador", "decisao_nao_enviada", "llm_prompt", "llm_custo", "llm_fallback", "drop", "timeout", "memoria"];
 
 export function Logs({ sessao }: { sessao: Sessao }) {
   const [f, setF] = useState({ agente: "", tipo: "", tarefa: "", competencia: "", de_t: "", ate_t: "", custo_min: "", q: "" });

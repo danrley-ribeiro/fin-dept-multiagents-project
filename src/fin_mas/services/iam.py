@@ -56,6 +56,7 @@ SENHAS_PROIBIDAS = {"123456789012", "senha1234567", "password1234", "administrad
                     "trocar-senha!", "controladoria"}
 ESTADOS = ("ativa", "bloqueada", "desativada")
 PAPEL_ADM = "ROLE-ADM"
+MANTER = object()  # sentinela: "não alterar este campo" (diferente de None, que remove)
 
 
 class AcessoNegado(PermissionError):
@@ -253,12 +254,24 @@ class Acesso:
         return self._alterar(ator, usuario, "PERM-IAM-PAPEIS", "papeis_alterados",
                              lambda c: c.update(papeis=list(papeis)), papeis=list(papeis))
 
-    def definir_vinculo(self, ator: Sessao, usuario: str, *, pessoa_erp=None, cargo=None) -> dict:
-        """Liga a conta à pessoa do ERP e ao cargo: é o que a segregação de funções e a POL-02 conferem."""
-        if cargo is not None and cargo not in permissoes.cargos():
+    def definir_vinculo(self, ator: Sessao, usuario: str, *, pessoa_erp=MANTER, cargo=MANTER) -> dict:
+        """Liga a conta à pessoa do ERP e ao cargo: é o que a segregação de funções e a POL-02 conferem.
+
+        Campo não informado (`MANTER`) fica como está: promover alguém (`cargo=...`) não pode apagar o
+        vínculo com a pessoa do ERP, senão a SoD (POL-03) deixa de reconhecer os lançamentos dela.
+        `None` remove o campo, e só quando pedido explicitamente.
+        """
+        if cargo is not MANTER and cargo is not None and cargo not in permissoes.cargos():
             raise AcessoNegado("IAM-05", f"cargo desconhecido: {cargo}")
+        if pessoa_erp is not MANTER and pessoa_erp is not None and (not isinstance(pessoa_erp, str)
+                                                                    or not pessoa_erp.strip()):
+            # "" apagaria o vínculo sem pedido explícito (e a POL-03 deixaria de reconhecer a pessoa)
+            raise AcessoNegado("IAM-05", "pessoa do ERP vazia: para remover o vínculo, peça explicitamente")
+        novos = {k: v for k, v in (("pessoa_erp", pessoa_erp), ("cargo", cargo)) if v is not MANTER}
+        if not novos:
+            raise AcessoNegado("IAM-05", "informe a pessoa do ERP, o cargo ou ambos")
         return self._alterar(ator, usuario, "PERM-IAM-PAPEIS", "vinculo_alterado",
-                             lambda c: c.update(pessoa_erp=pessoa_erp, cargo=cargo), pessoa_erp=pessoa_erp, cargo=cargo)
+                             lambda c: c.update(novos), **novos)
 
     def bloquear(self, ator: Sessao, usuario: str) -> dict:
         return self._alterar(ator, usuario, "PERM-IAM-USUARIOS", "conta_bloqueada",

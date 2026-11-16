@@ -316,3 +316,21 @@ items:
      esperado: "no dashboard, waiver negado pela política não é enviado nem vira bloqueio: a pendência continua", entrega: DSM3, status: executado}
   - {id: TEST-156, nome: "reincidência: a política nega o waiver e o diálogo não o oferece", verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: interface,
      esperado: "no navegador, o waiver reincidente fica desabilitado com a explicação e a correção publica", entrega: DSM3, status: executado}
+  - {id: TEST-157, nome: test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "mudar o cargo não apaga o vínculo com a pessoa do ERP (a POL-03 continua valendo); remover exige pedido explícito", entrega: DSM3, status: executado}
+  - {id: TEST-158, nome: test_squatted_conversation_id_does_not_leave_the_request_unanswered, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: seguranca,
+     esperado: "id de conversa ocupado por um participante: o sistema gera o próximo livre e o pedido é atendido", entrega: DSM3, status: executado}
+  - {id: TEST-159, nome: test_orchestrator_internal_error_becomes_an_explicit_failure, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: robustez,
+     esperado: "erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período", entrega: DSM3, status: executado}
+  - {id: TEST-160, nome: test_restart_never_creates_requests_in_someone_elses_name, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir", entrega: DSM3, status: executado}
+  - {id: TEST-161, nome: test_invalid_delivery_delay_is_rejected_and_audited, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
+     esperado: "atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado", entrega: DSM3, status: executado}
+  - {id: TEST-162, nome: test_far_future_request_does_not_erase_the_waiver_memory, verifica: [REQ-F07, REQ-S02], derivado_de: SVC-MEM, tipo: seguranca,
+     esperado: "um pedido de 2099-12 não apaga a memória de waivers; em setembro a POL-06 ainda nega o waiver reincidente", entrega: DSM3, status: executado}
+  - {id: TEST-163, nome: test_retention_is_a_query_filter_and_removal_is_explicit, verifica: [REQ-F07, REQ-P01], derivado_de: SVC-MEM, tipo: seguranca,
+     esperado: "a retenção filtra a consulta sem apagar; a remoção física é manutenção explícita", entrega: DSM3, status: executado}
+  - {id: TEST-164, nome: test_memory_ids_are_never_reused_after_expiry, verifica: [REQ-F07], derivado_de: SVC-MEM, tipo: robustez,
+     esperado: "depois de uma expiração, a entrada nova recebe outro id, também entre processos", entrega: DSM3, status: executado}
+  - {id: TEST-165, nome: test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: robustez,
+     esperado: "decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista", entrega: DSM3, status: executado}

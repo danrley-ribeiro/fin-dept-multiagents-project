@@ -32,7 +32,7 @@ def test_mesmo_hash_em_processos_distintos_com_hashseed_diferente(tmp_path):
         saida = subprocess.run(
             [sys.executable, "-m", "fin_mas", "run", "--scenario", "depuracao", "--trace",
              str(tmp_path / f"trace-{hashseed}.jsonl")],
-            capture_output=True, text=True, env=env, check=True, cwd=RAIZ,
+            capture_output=True, text=True, encoding="utf-8", env=env, check=True, cwd=RAIZ,
         ).stdout
         hashes.append(next(linha for linha in saida.splitlines() if linha.startswith("hash do trace:")))
     assert hashes[0] == hashes[1]

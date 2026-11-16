@@ -126,6 +126,9 @@ class Aprovador(Agent):
         msg = self.pendentes.get(solicitacao)
         if msg is None:
             return False
+        if self.bus.conversations[msg.conversation_id].is_final:
+            self.pendentes.pop(solicitacao, None)  # prazo esgotado (ou ticket encerrado): não há mais o que decidir
+            return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
         if decisao == "waiver" and "waiver" not in msg.content["opcoes"]:
@@ -451,9 +454,16 @@ class Execucao:
         return {sid: self.system.usuario.resposta(sid) for sid in self.sids}
 
 
+ROTEIRO = object()  # sentinela de `montar(solicitante=...)`: usa a pessoa do roteiro do cenário
+
+
 def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, memoria=None,
-           llm=None, cognicao=None, acesso=None) -> tuple[System, list]:
+           llm=None, cognicao=None, acesso=None, solicitante=ROTEIRO) -> tuple[System, list]:
     """Monta o sistema do cenário e agenda os pedidos (sem executar).
+
+    `solicitante`: pessoa ligada aos pedidos do roteiro (com controle de acesso). Por padrão, a do
+    cenário; no reinício pelo dashboard, ninguém (`None`), para que um pedido nunca fique em nome de
+    quem não o fez.
 
     `porte` troca o porte do cenário; `pasta` usa a planilha de uma empresa real (os pedidos viram
     avaliar orçamento + fechar o mês da competência da planilha).
@@ -491,7 +501,8 @@ def montar(sc: Scenario, seed=None, interativo=False, porte=None, pasta=None, me
         ataques_acesso.preparar(sistema)
     pedidos = PEDIDOS_PLANILHA if pasta else (sc.pedidos or ((sc.intencao, None, 1),))
     sids = [sistema.usuario.solicitar(intencao, competencia=c or sistema.ambiente.principal, atraso=atraso,
-                                      solicitado_por=sc.solicitante if sistema.acesso is not None else None)
+                                      solicitado_por=(sc.solicitante if solicitante is ROTEIRO else solicitante)
+                                      if sistema.acesso is not None else None)
             for intencao, c, atraso in pedidos]
     return sistema, sids
 

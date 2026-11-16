@@ -30,6 +30,7 @@ from fin_mas.env.portes import PORTES, perfil
 from fin_mas.services import provedores
 from fin_mas.services.iam import SENHA_DEMO, Acesso, AcessoNegado, criar_demo
 from fin_mas.services.selado import pasta_de_chaves
+from fin_mas.terminal import tem_terminal
 
 PASTA_PADRAO = "dados"
 
@@ -49,7 +50,7 @@ def configurar(sub) -> None:
 
 
 def _perguntar(texto, padrao, opcoes=None):
-    if not sys.stdin.isatty():
+    if not tem_terminal():
         return padrao
     while True:
         r = input(f"{texto} [{padrao}]: ").strip() or padrao
@@ -61,7 +62,7 @@ def _perguntar(texto, padrao, opcoes=None):
 def instalar(args) -> int:
     pasta = Path(args.pasta)
     print(f"SMA de Controladoria {__version__}: instalação em {pasta.resolve()}")
-    if not args.porte and sys.stdin.isatty():
+    if not args.porte and tem_terminal():
         print("Portes: " + "; ".join(f"{p} = {perfil(p)['titulo']}" for p in PORTES))
     porte = args.porte or _perguntar("Porte da empresa", "media", PORTES)
     cognicao = args.cognicao or _perguntar("Nível de cognição dos agentes (basico, local, llm)", "local", NIVEIS)
@@ -77,7 +78,7 @@ def instalar(args) -> int:
             nome = args.nome or _perguntar("Nome do administrador", "Administração de Acesso")
             senha = os.environ.get("FIN_MAS_SENHA_NOVA")
             if not senha:
-                if not sys.stdin.isatty():
+                if not tem_terminal():
                     print("defina FIN_MAS_SENHA_NOVA (ou use --demo) para instalar sem terminal", file=sys.stderr)
                     return 2
                 senha = getpass.getpass("Senha do administrador (12+ caracteres): ")

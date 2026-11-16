@@ -228,3 +228,79 @@ IA implementou, em commits locais.
   `ataque_decisao_forjada`: 14 de 14, âncora `2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e`.
 - Os 17 cenários revisados, no nível básico, mantêm as métricas da tag `dsm3-base` em 10 seeds.
 - Dashboard: 12 testes vitest e 30 roteiros Playwright no Chrome (15 do escritório, 9 de acesso, 6 das áreas de trabalho).
+
+## Verificação final no Windows (15/11/2026)
+
+Antes de gerar o pacote, a IA rodou a tag `dsm3-v0.5.0` inteira numa máquina Windows (Python 3.11,
+Windows PowerShell 5.1). Encontrou falhas que não aparecem em Linux nem na CI (Python 3.13), todas
+corrigidas:
+
+| Problema | Correção |
+|---|---|
+| 10 testes que chamam a linha de comando falhavam: o processo filho escreve em UTF-8 (`PYTHONUTF8=1`), mas o teste lia a saída na codificação do Windows (cp1252), e os acentos chegavam trocados | os testes leem a saída como UTF-8 (`encoding="utf-8"`) |
+| `fin-mas instalar` sem terminal e sem senha quebrava com `EOFError` em vez de pedir `FIN_MAS_SENHA_NOVA` (2 testes): no Windows, o dispositivo nulo (`NUL`) responde `isatty()` verdadeiro | `fin_mas/terminal.py`: só há terminal se a entrada for um console de verdade; usado na instalação e na CLI de acesso |
+| O roteiro de navegador da reincidência dependia do ritmo da simulação: com os vetos de agosto e setembro pendentes juntos, a POL-06 não age (limitação registrada) | o roteiro começa pausado e decide agosto antes de o veto de setembro ser emitido |
+
+Verificação depois das correções, no Windows: 437 testes Python, `trace.py --check` sem erros,
+12 testes vitest e 30 roteiros Playwright (o da reincidência repetido 3 vezes).
+
+## Correção simulada no Windows (5ª rodada, 15/11/2026)
+
+- **Quem avaliou:** o mesmo tipo de avaliador das rodadas anteriores (Claude Opus 5.5, só leitura do
+  repositório, sem acesso ao nosso raciocínio), agora numa máquina Windows 11, sobre a candidata à
+  entrega (`dsm3-v0.5.0` com as correções para Windows). Rodou a suíte, os cenários, o experimento,
+  o Playwright e `.\iniciar.ps1`, e escreveu mais de 40 ataques próprios (barramento, agentes, API HTTP,
+  administração de acesso).
+- **Nota dada ao estado avaliado:** **8,6** (comunicação 9,0; coordenação 9,0; corretude 7,5; testes
+  8,5; documentação 9,0). É uma estimativa da simulação, não uma avaliação oficial.
+- **Achados:** 1 grave, 2 moderados e 5 menores. A pedido dos autores, a IA corrigiu o grave, os dois
+  moderados e um menor, cada um com teste (TEST-157 a TEST-161), e registrou os demais em
+  [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md). A tabela está em
+  [`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md).
+- **Decisões dos autores:** corrigir antes da entrega o que afeta autorização e robustez; registrar
+  como limitação o que é decisão de projeto (ROLE-APR configurando o LLM, sem quatro olhos) ou
+  depende da fonte de dados (competência sem dados reais).
+- **Verificação depois das correções, no Windows:** 450 testes Python; `trace.py --check` sem erros
+  (161 de 161 testes modelados executados); 37 de 37 cenários; 12 testes vitest e 30 roteiros
+  Playwright; âncora do ataque e comparação em 10 seeds idênticas às geradas no Mac.
+- **Uma correção teve de ser refeita:** na primeira versão, o reinício pelo dashboard punha os pedidos
+  do roteiro no nome de quem reiniciou; os roteiros de navegador mostraram que, assim, o avaliador
+  ficava impedido de decidir sobre eles (POL-13). Ficou: pedidos do roteiro sem pessoa, e o trace
+  registra quem reiniciou.
+- **Recorreção pelo mesmo avaliador:** **8,95** (comunicação 9,5; coordenação 9,0; corretude 8,5;
+  testes 9,0; documentação 8,5). Confirmou as quatro correções com os próprios scripts, sem alterá-los.
+  Achou três pontos novos: (A) com os pedidos do roteiro sem dono, quem opera e aprova pode reiniciar
+  e decidir sobre o pedido que disparou, contornando a POL-13; (B) `--pessoa ""` removia o vínculo;
+  (C) um TAB no comando de Windows do README, introduzido pela IA, e uma contagem antiga. B e C foram
+  corrigidos. Para A, os autores escolheram registrar como limitação, em vez de mudar a política e os
+  roteiros de navegador a três dias da entrega; a alternativa está em
+  [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md).
+
+## Correção simulada com avaliador novo (6ª rodada, 15/11/2026)
+
+- **Por que um avaliador novo:** para não depender de quem já conhecia os achados anteriores. Mesmo
+  formato (Claude Opus 5.5, só leitura do repositório, com o enunciado, a rubrica e os feedbacks da
+  DSM1 e da DSM2), no Windows 11, sobre a versão candidata.
+- **Nota:** **8,1** (comunicação 8,5; coordenação 8,0; corretude 7,5; testes 8,0; documentação 8,5).
+  Os feedbacks da DSM1 e da DSM2 foram confirmados como atendidos; a nota menor que a da recorreção
+  (8,95) vem de caminhos novos (memória e troca de porte), não de regressão.
+- **Corrigido a pedido dos autores, com teste (TEST-162 a TEST-165):** memória apagada por um pedido de
+  competência distante (desligava a POL-06), ids de memória repetidos depois de uma expiração e decisão
+  depois do prazo sem aviso.
+- **Registrado em [`docs/dsm3/limitacoes.md`](../../docs/dsm3/limitacoes.md), por decisão dos autores:**
+  memória do dashboard sem arquivo, troca de porte dispensando a POL-13, lado da conversa não conferido
+  pelo barramento e a regra de veto pendente verificada depois. As correções desses pontos mexem no
+  servidor e na política de acesso; a três dias da entrega, os autores preferiram declarar.
+- **Documentação corrigida:** memória "persistente" sem ressalva para o dashboard, ids de memória dados
+  como corrigidos e o efeito da competência irreal sobre a memória.
+- **Verificação depois das correções, no Windows:** 454 testes Python; `trace.py --check` sem erros
+  (165 de 165 testes modelados executados); 37 de 37 cenários; 12 testes vitest e 30 roteiros
+  Playwright; âncora do ataque e comparação em 10 seeds inalteradas. Um teste do grupo foi adaptado:
+  a decisão atrasada pelo dashboard agora não é enviada (e avisa quem decidiu); o descarte pelo
+  barramento continua testado com o envio direto.
+- **Recorreção pelo mesmo avaliador:** **8,4** (comunicação 8,5; coordenação 8,5; corretude 8,0; testes
+  8,0; documentação 9,0). Confirmou os três achados corrigidos, sem regressão, e as limitações descritas
+  com precisão. Achou dois pontos menores: a decisão não enviada não ficava registrada no trace (corrigido:
+  registro `decisao_nao_enviada`) e o aviso dizia sempre "prazo esgotado" e vai a todos os que acompanham
+  o dashboard (a mensagem passou a citar o estado do ticket; o envio a todos foi registrado como
+  limitação). Por decisão dos autores, não houve nova avaliação depois desses dois ajustes.

@@ -9,8 +9,9 @@ funcionalidades previstas. O barramento valida **remetente, destinatário, papel
 performativo e esquema** antes de mudar qualquer estado. As decisões humanas passam por um
 **Approval Gate** formal (PROT-APR): cada uma fica vinculada à solicitação, ao veto (hash), ao
 aprovador e a um prazo, é de uso único e segue uma política explícita. Há **memória
-persistente** só de decisões aprovadas, **redaction** fail-closed e trace com cadeia de hashes e
-selo HMAC.
+persistente** só de decisões aprovadas (em arquivo com `run --memoria ARQ`; no dashboard ela vale
+só enquanto o servidor roda, ver `docs/dsm3/limitacoes.md`), **redaction** fail-closed e trace com
+cadeia de hashes e selo HMAC.
 
 A versão 0.5.0 acrescenta:
 
@@ -37,7 +38,7 @@ A resposta a cada ponto do feedback está em [`docs/dsm3/revisao.md`](../../docs
 | Protocolo de interação documentado | seis FSMs + [`modelos-editaveis/`](modelos-editaveis/) (validação, PROT-APR, decisão atestada, login, PROT-DEL com negociação, ciclo de hipóteses) |
 | Coordenação, negociação, cooperação ou planejamento | [`docs/dsm3/coordenacao.md`](../../docs/dsm3/coordenacao.md), [`docs/dsm3/cognicao.md`](../../docs/dsm3/cognicao.md); negociação de prazo e ação epistêmica ORC→CIN |
 | Tratamento de conflito, falha ou alternativa | [`docs/dsm3/seguranca.md`](../../docs/dsm3/seguranca.md) (modelo de ameaças, invariantes); reenvio, replanejamento, prazo, negação, reincidência, hipótese arquivada, extensão recusada, fallback de LLM |
-| Testes integrados ou cenários automatizados | `codigo/tests/` (437 testes) e `codigo/web/e2e/` (30 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
+| Testes integrados ou cenários automatizados | `codigo/tests/` (454 testes) e `codigo/web/e2e/` (30 roteiros); [`docs/dsm3/testes.md`](../../docs/dsm3/testes.md), [`docs/dsm3/cenarios-de-teste.md`](../../docs/dsm3/cenarios-de-teste.md) |
 | Evidências de comportamento coletivo | traces dos 37 cenários, `docs/dsm3/resultados/` (10 seeds), cenários `ataque_decisao_forjada` e `ataque_acesso` |
 | Segurança e acesso | [`docs/dsm3/acesso.md`](../../docs/dsm3/acesso.md), [`docs/dsm3/dashboard.md`](../../docs/dsm3/dashboard.md) |
 | Implantação | [`docs/dsm3/implantacao.md`](../../docs/dsm3/implantacao.md) |
@@ -52,15 +53,31 @@ Requer Python 3.11+ (versões exatas em que a suíte passou: `requirements-lock.
 internet em tempo de execução. Para o dashboard, use o comando único descrito no
 [README da raiz](../../README.md#um-comando).
 
+Linux e macOS:
+
 ```bash
-python -m venv .venv
-.venv/bin/pip install -e . -r requirements-dev.txt            # Windows: .venv\Scripts\pip
-.venv/bin/python -m pytest                                     # 437 testes, offline (unit 95, e2e 260, integração 62, TUI 20)
-.venv/bin/python tools/trace.py --check                        # 315 objetos, 21 requisitos, 156 de 156 testes executados, 0 erros
+python3 -m venv .venv
+.venv/bin/pip install -e . -r requirements-dev.txt
+.venv/bin/python -m pytest                                     # 454 testes, offline
+.venv/bin/python tools/trace.py --check                        # rastreabilidade: 0 erros
 .venv/bin/python -m fin_mas cenarios --verificar               # 37 de 37 cenários em ordem
 cd web && bun run test && bun run test:e2e                     # vitest (12) e Playwright no Chrome (30)
 make verificar-tudo                                            # tudo acima e a documentação, parando no primeiro erro
 ```
+
+Windows (PowerShell; não há `make`, e o Python do ambiente fica em `.venv\Scripts`):
+
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\pip install -e . -r requirements-dev.txt
+.venv\Scripts\python -m pytest                                 # 454 testes, offline
+.venv\Scripts\python tools\trace.py --check                    # rastreabilidade: 0 erros
+.venv\Scripts\python -m fin_mas cenarios --verificar           # 37 de 37 cenários em ordem
+cd web; bun run test; $env:PW_CHANNEL="chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
+```
+
+Ou, nos três sistemas, o comando único: `./iniciar.sh testes` (Linux e macOS) ou
+`.\iniciar.ps1 testes` (Windows). A CI roda a suíte em Linux, macOS e Windows, com Python 3.11 e 3.13.
 
 Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subprocessos da CLI
 (`python -m fin_mas ...` chamados pelos testes) não entram na medição.
@@ -68,6 +85,7 @@ Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subpro
 ### Roteiro de demonstração
 
 ```bash
+# no Windows, troque `python` por `.venv\Scripts\python` (ou ative o ambiente com .venv\Scripts\Activate.ps1)
 python -m fin_mas run --scenario ataque_decisao_forjada --trace ataque.jsonl
 #   14 ataques ao barramento (os 4 do feedback e outros 10 da mesma família): 0 aceitos; o ticket expira, nada é publicado
 python -m fin_mas verificar ataque.jsonl --ancora 2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e
@@ -116,7 +134,7 @@ Contas de demonstração (senha pública `Demonstracao-SMA-2026`, só para avali
 |---|---|---|
 | `core/bus.py`, `core/schema.py`, `core/diretorio.py`, `core/agent.py` | `COMP-A2A`, `COMP-SCH` | autenticação, papel, contraparte, esquema, integridade, isolamento de erros; prazo vigente por conversa (v0.5.0) |
 | `services/politica.py` | `COMP-POL` (SVC-POL) | tickets do Approval Gate e política POL-01..09 e POL-13 |
-| `services/memoria.py` | `COMP-MEM` (SVC-MEM) | memória aprovada, persistente, com retenção e pseudônimos |
+| `services/memoria.py` | `COMP-MEM` (SVC-MEM) | memória aprovada, persistente em arquivo (`--memoria`), com retenção e pseudônimos |
 | `services/redacao.py`, `services/audit.py` | `COMP-RED` | redaction fail-closed e JSONL com hash encadeado |
 | `services/modelos.py` | `COMP-MOD` (SVC-MOD) | LLM opcional com usos por agente, validação numérica por rótulo, cota, consentimento, disjuntor e logs |
 | `services/provedores.py`, `services/pseudonimos.py` | `COMP-PRV` | provedores de LLM (mocks, Claude, GPT, Gemini, compatível OpenAI) e pseudônimos do envio externo |

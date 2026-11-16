@@ -146,8 +146,14 @@ class Bus:
         return isinstance(ident, str) and self._autentico(ident, credencial)
 
     def new_conversation_id(self, prefix: str) -> str:
-        self._ids[prefix] = self._ids.get(prefix, 0) + 1
-        return f"{prefix}-{self._ids[prefix]:03d}"
+        """Próximo id livre do prefixo. Pula ids já abertos: um participante que abrisse antes, com
+        outro protocolo, o id que o Orquestrador ou o SVC-POL vão usar (ex.: `APR-001` como PROT-SOL)
+        faria o envio legítimo ser recusado e o pedido ficar sem resposta."""
+        while True:
+            self._ids[prefix] = self._ids.get(prefix, 0) + 1
+            cid = f"{prefix}-{self._ids[prefix]:03d}"
+            if cid not in self.conversations:
+                return cid
 
     def add_validator(self, protocolo: str, validador) -> None:
         self.validadores.setdefault(protocolo, []).append(validador)
@@ -159,6 +165,10 @@ class Bus:
     # ---- envio ---------------------------------------------------------------------
     def send(self, msg: Message, delay: int = 1, credencial: str | None = None) -> None:
         """Valida a mensagem (ver docstring do módulo) e a agenda para entrega em now + delay."""
+        if isinstance(delay, bool) or not isinstance(delay, int) or delay < 1:
+            # texto ou None quebrariam a conta abaixo sem auditoria; zero ou negativo furariam a fila e
+            # poriam a entrega prevista (POL-08) no passado
+            self._rejeitar(msg, f"atraso de entrega inválido: {delay!r} (inteiro de 1 tick ou mais)", "envelope")
         self.entrega_prevista = self.now + delay  # lido pelos validadores de domínio (prazo do ticket, POL-08)
         if isinstance(msg.content, dict):
             try:

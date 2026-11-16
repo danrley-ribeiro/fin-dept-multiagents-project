@@ -11,8 +11,8 @@ determinístico nos testes.
 | Proveniência | aprovação, solicitação, conversa vetada, decisão, quem decidiu (pseudônimo) e fonte; quem consulta recebe o id `MEM-…` |
 | Controle de acesso | por tipo: quem grava e quem lê (hoje, só o AG-CIN usa a memória) |
 | Privacidade (NORM-06) | redaction fail-closed do valor; pessoas como `pessoa#…` (HMAC com a chave da memória: estável, mas não se reverte por dicionário; fora do trace) |
-| Retenção | entradas mais antigas que `retencao` competências (padrão 12) expiram na consulta |
-| Persistência | arquivo JSON gravado de forma atômica (`--memoria ARQ`); sem arquivo, só em memória (padrão dos testes) |
+| Retenção | a consulta só devolve entradas das `retencao` competências (padrão 12) anteriores à pedida; nada é apagado na consulta (um pedido de competência distante, como `2099-12`, apagava o histórico e desligava a POL-06). A remoção física é a manutenção explícita `Memoria.expirar` |
+| Persistência | arquivo JSON gravado de forma atômica (`--memoria ARQ`); sem arquivo, só em memória (padrão dos testes e do dashboard: no servidor ao vivo, cada reinício recomeça o histórico) |
 
 ## Como os agentes usam
 

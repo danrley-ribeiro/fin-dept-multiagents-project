@@ -93,8 +93,10 @@ def mapeamento_erp_demo() -> tuple[dict, dict]:
 
 def _erp_fora(porte) -> AmbienteConector:
     recursos, mapeamento = mapeamento_erp_demo()
+    # tempo_limite de 5 s, como o do ERP de demonstração: no Windows a conexão recusada leva cerca de 2 s (o TCP
+    # repete o SYN depois do RST), e um limite de 2 s transformava "fora do ar" em "tempo esgotado" por corrida
     conector = ConectorREST("erp-demo", {"url_base": f"http://127.0.0.1:{_porta_livre()}", "recursos": recursos,
-                                         "autenticacao": {"tipo": "bearer"}, "tempo_limite": 2, "porte": porte},
+                                         "autenticacao": {"tipo": "bearer"}, "tempo_limite": 5, "porte": porte},
                             segredo="token-que-nao-vai-a-lugar-nenhum", mapeamento=mapeamento)
     return AmbienteConector(conector, competencia="2026-09", porte=porte)
 

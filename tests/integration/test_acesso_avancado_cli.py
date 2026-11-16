@@ -94,7 +94,9 @@ def test_vault_keeps_llm_keys_without_ever_showing_them(cli):
     assert json.loads(listar.stdout) == [{"nome": "llm:OPENAI_API_KEY", "por": "admin",
                                           "em": json.loads(listar.stdout)[0]["em"]}] and valor not in listar.stdout
     (cofre,) = (cli.tmp / "chaves").glob("cofre-*.json")
-    assert stat.S_IMODE(cofre.stat().st_mode) == 0o600 and not str(cofre).startswith(str(cli.pasta))
+    assert not str(cofre).startswith(str(cli.pasta))
+    if os.name != "nt":  # no Windows não há modo 0600: protege a ACL da pasta de chaves (perfil do usuário)
+        assert stat.S_IMODE(cofre.stat().st_mode) == 0o600
     provedores = subprocess.run([sys.executable, "-c", (
         "from fin_mas.services import provedores; from fin_mas.services.iam import Acesso;"
         f"provedores.usar_cofre(Acesso({str(cli.pasta)!r}).cofre);"

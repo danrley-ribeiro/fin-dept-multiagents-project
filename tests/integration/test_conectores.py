@@ -182,7 +182,9 @@ def test_source_down_fails_explicitly_and_does_not_hang():
     """TEST-253: ERP fora do ar: resposta de falha com o motivo, leituras negadas auditadas, nada publicado, rápido."""
     inicio = time.monotonic()
     e = run_scenario("conector_fora_do_ar")
-    assert time.monotonic() - inicio < 15
+    # no Windows cada conexão recusada leva cerca de 2 s (o TCP repete o SYN depois do RST) e o cenário faz
+    # 8 pedidos; no Linux e no Mac a recusa é imediata. O limite confere que nada espera o tempo_limite inteiro
+    assert time.monotonic() - inicio < (30 if os.name == "nt" else 15)
     assert e.resposta.performative == "failure" and "fonte fora do ar" in e.resposta.content["motivo"]
     negadas = [r for r in e.audit.records if r["kind"] == "mcp_denied"]
     assert negadas and all("fonte indisponível" in r["motivo"] for r in negadas)

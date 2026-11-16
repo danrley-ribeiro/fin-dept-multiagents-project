@@ -127,6 +127,10 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
 
 ## Implantação, portes e segmentos
 
+- **No Windows não há modo 0600**: chaves, cofre e pacote de chaves do backup ficam protegidos pela ACL da
+  pasta onde estão (por padrão, o perfil do usuário), não pelo modo do arquivo; uma pasta de chaves fora do
+  perfil herda a permissão do lugar. Também no Windows, cada conexão recusada a uma fonte leva cerca de 2 s
+  (o TCP repete o SYN): um ERP fora do ar leva segundos para falhar, em vez de falhar de imediato.
 - **Uma máquina, só loopback**: exposição em rede ou nuvem está fora do escopo por decisão do dono do
   produto. Proxy na frente ou porta em outra interface é exposição em rede.
 - **Docker Compose não executado** nesta máquina (o plugin estava quebrado); a imagem foi construída e
@@ -165,7 +169,8 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
 
 ## Interfaces e testes
 
-- **TUI** não verificada em Windows nem em terminais com menos de 80 colunas; bloqueio por senhas e
+- **TUI** não verificada em terminais com menos de 80 colunas (a instabilidade no Windows vista na 5ª rodada
+  da correção simulada da DSM3, foco na barra de abas em vez da tabela, foi corrigida na 1.0.1); bloqueio por senhas e
   expiração por inatividade sem teste pela TUI; expiração da sessão por tempo sem teste automatizado em
   nenhuma interface.
 - **Dashboard só web**; a sequência de uma conversa aparece como lista (o diagrama sai pela CLI).
@@ -207,6 +212,39 @@ críticos e quase todos os demais corrigidos, cada um com teste (TEST-420 a TEST
 - **O que o avaliador não verificou:** planilha maliciosa, redirecionamento 30x, respostas lentas do
   ERP, o wheel instalado, o Docker Compose, provedores reais de LLM e os roteiros Playwright (não
   executados por ele).
+
+## Em aberto depois das rodadas 5 e 6 da correção simulada da DSM3
+
+As rodadas 5 e 6 rodaram a v0.5.0 no Windows ({doc}`../dsm3/revisao`). Os achados corrigidos na DSM3
+v0.5.1 (vínculo apagado ao mudar o cargo, id de conversa ocupado, erro interno do Orquestrador sem
+resposta, pedido em nome de outra pessoa no reinício, atraso de entrega sem validação, memória de waivers
+apagada por um pedido de competência distante, ids de memória repetidos, decisão depois do prazo sem
+registro, instalação sem terminal no Windows) também foram aplicados à versão final, com teste (TEST-450 a
+TEST-458). Conferidos contra o código da versão final, estes continuam:
+
+- **Reiniciar cria a demanda do roteiro sem dono, e a POL-13 não vale para ela.** Reiniciar é operar a
+  simulação (`PERM-SIM-OPERAR`): os pedidos do roteiro não ficam no nome de ninguém e o trace registra
+  quem reiniciou. Quem opera e aprova (a conta `avaliador`) pode reiniciar e decidir sobre o pedido que
+  disparou.
+- **Trocar o porte para micro dispensa a POL-13 quando não há empresa cadastrada.** Com empresa
+  cadastrada, trocar porte ou segmento exige `PERM-IAM-EMPRESAS` (IAM-09); sem ela, quem opera reinicia
+  com `porte: micro`, e o controle compensatório da micro deixa quem pediu decidir.
+- **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
+  cria dados); só uma fonte real (ERP, planilha, conector) limita.
+- **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
+- **Conta-fantoche do administrador**: ele não acumula ROLE-APR (IAM-06), mas cria outra conta com
+  ROLE-APR e cargo alto, sabe a senha temporária e faz o primeiro acesso dela, inclusive o cadastro do
+  segundo fator. Fica tudo na trilha; impedir exige quatro olhos na criação de contas.
+- **O barramento confere o papel, não o lado da conversa**: um agente defeituoso que inicia uma
+  consulta pode responder a ela mesma; a resposta legítima é recusada e o pedido falha (falha fechada).
+- **"Não publicar com veto pendente" é verificado depois** (INV-01 sobre o trace), não bloqueado pelo
+  barramento no envio.
+- **Avisos de comando vão para todos os que acompanham o dashboard** da empresa, não só a quem enviou;
+  a resposta HTTP do comando é `202` e o resultado da decisão aparece no fluxo e no trace (`rejected` ou
+  `decisao_nao_enviada`).
+- **Remoção física da memória não é automática**: a consulta só filtra pela retenção (e relê o arquivo,
+  para ver o que outro processo gravou); tirar do arquivo as entradas vencidas é a manutenção explícita
+  `Memoria.expirar`, que nenhum comando agenda.
 
 ## Saíram da lista na DSM4
 

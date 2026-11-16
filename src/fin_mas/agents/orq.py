@@ -15,6 +15,7 @@ efeito externo executado pelo gateway MCP com o id da aprovação, e o AG-CIN re
 mesmo id, que a política aceita uma única vez.
 """
 from fin_mas.core.agent import Agent
+from fin_mas.core.fsm import ProtocolViolation
 from fin_mas.core.message import Message
 from fin_mas.services.politica import PoliticaAprovacao
 
@@ -86,6 +87,27 @@ class Orquestrador(Agent):
         self.estado = {"solicitacoes": {}, "conversa_para_solicitacao": {}, "aprovacao_para_solicitacao": {}}
 
     # ---- entrada ----------------------------------------------------------
+    def on_error(self, msg: Message, erro: Exception) -> None:
+        """Erro ao tratar `msg` (inclusive um envio do próprio Orquestrador recusado pelo barramento):
+        além da resposta do protocolo da mensagem, a solicitação a que ela pertence recebe falha
+        explícita e libera o período. Nenhum pedido fica sem resposta (REQ-F01, MET-13)."""
+        super().on_error(msg, erro)
+        if msg.protocol == "PROT-SOL":
+            sid = msg.conversation_id
+        else:
+            ref = self.estado["conversa_para_solicitacao"].get(msg.conversation_id)
+            sid = ref[0] if ref else self.estado["aprovacao_para_solicitacao"].get(msg.conversation_id)
+        sol = self.estado["solicitacoes"].get(sid)
+        if sol is None or sol["status"] in ("falhou", "concluida"):
+            return
+        motivo = f"erro interno ao tratar {msg.performative} de {msg.sender}: {type(erro).__name__}: {erro}"
+        self.decide(sol["id"], "erro ao tratar a solicitação: falha explícita em vez de silêncio",
+                    {"conversa": msg.conversation_id, "motivo": motivo}, "abortar")
+        try:
+            self._abortar(sol, "orquestracao", motivo)
+        except ProtocolViolation:
+            sol["status"] = "falhou"  # a conversa com o solicitante já não admite resposta; o período foi liberado
+
     def on_message(self, msg: Message) -> None:
         if msg.protocol == "PROT-SOL" and msg.performative == "request":
             self._nova_solicitacao(msg)

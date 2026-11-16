@@ -158,7 +158,7 @@ def test_missing_key_is_reported_without_any_request(servidor, monkeypatch):
 
 
 def _cli(*args, **env):
-    return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, cwd=RAIZ,
+    return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, encoding="utf-8", cwd=RAIZ,
                           env={**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1", **env})
 
 

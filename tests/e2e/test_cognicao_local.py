@@ -223,6 +223,6 @@ def test_cli_runs_a_reviewed_scenario_at_local_level():
     """Terminal: `--cognicao local` liga a cognição num cenário que por padrão roda no nível básico."""
     env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1"}
     saida = subprocess.run([sys.executable, "-m", "fin_mas", "run", "--scenario", "orc_sem_cin", "--cognicao", "local"],
-                           capture_output=True, text=True, env=env, check=True, cwd=RAIZ).stdout
+                           capture_output=True, text=True, encoding="utf-8", env=env, check=True, cwd=RAIZ).stdout
     assert "HIPOTESE AG-ORC: AG-ORC-H001 causa_controle(C-3002 Marketing) confirmada" in saida
     assert "Insight: C-3002 Marketing" in saida and "Desvios atribuídos a lançamentos irregulares" in saida

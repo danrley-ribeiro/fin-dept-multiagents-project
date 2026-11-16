@@ -21,7 +21,7 @@ def cli(tmp_path):
     base.pop("FIN_MAS_SENHA_NOVA", None)
 
     def rodar(*args, **env):
-        return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, cwd=RAIZ,
+        return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, encoding="utf-8", cwd=RAIZ,
                               env={**base, **env}, stdin=subprocess.DEVNULL)
     rodar.env = base
     return rodar
@@ -76,7 +76,7 @@ def test_server_starts_from_the_installed_folder_with_the_chosen_size(cli, tmp_p
             "--porta", str(porta), FIN_MAS_SENHA_NOVA=SENHA)
     assert r.returncode == 0, r.stderr
     servidor = subprocess.Popen([sys.executable, "-m", "fin_mas", "serve", "--instalacao", str(pasta), "--ms-por-tick", "0"],
-                                cwd=RAIZ, env=cli.env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                                cwd=RAIZ, env=cli.env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8")
     try:
         for _ in range(100):
             try:

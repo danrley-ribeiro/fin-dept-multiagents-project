@@ -3501,3 +3501,111 @@
 **Resultado esperado:** com dois vetos do mesmo padrão pendentes, o segundo waiver é recusado na decisão (POL-06) e a pendência continua  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit
+:id: TEST-450
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_promoting_an_account_keeps_its_erp_person_and_removal_must_be_explicit()` — tipo *seguranca*.  
+**Resultado esperado:** mudar o cargo não apaga o vínculo com a pessoa do ERP (a POL-03 continua valendo); remover exige pedido explícito  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_squatted_conversation_id_does_not_leave_the_request_unanswered
+:id: TEST-451
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_squatted_conversation_id_does_not_leave_the_request_unanswered()` — tipo *seguranca*.  
+**Resultado esperado:** id de conversa ocupado por um participante: o sistema gera o próximo livre e o pedido é atendido  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_orchestrator_internal_error_becomes_an_explicit_failure
+:id: TEST-452
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F01
+:derived_from: PROT-SOL
+
+`test_orchestrator_internal_error_becomes_an_explicit_failure()` — tipo *robustez*.  
+**Resultado esperado:** erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_restart_never_creates_requests_in_someone_elses_name
+:id: TEST-453
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_restart_never_creates_requests_in_someone_elses_name()` — tipo *seguranca*.  
+**Resultado esperado:** reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_invalid_delivery_delay_is_rejected_and_audited
+:id: TEST-454
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S04
+:derived_from: SVC-A2A
+
+`test_invalid_delivery_delay_is_rejected_and_audited()` — tipo *robustez*.  
+**Resultado esperado:** atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_far_future_request_does_not_erase_the_waiver_memory
+:id: TEST-455
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07, REQ-S02
+:derived_from: SVC-MEM
+
+`test_far_future_request_does_not_erase_the_waiver_memory()` — tipo *seguranca*.  
+**Resultado esperado:** um pedido de 2099-12 não apaga a memória de waivers; em setembro a POL-06 ainda nega o waiver reincidente  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_retention_is_a_query_filter_and_removal_is_explicit
+:id: TEST-456
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07, REQ-P01
+:derived_from: SVC-MEM
+
+`test_retention_is_a_query_filter_and_removal_is_explicit()` — tipo *seguranca*.  
+**Resultado esperado:** a retenção filtra a consulta sem apagar; a remoção física é manutenção explícita  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_memory_ids_are_never_reused_after_expiry
+:id: TEST-457
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_memory_ids_are_never_reused_after_expiry()` — tipo *robustez*.  
+**Resultado esperado:** depois de uma expiração, a entrada nova recebe outro id, também entre processos  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears
+:id: TEST-458
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-O04
+:derived_from: SVC-POL
+
+`test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears()` — tipo *robustez*.  
+**Resultado esperado:** decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista  
+**Execução:** DSM4 (status atual: executado).
+````

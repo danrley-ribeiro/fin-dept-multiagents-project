@@ -77,9 +77,10 @@ def configurar_memoria(sub) -> None:
 
 def segredo_do_terminal(variavel: str, pergunta: str) -> str:
     from fin_mas.services.iam import AcessoNegado
+    from fin_mas.terminal import tem_terminal
     if os.environ.get(variavel):
         return os.environ[variavel]
-    if not sys.stdin.isatty():
+    if not tem_terminal():  # no Windows, o NUL responde isatty() verdadeiro
         raise AcessoNegado("IAM-08", f"defina {variavel} ou rode num terminal para digitar")
     return getpass.getpass(pergunta + ": ")
 

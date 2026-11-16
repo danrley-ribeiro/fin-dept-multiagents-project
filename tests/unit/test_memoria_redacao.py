@@ -94,6 +94,8 @@ def test_memory_retention_expires_old_entries():
     cin.gravar("waiver", "k", VALOR, competencia="2026-01", aprovacao="APR-001", fonte="-")
     assert cin.consultar("waiver", "k", competencia_atual="2026-03")
     assert cin.consultar("waiver", "k", competencia_atual="2026-04") == []
+    assert len(mem.entradas) == 1  # a consulta filtra, não apaga (6ª rodada: um pedido de 2099 apagava a memória)
+    mem.expirar("2026-04")  # a remoção física é manutenção explícita
     assert mem.entradas == []
 
 

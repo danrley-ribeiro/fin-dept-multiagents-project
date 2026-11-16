@@ -135,7 +135,7 @@ python -m fin_mas run --scenario ataque_acesso                    # 15 ataques a
 python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
-python -m pytest                                                  # 454 testes (make test)
+python -m pytest                                                  # 456 testes (make test)
 ```
 
 **Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),

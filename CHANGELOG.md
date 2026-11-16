@@ -7,6 +7,11 @@ Registro por entrega.
 Correções da 5ª e da 6ª rodadas da correção simulada, rodando a v0.5.0 no Windows (PR #5). Nenhuma regra de
 negócio nova; cada achado tem teste (TEST-157 a TEST-165).
 
+- Pacote da entrega: o README e o USO_DE_IA dentro do zip apontavam para `../../docs/...` (caminho do
+  repositório) e 21 links não abriam no pacote descompactado. O empacotador reescreve esses links para
+  `codigo/...` nas cópias do zip e inclui o enunciado (`codigo/enunciados/DSM3.txt`); os arquivos do
+  repositório não mudam. Teste do pacote em `tests/integration/test_empacotamento_dsm3.py`.
+
 - Acesso: `usuario vinculo --cargo` não apaga mais o vínculo com a pessoa do ERP (a POL-03 deixava de valer);
   campo omitido fica como está, remover exige `--sem-pessoa`/`--sem-cargo`, e pessoa vazia é recusada (IAM-05).
 - Barramento: o gerador de ids pula ids já abertos (um participante que ocupasse `APR-001` deixava o pedido sem

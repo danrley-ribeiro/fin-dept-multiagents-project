@@ -304,3 +304,12 @@ Verificação depois das correções, no Windows: 437 testes Python, `trace.py -
   registro `decisao_nao_enviada`) e o aviso dizia sempre "prazo esgotado" e vai a todos os que acompanham
   o dashboard (a mensagem passou a citar o estado do ticket; o envio a todos foi registrado como
   limitação). Por decisão dos autores, não houve nova avaliação depois desses dois ajustes.
+
+## Revisão do pacote da entrega (16/11/2026)
+
+A pedido dos autores, a IA avaliou só o conteúdo do `DSM3-entrega.zip`, como o professor o receberá. A
+suíte rodada a partir do zip passou, mas 21 links do README e do USO_DE_IA não abriam no pacote
+descompactado: eles apontavam para `../../docs/...`, o caminho do repositório, e no zip o projeto fica em
+`codigo/`. O empacotador passou a reescrever esses links nas cópias do zip e a incluir o enunciado; um
+teste monta o pacote e confere que todo link relativo abre dentro dele. Os arquivos do repositório não
+mudaram (no GitHub os links continuam valendo).

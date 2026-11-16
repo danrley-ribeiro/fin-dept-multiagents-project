@@ -7,10 +7,16 @@ Estrutura do zip:
       codigo/                        código-fonte executável, testes, modelos e documentação
 
 Só entram arquivos versionados ou não ignorados pelo git (sem .venv, node_modules, dist, saidas).
+
+No repositório, o README.md e o USO_DE_IA.md da entrega apontam para `../../docs/...` (caminho a
+partir de entregas/dsm3/). No zip eles ficam em DSM3-entrega/ e o resto do projeto em codigo/:
+as cópias que entram no zip têm os links reescritos para `codigo/...`, para abrirem no pacote
+descompactado. Os arquivos do repositório não mudam (no GitHub os links continuam valendo).
 Uso: python tools/empacotar_dsm3.py
 """
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import zipfile
@@ -26,9 +32,18 @@ CODIGO = (
     "src/", "tests/", "web/", "models/", "tools/", "assets/", "docs/",
     "pyproject.toml", "requirements-dev.txt", "requirements-lock.txt", ".env.example",
     "iniciar.ps1", "iniciar.sh", "Makefile", "README.md", "CHANGELOG.md", ".gitattributes", ".gitignore",
+    "enunciados/DSM3.txt",  # o README da entrega aponta para o enunciado
 )
 # O projeto usa bun: web/bun.lock entra (versões exatas do dashboard); o package-lock.json do npm fica fora.
 EXCLUIR = ("web/package-lock.json",)
+# Markdown da entrega cujos links relativos à raiz do repositório são reescritos para dentro do zip
+REESCREVER = ("README.md", "USO_DE_IA.md")
+LINK_RAIZ = re.compile(r"\]\(\.\./\.\./")
+
+
+def links_para_o_zip(texto: str) -> str:
+    """`[x](../../docs/a.md)` -> `[x](codigo/docs/a.md)`: no zip, o projeto fica em codigo/."""
+    return LINK_RAIZ.sub("](codigo/", texto)
 
 
 def arquivos_git() -> list[str]:
@@ -52,10 +67,15 @@ def main() -> int:
     DESTINO.unlink(missing_ok=True)
     with zipfile.ZipFile(DESTINO, "w", zipfile.ZIP_DEFLATED) as z:
         for origem, alvo in entrada:
-            z.write(RAIZ / origem, f"{PREFIXO}/{alvo}")
+            if alvo in REESCREVER:
+                texto = (RAIZ / origem).read_text(encoding="utf-8")
+                z.writestr(f"{PREFIXO}/{alvo}", links_para_o_zip(texto).encode("utf-8"))
+            else:
+                z.write(RAIZ / origem, f"{PREFIXO}/{alvo}")
 
     codigo = sum(1 for _, a in entrada if a.startswith("codigo/"))
-    print(f"{DESTINO.relative_to(RAIZ)}: {len(entrada)} arquivos "
+    destino = DESTINO.relative_to(RAIZ) if DESTINO.is_relative_to(RAIZ) else DESTINO
+    print(f"{destino}: {len(entrada)} arquivos "
           f"({len(entrada) - codigo} da entrega, {codigo} em codigo/), "
           f"{DESTINO.stat().st_size / 1024:.0f} KiB")
     return 0

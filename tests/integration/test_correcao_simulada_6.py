@@ -85,5 +85,8 @@ def test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears
     decisao = {"tipo": "decidir", "solicitacao": "SOL-001", "decisao": "corrigir", "justificativa": "reaprovar com outro gerente"}
     assert diego.post("/api/comando", decisao)[0] == 202
     sim.processar_comandos()
-    assert any("prazo esgotado" in (ev.get("erro") or "") for ev in avisos)  # quem decidiu é avisado
+    assert any("já foi encerrado (estado EXPIRADA)" in (ev.get("erro") or "") for ev in avisos)  # quem decidiu é avisado
     assert not sim.sistema.aprovador.pendentes
+    recusa = [r for r in sim.registros if r["kind"] == "decisao_nao_enviada"]  # e o trace diz que não valeu
+    assert len(recusa) == 1 and recusa[0]["ator"] == "diego" and recusa[0]["ticket"] == ticket_id
+    assert "EXPIRADA" in recusa[0]["motivo"]

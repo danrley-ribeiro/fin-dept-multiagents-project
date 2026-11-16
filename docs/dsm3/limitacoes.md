@@ -178,6 +178,11 @@ estes, registrados por decisão dos autores:
   (INV-01) sobre o trace, não pelo barramento no envio. O próprio Orquestrador, se defeituoso,
   conseguiria responder "publicado" com o veto pendente; o INV-01 acusa. Complementa a "raiz de
   confiança em processo" acima.
+- **Avisos de comando vão para todos os que acompanham o dashboard.** Erros de comando (decisão
+  recusada ou não enviada, planilha inválida, comando malformado) são emitidos no fluxo ao vivo da
+  simulação, que todos com `PERM-SIM-VER` recebem, e não só a quem enviou o comando. A resposta HTTP
+  do comando é `202` (aceito para processamento): o resultado da decisão aparece no fluxo e no trace
+  (`rejected` ou `decisao_nao_enviada`), não na resposta.
 - **Remoção física da memória não é automática.** Para que um pedido não apague o histórico, a
   consulta só filtra pela retenção; tirar do arquivo as entradas vencidas exige a manutenção
   explícita (`Memoria.expirar`), que nenhum comando agenda ainda.

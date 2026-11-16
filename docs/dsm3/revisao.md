@@ -225,6 +225,16 @@ anteriores não exploraram (governança da memória e troca de porte), não de r
 | 6: "não publicar com veto pendente" é verificado depois (INV-01), não bloqueado no envio (menor) | registrado em {doc}`limitacoes` | — |
 | 8: POL-04 léxica | já registrado | — |
 
+**Recorreção (mesmo avaliador da 6ª rodada):** rodou de novo os próprios scripts sem alterá-los,
+confirmou os achados 1, 4 e 7 corrigidos, sem regressão, e os declarados (2, 3, 5 e 6) descritos com
+precisão. Nota: **8,4** (comunicação 8,5; coordenação 8,5; corretude 8,0; testes 8,0; documentação
+9,0). Achados novos, ambos menores:
+
+| Achado | Tratamento | Teste |
+|---|---|---|
+| 9: a decisão que não chegava ao Approval Gate (ticket encerrado, opção não oferecida) deixava no trace só o comando `decidir`, como se tivesse valido | o trace ganha o registro `decisao_nao_enviada` (quem, solicitação, ticket e motivo), também filtrável na auditoria do dashboard | TEST-165 |
+| 10: o aviso da decisão vencida dizia sempre "prazo esgotado" e vai a todos os que acompanham o dashboard | a mensagem cita o estado real do ticket; o envio do aviso a todos ficou registrado em {doc}`limitacoes` | TEST-165 |
+
 ## Ressalva sobre a comparação experimental
 
 O professor observou que o baseline centralizado foi construído **sem** veto e correção, e

@@ -1974,6 +1974,6 @@
 :derived_from: SVC-POL
 
 `test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears()` — tipo *robustez*.  
-**Resultado esperado:** decidir depois do prazo avisa quem decidiu, e a pendência vencida sai da lista  
+**Resultado esperado:** decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista  
 **Execução:** DSM3 (status atual: executado).
 ````

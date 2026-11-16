@@ -298,3 +298,9 @@ Verificação depois das correções, no Windows: 437 testes Python, `trace.py -
   Playwright; âncora do ataque e comparação em 10 seeds inalteradas. Um teste do grupo foi adaptado:
   a decisão atrasada pelo dashboard agora não é enviada (e avisa quem decidiu); o descarte pelo
   barramento continua testado com o envio direto.
+- **Recorreção pelo mesmo avaliador:** **8,4** (comunicação 8,5; coordenação 8,5; corretude 8,0; testes
+  8,0; documentação 9,0). Confirmou os três achados corrigidos, sem regressão, e as limitações descritas
+  com precisão. Achou dois pontos menores: a decisão não enviada não ficava registrada no trace (corrigido:
+  registro `decisao_nao_enviada`) e o aviso dizia sempre "prazo esgotado" e vai a todos os que acompanham
+  o dashboard (a mensagem passou a citar o estado do ticket; o envio a todos foi registrado como
+  limitação). Por decisão dos autores, não houve nova avaliação depois desses dois ajustes.

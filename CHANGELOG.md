@@ -18,6 +18,9 @@ negócio nova; cada achado tem teste (TEST-157 a TEST-165).
   desligava a POL-06); a remoção física é `Memoria.expirar`; ids de memória nunca se repetem.
 - Windows: `fin-mas instalar` sem terminal pede `FIN_MAS_SENHA_NOVA` em vez de quebrar com `EOFError` (o `NUL`
   respondia `isatty()`); `trace.py` e o stderr da CLI em UTF-8; testes da CLI leem a saída em UTF-8.
+- TUI: ao abrir o console, o foco vai para a tabela da aba ativa (`AUTO_FOCUS`), não para a barra de abas;
+  no Windows isso falhava em parte das execuções. Arquivos selados: no Windows, a troca atômica espera até
+  cerca de 2 s por um leitor que segure o arquivo (antes 0,25 s).
 - CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
 - `build/` (diretório do `make wheel`) saiu do controle de versão: tinha entrado por engano no merge da v0.5.0.
 - Limitações novas declaradas em `docs/dsm3/limitacoes.md`. Fora a versão no registro `meta` e os hashes que

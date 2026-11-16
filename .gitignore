@@ -75,3 +75,6 @@ htmlcov/
 
 # --- Cópias de trabalho de agentes ---
 .claude/worktrees/
+
+# build do wheel (tools/empacotar_wheel.py): gerado, nunca versionado
+build/

@@ -168,12 +168,12 @@ class ArquivoSelado:
             temporario.write_text(json.dumps({"versao": self.versao, "contador": contador, "dados": rascunho,
                                               "selo": self._selo(contador, rascunho)},
                                              ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
-            for tentativa in range(5):  # no Windows o destino pode estar aberto por um leitor por um instante
+            for tentativa in range(40):  # no Windows o destino pode estar aberto por um leitor (até cerca de 2 s)
                 try:
                     os.replace(temporario, self.caminho)
                     break
                 except PermissionError:
-                    if tentativa == 4:
+                    if tentativa == 39:
                         raise
                     time.sleep(0.05)
             estado = _estado(self.rotulo, self.caminho, "contador")

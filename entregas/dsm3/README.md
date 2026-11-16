@@ -28,6 +28,10 @@ A versão 0.5.0 acrescenta:
 - **implantação local** (`fin-mas instalar`, `doctor`) e **invariantes** de segurança conferidos
   sobre qualquer trace.
 
+A versão 0.5.1 corrige o que a 5ª e a 6ª rodadas da correção simulada acharam rodando a v0.5.0
+no Windows (TEST-157 a TEST-165, detalhes no `CHANGELOG.md` e em
+[`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md)) e passa a rodar a CI em Linux, macOS e Windows.
+
 A resposta a cada ponto do feedback está em [`docs/dsm3/revisao.md`](../../docs/dsm3/revisao.md).
 
 ## Conteúdo da entrega
@@ -88,7 +92,7 @@ Cobertura da suíte pytest (`make cobertura`): 87% de 7.401 instruções; subpro
 # no Windows, troque `python` por `.venv\Scripts\python` (ou ative o ambiente com .venv\Scripts\Activate.ps1)
 python -m fin_mas run --scenario ataque_decisao_forjada --trace ataque.jsonl
 #   14 ataques ao barramento (os 4 do feedback e outros 10 da mesma família): 0 aceitos; o ticket expira, nada é publicado
-python -m fin_mas verificar ataque.jsonl --ancora 2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e
+python -m fin_mas verificar ataque.jsonl --ancora 0708373769e1b329fe0a3e51dd83e8852dc82aaf3d37e3c3f85aa50c4173f488
 #   a âncora (hash final da cadeia) é reproduzível: confere em qualquer máquina, sem a chave do autor;
 #   altere, remova ou corte uma linha e o comando acusa (saída 3)
 python -m fin_mas run --scenario ataque_acesso

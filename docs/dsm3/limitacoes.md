@@ -69,10 +69,10 @@ entrega em um tick e o código de saída de `verificar --ancora` sobre trace sem
 
 ## Interfaces
 
-- **TUI** instável no Windows: na 5ª rodada da correção simulada, 2 de 4 execuções de `tests/tui`
-  tiveram uma falha, cada vez num teste diferente, sempre por foco nulo do widget (corrida do
-  Textual no console do Windows; no Mac e no Linux a suíte passa). A TUI também não foi verificada
-  em terminais com menos de 80 colunas; o bloqueio por
+- **TUI** não verificada em terminais com menos de 80 colunas. (Na 5ª rodada da correção simulada,
+  2 de 4 execuções de `tests/tui` no Windows falharam porque o foco caía na barra de abas e não na
+  tabela; corrigido na v0.5.1 com `AUTO_FOCUS` na tela do console, e 6 execuções seguidas da suíte
+  no Windows passaram.) O bloqueio por
   cinco senhas e a expiração por inatividade não têm teste pela TUI. O bloqueio tem teste pelo
   servidor e pelo Playwright; a expiração da sessão por tempo (8 horas ou 15 minutos sem uso)
   não tem teste automatizado em nenhuma interface: as revogações testadas são explícitas.

@@ -17,8 +17,12 @@ não tinha. Nenhum resultado do experimento muda: o experimento inteiro, rodado 
 - Memória: a retenção é filtro da consulta e não apaga (um pedido de `2099-12` apagava o waiver e desligava a
   POL-06); a consulta relê o arquivo dentro da trava, sem gravar, para ver o que outro processo gravou (antes
   isso vinha do `expirar` chamado na consulta); ids nunca reaproveitados, com o contador relido dentro da trava.
-- TUI com o foco inicial na tabela da aba ativa (`AUTO_FOCUS`); arquivos selados e a trava entre processos
-  robustos à concorrência no Windows (ver a v0.5.1 abaixo).
+- TUI com o foco inicial na tabela da aba ativa (`AUTO_FOCUS`), como na v0.5.1.
+- Arquivos selados no Windows, com processos simultâneos (`test_concurrent_writers_do_not_lose_updates` falhava
+  em cerca de 1 de 20 execuções): além da espera de até 2 s na troca atômica (v0.5.1), ler ou consultar o
+  arquivo no instante da troca não o marca mais como ilegível (o cadastro ficava "comprometido"), e a trava de
+  outro processo sendo apagada conta como ocupada, em vez de derrubar o comando. Achado depois da entrega da
+  v0.5.1; vale a partir desta versão.
 - Windows: `tem_terminal()` também na senha do `cli_avancado` e na pergunta do segmento do `instalar`;
   stderr da CLI e `trace.py` em UTF-8. Quatro testes que só passavam em POSIX passam no Windows: modo 0600
   conferido só fora do Windows (lá protege a ACL da pasta), link simbólico opcional sem o privilégio, e o
@@ -87,11 +91,8 @@ negócio nova; cada achado tem teste (TEST-157 a TEST-165).
 - Windows: `fin-mas instalar` sem terminal pede `FIN_MAS_SENHA_NOVA` em vez de quebrar com `EOFError` (o `NUL`
   respondia `isatty()`); `trace.py` e o stderr da CLI em UTF-8; testes da CLI leem a saída em UTF-8.
 - TUI: ao abrir o console, o foco vai para a tabela da aba ativa (`AUTO_FOCUS`), não para a barra de abas;
-  no Windows isso falhava em parte das execuções.
-- Arquivos selados no Windows, com processos simultâneos (`test_concurrent_writers_do_not_lose_updates` falhava
-  em cerca de 1 de 20 execuções): a troca atômica espera até cerca de 2 s por um leitor (antes 0,25 s); ler ou
-  consultar o arquivo no instante da troca não o marca mais como ilegível (o cadastro ficava "comprometido");
-  a trava de outro processo sendo apagada conta como ocupada, em vez de derrubar o comando.
+  no Windows isso falhava em parte das execuções. Arquivos selados: no Windows, a troca atômica espera até
+  cerca de 2 s por um leitor que segure o arquivo (antes 0,25 s).
 - CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
 - `build/` (diretório do `make wheel`) saiu do controle de versão: tinha entrado por engano no merge da v0.5.0.
 - Limitações novas declaradas em `docs/dsm3/limitacoes.md`. Fora a versão no registro `meta` e os hashes que

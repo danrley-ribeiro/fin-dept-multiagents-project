@@ -306,13 +306,13 @@ def test_cli_understands_tests_and_serves_the_demo_erp(tmp_path):
     env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1"}
     arquivo = gerar_planilha_fora_do_modelo(tmp_path / "casa.xlsx", Dataset(seed=7, porte="pequena"))
     saida = subprocess.run([sys.executable, "-m", "fin_mas", "fontes", "entender", str(arquivo), "--json"],
-                           capture_output=True, text=True, env=env, timeout=120, check=True).stdout
+                           capture_output=True, text=True, encoding="utf-8", env=env, timeout=120, check=True).stdout
     r = json.loads(saida)
     assert r["sugestao"]["mapeamento"]["abas"]["Lancamentos"]["recurso"] == "Lançamentos contábeis"
     contrato = tmp_path / "contrato.json"
     contrato.write_text(json.dumps(openapi()), encoding="utf-8")
     texto = subprocess.run([sys.executable, "-m", "fin_mas", "fontes", "entender", str(contrato)], capture_output=True,
-                           text=True, env=env, timeout=120, check=True).stdout
+                           text=True, encoding="utf-8", env=env, timeout=120, check=True).stdout
     assert "Lancamentos.valor" in texto and "amount" in texto
     import socket
     with socket.socket() as s:
@@ -320,17 +320,17 @@ def test_cli_understands_tests_and_serves_the_demo_erp(tmp_path):
         porta = s.getsockname()[1]
     token = "tok-cli-ABCDEFGHIJKLMNOP"
     erp = subprocess.Popen([sys.executable, "-m", "fin_mas", "erp-demo", "--porta", str(porta), "--token", token],
-                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8", env=env)
     try:
         assert "ERP de demonstração em" in erp.stdout.readline()
         teste = subprocess.run([sys.executable, "-m", "fin_mas", "fontes", "testar", f"http://127.0.0.1:{porta}",
-                                "--token-env", "ERP_TOKEN"], capture_output=True, text=True, timeout=120,
+                                "--token-env", "ERP_TOKEN"], capture_output=True, text=True, encoding="utf-8", timeout=120,
                                env={**env, "ERP_TOKEN": token})
         assert teste.returncode == 0, teste.stdout + teste.stderr
         assert "[ok] contrato" in teste.stdout and "[ok] recurso journal-entries" in teste.stdout
         assert token not in teste.stdout + teste.stderr
         ruim = subprocess.run([sys.executable, "-m", "fin_mas", "fontes", "testar", f"http://127.0.0.1:{porta}",
-                               "--token-env", "ERP_TOKEN"], capture_output=True, text=True, timeout=120,
+                               "--token-env", "ERP_TOKEN"], capture_output=True, text=True, encoding="utf-8", timeout=120,
                               env={**env, "ERP_TOKEN": "errado-0123456789"})
         assert ruim.returncode == 1 and "credencial recusada" in ruim.stdout
     finally:

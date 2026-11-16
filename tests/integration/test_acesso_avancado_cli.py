@@ -38,7 +38,7 @@ def cli(tmp_path):
         if segredo:
             env["FIN_MAS_SEGREDO"] = segredo
         comando = [sys.executable, "-m", "fin_mas", *prefixo, *(["--como", como] if como else []), *args]
-        return subprocess.run(comando, capture_output=True, text=True, cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
+        return subprocess.run(comando, capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
     rodar.pasta, rodar.env, rodar.tmp = Path(pasta), base, tmp_path
     assert rodar("demo").returncode == 0
     return rodar
@@ -101,7 +101,7 @@ def test_vault_keeps_llm_keys_without_ever_showing_them(cli):
         "from fin_mas.services import provedores; from fin_mas.services.iam import Acesso;"
         f"provedores.usar_cofre(Acesso({str(cli.pasta)!r}).cofre);"
         "print([p['tem_chave'] for p in provedores.situacao() if p['id'] == 'openai'][0])")],
-        capture_output=True, text=True, cwd=RAIZ, env={**cli.env, "OPENAI_API_KEY": ""})
+        capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env={**cli.env, "OPENAI_API_KEY": ""})
     assert provedores.stdout.strip() == "True"  # a chave do cofre vale quando o ambiente não tem
     assert cli("segredo", "remover", "llm:OPENAI_API_KEY", como="admin").returncode == 0
     assert json.loads(cli("--json", "segredo", "listar", como="admin").stdout) == []
@@ -157,7 +157,7 @@ def test_memory_copied_to_another_folder_is_adopted_under_permission(cli):
         "import sys; from fin_mas.services.audit import AuditLog; from fin_mas.services.memoria import Memoria;"
         "m = Memoria(AuditLog(), lambda: 0, caminho=sys.argv[1]); print(m.integra, len(m.entradas), m.comprometida)"),
         str(b)]
-    antes = subprocess.run(verificar, capture_output=True, text=True, cwd=RAIZ, env=cli.env).stdout
+    antes = subprocess.run(verificar, capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=cli.env).stdout
     assert antes.startswith("False 0") and "memoria adotar" in antes
     negado = cli("adotar", str(b), como="operador", prefixo=("memoria", "--acesso", str(cli.pasta)))
     assert negado.returncode == 3 and "PERM-MEM-ADOTAR" in negado.stderr
@@ -168,9 +168,9 @@ def test_memory_copied_to_another_folder_is_adopted_under_permission(cli):
     assert recusada.returncode == 3 and "nenhuma chave" in recusada.stderr
     adotar = cli("adotar", str(b), como="admin", prefixo=("memoria", "--acesso", str(cli.pasta)))
     assert adotar.returncode == 0 and "outra pasta" in adotar.stdout
-    depois = subprocess.run(verificar, capture_output=True, text=True, cwd=RAIZ, env=cli.env).stdout
+    depois = subprocess.run(verificar, capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=cli.env).stdout
     assert depois.startswith("True 1")
-    original = subprocess.run(verificar[:-1] + [str(a)], capture_output=True, text=True, cwd=RAIZ, env=cli.env).stdout
+    original = subprocess.run(verificar[:-1] + [str(a)], capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=cli.env).stdout
     assert original.startswith("True 1")  # a origem segue íntegra
     trilha = (cli.pasta / "trilha.jsonl").read_text(encoding="utf-8")
     assert '"memoria_adotada"' in trilha
@@ -184,7 +184,7 @@ def test_two_runs_writing_the_same_memory_at_once_keep_both_entries(cli):
 
     def rodar(competencia):
         return subprocess.run([sys.executable, "-c", roteiro, competencia, str(arquivo)], capture_output=True,
-                              text=True, cwd=RAIZ, env=cli.env)
+                              text=True, encoding="utf-8", cwd=RAIZ, env=cli.env)
     with ThreadPoolExecutor(4) as ex:
         resultados = list(ex.map(rodar, ["2026-05", "2026-06", "2026-07", "2026-08"]))
     assert all(r.returncode == 0 for r in resultados), [r.stderr[-400:] for r in resultados]
@@ -194,5 +194,5 @@ def test_two_runs_writing_the_same_memory_at_once_keep_both_entries(cli):
     verificar = subprocess.run([sys.executable, "-c", (
         "import sys; from fin_mas.services.audit import AuditLog; from fin_mas.services.memoria import Memoria;"
         "print(Memoria(AuditLog(), lambda: 0, caminho=sys.argv[1]).integra)"), str(arquivo)],
-        capture_output=True, text=True, cwd=RAIZ, env=cli.env)
+        capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=cli.env)
     assert verificar.stdout.strip() == "True"

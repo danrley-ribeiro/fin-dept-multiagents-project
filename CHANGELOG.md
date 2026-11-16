@@ -24,7 +24,10 @@ não tinha. Nenhum resultado do experimento muda: o experimento inteiro, rodado 
   conferido só fora do Windows (lá protege a ACL da pasta), link simbólico opcional sem o privilégio, e o
   cenário `conector_fora_do_ar` com `tempo_limite` de 5 s (no Windows a recusa leva cerca de 2 s e virava
   "tempo esgotado").
-- CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
+- CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual. Para isso: os testes da DSM4 que leem
+  a saída da CLI passam a decodificá-la em UTF-8 (22 chamadas; no Windows sem `PYTHONUTF8` os acentos chegavam
+  trocados) e o roteiro Playwright das fontes sobe o ERP de demonstração numa porta livre, com a saída do processo
+  no erro se ele não responder (no macOS da CI, a porta fixa 8791 não respondeu).
 - Testes TEST-450 a TEST-458 (os TEST-157 a TEST-165 da DSM3); limitações que continuam em
   `docs/dsm4/limitacoes.md`. `build/` saiu do controle de versão (tinha entrado por engano no merge da v0.5.0).
 

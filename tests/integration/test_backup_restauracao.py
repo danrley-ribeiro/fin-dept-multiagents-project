@@ -28,7 +28,7 @@ def cli(tmp_path):
     def rodar(*args, chaves=None, codigo=None):
         env = {**base, **({"FIN_MAS_DIR_CHAVES": str(chaves)} if chaves else {})}
         argv = ["-c", codigo, *args] if codigo else ["-m", "fin_mas", *args]
-        return subprocess.run([sys.executable, *argv], capture_output=True, text=True, cwd=RAIZ, env=env,
+        return subprocess.run([sys.executable, *argv], capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env,
                               stdin=subprocess.DEVNULL)
     return rodar
 

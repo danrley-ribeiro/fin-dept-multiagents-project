@@ -26,7 +26,7 @@ ARQUIVOS = ("execucoes.csv", "tempo_parede.csv", "resumo.json", "resumo.md", "te
 def _experimento(pasta, semente_de_hash):
     env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1", "PYTHONHASHSEED": semente_de_hash}
     return subprocess.run([sys.executable, "-m", "fin_mas", "experimento", "--rapido", "--out", str(pasta)],
-                          capture_output=True, text=True, cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
+                          capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
 
 
 @pytest.fixture(scope="module")

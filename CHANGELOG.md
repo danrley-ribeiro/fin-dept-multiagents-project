@@ -2,6 +2,28 @@
 
 Registro por entrega.
 
+## DSM3 v0.5.1 (16/11/2026)
+
+Correções da 5ª e da 6ª rodadas da correção simulada, rodando a v0.5.0 no Windows (PR #5). Nenhuma regra de
+negócio nova; cada achado tem teste (TEST-157 a TEST-165).
+
+- Acesso: `usuario vinculo --cargo` não apaga mais o vínculo com a pessoa do ERP (a POL-03 deixava de valer);
+  campo omitido fica como está, remover exige `--sem-pessoa`/`--sem-cargo`, e pessoa vazia é recusada (IAM-05).
+- Barramento: o gerador de ids pula ids já abertos (um participante que ocupasse `APR-001` deixava o pedido sem
+  resposta); o atraso de entrega é validado (inteiro de 1 tick ou mais) e a recusa é auditada.
+- Orquestrador: qualquer erro ao tratar uma mensagem vira `failure` para quem pediu e libera o período.
+- Dashboard: o reinício não cria pedidos em nome de outra pessoa e o trace registra quem reiniciou; decisão
+  depois do prazo é avisada e gravada como `decisao_nao_enviada`; pendência vencida sai da lista.
+- Memória: a retenção é filtro da consulta e não apaga mais (um pedido de `2099-12` apagava o waiver e
+  desligava a POL-06); a remoção física é `Memoria.expirar`; ids de memória nunca se repetem.
+- Windows: `fin-mas instalar` sem terminal pede `FIN_MAS_SENHA_NOVA` em vez de quebrar com `EOFError` (o `NUL`
+  respondia `isatty()`); `trace.py` e o stderr da CLI em UTF-8; testes da CLI leem a saída em UTF-8.
+- CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
+- `build/` (diretório do `make wheel`) saiu do controle de versão: tinha entrado por engano no merge da v0.5.0.
+- Limitações novas declaradas em `docs/dsm3/limitacoes.md`. Fora a versão no registro `meta` e os hashes que
+  dependem dela (a âncora do `ataque_decisao_forjada` passa a `0708373769e1…`), traces e comparação em 10 seeds
+  iguais aos da v0.5.0.
+
 ## DSM3 v0.5.0 (12/11/2026)
 
 - Cognição assistida (ADR-008, NORM-11, REQ-F08): proposta → validação (cinco regras) → hipótese → ação

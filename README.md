@@ -86,7 +86,7 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | **DSM1** — Cenário, requisitos e modelagem | [`entregas/dsm1/`](entregas/dsm1/README.md) | ✅ concluída |
 | **DSM1 v2** — revisão pós-feedback | [`entregas/dsm1/documentacao/main-v2.pdf`](entregas/dsm1/documentacao/main-v2.pdf) | ✅ concluída |
 | **DSM2** — Arquitetura e protótipo (revisados após o feedback) | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ concluída (prazo 31/10) |
-| **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.0) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
+| **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.1) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
 | **DSM4** — Experimentação, documentação e entrega final | — | pendente (até 02/12) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
@@ -121,8 +121,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM3, v0.5.0): **21/21 requisitos (100%) com cadeia completa**, 315 objetos rastreados,
-156 testes modelados (156 **executados**), 18 métricas, 0 erros.
+Situação atual (DSM3, v0.5.1): **21/21 requisitos (100%) com cadeia completa**, 324 objetos rastreados,
+165 testes modelados (165 **executados**), 18 métricas, 0 erros.
 
 ## Como executar o protótipo (DSM3)
 
@@ -135,7 +135,7 @@ python -m fin_mas run --scenario ataque_acesso                    # 15 ataques a
 python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
-python -m pytest                                                  # 437 testes (make test)
+python -m pytest                                                  # 454 testes (make test)
 ```
 
 **Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),

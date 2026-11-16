@@ -136,7 +136,11 @@ print(i["segredo"])
     r = cli(str(instalada), codigo=preparar)
     assert r.returncode == 0, r.stderr
     segredo = r.stdout.strip().splitlines()[-1]
-    os.symlink(tmp_path / "fora.txt", instalada / "atalho.txt")
+    try:
+        os.symlink(tmp_path / "fora.txt", instalada / "atalho.txt")
+    except OSError:  # Windows sem o privilégio de criar links (modo de desenvolvedor): não há link a seguir
+        if os.name != "nt":
+            raise
     (tmp_path / "fora.txt").write_text("ARQUIVO-DE-FORA")
     zip_, chaves_zip = tmp_path / "b.zip", tmp_path / "b.chaves.zip"
     r = cli("backup", "--pasta", str(instalada), "--para", str(zip_), "--chaves-para", str(chaves_zip))

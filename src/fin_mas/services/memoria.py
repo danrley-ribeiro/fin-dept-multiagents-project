@@ -148,6 +148,7 @@ class Memoria:
         self._acessos: dict[str, str] = {}  # agente -> token da visão emitida
         self.comprometida: str | None = None  # motivo, quando a integridade do arquivo não pôde ser garantida
         self.contador = 0
+        self._ultimo_id = 0  # maior número de MEM-… já emitido neste processo (ids nunca são reaproveitados)
         self._chave = self._carregar_chave()
         self._arquivo = _ArquivoMemoria(self.caminho, self._chave) if self.caminho else None
         if self.caminho:
@@ -213,7 +214,13 @@ class Memoria:
                                  (tipo, chave, competencia, aprovacao)), None)
                 if repetida:
                     return repetida
-                proximo = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0) + 1
+                # nunca reaproveita um id: além do maior existente, o maior já emitido neste processo e o
+                # contador selado do arquivo, relido dentro da trava (cada gravação o incrementa, inclusive
+                # a de outro processo), que sobrevive a entradas expiradas
+                existentes = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0)
+                selado = self._arquivo._contador if self._arquivo is not None else self.contador
+                proximo = max(existentes, self._ultimo_id, selado) + 1
+                self._ultimo_id = proximo
                 entrada = {
                     "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
                     "competencia": competencia, "agente": agente,
@@ -234,22 +241,40 @@ class Memoria:
     # ---- leitura --------------------------------------------------------------------
     def consultar(self, agente: str, tipo: str, chave: str | None = None, *, competencia_atual: str,
                   cid: str | None = None, token: str | None = None) -> list[dict]:
-        """Entradas do tipo (e chave) de competências anteriores, dentro da retenção."""
+        """Entradas do tipo (e chave) de competências anteriores, dentro da retenção.
+
+        A retenção é um filtro desta consulta: nada é apagado aqui. Antes, a consulta apagava do arquivo
+        tudo o que estivesse fora da janela da competência *pedida*; um pedido de `2099-12` apagava o
+        waiver de 2026 e, com ele, a POL-06. A remoção física é a manutenção explícita `expirar`.
+        """
         if not self._autentico(agente, token) or tipo not in ACESSO or agente not in ACESSO[tipo][1]:
             self._registrar(cid, "negada", agente=agente, tipo=tipo, chave=chave)
             return []
+        if self._arquivo is not None and not self.comprometida:
+            # relê o arquivo dentro da trava, sem gravar (nada muda: `_SemMudanca`): o que outro processo gravou
+            # entra na consulta. Antes isso vinha de carona no `expirar` chamado aqui, que também apagava; sem a
+            # releitura, um waiver gravado por outro processo não seria visto e a POL-06 deixaria passar a
+            # reincidência. Fora da trava, no Windows, a leitura segurava o arquivo aberto e o `os.replace` de
+            # quem gravava falhava (uma entrada perdida com quatro execuções simultâneas)
+            try:
+                with self._sob_trava():
+                    pass
+            except MemoriaRecusada:
+                pass  # comprometida (a consulta responde "indisponível" abaixo) ou ocupada: usa o que já tem
         if self.comprometida:
             self._registrar(cid, "indisponivel", agente=agente, tipo=tipo, motivo=self.comprometida)
             return []
-        self.expirar(competencia_atual, cid)
+        atual = _meses(competencia_atual)
         achadas = [e for e in self.entradas if e["tipo"] == tipo and (chave is None or e["chave"] == chave)
-                   and _meses(e["competencia"]) < _meses(competencia_atual)]
+                   and atual - self.retencao <= _meses(e["competencia"]) < atual]
         if achadas:
             self._registrar(cid, "consultada", agente=agente, tipo=tipo, chave=chave,
                             memorias=[e["id"] for e in achadas])
         return achadas
 
     def expirar(self, competencia_atual: str, cid: str | None = None) -> None:
+        """Manutenção: remove do arquivo as entradas fora da retenção em relação a `competencia_atual`.
+        Não é chamada por consulta nem por pedido (ver `consultar`)."""
         limite = _meses(competencia_atual) - self.retencao
         vencidas = []
         try:

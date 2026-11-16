@@ -68,7 +68,7 @@ class Simulacao:
         e = self.acesso.empresas().get(self.empresa) or {}
         return {k: e[k] for k in ("porte", "segmento") if e.get(k)}
 
-    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", segmento=None) -> None:
+    def _montar(self, cenario, seed, interativo, porte=None, fonte="sintetico", segmento=None, ator=None) -> None:
         sc = CENARIOS[cenario]
         cadastro = self.cadastro_da_empresa()  # empresa cadastrada: o porte (alçadas, dupla aprovação) é o do cadastro
         porte, segmento = porte or cadastro.get("porte"), segmento or cadastro.get("segmento")
@@ -77,10 +77,16 @@ class Simulacao:
         if fonte == "conector" and self.fabrica_fonte is None:
             raise LookupError("nenhuma fonte de conector ativada (aba Fontes de dados)")
         ambiente = self.fabrica_fonte() if fonte == "conector" else None
+        extra = {}
+        if ator is not None:
+            # reinício pelo dashboard: os pedidos do roteiro do cenário não ficam no nome de ninguém (nunca no de
+            # outra pessoa, nem no de quem reiniciou, que pode só operar ou precisar decidir); o trace registra
+            # quem reiniciou. Pedido no nome de uma pessoa é o que ela faz por `solicitar`.
+            extra["solicitante"] = None
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
                                llm=llm or None, segmento=segmento, memoria=self.memoria,
-                               ambiente=ambiente)  # dados inválidos levantam antes de trocar o estado
+                               ambiente=ambiente, **extra)  # dados inválidos levantam antes de trocar o estado
         sistema.politica.empresa = self.empresa
         anterior = getattr(getattr(self, "sistema", None), "ambiente", None)
         if anterior is not None and hasattr(anterior, "fechar"):
@@ -124,6 +130,16 @@ class Simulacao:
             raise ComandoInvalido(f"agente desconhecido: {cmd.get('agente')!r}")
         self.comandos.put((cmd, ator))
 
+    def _decisao_nao_enviada(self, ator, cmd, motivo: str, ticket=None) -> None:
+        """Decisão humana que não chegou ao Approval Gate (ticket encerrado, opção não oferecida, sem
+        pendência): fica registrada no trace como não enviada, além do aviso no dashboard. Sem isso, o
+        trace mostrava só o comando `decidir` e parecia que a decisão tinha sido tomada."""
+        bus = self.sistema.bus
+        bus.audit.record(bus.now, "decisao_nao_enviada", ator=getattr(ator, "usuario", None),
+                         solicitacao=cmd.get("solicitacao"), decisao=cmd.get("decisao"), ticket=ticket, motivo=motivo)
+        self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                      "erro": f"decisão não enviada: {motivo}"})
+
     def _aplicar(self, cmd: dict, ator=None) -> None:
         tipo, bus = cmd["tipo"], self.sistema.bus
         if ator is not None and tipo != "reiniciar":  # quem agiu fica no trace (o reinício registra depois de montar)
@@ -154,6 +170,14 @@ class Simulacao:
                 return
             self.config_llm[cmd["agente"]] = {**self.config_llm.get(cmd["agente"], {}), **campos}
         elif tipo == "decidir":
+            pendente = self.sistema.aprovador.pendentes.get(cmd["solicitacao"])
+            if pendente is not None and bus.conversations[pendente.conversation_id].is_final:
+                self.sistema.aprovador.pendentes.pop(cmd["solicitacao"], None)
+                conversa = bus.conversations[pendente.conversation_id]
+                self._decisao_nao_enviada(ator, cmd, f"o ticket {pendente.conversation_id} já foi encerrado "
+                                                     f"(estado {conversa.state}); a decisão não tem efeito",
+                                          ticket=pendente.conversation_id)
+                return
             try:
                 enviada = self.sistema.aprovador.decidir(cmd["solicitacao"], cmd["decisao"],
                                                          cmd.get("justificativa"), ator, cmd.get("delegacao"))
@@ -162,9 +186,8 @@ class Simulacao:
                               "erro": f"decisão recusada: {erro} (a pendência continua aberta)"})
                 return
             if not enviada:
-                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
-                              "erro": "decisão não enviada: não há pendência para essa solicitação "
-                                      "ou a opção não foi oferecida pela política"})
+                self._decisao_nao_enviada(ator, cmd, "não há pendência para essa solicitação "
+                                                     "ou a opção não foi oferecida pela política")
                 return
         elif tipo == "reiniciar":
             anterior = self.cognicao
@@ -173,7 +196,7 @@ class Simulacao:
             try:
                 self._montar(cmd.get("cenario", self.cenario.nome), cmd.get("seed"),
                              cmd.get("interativo", self.interativo), cmd.get("porte"), cmd.get("fonte", "sintetico"),
-                             cmd.get("segmento"))
+                             cmd.get("segmento"), ator)
             except (ValueError, LookupError) as erro:  # planilha inválida: mantém a simulação atual
                 self.cognicao = anterior
                 self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
@@ -267,7 +290,8 @@ class Simulacao:
                                     "contraparte": c.counterpart, "final": c.is_final}
                               for cid, c in s.bus.conversations.items()},
                 "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content}
-                                      for sid, m in s.aprovador.pendentes.items()],
+                                      for sid, m in s.aprovador.pendentes.items()
+                                      if not s.bus.conversations[m.conversation_id].is_final],  # vencidas saem
                 "solicitacoes": {sid: (lambda r: None if r is None else {"performative": r.performative,
                                                                          "content": r.content})(
                     s.usuario.resposta(sid)) for sid in self.sids},

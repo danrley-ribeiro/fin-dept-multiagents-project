@@ -28,7 +28,7 @@ def cli(tmp_path):
     def rodar(*args, chaves=None, codigo=None):
         env = {**base, **({"FIN_MAS_DIR_CHAVES": str(chaves)} if chaves else {})}
         argv = ["-c", codigo, *args] if codigo else ["-m", "fin_mas", *args]
-        return subprocess.run([sys.executable, *argv], capture_output=True, text=True, cwd=RAIZ, env=env,
+        return subprocess.run([sys.executable, *argv], capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env,
                               stdin=subprocess.DEVNULL)
     return rodar
 
@@ -58,7 +58,9 @@ def test_backup_restores_into_another_folder_on_another_machine(cli, instalada, 
     zip_, chaves_zip = tmp_path / "b.zip", tmp_path / "b.chaves.zip"
     r = cli("backup", "--pasta", str(instalada), "--para", str(zip_), "--chaves-para", str(chaves_zip))
     assert r.returncode == 0, r.stderr
-    assert "com chave de integridade" in r.stdout and oct(chaves_zip.stat().st_mode)[-3:] == "600"
+    assert "com chave de integridade" in r.stdout
+    if os.name != "nt":  # no Windows não há modo 0600: protege a ACL da pasta onde o pacote de chaves é gravado
+        assert oct(chaves_zip.stat().st_mode)[-3:] == "600"
     with zipfile.ZipFile(zip_) as z:
         nomes = set(z.namelist())
         assert "manifesto.json" in nomes and "dados/acesso/contas.json" in nomes and "dados/instalacao.json" in nomes

@@ -170,6 +170,11 @@ def _linha_do_trace(registro: dict) -> str:
 class TelaConsole(AbasAvancadas, Screen):
     """As cinco abas. Cada ação confere a sessão, chama o SVC-IAM e relê os dados do disco."""
 
+    # Ao ativar a tela sem foco, o Textual foca o primeiro widget focável (a barra de abas). O `on_mount` foca a
+    # tabela só se a tela já é a atual, o que no Windows às vezes ainda não é: com o seletor, o foco automático
+    # cai na tabela da aba ativa (as das outras abas estão ocultas e não recebem foco).
+    AUTO_FOCUS = "DataTable"
+
     BINDINGS = [
         Binding("f1", "aba('aba-usuarios')", "Usuários", show=False),
         Binding("f2", "aba('aba-papeis')", "Papéis", show=False),

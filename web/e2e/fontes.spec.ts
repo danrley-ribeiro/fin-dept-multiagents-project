@@ -4,21 +4,34 @@
 import { expect, test } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
+import { createServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { abrir, comando, estado, paginaDe, reiniciar } from "./apoio";
 
-const PORTA_ERP = Number(process.env.SMA_E2E_ERP_PORTA ?? 8791);
 const TOKEN = "tok-e2e-NUNCA-NA-TELA-0123456789";
+let PORTA_ERP = 0;
 let erp: ChildProcess | undefined;
+
+// porta livre do sistema (uma porta fixa pode estar ocupada no runner); SMA_E2E_ERP_PORTA fixa uma, se preciso
+const portaLivre = () => new Promise<number>((ok, erro) => {
+  const s = createServer();
+  s.on("error", erro);
+  s.listen(0, "127.0.0.1", () => { const porta = (s.address() as AddressInfo).port; s.close(() => ok(porta)); });
+});
 
 test.beforeAll(async () => {
   const raiz = process.env.SMA_E2E_RAIZ!;
+  PORTA_ERP = Number(process.env.SMA_E2E_ERP_PORTA ?? await portaLivre());
+  let saida = "";
   erp = spawn(process.env.SMA_E2E_PYTHON!, ["-m", "fin_mas", "erp-demo", "--porta", String(PORTA_ERP), "--token", TOKEN,
     "--plantar", "alcada"], { cwd: raiz, env: { ...process.env, PYTHONPATH: join(raiz, "src"), PYTHONUTF8: "1" },
-    stdio: "ignore" });
+    stdio: ["ignore", "pipe", "pipe"] });
+  erp.stdout?.on("data", (d) => { saida += d; });
+  erp.stderr?.on("data", (d) => { saida += d; });
   await expect.poll(async () => fetch(`http://127.0.0.1:${PORTA_ERP}/health`).then((r) => r.status).catch(() => 0),
-    { timeout: 20_000 }).toBe(200);
+    { timeout: 45_000, message: `ERP de demonstração na porta ${PORTA_ERP} não respondeu` }).toBe(200)
+    .catch((e) => { throw new Error(`${e.message}\nsaída ${erp?.exitCode ?? "(rodando)"}: ${saida.slice(-1500)}`); });
 });
 
 test.afterAll(async () => { erp?.kill(); });
@@ -67,7 +80,11 @@ test("fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fe
   await comando(request, { tipo: "retomar" });
   await expect.poll(async () => (await (await request.get("/api/aprovacoes")).json()).aprovacoes.length, { timeout: 30_000 }).toBe(1);
   await comando(request, { tipo: "decidir", solicitacao: "SOL-001", decisao: "corrigir", justificativa: "reaprovar com alçada" });
-  await expect.poll(async () => (await estado(request)).solicitacoes["SOL-001"]?.performative, { timeout: 30_000 }).toBe("inform");
+  await expect.poll(async () => (await estado(request)).solicitacoes["SOL-001"]?.performative, { timeout: 30_000 }).toBe("inform")
+    .catch(async (e) => {  // diagnóstico: os últimos registros do trace dizem onde o fechamento parou
+      const ultimos = (await (await request.get("/api/auditoria?limite=40")).json()).textos as string[];
+      throw new Error(`${e.message}\núltimos registros do trace:\n${ultimos.join("\n")}`);
+    });
   await linha.page().reload();
   await page.getByRole("tab", { name: "Fontes de dados" }).click();
   await area.getByRole("row", { name: "Conector erp-simulado" }).getByRole("button", { name: "Ativar" }).click();

@@ -66,7 +66,7 @@ e apontou os pontos abaixo, também corrigidos:
 | Achado da recorreção | Correção | Teste |
 |---|---|---|
 | apagar ou corromper a memória liberava novo waiver; chave HMAC ao lado do arquivo | selo do arquivo inteiro com contador; chave e contador fora da pasta de dados; memória comprometida falha fechada (sem waiver) | `test_memory_removal_corruption_or_rollback_fails_closed`, `test_memory_key_and_counter_live_outside_the_data_folder` |
-| ids de memória duplicados | id = maior existente + 1 | `test_memory_ids_stay_unique` |
+| ids de memória duplicados | id = maior existente + 1 (ainda repetia depois de uma expiração; corrigido de vez na 6ª rodada, abaixo) | `test_memory_ids_stay_unique` |
 | decisão no último tick aceita e depois expirada | recusada explicitamente (POL-08) se não puder ser entregue no prazo | `test_decision_that_cannot_be_delivered_in_time_is_rejected` |
 | servidor lia o corpo antes de autenticar; token não-ASCII gerava exceção | autentica antes, leitura com tempo limite, comparação em bytes | `test_dashboard_authenticates_before_reading_the_body` |
 | CPF/CNPJ sem máscara em texto livre | padrão de 11/14 dígitos | `test_redaction_catches_unmasked_documents_in_free_text` |
@@ -170,6 +170,70 @@ AG-ORC; o pedido (`solicitado_por`) sem atestado no barramento (M7); o fluxo de 
 visível a quem vê a simulação (M9, assumido e descrito em `PERM-SIM-VER`); o baseline sem as
 mesmas funções (M10, DSM4); esquemas de conteúdo só no primeiro nível; a raiz de confiança das
 chaves no disco; a POL-04 só léxica; lacunas da redação; AG-CUS e AG-REL reativos.
+
+### Correção simulada no Windows (5ª rodada, 15/11/2026)
+
+Um avaliador independente (agente de IA, só leitura do repositório, com o enunciado, a rubrica e o
+feedback da DSM2) corrigiu a candidata à entrega (`dsm3-v0.5.0` com as correções para Windows) numa
+máquina Windows 11, com mais de 40 ataques próprios ao barramento, aos agentes e à API HTTP. Ele
+confirmou as quatro falhas do feedback da DSM2 como corrigidas (nada foi publicado indevidamente),
+reproduziu a âncora do cenário de ataque e o experimento byte a byte, e deu **8,6** (comunicação 9,0;
+coordenação 9,0; corretude 7,5; testes 8,5; documentação 9,0). Os achados de autorização e robustez
+foram corrigidos depois, cada um com teste (`tests/integration/test_correcao_simulada_5.py`):
+
+| Achado (gravidade) | Correção | Teste |
+|---|---|---|
+| Promover o cargo de uma conta (`acesso usuario vinculo carla --cargo diretor`) apagava o vínculo com a pessoa do ERP; sem ele, a POL-03 deixava de reconhecer os lançamentos de carla, que aprovava a correção do próprio lançamento e o fechamento era publicado (grave) | campo não informado fica como está; remover exige `--sem-pessoa` / `--sem-cargo` (ou `None` explícito na API) | TEST-157 |
+| Um participante abria, com outro protocolo, um `conversation_id` que o sistema ainda ia gerar (`APR-001`, `CMP-001`, `DEL-001`): o envio do Orquestrador era recusado e o pedido ficava sem resposta, com o período reservado (moderado) | o gerador pula ids já abertos; e qualquer erro do Orquestrador ao tratar uma mensagem, inclusive envio recusado, vira `failure` para o solicitante e libera o período | TEST-158, TEST-159 |
+| Quem só opera a simulação reiniciava um cenário e criava pedidos em nome de outra pessoa (`solicitado_por: elisa`), sem ter a permissão de solicitar (moderado) | corrigido em parte: no reinício pelo dashboard, os pedidos do roteiro não ficam no nome de ninguém, e o trace registra quem reiniciou. Quem só opera ainda dispara pedidos ao reiniciar, e quem opera e aprova pode decidir sobre eles (a POL-13 só conhece pedidos de pessoas): assumido por decisão dos autores e registrado em {doc}`limitacoes` | TEST-160 |
+| O atraso de entrega de `Bus.send` não era validado: texto ou `None` levantavam `TypeError` sem auditoria; zero ou negativo furavam a fila e punham a entrega prevista (POL-08) no passado (menor) | rejeição na etapa `envelope`, com registro | TEST-161 |
+
+Também da rodada: o README da entrega passou a ter os comandos para Windows (não há `make` nem
+`.venv/bin`). Ficaram registrados em {doc}`limitacoes`: competência sem dados reais fechada no
+ambiente sintético, ROLE-APR com permissão de configurar o LLM, conta-fantoche do administrador
+(sem quatro olhos) e a instabilidade da TUI no Windows.
+
+**Recorreção (mesmo avaliador, depois das correções):** rodou de novo os próprios scripts sem
+alterá-los e confirmou corrigidos o vínculo do cargo, o id de conversa ocupado, a atribuição do
+pedido a outra pessoa e o atraso; procurou contornos no diff e não os encontrou. Nota: **8,95**
+(comunicação 9,5; coordenação 9,0; corretude 8,5; testes 9,0; documentação 8,5). Achados novos:
+
+| Achado (gravidade) | Tratamento | Teste |
+|---|---|---|
+| A: com os pedidos do roteiro sem dono, quem opera e aprova reinicia um cenário e concede waiver ao pedido que disparou, sem esbarrar na POL-13; quem só opera dispara pedidos sem `PERM-SOL-CRIAR` (moderado) | decisão dos autores: o reinício é operação da simulação e recria a demanda do roteiro; registrado em {doc}`limitacoes`, com a alternativa para a DSM4 | — |
+| B: `usuario vinculo diego --pessoa ""` removia o vínculo sem o pedido explícito (menor) | pessoa do ERP vazia, só com espaços ou não textual é recusada (IAM-05) | TEST-157 |
+| C: comando de Windows do README da entrega com um TAB literal no lugar da barra invertida em `tools\trace.py`, e a contagem antiga de testes (menor) | corrigidos | — |
+
+### Correção simulada com avaliador novo (6ª rodada, 15/11/2026)
+
+Para não depender de um avaliador que já conhecia os achados anteriores, um avaliador novo (agente
+de IA, só leitura, com o enunciado, a rubrica e os feedbacks da DSM1 e da DSM2) corrigiu a versão
+candidata no Windows 11, com 26 ataques próprios ao barramento e outros pela API HTTP. Confirmou os
+feedbacks da DSM1 e da DSM2 como atendidos (nenhuma decisão forjada aceita), reproduziu a âncora e o
+experimento byte a byte, e deu **8,1** (comunicação 8,5; coordenação 8,0; corretude 7,5; testes 8,0;
+documentação 8,5). A nota menor que a da recorreção anterior vem de caminhos que as rodadas
+anteriores não exploraram (governança da memória e troca de porte), não de regressão.
+
+| Achado (gravidade) | Tratamento | Teste |
+|---|---|---|
+| 1: um pedido de competência distante (`2099-12`) apagava do arquivo a memória de waivers, porque a retenção era aplicada a partir da competência pedida; em setembro a POL-06 não reconhecia mais o waiver de agosto (moderado/grave) | a retenção virou filtro da consulta, sem apagar; a remoção física é a manutenção explícita `Memoria.expirar` | TEST-162, TEST-163 |
+| 4: ids de memória se repetiam depois de uma expiração (`maior existente + 1`), ao contrário do que esta página dizia (menor) | o id nunca é reaproveitado: considera o maior já emitido e o contador selado do arquivo | TEST-164 |
+| 7: decisão depois do prazo recebia 202 e era descartada sem aviso; a pendência vencida continuava listada (menor) | o dashboard avisa que o ticket foi encerrado por prazo; a pendência vencida sai da lista | TEST-165 |
+| 2: no dashboard a memória não persiste, e cada reinício recomeça o histórico de reincidência (moderado) | registrado em {doc}`limitacoes`; a documentação deixou de chamá-la de persistente sem ressalva | — |
+| 3: trocar o porte para micro dispensa a POL-13 pelo controle compensatório (moderado) | registrado em {doc}`limitacoes` | — |
+| 5: o barramento confere o papel, não o lado da conversa (menor) | registrado em {doc}`limitacoes` | — |
+| 6: "não publicar com veto pendente" é verificado depois (INV-01), não bloqueado no envio (menor) | registrado em {doc}`limitacoes` | — |
+| 8: POL-04 léxica | já registrado | — |
+
+**Recorreção (mesmo avaliador da 6ª rodada):** rodou de novo os próprios scripts sem alterá-los,
+confirmou os achados 1, 4 e 7 corrigidos, sem regressão, e os declarados (2, 3, 5 e 6) descritos com
+precisão. Nota: **8,4** (comunicação 8,5; coordenação 8,5; corretude 8,0; testes 8,0; documentação
+9,0). Achados novos, ambos menores:
+
+| Achado | Tratamento | Teste |
+|---|---|---|
+| 9: a decisão que não chegava ao Approval Gate (ticket encerrado, opção não oferecida) deixava no trace só o comando `decidir`, como se tivesse valido | o trace ganha o registro `decisao_nao_enviada` (quem, solicitação, ticket e motivo), também filtrável na auditoria do dashboard | TEST-165 |
+| 10: o aviso da decisão vencida dizia sempre "prazo esgotado" e vai a todos os que acompanham o dashboard | a mensagem cita o estado real do ticket; o envio do aviso a todos ficou registrado em {doc}`limitacoes` | TEST-165 |
 
 ## Ressalva sobre a comparação experimental
 

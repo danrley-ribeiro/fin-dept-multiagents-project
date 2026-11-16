@@ -2,6 +2,41 @@
 
 Registro por entrega.
 
+## DSM4 v1.0.1 (16/11/2026)
+
+Leva para a versão final as correções da DSM3 v0.5.1 (rodadas 5 e 6 da correção simulada, PR #5), que a v1.0.0
+não tinha. Nenhum resultado do experimento muda: o experimento inteiro, rodado com as correções, deu o mesmo
+`execucoes.csv` (`9d5126a6…`).
+
+- Acesso: promover o cargo não apaga mais o vínculo com a pessoa do ERP (a POL-03 deixava de valer); campo
+  omitido fica como está, remover exige `--sem-pessoa`/`--sem-cargo`, pessoa vazia é recusada (IAM-05).
+- Barramento: ids de conversa já abertos são pulados; atraso de entrega validado antes do jitter do caos.
+- Orquestrador: erro ao tratar uma mensagem vira `failure` para quem pediu e libera o período.
+- Dashboard: reinício sem pedidos em nome de outra pessoa; decisão vencida avisada e gravada como
+  `decisao_nao_enviada`; pendência vencida sai da lista.
+- Memória: a retenção é filtro da consulta e não apaga (um pedido de `2099-12` apagava o waiver e desligava a
+  POL-06); a consulta relê o arquivo dentro da trava, sem gravar, para ver o que outro processo gravou (antes
+  isso vinha do `expirar` chamado na consulta); ids nunca reaproveitados, com o contador relido dentro da trava.
+- TUI com o foco inicial na tabela da aba ativa (`AUTO_FOCUS`), como na v0.5.1.
+- Arquivos selados no Windows, com processos simultâneos (`test_concurrent_writers_do_not_lose_updates` falhava
+  em cerca de 1 de 20 execuções): além da espera de até 2 s na troca atômica (v0.5.1), ler ou consultar o
+  arquivo no instante da troca não o marca mais como ilegível (o cadastro ficava "comprometido"), e a trava de
+  outro processo sendo apagada conta como ocupada, em vez de derrubar o comando. Achado depois da entrega da
+  v0.5.1; vale a partir desta versão.
+- Windows: `tem_terminal()` também na senha do `cli_avancado` e na pergunta do segmento do `instalar`;
+  stderr da CLI e `trace.py` em UTF-8. Quatro testes que só passavam em POSIX passam no Windows: modo 0600
+  conferido só fora do Windows (lá protege a ACL da pasta), link simbólico opcional sem o privilégio, e o
+  cenário `conector_fora_do_ar` com `tempo_limite` de 5 s (no Windows a recusa leva cerca de 2 s e virava
+  "tempo esgotado").
+- CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual. Para isso: os testes da DSM4 que leem
+  a saída da CLI passam a decodificá-la em UTF-8 (22 chamadas; no Windows sem `PYTHONUTF8` os acentos chegavam
+  trocados) e o roteiro Playwright das fontes sobe o ERP de demonstração numa porta livre, com a saída do processo
+  no erro se ele não responder. No macOS da CI o ERP ficava calado por mais de 20 s antes de escutar: o
+  `http.server` faz uma consulta DNS reversa (`socket.getfqdn`) só para preencher `server_name`, que o projeto
+  não usa; o ERP de demonstração e o servidor do dashboard passam a usar `fin_mas.http_local.ServidorLocal`, sem ela.
+- Testes TEST-450 a TEST-458 (os TEST-157 a TEST-165 da DSM3); limitações que continuam em
+  `docs/dsm4/limitacoes.md`. `build/` saiu do controle de versão (tinha entrado por engano no merge da v0.5.0).
+
 ## DSM4 v1.0.0 (14/11/2026)
 
 - Especialistas BDI (ADR-010, REQ-F20): variantes BDI de AG-RES, AG-CUS e AG-REL nos níveis `local` e `llm`; as classes
@@ -40,6 +75,31 @@ Registro por entrega.
 - Testes: 669 no pytest (unit 95, e2e 428, integração 123, TUI 23), 41 roteiros Playwright, 12 vitest; 64 cenários com
   10 invariantes; rastreabilidade com 513 objetos, 26 requisitos, 292 testes modelados e 29 métricas, 0 erros. As 280
   linhas da comparação da DSM3 seguem idênticas fora do hash do trace (que leva a versão do pacote).
+
+## DSM3 v0.5.1 (16/11/2026)
+
+Correções da 5ª e da 6ª rodadas da correção simulada, rodando a v0.5.0 no Windows (PR #5). Nenhuma regra de
+negócio nova; cada achado tem teste (TEST-157 a TEST-165).
+
+- Acesso: `usuario vinculo --cargo` não apaga mais o vínculo com a pessoa do ERP (a POL-03 deixava de valer);
+  campo omitido fica como está, remover exige `--sem-pessoa`/`--sem-cargo`, e pessoa vazia é recusada (IAM-05).
+- Barramento: o gerador de ids pula ids já abertos (um participante que ocupasse `APR-001` deixava o pedido sem
+  resposta); o atraso de entrega é validado (inteiro de 1 tick ou mais) e a recusa é auditada.
+- Orquestrador: qualquer erro ao tratar uma mensagem vira `failure` para quem pediu e libera o período.
+- Dashboard: o reinício não cria pedidos em nome de outra pessoa e o trace registra quem reiniciou; decisão
+  depois do prazo é avisada e gravada como `decisao_nao_enviada`; pendência vencida sai da lista.
+- Memória: a retenção é filtro da consulta e não apaga mais (um pedido de `2099-12` apagava o waiver e
+  desligava a POL-06); a remoção física é `Memoria.expirar`; ids de memória nunca se repetem.
+- Windows: `fin-mas instalar` sem terminal pede `FIN_MAS_SENHA_NOVA` em vez de quebrar com `EOFError` (o `NUL`
+  respondia `isatty()`); `trace.py` e o stderr da CLI em UTF-8; testes da CLI leem a saída em UTF-8.
+- TUI: ao abrir o console, o foco vai para a tabela da aba ativa (`AUTO_FOCUS`), não para a barra de abas;
+  no Windows isso falhava em parte das execuções. Arquivos selados: no Windows, a troca atômica espera até
+  cerca de 2 s por um leitor que segure o arquivo (antes 0,25 s).
+- CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
+- `build/` (diretório do `make wheel`) saiu do controle de versão: tinha entrado por engano no merge da v0.5.0.
+- Limitações novas declaradas em `docs/dsm3/limitacoes.md`. Fora a versão no registro `meta` e os hashes que
+  dependem dela (a âncora do `ataque_decisao_forjada` passa a `0708373769e1…`), traces e comparação em 10 seeds
+  iguais aos da v0.5.0.
 
 ## DSM3 v0.5.0 (12/11/2026)
 

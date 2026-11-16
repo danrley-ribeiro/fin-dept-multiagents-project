@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pytest
 
+from fin_mas import __version__
+
 pytestmark = pytest.mark.integracao
 RAIZ = Path(__file__).resolve().parents[2]
 
@@ -39,7 +41,7 @@ def servidor(tmp_path):
     proc = subprocess.Popen([sys.executable, "-m", "fin_mas", "serve", "--demo", "--host", "0.0.0.0", "--porta", str(porta),
                              "--acesso", str(tmp_path / "acesso"), "--pasta-dados", str(tmp_path / "empresa"),
                              "--ms-por-tick", "0", "--segmento", "comercio"],
-                            cwd=RAIZ, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                            cwd=RAIZ, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8")
     try:
         for _ in range(150):
             try:
@@ -117,34 +119,34 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     dist = tmp_path / "dist"
     opcoes = [] if (RAIZ / "web" / "dist" / "index.html").exists() else ["--sem-dashboard"]
     gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), *opcoes],
-                           capture_output=True, text=True, cwd=RAIZ)
+                           capture_output=True, text=True, encoding="utf-8", cwd=RAIZ)
     if gerar.returncode != 0 and ("Could not find" in gerar.stderr or "NewConnectionError" in gerar.stderr):
         pytest.skip("sem rede para o setuptools do isolamento de build do pip: " + gerar.stderr[-200:])
     assert gerar.returncode == 0, gerar.stderr
-    wheel = next(dist.glob("fin_mas-1.0.0-*.whl"))
+    wheel = next(dist.glob(f"fin_mas-{__version__}-*.whl"))
     ambiente = tmp_path / "venv"
     venv.EnvBuilder(with_pip=True, clear=True).create(ambiente)
     py = ambiente / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     exe = ambiente / ("Scripts/fin-mas.exe" if os.name == "nt" else "bin/fin-mas")
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "FIN_MAS_SENHA_NOVA")}
     env.update(PYTHONUTF8="1", FIN_MAS_DIR_CHAVES=str(tmp_path / "chaves"), PIP_DISABLE_PIP_VERSION_CHECK="1")
-    com_deps = subprocess.run([str(py), "-m", "pip", "install", "--quiet", str(wheel)], capture_output=True, text=True,
+    com_deps = subprocess.run([str(py), "-m", "pip", "install", "--quiet", str(wheel)], capture_output=True, text=True, encoding="utf-8",
                               env=env, timeout=300)
     if com_deps.returncode != 0:  # sem rede: o wheel sem dependências e as do ambiente atual por PYTHONPATH
         r = subprocess.run([str(py), "-m", "pip", "install", "--quiet", "--no-deps", "--no-index", str(wheel)],
-                           capture_output=True, text=True, env=env)
+                           capture_output=True, text=True, encoding="utf-8", env=env)
         assert r.returncode == 0, r.stderr
         env["PYTHONPATH"] = str(_deps_do_ambiente_atual(tmp_path / "deps"))
     fora = tmp_path / "fora-do-repositorio"
     fora.mkdir()
 
     def rodar(*args):
-        return subprocess.run([str(exe), *args], capture_output=True, text=True, cwd=fora, env=env,
+        return subprocess.run([str(exe), *args], capture_output=True, text=True, encoding="utf-8", cwd=fora, env=env,
                               stdin=subprocess.DEVNULL, timeout=300)
 
     onde = subprocess.run([str(py), "-c", "import fin_mas, fin_mas.recursos as r; print(fin_mas.__file__); "
                                          "print(r.origem()); print(r.models_dir())"],
-                          capture_output=True, text=True, cwd=fora, env=env)
+                          capture_output=True, text=True, encoding="utf-8", cwd=fora, env=env)
     arquivo, origem, modelos = onde.stdout.split()
     assert str(ambiente) in arquivo and RAIZ.as_posix() not in Path(arquivo).as_posix(), onde.stdout
     assert origem == "pacote" and str(ambiente) in modelos
@@ -154,7 +156,7 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     assert execucao.returncode == 0 and "hash do trace:" in execucao.stdout, execucao.stderr
     # o mesmo trace do checkout: o pacote instalado é o mesmo sistema
     referencia = subprocess.run([sys.executable, "-m", "fin_mas", "run", "--scenario", "fechar_mes"], capture_output=True,
-                                text=True, cwd=RAIZ, env={**os.environ, "PYTHONPATH": str(RAIZ / "src")})
+                                text=True, encoding="utf-8", cwd=RAIZ, env={**os.environ, "PYTHONPATH": str(RAIZ / "src")})
     assert execucao.stdout.splitlines()[-1] == referencia.stdout.splitlines()[-1]
     instalar = rodar("instalar", "--pasta", "dados", "--porte", "mei", "--segmento", "servicos", "--demo")
     assert instalar.returncode == 0 and (fora / "dados" / "modelos" / "exemplo_mei.xlsx").exists(), instalar.stderr

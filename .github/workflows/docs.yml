@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:  # "Run workflow" na aba Actions: roda em qualquer branch, sem PR
 
 jobs:
   docs:
@@ -40,12 +41,21 @@ jobs:
           path: docs/_build/html
 
   testes:
-    runs-on: ubuntu-latest
+    # Linux, Mac e Windows; Python 3.11 (mínimo do pyproject) e 3.13
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash  # mesmos comandos nos três sistemas (no Windows, o Git Bash do runner)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - name: Dependências (pytest, pyyaml, openpyxl, textual, anthropic)
@@ -58,7 +68,14 @@ jobs:
         run: PYTHONPATH=src python -m fin_mas cenarios --verificar
 
   interface:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     env:
       PW_CHANNEL: chromium  # no runner não há o Chrome do sistema: usa o Chromium baixado pelo Playwright
     steps:
@@ -82,11 +99,12 @@ jobs:
         run: bun run test
       - name: Testes de uso no navegador (Playwright + servidor Python)
         working-directory: web
-        run: PYTHON="$(command -v python)" bun run test:e2e
+        # caminho nativo do Python (no Windows, `command -v` daria /c/..., que o Node não abre)
+        run: PYTHON="$(python -c 'import sys; print(sys.executable)')" bun run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-test-results
+          name: playwright-test-results-${{ matrix.os }}
           path: web/test-results
 
   pdf:

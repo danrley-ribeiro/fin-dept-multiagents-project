@@ -23,7 +23,7 @@ NOVOS = ("res_explica_variacao", "res_insumo_faltante", "cus_rateio_alternativo"
 
 def cli(*args, check=True):
     env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1"}
-    return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, env=env, cwd=RAIZ,
+    return subprocess.run([sys.executable, "-m", "fin_mas", *args], capture_output=True, text=True, encoding="utf-8", env=env, cwd=RAIZ,
                           check=check)
 
 

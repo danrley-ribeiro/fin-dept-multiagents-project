@@ -1,6 +1,6 @@
 // Uso real do escritório da SMA: navegador de verdade, servidor Python de verdade, agentes executando ao vivo.
 import { expect, test } from "@playwright/test";
-import { abrir, chipAgente, comando, pedido, reiniciar } from "./apoio";
+import { abrir, chipAgente, comando, estado, pedido, reiniciar } from "./apoio";
 
 test("primeira visita mostra o guia e o escritório com códigos e departamentos", async ({ page, request }) => {
   await reiniciar(request, "fechar_mes");
@@ -73,7 +73,13 @@ test("waiver exige justificativa e libera com ressalva", async ({ page, request 
 });
 
 test("reincidência: a política nega o waiver e o diálogo não o oferece", async ({ page, request }) => {
-  await reiniciar(request, "reincidencia_waiver");
+  // Determinístico: agosto é decidido antes de o veto de setembro ser emitido, para que o diálogo de
+  // setembro já chegue sem o waiver (com os dois pendentes, a POL-06 recusa só na decisão, TEST-424).
+  await reiniciar(request, "reincidencia_waiver", true);
+  const pendentes = async () => ((await estado(request)).pendentes_humanos as { solicitacao: string }[])
+    .map((p) => p.solicitacao);
+  for (let i = 0; i < 400 && !(await pendentes()).includes("SOL-001"); i++) await comando(request, { tipo: "passo", n: 1 });
+  expect(await pendentes()).toEqual(["SOL-001"]);
   await abrir(page);
   const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
@@ -81,6 +87,8 @@ test("reincidência: a política nega o waiver e o diálogo não o oferece", asy
   let dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN · SOL-001/ });
   await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria nesta competência");
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
+  await expect.poll(pendentes).toEqual([]);
+  await comando(request, { tipo: "retomar" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await sino.click();
   dialogo = page.getByRole("dialog", { name: /Veto do AG-CIN · SOL-002/ });

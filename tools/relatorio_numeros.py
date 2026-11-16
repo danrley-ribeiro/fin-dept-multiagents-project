@@ -160,7 +160,8 @@ def suite_vitest() -> dict | None:
     if not Path(bun).exists() or not (RAIZ / "web" / "node_modules").exists():
         return None
     r = rodar([bun, "run", "test"], cwd=RAIZ / "web")
-    m = re.search(r"Tests\s+(\d+) passed", r.stdout)
+    saida = re.sub(r"\x1b\[[0-9;]*m", "", r.stdout)  # no Windows o vitest colore a saída mesmo sem terminal
+    m = re.search(r"Tests\s+(\d+) passed", saida)
     return {"codigo": r.returncode, "passaram": int(m.group(1)) if m else 0}
 
 

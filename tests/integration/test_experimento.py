@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from fin_mas import estatistica, estudo
+from fin_mas import __version__, estatistica, estudo
 
 pytestmark = pytest.mark.integracao
 RAIZ = Path(__file__).resolve().parents[2]
@@ -26,7 +26,7 @@ ARQUIVOS = ("execucoes.csv", "tempo_parede.csv", "resumo.json", "resumo.md", "te
 def _experimento(pasta, semente_de_hash):
     env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONUTF8": "1", "PYTHONHASHSEED": semente_de_hash}
     return subprocess.run([sys.executable, "-m", "fin_mas", "experimento", "--rapido", "--out", str(pasta)],
-                          capture_output=True, text=True, cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
+                          capture_output=True, text=True, encoding="utf-8", cwd=RAIZ, env=env, stdin=subprocess.DEVNULL)
 
 
 @pytest.fixture(scope="module")
@@ -49,7 +49,7 @@ def test_quick_experiment_writes_every_output_and_repeats_byte_for_byte(rodadas)
     sha = hashlib.sha256((a / "execucoes.csv").read_bytes()).hexdigest()
     assert manifesto["arquivos"]["execucoes.csv"] == {"sha256": sha, "reproduzivel": True} and sha in saida
     assert manifesto["arquivos"]["tempo_parede.csv"]["reproduzivel"] is False
-    assert manifesto["versao_do_pacote"] == "1.0.0" and manifesto["seeds"] == [1, 2, 3] and manifesto["rapido"] is True
+    assert manifesto["versao_do_pacote"] == __version__ and manifesto["seeds"] == [1, 2, 3] and manifesto["rapido"] is True
     assert manifesto["parametros_padrao"]["prazo_subtarefa"] == 30 and manifesto["estatistica"]["correcao"] == "Holm por família"
     with open(a / "execucoes.csv", newline="", encoding="utf-8") as f:
         linhas = list(csv.DictReader(f))

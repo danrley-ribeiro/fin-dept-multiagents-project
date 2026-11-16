@@ -23,7 +23,7 @@ import json
 import secrets
 import threading
 import time
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlsplit
 
 from fin_mas import __version__
@@ -32,6 +32,7 @@ from fin_mas.conectores.simulado import canonico_do_dataset
 from fin_mas.env.dataset import Ambiente
 from fin_mas.env.empresa import EMPRESA
 from fin_mas.env.portes import PORTE_PADRAO
+from fin_mas.http_local import ServidorLocal
 
 ACOES = {"reverse": "estornar", "reapprove": "reaprovar", "reclassify": "reclassificar"}
 PAGINA_PADRAO = 50
@@ -126,7 +127,7 @@ class ErpDemo:
     def iniciar(self, porta: int = 0, host: str = "127.0.0.1") -> str:
         if host not in LOOPBACK:
             raise ValueError("o ERP de demonstração só escuta em loopback")
-        self._servidor = ThreadingHTTPServer((host, porta), _handler(self))
+        self._servidor = ServidorLocal((host, porta), _handler(self))
         self._servidor.daemon_threads = True
         self._thread = threading.Thread(target=self._servidor.serve_forever, name="erp-demo", daemon=True)
         self._thread.start()

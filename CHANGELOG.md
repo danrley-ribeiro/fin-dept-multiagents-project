@@ -19,8 +19,11 @@ negócio nova; cada achado tem teste (TEST-157 a TEST-165).
 - Windows: `fin-mas instalar` sem terminal pede `FIN_MAS_SENHA_NOVA` em vez de quebrar com `EOFError` (o `NUL`
   respondia `isatty()`); `trace.py` e o stderr da CLI em UTF-8; testes da CLI leem a saída em UTF-8.
 - TUI: ao abrir o console, o foco vai para a tabela da aba ativa (`AUTO_FOCUS`), não para a barra de abas;
-  no Windows isso falhava em parte das execuções. Arquivos selados: no Windows, a troca atômica espera até
-  cerca de 2 s por um leitor que segure o arquivo (antes 0,25 s).
+  no Windows isso falhava em parte das execuções.
+- Arquivos selados no Windows, com processos simultâneos (`test_concurrent_writers_do_not_lose_updates` falhava
+  em cerca de 1 de 20 execuções): a troca atômica espera até cerca de 2 s por um leitor (antes 0,25 s); ler ou
+  consultar o arquivo no instante da troca não o marca mais como ilegível (o cadastro ficava "comprometido");
+  a trava de outro processo sendo apagada conta como ocupada, em vez de derrubar o comando.
 - CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual.
 - `build/` (diretório do `make wheel`) saiu do controle de versão: tinha entrado por engano no merge da v0.5.0.
 - Limitações novas declaradas em `docs/dsm3/limitacoes.md`. Fora a versão no registro `meta` e os hashes que

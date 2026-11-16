@@ -31,6 +31,19 @@ ESPERA_TRAVA = 5.0  # segundos tentando obter a trava antes de desistir
 TRAVA_VELHA = 30.0  # trava mais antiga que isso é de um processo que morreu: pode ser quebrada
 
 
+def _sem_conflito_de_acesso(operacao):
+    """No Windows, abrir ou consultar o arquivo no instante em que outro processo o troca (`os.replace`) dá
+    `PermissionError` por um momento: repete por até cerca de 2 s em vez de tomar o arquivo por ilegível
+    (o cadastro ficava "comprometido" por uma colisão de milissegundos). Fora do Windows não acontece."""
+    for tentativa in range(40):
+        try:
+            return operacao()
+        except PermissionError:
+            if tentativa == 39:
+                raise
+            time.sleep(0.05)
+
+
 class ArquivoComprometido(RuntimeError):
     """A integridade do arquivo não pôde ser garantida."""
 
@@ -72,7 +85,7 @@ def trava(caminho: Path):
             fd = os.open(alvo, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             os.close(fd)
             break
-        except FileExistsError:
+        except (FileExistsError, PermissionError):  # Windows: trava de outro processo sendo apagada = ocupada
             with contextlib.suppress(OSError):
                 if time.time() - alvo.stat().st_mtime > TRAVA_VELHA:
                     alvo.unlink()
@@ -83,8 +96,16 @@ def trava(caminho: Path):
     try:
         yield
     finally:
-        with contextlib.suppress(OSError):
-            alvo.unlink()
+        for tentativa in range(40):  # no Windows, outro processo pode estar consultando a trava neste instante
+            try:
+                alvo.unlink()
+                break
+            except FileNotFoundError:
+                break
+            except PermissionError:
+                time.sleep(0.05)
+            except OSError:
+                break
 
 
 class ArquivoSelado:
@@ -124,7 +145,7 @@ class ArquivoSelado:
     def _recarregar(self) -> None:
         ultimo = self._ultimo_contador()
         try:
-            st = self.caminho.stat()
+            st = _sem_conflito_de_acesso(self.caminho.stat)
         except FileNotFoundError:
             if ultimo:
                 raise ArquivoComprometido(f"{self.caminho.name}: arquivo ausente, mas já houve {ultimo} gravação(ões)") \
@@ -135,7 +156,7 @@ class ArquivoSelado:
         if marca == self._marca and self._contador == ultimo:
             return
         try:
-            bruto = json.loads(self.caminho.read_text(encoding="utf-8"))
+            bruto = json.loads(_sem_conflito_de_acesso(lambda: self.caminho.read_text(encoding="utf-8")))
             versao, contador, dados, selo = bruto["versao"], bruto["contador"], bruto["dados"], bruto["selo"]
         except (OSError, ValueError, KeyError, TypeError):
             raise ArquivoComprometido(f"{self.caminho.name}: arquivo ilegível ou fora do formato") from None

@@ -30,7 +30,7 @@ test.beforeAll(async () => {
   erp.stdout?.on("data", (d) => { saida += d; });
   erp.stderr?.on("data", (d) => { saida += d; });
   await expect.poll(async () => fetch(`http://127.0.0.1:${PORTA_ERP}/health`).then((r) => r.status).catch(() => 0),
-    { timeout: 20_000, message: `ERP de demonstração na porta ${PORTA_ERP} não respondeu` }).toBe(200)
+    { timeout: 45_000, message: `ERP de demonstração na porta ${PORTA_ERP} não respondeu` }).toBe(200)
     .catch((e) => { throw new Error(`${e.message}\nsaída ${erp?.exitCode ?? "(rodando)"}: ${saida.slice(-1500)}`); });
 });
 

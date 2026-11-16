@@ -31,7 +31,9 @@ não tinha. Nenhum resultado do experimento muda: o experimento inteiro, rodado 
 - CI em Linux, macOS e Windows com Python 3.11 e 3.13, e gatilho manual. Para isso: os testes da DSM4 que leem
   a saída da CLI passam a decodificá-la em UTF-8 (22 chamadas; no Windows sem `PYTHONUTF8` os acentos chegavam
   trocados) e o roteiro Playwright das fontes sobe o ERP de demonstração numa porta livre, com a saída do processo
-  no erro se ele não responder (no macOS da CI, a porta fixa 8791 não respondeu).
+  no erro se ele não responder. No macOS da CI o ERP ficava calado por mais de 20 s antes de escutar: o
+  `http.server` faz uma consulta DNS reversa (`socket.getfqdn`) só para preencher `server_name`, que o projeto
+  não usa; o ERP de demonstração e o servidor do dashboard passam a usar `fin_mas.http_local.ServidorLocal`, sem ela.
 - Testes TEST-450 a TEST-458 (os TEST-157 a TEST-165 da DSM3); limitações que continuam em
   `docs/dsm4/limitacoes.md`. `build/` saiu do controle de versão (tinha entrado por engano no merge da v0.5.0).
 

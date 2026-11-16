@@ -64,6 +64,7 @@ from fin_mas.env.segmentos import SEGMENTO_PADRAO, SEGMENTOS, ficha
 from fin_mas.exportar import agentes_info, empresa_info
 from fin_mas.fontes import api as fontes_api
 from fin_mas.fontes import planilha
+from fin_mas.http_local import ServidorLocal
 from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.recursos import web_dist
 from fin_mas.services import consulta, explicacao, provedores
@@ -710,7 +711,7 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
     return servidor
 
 
-class _Servidor(ThreadingHTTPServer):
+class _Servidor(ServidorLocal):  # sem a consulta DNS reversa do http.server
     def handle_error(self, request, client_address):
         """Navegador que fecha a aba ou cancela um fetch não é erro do servidor: ignora em silêncio."""
         if isinstance(sys.exc_info()[1], (ConnectionAbortedError, ConnectionResetError, BrokenPipeError)):

@@ -273,6 +273,15 @@ class PoliticaAprovacao:
             if decisao == "waiver" and self.decidir_waiver is not None:
                 motivo = self.decidir_waiver(t, cadastro if msg.performative == "approve" else None)
                 if motivo:
+                    if "reincidência" in motivo and "waiver" in t["opcoes"]:
+                        # ticket concorrente: o outro waiver foi decidido depois da emissão deste. A política
+                        # reavalia o ticket: o waiver sai das opções (não é oferecido de novo) e fica em `negadas`
+                        t["opcoes"] = [o for o in t["opcoes"] if o != "waiver"]
+                        t["negadas"].append({"opcao": "waiver", "regra": "POL-06", "motivo": motivo})
+                        self._auditar(t["id"], "reavaliado", regra="POL-06", motivo=motivo, opcoes=t["opcoes"])
+                    if self.acesso is not None:
+                        self._trilha("decisao", cadastro.get("pessoa"), "negado", regra="POL-06", motivo=motivo,
+                                     ticket=t["id"])
                     return motivo
             if decisao == "corrigir":
                 pedidas = [_par(x) for x in c.get("correcoes") or [] if isinstance(x, dict)]

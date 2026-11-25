@@ -95,6 +95,16 @@ class Aprovador(Agent):
         self.avalizados: set = set()  # tickets com dupla aprovação em que o aval (endorse) já foi aceito (POL-12)
         self._propostas: dict[str, object] = {}  # ticket -> proposta, para decidir de novo quando ele escala (POL-14)
         self.ultimo_performativo = None
+        # opções atuais do ticket no SVC-POL (ligado por `montar`): a política pode tirar o waiver depois da
+        # proposta (POL-06 com ticket concorrente); sem ela, valem as opções da proposta
+        self.opcoes_do_ticket = None
+
+    def _opcoes(self, msg) -> list:
+        if self.opcoes_do_ticket is not None:
+            atuais = self.opcoes_do_ticket(msg.conversation_id)
+            if atuais is not None:
+                return atuais
+        return msg.content["opcoes"]
 
     def on_message(self, msg):
         if msg.protocol != "PROT-APR" or msg.performative != "propose-action":
@@ -110,7 +120,14 @@ class Aprovador(Agent):
             self._decidir_em_lote(msg)
             return
         decisao = self.decisoes.pop(0) if len(self.decisoes) > 1 else self.decisoes[0]
-        self._responder(msg, decisao, self.JUSTIFICATIVA)
+        try:
+            self._responder(msg, decisao, self.JUSTIFICATIVA)
+        except ProtocolViolation:
+            if decisao != "waiver" or "waiver" in self._opcoes(msg):
+                raise
+            # a política recusou o waiver e o tirou das opções (POL-06 com ticket concorrente): sem a opção, o
+            # roteiro em lote rejeita (publicação bloqueada) em vez de deixar o ticket esperar até o prazo
+            self._responder(msg, decisao, self.JUSTIFICATIVA)
 
     def _decidir_em_lote(self, msg) -> None:
         """Roteiro com pessoas (`"carla:corrigir"`): se a política recusa uma, a próxima do roteiro tenta.
@@ -154,7 +171,7 @@ class Aprovador(Agent):
             return False
         if decisao == "nenhuma":
             decisao = "bloquear"  # no dashboard, "não liberar" é uma rejeição explícita
-        if decisao == "waiver" and "waiver" not in msg.content["opcoes"]:
+        if decisao == "waiver" and "waiver" not in self._opcoes(msg):
             return False  # no dashboard, waiver negado pela política não vira bloqueio: a pendência continua
         texto = justificativa.strip() if isinstance(justificativa, str) else ""
         if not texto and decisao != "waiver":
@@ -177,13 +194,14 @@ class Aprovador(Agent):
         self.ultimo_performativo = None
         base = {"aprovacao": msg.conversation_id, "solicitacao": c["solicitacao"], "veto": c["veto"],
                 "justificativa": justificativa, **({"delegacao": delegacao} if delegacao else {})}
+        opcoes = self._opcoes(msg)
         if decisao in ("corrigir", "corrigir_parcial"):
-            if "corrigir" not in c["opcoes"]:
+            if "corrigir" not in opcoes:
                 return False  # correção não oferecida: o prazo do ticket esgota
             sugeridas = c["correcoes_sugeridas"]
             escolhidas = sugeridas[:1] if decisao == "corrigir_parcial" else sugeridas
             self._enviar(msg, "approve", {**base, "decisao": "corrigir", "correcoes": escolhidas}, "corrigir", sessao)
-        elif decisao == "waiver" and "waiver" in c["opcoes"]:
+        elif decisao == "waiver" and "waiver" in opcoes:
             self._enviar(msg, "approve", {**base, "decisao": "waiver"}, "waiver", sessao)
         elif decisao in ("waiver", "bloquear"):
             if decisao == "waiver":
@@ -332,6 +350,7 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                      agentes, amb, politica, mem, modelos, acesso, registro)
     if politica is not None:  # POL-12: aval que deixou de valer, a próxima liberação do APR é um aval novo
         politica.ao_invalidar_aval.append(sistema.aprovador.avalizados.discard)
+        sistema.aprovador.opcoes_do_ticket = lambda tid: (politica.tickets.get(tid) or {}).get("opcoes")
     if caos is not None:  # modelo de falhas do experimento (DSM4): instala antes de fechar o registro
         caos.instalar(sistema)
     bus.fechar_registro()  # ninguém fora do diretório entra depois de o sistema estar montado

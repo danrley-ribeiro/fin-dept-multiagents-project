@@ -113,6 +113,12 @@ def _deps_do_ambiente_atual(destino: Path) -> Path:
 
 
 def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path):
+    # o build sem isolamento usa o setuptools e o wheel do ambiente (requirements-dev.txt), e o venv novo precisa do
+    # ensurepip. Fora desse ambiente (ex.: a suíte rodada do ZIP só com `pip install -e .` e o pytest, como na
+    # correção da DSM3) o teste é pulado em vez de falhar por falta de ferramenta de build
+    pytest.importorskip("setuptools", reason="sem setuptools: build do wheel indisponível neste ambiente")
+    pytest.importorskip("wheel", reason="sem o pacote wheel: build do wheel indisponível neste ambiente")
+    pytest.importorskip("ensurepip", reason="sem ensurepip: não dá para criar o venv limpo")
     dist = tmp_path / "dist"
     opcoes = [] if (RAIZ / "web" / "dist" / "index.html").exists() else ["--sem-dashboard"]
     gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), "--sem-isolamento", *opcoes],

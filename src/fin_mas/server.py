@@ -69,7 +69,7 @@ from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.recursos import web_dist
 from fin_mas.services import consulta, explicacao, provedores
 from fin_mas.services.audit import formatar
-from fin_mas.services.iam import AcessoNegado, SegundoFatorPendente, criar_demo
+from fin_mas.services.iam import SENHA_DEMO, AcessoNegado, SegundoFatorPendente, criar_demo
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
 from fin_mas.services.selado import ArquivoComprometido
 
@@ -416,8 +416,11 @@ def _relatorio(sim, sid: str, formato: str) -> tuple[int, dict, bytes]:
                                                                   "hipoteses")}})
 
 
-def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fabrica=None) -> ThreadingHTTPServer:
+def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fabrica=None,
+                   demo=False) -> ThreadingHTTPServer:
     """Servidor do dashboard. `acesso` (SVC-IAM) é obrigatório: sem contas não há quem possa entrar.
+
+    `demo`: contas de demonstração com senha pública; a tela de entrada mostra como entrar (só nesse modo).
 
     `fabrica(empresa) -> Simulacao`: com empresas no cadastro, a simulação de cada empresa (IAM-09)."""
     simulacoes = av.Simulacoes(sim, acesso, fabrica)
@@ -486,8 +489,11 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                     vazio, integro = acesso.vazio(), True
                 except AcessoNegado:
                     vazio, integro = False, False
+                # `demo`: a senha das contas de demonstração já é pública (README, terminal); mostrá-la na tela de
+                # entrada só nesse modo evita que quem abre o dashboard fique sem saber como entrar
                 self._responder(*_json(200, {"ok": True, "versao": __version__, "acesso": {
-                    "sem_contas": vazio, "integro": integro, "cabecalho": CABECALHO_TOKEN}}))
+                    "sem_contas": vazio, "integro": integro, "cabecalho": CABECALHO_TOKEN},
+                    **({"demo": {"usuario": "avaliador", "senha": SENHA_DEMO}} if demo else {})}))
                 return
             sessao = self._sessao()
             negado = autorizar(acesso, sessao, "GET", rota)
@@ -540,7 +546,9 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
             sessao = None
             if rota in ("/api/login", "/api/login/2fa"):
                 if tamanho < 0 or tamanho > LIMITE_LOGIN:
-                    self._recusar(-1, 413, "corpo ausente, inválido ou grande demais")
+                    # descarta o corpo (até DESCARTE_MAXIMO) antes de responder: sem isso o cliente recebia a conexão
+                    # abortada no meio do envio em vez do 413 (intermitente no Windows, TEST-118)
+                    self._recusar(tamanho, 413, "corpo ausente, inválido ou grande demais")
                     return
             else:
                 sessao = self._sessao()
@@ -744,7 +752,7 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
                          acesso=acesso, cognicao=cognicao, empresa=empresa, memoria=str(pasta / "memoria.json"))
         nova.iniciar()
         return nova
-    servidor = criar_servidor(sim, host=host, porta=porta, acesso=acesso, fabrica=fabrica)
+    servidor = criar_servidor(sim, host=host, porta=porta, acesso=acesso, fabrica=fabrica, demo=demo)
     print(f"dashboard da SMA: http://127.0.0.1:{porta}  (API em /api; Ctrl+C encerra)"
           + (f"  [escutando em {host} dentro do contêiner]" if host != "127.0.0.1" else ""), flush=True)
     if demo:

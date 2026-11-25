@@ -36,7 +36,7 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => { erp?.kill(); });
 
-test("fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele", async ({ page, request }) => {
+test("fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fechar o mês sobre ele", async ({ page, request, browser }) => {
   await reiniciar(request, "fechar_mes", true);
   await abrir(page);
   await page.getByRole("tab", { name: "Fontes de dados" }).click();
@@ -79,7 +79,12 @@ test("fontes: cadastrar o ERP, testar, entender, ajustar, confirmar, ativar e fe
   // o fechamento sobre o ERP chega ao veto da alçada; a decisão corrige e o relatório é publicado
   await comando(request, { tipo: "retomar" });
   await expect.poll(async () => (await (await request.get("/api/aprovacoes")).json()).aprovacoes.length, { timeout: 30_000 }).toBe(1);
-  await comando(request, { tipo: "decidir", solicitacao: "SOL-001", decisao: "corrigir", justificativa: "reaprovar com alçada" });
+  // ativar a fonte reiniciou a simulação em nome do avaliador: os pedidos são dele e, pela POL-13, quem decide é outra
+  // pessoa (o controller)
+  const controller = await paginaDe(browser, "controller");
+  await comando(controller.contexto.request, { tipo: "decidir", solicitacao: "SOL-001", decisao: "corrigir",
+    justificativa: "reaprovar com alçada" });
+  await controller.contexto.close();
   await expect.poll(async () => (await estado(request)).solicitacoes["SOL-001"]?.performative, { timeout: 30_000 }).toBe("inform")
     .catch(async (e) => {  // diagnóstico: os últimos registros do trace dizem onde o fechamento parou
       const ultimos = (await (await request.get("/api/auditoria?limite=40")).json()).textos as string[];

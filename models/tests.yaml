@@ -604,7 +604,7 @@ items:
   - {id: TEST-452, nome: test_orchestrator_internal_error_becomes_an_explicit_failure, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: robustez,
      esperado: "erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período", entrega: DSM4, status: executado}
   - {id: TEST-453, nome: test_restart_never_creates_requests_in_someone_elses_name, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
-     esperado: "reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir", entrega: DSM4, status: executado}
+     esperado: "os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa, e a POL-13 o impede de decidir sobre eles", entrega: DSM4, status: executado}
   - {id: TEST-454, nome: test_invalid_delivery_delay_is_rejected_and_audited, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado", entrega: DSM4, status: executado}
   - {id: TEST-455, nome: test_far_future_request_does_not_erase_the_waiver_memory, verifica: [REQ-F07, REQ-S02], derivado_de: SVC-MEM, tipo: seguranca,
@@ -617,3 +617,17 @@ items:
      esperado: "decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista", entrega: DSM4, status: executado}
   - {id: TEST-459, nome: test_uma_liberacao_entre_processos, verifica: [REQ-S02, REQ-F07], derivado_de: SVC-POL, tipo: integracao,
      esperado: "dois processos abrem agosto e setembro antes de decidir; exatamente um waiver é registrado e só o vencedor publica com ressalva", entrega: DSM4, status: executado}
+  - {id: TEST-460, nome: test_rerunning_the_recurrence_with_the_same_memory_gives_the_same_result, verifica: [REQ-S02, REQ-F07], derivado_de: SVC-MEM, tipo: regressao,
+     esperado: "reexecutar a reincidência com a mesma memória dá o mesmo resultado, sem ticket sem resposta e sem waiver duplicado", entrega: DSM4, status: executado}
+  - {id: TEST-461, nome: test_waiver_is_not_offered_when_a_later_month_was_already_waived, verifica: [REQ-S02, REQ-F07], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "com o waiver de um mês posterior na memória, o ticket já é emitido sem a opção (mesma janela na oferta e na decisão)", entrega: DSM4, status: executado}
+  - {id: TEST-462, nome: test_batch_approver_blocks_instead_of_waiting_when_the_concurrent_waiver_is_refused, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: robustez,
+     esperado: "em lote, o waiver concorrente recusado tira a opção do ticket e vira bloqueio explícito, sem erro de agente", entrega: DSM4, status: executado}
+  - {id: TEST-463, nome: test_failed_waiver_write_leaves_no_phantom_entry, verifica: [REQ-F07], derivado_de: SVC-MEM, tipo: robustez,
+     esperado: "falha na gravação do waiver não deixa entrada na memória em processo e a decisão legítima continua possível", entrega: DSM4, status: executado}
+  - {id: TEST-464, nome: test_lock_is_released_on_exception_and_is_not_silently_reentrant, verifica: [REQ-F07], derivado_de: SVC-MEM, tipo: robustez,
+     esperado: "a trava entre processos é liberada em exceção e uma tentativa aninhada espera e recusa", entrega: DSM4, status: executado}
+  - {id: TEST-465, nome: test_choosing_micro_size_on_restart_does_not_exempt_the_requester, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "sem empresa cadastrada, reiniciar com porte micro não dispensa a POL-13 pelo controle compensatório", entrega: DSM4, status: executado}
+  - {id: TEST-466, nome: test_health_shows_demo_credentials_only_in_demo_mode, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: interface,
+     esperado: "a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real", entrega: DSM4, status: executado}

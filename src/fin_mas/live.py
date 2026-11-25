@@ -79,15 +79,21 @@ class Simulacao:
         ambiente = self.fabrica_fonte() if fonte == "conector" else None
         extra = {}
         if ator is not None:
-            # reinício pelo dashboard: os pedidos do roteiro do cenário não ficam no nome de ninguém (nunca no de
-            # outra pessoa, nem no de quem reiniciou, que pode só operar ou precisar decidir); o trace registra
-            # quem reiniciou. Pedido no nome de uma pessoa é o que ela faz por `solicitar`.
-            extra["solicitante"] = None
+            # reinício pelo dashboard: quem reinicia dispara os pedidos do roteiro e responde por eles. Ficam no
+            # nome dele (nunca no de outra pessoa) e a POL-13 vale: quem reiniciou não decide sobre esses pedidos
+            # (feedback da DSM3: quem operava e aprovava liberava o pedido que ele mesmo disparou)
+            extra["solicitante"] = ator.usuario
         sistema, sids = montar(sc, seed if seed is not None else sc.seed, interativo=interativo, porte=porte,
                                pasta=pasta, acesso=self.acesso, cognicao=self.cognicao,
                                llm=llm or None, segmento=segmento, memoria=self.memoria,
                                ambiente=ambiente, **extra)  # dados inválidos levantam antes de trocar o estado
         sistema.politica.empresa = self.empresa
+        if self.acesso is not None and not cadastro:
+            # o controle compensatório (porte em que uma pessoa acumula funções) dispensa a POL-13. No dashboard ele
+            # só vale para o porte do cadastro da empresa, que só o administrador define (IAM-09): sem empresa
+            # cadastrada (modo demonstração), quem opera poderia escolher o porte micro ao reiniciar e liberar o
+            # próprio pedido (feedback da DSM3). O cenário em lote (`run`) continua com o controle do porte
+            sistema.politica.controle_compensatorio = None
         anterior = getattr(getattr(self, "sistema", None), "ambiente", None)
         if anterior is not None and hasattr(anterior, "fechar"):
             anterior.fechar()

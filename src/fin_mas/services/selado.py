@@ -107,6 +107,11 @@ def trava(caminho: Path):
                 time.sleep(0.02)
         yield
     finally:
+        if os.name == "nt":  # libera já: no Windows, o desbloqueio no fechamento pode demorar (doc. da Microsoft)
+            import msvcrt
+            with contextlib.suppress(OSError):
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
         os.close(fd)
 
 

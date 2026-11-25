@@ -52,7 +52,8 @@ def test_refused_decision_keeps_pending_and_can_be_retried():
 
 def test_option_not_offered_reports_nothing_sent_and_keeps_pending():
     s, sid, proposta = pendente()
-    proposta.content["opcoes"] = [o for o in proposta.content["opcoes"] if o != "corrigir"]
+    ticket = s.politica.tickets[proposta.conversation_id]  # as opções valem no ticket da política (DSM4)
+    ticket["opcoes"] = [o for o in ticket["opcoes"] if o != "corrigir"]
     assert s.aprovador.decidir(sid, "corrigir") is False
     assert sid in s.aprovador.pendentes
     assert s.bus.conversations[proposta.conversation_id].state == "PENDENTE"
@@ -62,7 +63,8 @@ def test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard():
     """Teste manual no dashboard: com o waiver negado (ex.: reincidência, POL-06), escolher waiver
     não pode bloquear a publicação em silêncio; nada é enviado e a pendência continua."""
     s, sid, proposta = pendente()
-    proposta.content["opcoes"] = [o for o in proposta.content["opcoes"] if o != "waiver"]
+    ticket = s.politica.tickets[proposta.conversation_id]  # as opções valem no ticket da política (DSM4)
+    ticket["opcoes"] = [o for o in ticket["opcoes"] if o != "waiver"]
     assert s.aprovador.decidir(sid, "waiver", JUSTIFICATIVA) is False
     assert sid in s.aprovador.pendentes
     assert s.bus.conversations[proposta.conversation_id].state == "PENDENTE"

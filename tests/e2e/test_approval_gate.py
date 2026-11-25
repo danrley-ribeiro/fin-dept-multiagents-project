@@ -317,7 +317,8 @@ def test_lost_human_decision_notice_is_redelivered_so_recurrence_is_still_refuse
     assert len(reentregas) == 1 and reentregas[0]["performative"] == "waiver_humano"
 
 
-def test_recurrence_is_checked_again_when_the_waiver_is_decided():
+@pytest.mark.parametrize("inverter", [False, True])
+def test_recurrence_is_checked_again_when_the_waiver_is_decided(inverter):
     """Limitação registrada na revisão do PR #4 (DSM3) e corrigida na DSM4: a POL-06 só era conferida na emissão do
     ticket. Com agosto e setembro pendentes ao mesmo tempo, o waiver de setembro era oferecido (o de agosto ainda
     não existia) e os dois podiam ser liberados. Agora a decisão confere de novo."""
@@ -329,9 +330,9 @@ def test_recurrence_is_checked_again_when_the_waiver_is_decided():
     assert set(s.aprovador.pendentes) == {agosto, setembro}
     tickets = {t["solicitacao"]: t for t in s.politica.tickets.values()}
     assert "waiver" in tickets[setembro]["opcoes"]  # emitido antes de existir o waiver de agosto
+    if inverter:
+        agosto, setembro = setembro, agosto
     assert s.aprovador.decidir(agosto, "waiver", JUSTIFICATIVA) is True
-    while s.bus.proximo_tempo() is not None and not s.memoria.entradas:
-        s.bus.step()
     with pytest.raises(MensagemRejeitada, match="POL-06: reincidência após waiver anterior"):
         s.aprovador.decidir(setembro, "waiver", JUSTIFICATIVA)
     assert setembro in s.aprovador.pendentes and tickets[setembro]["estado"] == "pendente"
@@ -339,3 +340,46 @@ def test_recurrence_is_checked_again_when_the_waiver_is_decided():
     s.bus.run()
     assert s.usuario.resposta(agosto).content["status"] == "publicado_com_ressalva"
     assert s.usuario.resposta(setembro).content["status"].startswith("publicado")
+
+
+def _decidir_em_processo(competencia, arquivo, barreira, resultados):
+    from fin_mas.env.scenarios import Scenario, montar
+
+    sc = Scenario("concorrente", "waiver entre processos", "fechar_mes",
+                  agenda=((competencia, ("alcada",)),), pedidos=(("fechar_mes", competencia, 1),))
+    sistema, (sid,) = montar(sc, interativo=True, memoria=arquivo)
+    rodar_ate_humano(sistema.bus)
+    barreira.wait(timeout=30)
+    try:
+        sistema.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
+    except MensagemRejeitada as erro:
+        assert "POL-06" in str(erro)
+        sistema.aprovador.decidir(sid, "bloquear", JUSTIFICATIVA)
+    sistema.bus.run()
+    resposta = sistema.usuario.resposta(sid)
+    resultados.put(resposta.content.get("status", resposta.performative))
+
+
+def test_uma_liberacao_entre_processos(tmp_path):
+    import json
+    import multiprocessing
+
+    ctx = multiprocessing.get_context("spawn")
+    barreira, resultados = ctx.Barrier(2), ctx.Queue()
+    arquivo = tmp_path / "memoria.json"
+    processos = [ctx.Process(target=_decidir_em_processo, args=(mes, arquivo, barreira, resultados))
+                 for mes in ("2026-08", "2026-09")]
+    try:
+        for processo in processos:
+            processo.start()
+        for processo in processos:
+            processo.join(45)
+            assert processo.exitcode == 0
+        assert sorted(resultados.get(timeout=2) for _ in processos) == ["failure", "publicado_com_ressalva"]
+        entradas = json.loads(arquivo.read_text(encoding="utf-8"))["entradas"]
+        assert sorted(e["tipo"] for e in entradas) == ["bloqueio", "waiver"]
+    finally:
+        for processo in processos:
+            if processo.is_alive():
+                processo.terminate()
+                processo.join()

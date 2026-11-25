@@ -67,6 +67,7 @@ def ratear(valor: int, rateio: dict) -> dict:
 @dataclass
 class Dataset:
     seed: int
+    volume_base: int = field(default=12, kw_only=True)
     entidade: str = ENTIDADE
     competencia: str = COMPETENCIA
     plantar: tuple = ()
@@ -297,7 +298,9 @@ class Dataset:
         aprovadores = [u for u in nomes if self._cargo(u) in p["aprovadores"]]
         escala = p["escala_lancamentos"]
         nc = []
-        for n in range(1, 13):
+        if self.volume_base < 1:
+            raise ValueError("o volume base deve ser positivo")
+        for n in range(1, self.volume_base + 1):
             criador = rng.choice(nomes)
             # sem outra pessoa com alçada (micro), quem cria também aprova: SoD inevitável, tratada por controle
             aprovador = rng.choice([u for u in aprovadores if u != criador] or [criador])

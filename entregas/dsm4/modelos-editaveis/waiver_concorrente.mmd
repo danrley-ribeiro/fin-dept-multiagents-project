@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant A as Gate de agosto
+  participant M as Memória compartilhada
+  participant S as Gate de setembro
+  Note over A,S: Dois tickets pendentes para o mesmo padrão crítico
+  A->>M: Conferir histórico e registrar waiver sob trava
+  M-->>A: Decisão persistida
+  S->>M: Conferir histórico sob a mesma trava
+  M-->>S: POL-06, waiver já concedido
+  Note over S: Ticket pendente para corrigir ou bloquear
+  Note over A,S: Se setembro decidir primeiro, agosto recebe a recusa

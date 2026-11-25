@@ -373,8 +373,7 @@ ligado, e os traces revisados do nível básico não mudaram. O cenário \code{a
 \V{ataques.acesso_avancado} ataques (TOTP repetido, recuperação reutilizada, pré-sessão em rota comum, delegação
 forjada, expirada ou subdelegada, a mesma pessoa nos dois passos, decisão acima da alçada e de outra empresa), e
 \V{ataques.acesso_avancado.rejeitados} são recusados. Ficam limitados: o escalonamento sobe um nível, uma vez; a trilha
-é uma por cadastro; delegações, seletor de empresa, segundo fator e cofre não têm tela no dashboard web (só API, CLI e
-TUI).
+é uma por cadastro. A gestão de delegações fica na TUI e na CLI. O dashboard permite selecionar a empresa, configurar o segundo fator e gerenciar chaves de LLM.
 % Integrado da branch dsm4/v1.0.0 (lote de acesso avançado, ADR-012). Na branch do relatório o cenário não existe e
 % \V{ataques.acesso_avancado} sai como "---": rodar tools/relatorio_numeros.py e make pdf-dsm4 depois da integração.
 
@@ -429,7 +428,7 @@ para o cofre, nunca volta pela API, pelo trace ou pela trilha e só é enviada a
 \code{tests/tui} & \V{testes.tui} & console de administração pelo Pilot do Textual \\
 \textbf{pytest, total} & \textbf{\V{testes.total}} & resultado nesta geração: \V{testes.passaram} passaram, \V{testes.falharam} falharam \\
 vitest (dashboard) & \V{testes.vitest} & reducer e regra da justificativa do waiver \\
-Playwright (dashboard) & \V{testes.playwright} & roteiros de uso real no navegador; não executados nesta geração \\
+Playwright (dashboard) & \V{testes.playwright} & roteiros de uso no Chrome, todos aprovados em 25/11/2026 \\
 \code{cenarios -{}-verificar} & \V{cenarios.verificados} de \V{cenarios.total} & cada cenário duas vezes: resposta explícita, invariantes e mesmo hash \\
 \bottomrule
 \end{tabularx}
@@ -437,9 +436,7 @@ Playwright (dashboard) & \V{testes.playwright} & roteiros de uso real no navegad
 
 Os testes novos das DSM3 e DSM4 são todos de ponta a ponta, de integração ou de interface; os achados corrigidos da
 correção simulada da DSM4 entraram com teste próprio (TEST-420 a TEST-449). A reprodutibilidade tem três
-camadas: o mesmo cenário com a mesma seed dá o mesmo hash de trace (conferido em todos os cenários); o hash dos 140
-traces revisados da DSM3 continua o mesmo no nível \code{basico}; e o \code{execucoes.csv} do experimento sai idêntico
-byte a byte numa segunda execução completa, em outro processo (SHA-256 \code{\V{exp.sha}\ldots} no manifesto). O
+camadas: cada cenário repete seu hash com a mesma semente, a ordem causal é conferida nos traces, e duas execuções completas em processos independentes reproduzem o CSV byte a byte. O manifesto histórico registra \code{\V{exp.sha}\ldots}; na revisão final, o SHA-256 começa por \code{ffe746a0}. O
 experimento revelou um defeito de reprodutibilidade antes da primeira rodada (o trace dependia da ordem de iteração de
 um conjunto, que muda entre processos), invisível para \code{cenarios -{}-verificar} porque ele compara duas execuções no
 mesmo processo.
@@ -822,9 +819,7 @@ A lista completa e sem suavização está em \code{docs/dsm4/limitacoes.md}. As 
   \item \textbf{Pedido sem atestado}: a pessoa do pedido vem da sessão da interface, não de um atestado no PROT-SOL; a
         resposta final ao solicitante, se perdida, não é avisada.
   \item \textbf{Dados sintéticos}: o gabarito é o que foi plantado; empresas reais têm erros combinados e ambíguos.
-  \item \textbf{Interfaces}: TUI não verificada em Windows; expiração de sessão por tempo sem teste automatizado; os
-        roteiros Playwright não foram executados na geração deste relatório; delegações, empresa ativa, segundo fator
-        e cofre não têm tela no dashboard web.
+  \item \textbf{Interfaces}: os testes do Pilot do Textual passaram no Windows. Terminais com menos de 80 colunas e expiração da sessão por tempo continuam sem cobertura de interface. A administração de delegações permanece na CLI e na TUI.
   \item \textbf{Cofre sem cifra}: integridade e controle de acesso, não confidencialidade contra quem lê o disco.
   \item \textbf{Fontes}: nenhum conector de fornecedor nem ERP real testado; o entendimento de fontes depende de um
         vocabulário finito de sinônimos, e o que ele não reconhece a pessoa mapeia à mão.
@@ -843,6 +838,11 @@ como único fator e o segundo fator derrubável por força bruta (C3), as fontes
 restauração que gravava fora do destino (C5), o aprovador sem limite de valor e sem substituto, a
 memória que perdia entradas entre processos e o cadastro de uma empresa só.
 % Integrado da branch dsm4/v1.0.0 (ADR-011 e ADR-012).
+
+\section*{Revisão final após o feedback da DSM3}
+Na decisão do waiver, o Gate valida identidade, alçada e justificativa. O serviço de memória relê o histórico sob trava e registra todos os padrões críticos antes de confirmar a liberação. Se agosto e setembro têm tickets abertos para a mesma irregularidade, a primeira liberação impede a segunda em qualquer ordem. O ticket recusado permanece pendente para correção ou bloqueio. TEST-424 cobre decisões no mesmo tick e TEST-459 sincroniza dois processos com o mesmo arquivo selado. Uma interrupção após persistir a decisão pode exigir reconciliação humana antes da publicação.
+
+Duas repetições do plano de 9.360 execuções produziram CSVs idênticos e as mesmas métricas da terceira rodada histórica. O ensaio adicional cruzou 30 sementes, dois portes, 12 ou 96 lançamentos de base e probabilidades de 20\% e 80\% de plantar uma violação de alçada. Cada um dos 240 pares usou os mesmos dados e a decisão de corrigir. Os dois braços acertaram a conformidade em todos os fechamentos. Cada braço corrigiu 20 críticas nos 120 fechamentos de menor frequência e 100 nos 120 de maior frequência. As médias de mensagens do SMA foram 21,67 e 24,33, contra 0,33 e 1,67 no workflow. A variação de volume preservou esses resultados no intervalo exercitado. Os ticks medem etapas simuladas. O ensaio não estima vazão de processamento em produção. O arquivo \code{docs/dsm4/resultados/carga.csv} permite conferir cada par.
 
 % ---------------------------------------------------------------- 12
 \section{Conclusão}

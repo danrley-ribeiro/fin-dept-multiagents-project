@@ -84,3 +84,13 @@ não mudaram. O experimento não encontrou ganho significativo do nível `local`
 | {doc}`ADR-010-especialistas-bdi` | todos os especialistas BDI, com as variantes reativas como braço de comparação | DSM4 |
 | `docs/dsm4/ADR-011-conectores-e-entendimento.md` | conectores genéricos e entendimento automático de fontes, sem IA generativa | DSM4 |
 | `docs/dsm4/ADR-012-acesso-avancado.md` | segundo fator, alçada por pessoa, delegação, quatro olhos, cofre e empresas | DSM4 |
+
+## Aprovações simultâneas e memória de reincidência
+
+![Disputa entre os gates de agosto e setembro](../../entregas/dsm4/diagramas/waiver_concorrente.png)
+
+O AG-CIN identifica o padrão crítico pela regra e pela pessoa pseudonimizada ou pelo fornecedor. Ao decidir um waiver, o SVC-POL primeiro valida ticket, identidade, alçada, segregação e justificativa. O SVC-MEM relê o histórico selado, compara todos os padrões e grava a decisão em uma única transação. O primeiro waiver aceito impede outro do mesmo padrão na mesma competência ou a até 12 meses de distância, inclusive se o mês mais recente for decidido primeiro. Um endosso da dupla aprovação apenas consulta. Uma recusa mantém o ticket pendente para correção ou bloqueio.
+
+A garantia entre processos exige que ambos usem o mesmo arquivo de memória e o mesmo diretório de chaves. A confirmação recebida posteriormente pelo AG-CIN atualiza suas crenças. Se o processo cair depois de persistir a aprovação e antes de publicar, o histórico preserva a liberação e exige revisão humana. A adoção explícita de um backup íntegro também usa a trava e grava um contador superior tanto ao restaurado quanto ao último contador do destino. Os testes TEST-424 e TEST-459 cobrem decisões consecutivas no mesmo tick e a disputa entre dois processos.
+
+O sistema operacional mantém a trava pelo descritor aberto e a libera quando o processo termina. Uma execução lenta continua protegida. As instâncias devem usar o mesmo diretório de chaves em disco local. Na atualização, encerre todas as instâncias da versão anterior antes de iniciar as novas, pois a versão anterior usava outro mecanismo de trava.

@@ -39,8 +39,8 @@ guarda cópias: `tools/empacotar_wheel.py` copia o código para `build/wheel/`, 
 dashboard e chama `pip wheel` (o setuptools vem do isolamento de build do pip). O teste
 `test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository` instala o wheel num venv
 limpo e roda, numa pasta fora do repositório, `fin-mas list`, `fin-mas run --scenario fechar_mes`
-(mesmo hash do checkout), `fin-mas instalar --demo` e `fin-mas doctor`. Sem rede, o teste instala o
-wheel com `--no-deps` e aponta para as dependências de runtime (pyyaml, openpyxl, et_xmlfile) do
+(mesmo hash do checkout), `fin-mas instalar --demo` e `fin-mas doctor`. O teste usa o backend instalado por `requirements-dev.txt` com `--sem-isolamento`, instala o
+wheel com `--no-index --no-deps` e aponta para as dependências de runtime (pyyaml, openpyxl, et_xmlfile) do
 ambiente que roda os testes. `fin-mas doctor` mostra de onde vêm os modelos: `(pacote)` ou
 `(checkout)`.
 
@@ -86,6 +86,9 @@ removido. O `compose.yaml` foi validado pela leitura do YAML no teste
 volumes, variáveis, endurecimento e healthcheck), não pelo `docker compose config`.
 
 ## 4. Backup, restauração e migração
+
+Os arquivos de trava pertencem à execução local. O backup preserva os dados, os selos e os contadores. Cada processo recria a trava no destino ao acessar o arquivo restaurado.
+
 
 ```bash
 fin-mas backup --pasta dados --para backup.zip --chaves-para backup.chaves.zip

@@ -7,7 +7,7 @@ pré-registro. Todas as tabelas e todos os testes estão em {doc}`tabelas`; o da
 `docs/dsm4/resultados/execucoes.csv`.
 
 ```bash
-python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # ou: make experimento
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # conserva o CSV histórico
 ```
 
 **O experimento rodou três vezes, e as três contam.** A primeira rodada revelou um defeito do
@@ -18,7 +18,7 @@ rodada mede a versão final (1.0.0). Os números desta página são os da tercei
 "Três rodadas" põe as três lado a lado.
 
 Foram 9.360 execuções em 30 seeds (bloco A: 6.000; B: 2.160; C: 1.080; D: 120). Nenhuma
-levantou exceção. Uma segunda execução completa, em outro processo, produz o mesmo
+levantou exceção. Na versão 1.0.0, uma segunda execução completa, em outro processo, produziu o mesmo
 `execucoes.csv` byte a byte (SHA-256 `9d5126a6…` em `manifesto.json`). Os valores abaixo são a
 média por seed com o intervalo de confiança de 95% por bootstrap entre colchetes; "pp" é ponto
 percentual.
@@ -642,3 +642,18 @@ a mais:
 | `resultados/fig_*.svg` | Seis figuras em pequenos múltiplos. |
 | `resultados/manifesto.json` | Versão do pacote (1.0.0), seeds, condições, parâmetros, probabilidades do modelo de falhas e SHA-256 do CSV. |
 | `resultados/tempo_parede.csv` | Milissegundos por execução. **Não reproduzível.** |
+
+## Revisão final de 25/11/2026
+
+As duas repetições locais do plano de 9.360 execuções produziram CSVs idênticos. A comparação com a terceira rodada histórica encontrou as mesmas chaves, desfechos e métricas em todas as linhas. Mudou a coluna de hash em 6.480 linhas. A versão do pacote integra o trace e a gravação da memória do waiver passou para o instante da aprovação. Os [dados brutos desta revisão](resultados/revisao-final/execucoes.csv) acompanham o [manifesto](resultados/revisao-final/manifesto.json) e os tempos da primeira repetição. O SHA-256 do CSV desta revisão é `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568`.
+
+### Ensaio exploratório de carga
+
+Foram 240 pares de fechamento nominal. Cruzamos 30 sementes com dois portes (pequena e média), 12 ou 96 lançamentos de base e probabilidades de 20% ou 80% de plantar uma violação de alçada em cada fechamento. Dentro de cada par, o SMA básico e o workflow equivalente receberam cópias independentes dos mesmos dados e a mesma decisão de corrigir. Uma violação acrescenta um lançamento. A unidade de repetição é a semente, reutilizada nos fatores e nos braços.
+
+| Probabilidade | Sementes com plantio | Críticas corrigidas por braço | Mensagens médias SMA / workflow | Ticks médios SMA / workflow |
+|---|---:|---:|---:|---:|
+| 20% | 5 de 30 | 20 em 120 fechamentos | 21,67 / 0,33 | 16,83 / 15,83 |
+| 80% | 25 de 30 | 100 em 120 fechamentos | 24,33 / 1,67 | 20,17 / 19,17 |
+
+Ambos classificaram corretamente a conformidade em todos os fechamentos e publicaram zero críticas sem tratamento. Mais meses com violação exigiram mais intervenções e mensagens. Aumentar o volume de 12 para 96 lançamentos, mantendo a semente e o plantio, preservou essas métricas. O relógio lógico avança por etapa e mensagem. Este ensaio não mede a capacidade de processamento em lançamentos por segundo. Dados linha a linha em [carga.csv](resultados/carga.csv).

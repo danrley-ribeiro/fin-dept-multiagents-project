@@ -249,12 +249,12 @@ class AnthropicProvedor:
         return bool(chave("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
 
     def completar(self, modelo, pedido: PedidoLLM, *, base_url=None, timeout=TEMPO_LIMITE) -> RespostaLLM:
+        if not destino_confiavel(base_url, None):
+            _recusar_destino(self.id)
         try:
             import anthropic  # dependência opcional (extra `llm`): sem o SDK, o agente segue no template
         except ImportError:
             raise ErroProvedor('SDK anthropic não instalado (pip install "fin-mas[llm]")') from None
-        if not destino_confiavel(base_url, None):
-            _recusar_destino(self.id)
         saida = {"effort": "low"}  # tarefas curtas e estruturadas: esforço baixo basta
         if pedido.esquema:
             saida["format"] = {"type": "json_schema", "schema": pedido.esquema}

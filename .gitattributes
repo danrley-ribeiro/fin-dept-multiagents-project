@@ -1,1 +1,2 @@
 *.sh text eol=lf
+docs/dsm4/resultados/**/*.csv text eol=lf

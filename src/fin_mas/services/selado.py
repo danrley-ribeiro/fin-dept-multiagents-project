@@ -8,7 +8,7 @@ servidor do dashboard leem e gravam ao mesmo tempo. Mesmo desenho do arquivo do 
 - **contador**: sobe a cada gravação e também fica fora da pasta; um arquivo com contador menor
   que o último gravado é uma versão antiga recolocada no lugar (rollback) e é recusado;
 - **gravação atômica**: arquivo temporário e `os.replace`;
-- **trava entre processos**: arquivo `.lock` criado com `O_EXCL` (funciona em Windows, Linux e
+- **trava entre processos**: arquivo estável na pasta de chaves, travado pelo sistema operacional (funciona em Windows, Linux e
   macOS); toda alteração relê o arquivo dentro da trava, então duas escritas concorrentes
   nunca se sobrescrevem;
 - **falha fechada**: arquivo ausente depois de já ter sido gravado, ilegível, de outra versão,
@@ -19,6 +19,7 @@ Sem `caminho`, os dados ficam só em memória (acesso simulado dos cenários em 
 """
 import contextlib
 import copy
+import errno
 import hashlib
 import hmac
 import json
@@ -28,7 +29,6 @@ import time
 from pathlib import Path
 
 ESPERA_TRAVA = 5.0  # segundos tentando obter a trava antes de desistir
-TRAVA_VELHA = 30.0  # trava mais antiga que isso é de um processo que morreu: pode ser quebrada
 
 
 def _sem_conflito_de_acesso(operacao):
@@ -84,36 +84,30 @@ def _estado(rotulo: str, caminho: Path, sufixo: str) -> Path:
 
 @contextlib.contextmanager
 def trava(caminho: Path):
-    """Exclusão mútua entre processos sobre `caminho` (arquivo `<caminho>.lock`)."""
-    alvo = Path(str(caminho) + ".lock")
+    """A trava pertence ao descritor aberto. O SO a libera mesmo se o processo terminar."""
+    alvo = _estado("trava", caminho, "lock")
     alvo.parent.mkdir(parents=True, exist_ok=True)
-    fim = time.monotonic() + ESPERA_TRAVA
-    while True:
-        try:
-            fd = os.open(alvo, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.close(fd)
-            break
-        except (FileExistsError, PermissionError):  # Windows: trava de outro processo sendo apagada = ocupada
-            with contextlib.suppress(OSError):
-                if time.time() - alvo.stat().st_mtime > TRAVA_VELHA:
-                    alvo.unlink()
-                    continue
-            if time.monotonic() > fim:
-                raise TravaOcupada(f"{alvo.name}: outro processo está gravando há mais de {ESPERA_TRAVA:.0f} s") from None
-            time.sleep(0.02)
+    fd = os.open(alvo, os.O_CREAT | os.O_RDWR, 0o600)
     try:
+        fim = time.monotonic() + ESPERA_TRAVA
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError as erro:
+                if erro.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                    raise
+                if time.monotonic() >= fim:
+                    raise TravaOcupada(f"{caminho.name}: outro processo mantém a trava") from None
+                time.sleep(0.02)
         yield
     finally:
-        for tentativa in range(40):  # no Windows, outro processo pode estar consultando a trava neste instante
-            try:
-                alvo.unlink()
-                break
-            except FileNotFoundError:
-                break
-            except PermissionError:
-                time.sleep(0.05)
-            except OSError:
-                break
+        os.close(fd)
 
 
 class ArquivoSelado:
@@ -178,6 +172,8 @@ class ArquivoSelado:
             return
         try:
             bruto = json.loads(_sem_conflito_de_acesso(lambda: self.caminho.read_text(encoding="utf-8")))
+            if not isinstance(bruto, dict):
+                raise ValueError("objeto esperado")
             versao, contador, dados, selo = self._decodificar(bruto)
         except (OSError, ValueError, KeyError, TypeError):
             raise ArquivoComprometido(f"{self.caminho.name}: arquivo ilegível ou fora do formato") from None
@@ -205,26 +201,30 @@ class ArquivoSelado:
             rascunho = copy.deepcopy(self._dados)
             yield rascunho
             contador = max(self._contador, self._ultimo_contador()) + 1
-            self.caminho.parent.mkdir(parents=True, exist_ok=True)
-            temporario = self.caminho.with_suffix(self.caminho.suffix + ".tmp")
-            texto = json.dumps(self._codificar(contador, rascunho, self._selo(contador, rascunho)),
-                               ensure_ascii=False, indent=1, sort_keys=True)
-            fd = os.open(temporario, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, self.modo if self.modo is not None else 0o666)
-            with os.fdopen(fd, "w", encoding="utf-8") as f:
-                f.write(texto)
-            if self.modo is not None:
-                with contextlib.suppress(OSError):
-                    os.chmod(temporario, self.modo)
-            for tentativa in range(40):  # no Windows o destino pode estar aberto por um leitor (até cerca de 2 s)
-                try:
-                    os.replace(temporario, self.caminho)
-                    break
-                except PermissionError:
-                    if tentativa == 39:
-                        raise
-                    time.sleep(0.05)
-            estado = _estado(self.rotulo, self.caminho, "contador")
-            estado.parent.mkdir(parents=True, exist_ok=True)
-            estado.write_text(str(contador), encoding="utf-8")
-            st = self.caminho.stat()
-            self._dados, self._contador, self._marca = rascunho, contador, (st.st_mtime_ns, st.st_size)
+            self._gravar(rascunho, contador)
+
+    def _gravar(self, rascunho, contador):
+        """Persiste sob a trava já adquirida pelo chamador."""
+        self.caminho.parent.mkdir(parents=True, exist_ok=True)
+        temporario = self.caminho.with_suffix(self.caminho.suffix + ".tmp")
+        texto = json.dumps(self._codificar(contador, rascunho, self._selo(contador, rascunho)),
+                           ensure_ascii=False, indent=1, sort_keys=True)
+        fd = os.open(temporario, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, self.modo if self.modo is not None else 0o666)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(texto)
+        if self.modo is not None:
+            with contextlib.suppress(OSError):
+                os.chmod(temporario, self.modo)
+        for tentativa in range(40):  # no Windows o destino pode estar aberto por um leitor (até cerca de 2 s)
+            try:
+                os.replace(temporario, self.caminho)
+                break
+            except PermissionError:
+                if tentativa == 39:
+                    raise
+                time.sleep(0.05)
+        estado = _estado(self.rotulo, self.caminho, "contador")
+        estado.parent.mkdir(parents=True, exist_ok=True)
+        estado.write_text(str(contador), encoding="utf-8")
+        st = self.caminho.stat()
+        self._dados, self._contador, self._marca = rascunho, contador, (st.st_mtime_ns, st.st_size)

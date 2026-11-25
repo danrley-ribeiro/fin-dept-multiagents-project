@@ -282,15 +282,16 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
                "AG-REL": (AgenteRelatoriosBDI if cognitivo else AgenteRelatorios)(bus, gw)}
     agentes["AG-CIN"].memoria = mem.visao("AG-CIN")
 
-    def waiver_anterior(ticket):  # POL-06 conferida também na decisão (vetos do mesmo padrão pendentes juntos)
-        for a in ticket.get("achados", []):
-            chave = agentes["AG-CIN"].chave_reincidencia(a, ticket["competencia"]) if a.get("severidade") == "critica" else None
-            anterior = chave and next((e for e in mem.entradas if e["tipo"] == "waiver" and e["chave"] == chave
-                                       and e["competencia"] < ticket["competencia"]), None)
-            if anterior:
-                return f"{a['lancamento']} ({anterior['id']}, {anterior['competencia']})"
-        return None
-    politica.reincidencia_na_decisao = waiver_anterior
+    def decidir_waiver(ticket, aprovador):
+        padroes = {}
+        for achado in ticket["achados"]:
+            if achado["severidade"] == "critica":
+                chave = agentes["AG-CIN"].chave_reincidencia(achado, ticket["competencia"])
+                if chave:
+                    padroes.setdefault(chave, {"regra": achado["regra"], "lancamento": achado["lancamento"]})
+        return mem._decidir_waiver(ticket, padroes, aprovador)
+
+    politica.decidir_waiver = decidir_waiver
     if getattr(ds, "segmento", SEGMENTO_PADRAO) != SEGMENTO_PADRAO:  # DSM4: direcionador de rateio do segmento
         agentes["AG-CUS"].conhecimento.update(rateio=dict(ds.rateio), versao_rateio=ds.versao_rateio)
     agentes["AG-CIN"].informar_exposicao = acesso is not None  # DSM4: exposição no veto só com o SVC-IAM (POL-10)

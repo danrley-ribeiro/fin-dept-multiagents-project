@@ -122,8 +122,7 @@ class PoliticaAprovacao:
         self.bus = bus
         self.aprovadores = {k: dict(v) for k, v in (aprovadores or APROVADORES_PADRAO).items()}
         self.prazo = prazo
-        # f(ticket) -> texto do waiver anterior do mesmo padrão, ou None; ligado por build_system (SVC-MEM + AG-CIN)
-        self.reincidencia_na_decisao = None
+        self.decidir_waiver = None
         self.acesso = acesso  # SVC-IAM: com ele, a decisão vale pela pessoa autenticada (POL-09, POL-13)
         self.controle_compensatorio = controle_compensatorio  # texto do porte em que uma pessoa acumula funções
         self.tickets: dict[str, dict] = {}  # id da conversa PROT-APR -> ticket
@@ -268,17 +267,13 @@ class PoliticaAprovacao:
         if msg.performative in ("approve", "endorse"):
             if decisao not in t["opcoes"] or decisao == "bloquear":
                 return f"POL-07: decisão '{decisao}' não está entre as opções abertas {t['opcoes']}"
-            if decisao == "waiver" and self.reincidencia_na_decisao is not None:
-                # POL-06 também na decisão: a emissão do ticket só via a memória daquele instante. Com dois vetos
-                # do mesmo padrão pendentes ao mesmo tempo, o segundo era emitido antes de existir o waiver do
-                # primeiro e os dois podiam ser liberados (limitação registrada na revisão do PR #4 da DSM3).
-                anterior = self.reincidencia_na_decisao(t)
-                if anterior:
-                    return (f"POL-06: reincidência após waiver anterior: {anterior}; o waiver deixou de ser "
-                            f"admitido para este veto (conferido na decisão)")
             if decisao == "waiver" and not _justificativa_valida(c["justificativa"]):
                 return (f"POL-04: waiver exige justificativa com pelo menos {MIN_JUSTIFICATIVA} caracteres "
                         f"e duas palavras diferentes de três ou mais letras")
+            if decisao == "waiver" and self.decidir_waiver is not None:
+                motivo = self.decidir_waiver(t, cadastro if msg.performative == "approve" else None)
+                if motivo:
+                    return motivo
             if decisao == "corrigir":
                 pedidas = [_par(x) for x in c.get("correcoes") or [] if isinstance(x, dict)]
                 if not pedidas:

@@ -1,6 +1,6 @@
 """Experimento redesenhado da DSM4 (pré-registro em docs/dsm4/experimento.md).
 
-    python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados
+    python -m fin_mas experimento --replicas 30 --out saidas/reproducao
     python -m fin_mas experimento --rapido --out /tmp/experimento      # confere o aparato em segundos
 
 Quatro braços (SMA básico, SMA com cognição local, workflow centralizado equivalente e workflow

@@ -7,8 +7,8 @@ Regras (REQ-F07, NORM-06, NORM-08):
   `waiver` exige ticket de waiver aprovado, `correcao` um ticket de correção executado e
   `bloqueio` um ticket rejeitado; a competência é a do ticket e o lançamento está entre os
   achados (ou as correções executadas) daquele veto. Fora disso, a gravação é recusada;
-- **identidade**: grava e consulta só quem tem uma visão emitida pelo serviço (`visao`), com
-  um token de acesso; chamar o serviço declarando o nome de um agente não basta;
+- **identidade**: agentes gravam e consultam por uma visão emitida pelo serviço (`visao`), com
+  um token de acesso. Ao confirmar o waiver, o Gate registra os padrões do AG-CIN na própria transação da decisão;
 - **proveniência**: aprovação, solicitação, conversa de conformidade, decisão, quem decidiu
   (pseudônimo com chave) e fonte; quem consulta recebe o id `MEM-…`;
 - **controle de acesso**: cada tipo de memória tem escritores e leitores;
@@ -48,11 +48,12 @@ import os
 import re
 import secrets
 import time
+import threading
 from pathlib import Path
 
 from fin_mas.core.schema import FORMATOS
 from fin_mas.services.redacao import FalhaRedacao, redigir
-from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada, _estado, pasta_de_chaves
+from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada, _estado, pasta_de_chaves, trava
 
 VERSAO = 4  # v4: pseudônimo com HMAC (chave da memória) em vez de SHA-256 sem chave
 RETENCAO_COMPETENCIAS = 12
@@ -98,6 +99,12 @@ class _ArquivoMemoria(ArquivoSelado):
         if not isinstance(bruto.get("entradas"), list):
             raise KeyError("entradas")
         return bruto["versao"], bruto["contador"], {"entradas": bruto["entradas"]}, bruto["selo"]
+
+    def _gravar(self, rascunho, contador):
+        # Um waiver pode criar várias entradas na mesma transação. O contador preserva
+        # o maior ID mesmo se uma manutenção expirar todas as entradas depois.
+        maior = max((int(e["id"][4:]) for e in rascunho["entradas"]), default=0)
+        super()._gravar(rascunho, max(contador, maior))
 
     def _codificar(self, contador: int, dados: dict, selo: str) -> dict:
         return {"versao": self.versao, "contador": contador, "entradas": dados["entradas"], "selo": selo}
@@ -148,6 +155,7 @@ class Memoria:
         self._acessos: dict[str, str] = {}  # agente -> token da visão emitida
         self.comprometida: str | None = None  # motivo, quando a integridade do arquivo não pôde ser garantida
         self.contador = 0
+        self._trava_local = threading.RLock()
         self._ultimo_id = 0  # maior número de MEM-… já emitido neste processo (ids nunca são reaproveitados)
         self._chave = self._carregar_chave()
         self._arquivo = _ArquivoMemoria(self.caminho, self._chave) if self.caminho else None
@@ -214,29 +222,56 @@ class Memoria:
                                  (tipo, chave, competencia, aprovacao)), None)
                 if repetida:
                     return repetida
-                # nunca reaproveita um id: além do maior existente, o maior já emitido neste processo e o
-                # contador selado do arquivo, relido dentro da trava (cada gravação o incrementa, inclusive
-                # a de outro processo), que sobrevive a entradas expiradas
-                existentes = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0)
-                selado = self._arquivo._contador if self._arquivo is not None else self.contador
-                proximo = max(existentes, self._ultimo_id, selado) + 1
-                self._ultimo_id = proximo
-                entrada = {
-                    "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
-                    "competencia": competencia, "agente": agente,
-                    "proveniencia": {"aprovacao": aprovacao, "solicitacao": ticket["solicitacao"], "cmp": ticket["cmp"],
-                                     "decisao": ticket["decisao"],
-                                     "decidido_por": self.pseudonimo(ticket["aprovado_por"]["pessoa"])
-                                     if ticket.get("aprovado_por") else None, "fonte": fonte},
-                }
-                entrada["assinatura"] = self._assinar(entrada)
-                self.entradas.append(entrada)
+                entrada = self._inserir(agente, tipo, chave, valor, competencia, aprovacao, fonte, ticket)
         except MemoriaRecusada as erro:
             self._registrar(cid, "recusada", agente=agente, tipo=tipo, chave=chave, motivo=str(erro))
             raise
         self._registrar(cid, "gravada", agente=agente, memoria=entrada["id"], tipo=tipo, chave=chave,
                         competencia=competencia, aprovacao=aprovacao)
         return entrada
+
+    def _inserir(self, agente, tipo, chave, valor, competencia, aprovacao, fonte, ticket):
+        # nunca reaproveita um id: além do maior existente, o maior já emitido neste processo e o
+        # contador selado do arquivo, relido dentro da trava (cada gravação o incrementa, inclusive
+        # a de outro processo), que sobrevive a entradas expiradas
+        existentes = max((int(e["id"][4:]) for e in self.entradas if e["id"][4:].isdigit()), default=0)
+        selado = self._arquivo._contador if self._arquivo is not None else self.contador
+        proximo = max(existentes, self._ultimo_id, selado) + 1
+        self._ultimo_id = proximo
+        entrada = {
+            "id": f"MEM-{proximo:04d}", "tipo": tipo, "chave": chave, "valor": valor,
+            "competencia": competencia, "agente": agente,
+            "proveniencia": {"aprovacao": aprovacao, "solicitacao": ticket["solicitacao"], "cmp": ticket["cmp"],
+                             "decisao": ticket["decisao"],
+                             "decidido_por": self.pseudonimo(ticket["aprovado_por"]["pessoa"])
+                             if ticket.get("aprovado_por") else None, "fonte": fonte},
+        }
+        entrada["assinatura"] = self._assinar(entrada)
+        self.entradas.append(entrada)
+        return entrada
+
+    def _decidir_waiver(self, ticket, padroes, aprovador):
+        """Confere todos os padrões e registra a decisão em uma transação. O endosso apenas consulta."""
+        competencia = ticket["competencia"]
+        mes = _meses(competencia)
+        novas = []
+        try:
+            with self._sob_trava():
+                for e in self.entradas:
+                    if (e["tipo"] == "waiver" and e["chave"] in padroes
+                            and abs(mes - _meses(e["competencia"])) <= self.retencao):
+                        return f"POL-06: reincidência após waiver anterior: {e['id']} em {e['competencia']}"
+                if aprovador is not None:
+                    decisao = dict(ticket, decisao="waiver", aprovado_por=aprovador)
+                    for chave, valor in padroes.items():
+                        novas.append(self._inserir("AG-CIN", "waiver", chave, redigir(valor), competencia,
+                                                  ticket["id"], f"PROT-APR {ticket['id']}", decisao))
+        except (MemoriaRecusada, FalhaRedacao, OSError) as erro:
+            return f"POL-06: histórico de decisões indisponível ({erro})"
+        for e in novas:
+            self._registrar(ticket["cmp"], "gravada", agente="AG-CIN", memoria=e["id"], tipo="waiver",
+                            chave=e["chave"], competencia=competencia, aprovacao=ticket["id"])
+        return None
 
     # ---- leitura --------------------------------------------------------------------
     def consultar(self, agente: str, tipo: str, chave: str | None = None, *, competencia_atual: str,
@@ -406,7 +441,8 @@ class Memoria:
         """Alteração das entradas. Com arquivo: trava entre processos, relê e confere o arquivo, entrega
         `self.entradas` atualizadas para o bloco alterar e grava ao sair (só se algo mudou)."""
         if self._arquivo is None:
-            yield
+            with self._trava_local:
+                yield
             return
         if self.comprometida:
             raise MemoriaRecusada(f"memória comprometida ({self.comprometida}): restaure o arquivo antes de gravar")
@@ -442,6 +478,8 @@ class Memoria:
             return "proveniência sem aprovação"
         if not hmac.compare_digest(e["assinatura"], self._assinar(e)):
             return "assinatura não confere (entrada alterada fora do SVC-MEM)"
+        if not re.fullmatch(r"MEM-[0-9]+", e["id"]):
+            return "id de memória inválido"
         return None
 
     def _registrar(self, cid, evento, **campos) -> None:
@@ -508,6 +546,11 @@ def adotar(caminho, *, forcar: bool = False) -> dict:
     que qualquer um já visto. Quem chama confere a permissão (`PERM-MEM-ADOTAR`) e registra na trilha.
     """
     caminho = Path(caminho)
+    with trava(caminho):
+        return _adotar_sob_trava(caminho, forcar)
+
+
+def _adotar_sob_trava(caminho, forcar):
     try:
         bruto = json.loads(caminho.read_text(encoding="utf-8"))
         if not isinstance(bruto, dict) or not isinstance(bruto.get("entradas"), list) \
@@ -539,15 +582,8 @@ def adotar(caminho, *, forcar: bool = False) -> dict:
         arquivo_chave.write_bytes(chave)
         with contextlib.suppress(OSError):
             os.chmod(arquivo_chave, 0o600)
-    arquivo_contador.parent.mkdir(parents=True, exist_ok=True)
-    arquivo_contador.write_text(str(max(bruto["contador"], 0)), encoding="utf-8")
     selado = _ArquivoMemoria(caminho, chave)
-    with selado.transacao() as dados:
-        dados["entradas"] = list(dados["entradas"])  # regrava: contador novo, acima de tudo o que já foi visto
-    if selado._contador <= ultimo:
-        with selado.transacao() as dados:  # contador ainda abaixo do último já gravado aqui: sobe de novo
-            pass
-        arquivo_contador.write_text(str(max(selado._contador, ultimo + 1)), encoding="utf-8")
+    selado._gravar({"entradas": bruto["entradas"]}, max(bruto["contador"], ultimo) + 1)
     return {"arquivo": str(caminho), "entradas": len(bruto["entradas"]), "contador": selado._contador,
             "origem": "outra pasta" if atual != chave and not da_env else "este caminho (backup recolocado)",
             "chave_substituida": troca, "contador_anterior": ultimo}

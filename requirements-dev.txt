@@ -4,3 +4,6 @@ pytest>=8.0
 # opcionais do produto, instalados aqui para que a suíte exercite os dois caminhos
 anthropic>=1.0
 textual>=8,<9
+# Build offline do wheel durante o teste de instalação
+setuptools>=77
+wheel>=0.43

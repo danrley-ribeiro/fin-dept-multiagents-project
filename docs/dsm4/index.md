@@ -26,7 +26,7 @@ Páginas da DSM4 disponíveis até aqui.
 | {doc}`ADR-011-conectores-e-entendimento` | Conectores genéricos e entendimento automático de fontes, sem IA generativa. |
 
 ```bash
-python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # ou: make experimento (cerca de 3 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # ou: make experimento (cerca de 3 minutos)
 python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 seeds, alguns segundos
 ```
 

@@ -176,10 +176,10 @@ def test_memory_copied_to_another_folder_is_adopted_under_permission(cli):
     assert '"memoria_adotada"' in trilha
 
 
-def test_two_runs_writing_the_same_memory_at_once_keep_both_entries(cli):
+def test_four_concurrent_blocks_keep_all_entries(cli):
     arquivo = _memoria(cli.tmp, "comum")
     roteiro = ("import sys; from fin_mas.env.scenarios import Scenario, run_scenario;"
-               "c = sys.argv[1]; run_scenario(Scenario('m' + c, 'w', 'fechar_mes', decisao_aprovador='waiver',"
+               "c = sys.argv[1]; run_scenario(Scenario('m' + c, 'w', 'fechar_mes', decisao_aprovador='bloquear',"
                "agenda=((c, ('alcada',)),), pedidos=(('fechar_mes', c, 1),)), memoria=sys.argv[2])")
 
     def rodar(competencia):

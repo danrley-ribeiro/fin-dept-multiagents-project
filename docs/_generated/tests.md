@@ -2782,14 +2782,14 @@
 **Execução:** DSM4 (status atual: executado).
 ````
 
-````{test} test_two_runs_writing_the_same_memory_at_once_keep_both_entries
+````{test} test_four_concurrent_blocks_keep_all_entries
 :id: TEST-316
 :entrega: DSM4
 :status: executado
 :verifies: REQ-S06
 :derived_from: NORM-15
 
-`test_two_runs_writing_the_same_memory_at_once_keep_both_entries()` — tipo *integracao*.  
+`test_four_concurrent_blocks_keep_all_entries()` — tipo *integracao*.  
 **Resultado esperado:** quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida  
 **Execução:** DSM4 (status atual: executado).
 ````
@@ -3607,5 +3607,17 @@
 
 `test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears()` — tipo *robustez*.  
 **Resultado esperado:** decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_uma_liberacao_entre_processos
+:id: TEST-459
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-F07
+:derived_from: SVC-POL
+
+`test_uma_liberacao_entre_processos()` — tipo *integracao*.  
+**Resultado esperado:** dois processos abrem agosto e setembro antes de decidir; exatamente um waiver é registrado e só o vencedor publica com ressalva  
 **Execução:** DSM4 (status atual: executado).
 ````

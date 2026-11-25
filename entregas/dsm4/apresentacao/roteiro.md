@@ -43,17 +43,10 @@ Terminal 2: `python -m fin_mas serve --demo` e o navegador aberto em `http://127
 O roteiro longo, com o que observar e o plano B, está em
 [`docs/dsm4/demonstracao.md`](../../../docs/dsm4/demonstracao.md). Na apresentação, a versão curta:
 
-1. **Falha controlada** (J):
-   `python -m fin_mas run --scenario res_insumo_faltante --porte grande | grep -E "AG-RES|resposta final"`.
-   Apontar `P-FALHAR-EXPLICITAMENTE` (na grande a completude pesa mais), o reenvio do Orquestrador e a
-   resposta final `inform`.
-2. **Ataque recusado** (J): `python -m fin_mas run --scenario ataque_acesso | tail -5` →
-   `ATAQUES 15 de 15 rejeitados`; nada publicado.
-3. **Um teste** (D): `python -m pytest tests/e2e/test_equivalencia_workflow.py -q` (cerca de 5 s):
-   é o teste que sustenta a palavra "equivalente".
-4. **Resultado experimental** (D): `python -m fin_mas experimento --rapido --out /tmp/exp` (segundos; prova
-   que o aparato roda) e a figura `fig_robustez.svg` das 30 seeds.
-5. Se sobrar tempo: o dashboard, área Aprovações e a mente do AG-ORC.
+1. **Jiliard, negociação de prazo.** Execute `python -m fin_mas run --scenario negociacao_prazo`. Mostre o pedido de extensão e o aceite no PROT-DEL.
+2. **Jiliard, hipótese confirmada.** Execute `python -m fin_mas run --scenario orc_hipotese_local`. Identifique a consulta QRY-002 ao AG-CIN e a revisão da crença do AG-ORC após a resposta.
+3. **Danrley, veto mantido.** Execute `python -m fin_mas run --scenario veto_bloqueio`. Mostre a violação de alçada e a resposta final de bloqueio.
+4. **Danrley, aprovação indevida.** Execute `python -m fin_mas run --scenario ataque_decisao_forjada`. Mostre a recusa no barramento e confirme que o fechamento continua bloqueado. Para a pergunta sobre concorrência, rode `python -m pytest tests/e2e/test_approval_gate.py -k "recurrence or processos"`.
 
 **Plano B:** sem ambiente, `python3 tools/iniciar.py cli --cenario veto_correcao`; sem dashboard,
 `./iniciar.sh replay`; sem experimento, `docs/dsm4/resultados/resumo.md` e as figuras versionadas.

@@ -285,6 +285,20 @@ def test_memory_key_and_counter_live_outside_the_data_folder(tmp_path):
     externos = [p.name for p in pathlib.Path(os.environ["FIN_MAS_DIR_CHAVES"]).iterdir()]
     assert any(n.endswith(".chave") for n in externos) and any(n.endswith(".contador") for n in externos)
 
+    from fin_mas.services.memoria import adotar
+    backup = arquivo.read_bytes()
+    # Três decisões posteriores deixam o contador do backup bem atrás do destino.
+    for mes in ("09", "10", "11"):
+        comp = "2026-" + mes
+        sc = Scenario("bloqueio", "bloqueio", "fechar_mes", decisao_aprovador="bloquear",
+                      agenda=((comp, ("alcada",)),), pedidos=(("fechar_mes", comp, 1),))
+        run_scenario(sc, memoria=arquivo)
+    ultimo = json.loads(arquivo.read_bytes())["contador"]
+    arquivo.write_bytes(backup)
+    adotado = adotar(arquivo)
+    assert adotado["contador"] > ultimo
+    assert Memoria(AuditLog(), lambda: 0, caminho=arquivo).integra
+
 
 def test_memory_ids_stay_unique():
     """Recorreção (N3): ids não se repetem quando entradas saem da lista."""

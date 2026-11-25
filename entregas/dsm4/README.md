@@ -2,7 +2,7 @@
 
 **Projeto:** Sistema Multiagente de Controladoria da **SMA** (empresa fictícia) — INE5628 Sistemas Multiagentes, UFSC.
 **Autores:** Danrley Moreira Ribeiro (23102664) e Jiliard Mai Peifer (23103129).
-**Prazo:** 02/12/2026. Enunciado: [`enunciados/`](../../enunciados/).
+**Prazo:** 02/12/2026 às 18h30. Enunciado: [`enunciados/`](../../enunciados/).
 
 Pacote final do sistema: um Orquestrador e cinco agentes especialistas (Custos, Orçamento, Resultados,
 Controles Internos e Relatórios) que fecham o mês e avaliam o orçamento de empresas de seis portes e quatro
@@ -19,6 +19,8 @@ feitas depois de ver resultados, e nenhuma rodada posterior à primeira é confi
 estão no relatório e em
 [`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md).
 
+Na revisão de 25/11, o Approval Gate passou a registrar o waiver antes de confirmar a decisão, inclusive com dois processos no mesmo arquivo. Os 240 pares do ensaio exploratório de carga e a comparação das duas novas rodadas completas estão em [resultados](../../docs/dsm4/resultados.md). Para repetir o ensaio depois do experimento principal, execute `python tools/estudo_carga.py saidas/reproducao/carga.csv`.
+
 ## Conteúdo do pacote
 
 `make entrega-dsm4` (ou `python tools/empacotar_dsm4.py`) gera `entregas/dsm4/DSM4-entrega.zip`:
@@ -28,7 +30,7 @@ estão no relatório e em
 | `README.md` | este arquivo: como executar do zero, critério → evidência, o que mudou, limitações |
 | `USO_DE_IA.md` | uso de IA no desenvolvimento desta etapa |
 | `documentacao/relatorio.pdf` | **relatório técnico** (fontes: `relatorio.tex`, `referencias.bib`, `numeros.tex` e `rastreabilidade.tex` gerados, `figuras/`) |
-| `diagramas/`, `modelos-editaveis/` | diagramas em PNG e as fontes Mermaid (`.mmd`): arquitetura final, desenho do experimento, ciclo BDI dos especialistas, correção da mensagem perdida, as seis FSMs, Approval Gate, decisão atestada, login, hipóteses, validação do barramento |
+| `diagramas/`, `modelos-editaveis/` | diagramas em PNG e as fontes Mermaid (`.mmd`): arquitetura final, desenho do experimento, ciclo BDI dos especialistas, correção da mensagem perdida, as seis FSMs, Approval Gate, waiver concorrente, decisão atestada, login, hipóteses, validação do barramento |
 | `apresentacao/` | `slides.md`, `roteiro.md` (falas, tempos e comandos da demonstração) e `DSM4-apresentacao.pptx` |
 | `codigo/` | código-fonte e configurações (`src/`, `models/`, `web/`, `tools/`, `docker/`, `Dockerfile`, `compose.yaml`, `pyproject.toml`, `requirements*`, `.env.example`, `Makefile`, `iniciar.*`), testes (`tests/`, `web/e2e/`), documentação (`docs/`, incluindo os dados e resultados do experimento em `docs/dsm4/resultados/`), `README.md` e `CHANGELOG.md` da raiz |
 
@@ -45,7 +47,7 @@ python -m pytest                                            # suíte inteira, of
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)
-python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # experimento completo (cerca de 3 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (cerca de 3 minutos)
 python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
 ```
 
@@ -112,4 +114,4 @@ A lista completa está em [`docs/dsm4/limitacoes.md`](../../docs/dsm4/limitacoes
 - Uma máquina, só loopback; nenhum conector de fornecedor nem ERP real; algumas funções de acesso só pela
   API, CLI e TUI (sem tela no dashboard).
 - Os roteiros Playwright (41, no Chrome headless) rodam por `make web-test` e passaram na versão entregue
-  (14/11/2026); o gerador de números do relatório não os executa, por isso a contagem deles não está no PDF.
+  em 25/11/2026. A tabela de testes do relatório reúne essa execução do navegador com os resultados do pytest e do vitest.

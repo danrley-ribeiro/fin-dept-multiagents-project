@@ -34,9 +34,9 @@ def test_trace_causal_reconstruction(trace):
         "DEL-004  AG-ORQ -> AG-RES request", "QRY-001  AG-RES -> AG-CUS query-ref",
         "DEL-004  AG-RES -> AG-ORQ inform", "CMP-001  AG-CIN -> AG-ORQ veto",
         "APR-001  POLITICA POL-01 ticket emitido require_approval", "APR-001  AG-ORQ -> APR propose-action",
-        "APR-001  SVC-POL aplica 'require_approval'", "APR-001  APR -> AG-ORQ approve",
+        "APR-001  SVC-POL aplica 'require_approval'", "CMP-001  MEMORIA gravada waiver", "APR-001  APR -> AG-ORQ approve",
         "APR-001  POLITICA POL-08 ticket consumido", "CMP-001  AG-ORQ -> AG-CIN waiver_humano", "aplica 'publicar'",
-        "DEL-005  AG-ORQ -> AG-REL request", "CMP-001  MEMORIA gravada waiver", "SOL-001  AG-ORQ -> SOL inform",
+        "DEL-005  AG-ORQ -> AG-REL request", "SOL-001  AG-ORQ -> SOL inform",
     ]
     posicao = -1
     for marco in marcos:

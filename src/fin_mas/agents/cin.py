@@ -221,11 +221,6 @@ class AgenteControlesInternos(AgenteBDI):
             self.crencas.revisar(f"waiver[{cmp_id}]", {"justificativa": msg.content.get("justificativa"),
                                                        "aprovacao": aprovacao},
                                  "decisão humana (PROT-APR validada pelo SVC-POL)", cmp_id)
-            for a in parecer.get("ultimo_veto", []):
-                chave = self.chave_reincidencia(a, parecer["competencia"])
-                if a["severidade"] == "critica" and chave:
-                    self._lembrar("waiver", chave, {"regra": a["regra"], "lancamento": a["lancamento"]},
-                                  parecer["competencia"], aprovacao, cmp_id)
             if i is not None:
                 self._encerrar_intencao(i, "abandonada", "waiver humano: autoridade superior assume o risco")
                 self._encerrar_desejo(i.desejo, "descartado", "decisão humana prevalece; violações seguem nas crenças")

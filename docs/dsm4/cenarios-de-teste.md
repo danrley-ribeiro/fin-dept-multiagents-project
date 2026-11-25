@@ -203,7 +203,7 @@ existe); o título é o campo `esperado` do modelo.
 | TEST-313 | `test_vault_keeps_llm_keys_without_ever_showing_them` | `tests/integration/test_acesso_avancado_cli.py` | integracao | cofre 0600 fora da pasta de dados, chave de LLM pelo cofre, valor nunca mostrado |
 | TEST-314 | `test_delegation_policy_and_companies_from_the_terminal` | `tests/integration/test_acesso_avancado_cli.py` | integracao | delegação, escalonamento e escopo de empresas pela CLI |
 | TEST-315 | `test_memory_copied_to_another_folder_is_adopted_under_permission` | `tests/integration/test_acesso_avancado_cli.py` | integracao | cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada |
-| TEST-316 | `test_two_runs_writing_the_same_memory_at_once_keep_both_entries` | `tests/integration/test_acesso_avancado_cli.py` | integracao | quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida |
+| TEST-316 | `test_four_concurrent_blocks_keep_all_entries` | `tests/integration/test_acesso_avancado_cli.py` | integracao | quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida |
 | TEST-317 | `test_two_step_login_with_short_lived_pre_session` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | login em dois passos no servidor; pré-sessão só vale em /api/login/2fa |
 | TEST-318 | `test_policy_requiring_second_factor_only_lets_the_account_enrol` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | conta sem o 2FA exigido só consegue ativá-lo |
 | TEST-319 | `test_vault_routes_store_llm_keys_without_returning_them` | `tests/integration/test_dashboard_acesso_avancado.py` | integracao | rotas do cofre nunca devolvem o valor |
@@ -272,3 +272,4 @@ existe); o título é o campo `esperado` do modelo.
 | TEST-456 | `test_retention_is_a_query_filter_and_removal_is_explicit` | `tests/integration/test_correcao_simulada_6.py` | seguranca | a retenção filtra a consulta sem apagar; a remoção física é manutenção explícita |
 | TEST-457 | `test_memory_ids_are_never_reused_after_expiry` | `tests/integration/test_correcao_simulada_6.py` | robustez | depois de uma expiração, a entrada nova recebe outro id, também entre processos |
 | TEST-458 | `test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears` | `tests/integration/test_correcao_simulada_6.py` | robustez | decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista |
+| TEST-459 | `test_uma_liberacao_entre_processos` | `tests/e2e/test_approval_gate.py` | integracao | dois processos abrem agosto e setembro antes de decidir; exatamente um waiver é registrado e só o vencedor publica com ressalva |

@@ -2,6 +2,12 @@
 
 Registro por entrega.
 
+## DSM4 — revisão de entrega (25/11/2026)
+
+- A POL-06 relê e registra todos os padrões na mesma transação. O ticket perdedor permanece pendente, inclusive entre processos; a restauração de backup preserva o contador monotônico.
+- O teste do wheel instala e exercita o pacote sem Git ou rede após instalar as dependências de desenvolvimento. A política de destino do Anthropic é verificada antes de carregar o SDK opcional.
+- Duas rodadas de 9.360 execuções reproduziram as métricas históricas; o ensaio adicional contém 480 execuções pareadas por semente, porte, volume e probabilidade de irregularidade. O slide 13 apresenta os quatro casos do feedback.
+
 ## DSM4 v1.0.1 (16/11/2026)
 
 Leva para a versão final as correções da DSM3 v0.5.1 (rodadas 5 e 6 da correção simulada, PR #5), que a v1.0.0

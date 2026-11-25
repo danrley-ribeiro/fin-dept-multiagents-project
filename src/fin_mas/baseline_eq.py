@@ -338,11 +338,12 @@ def correcoes_ciclos(aprovacoes) -> list:
 
 
 def executar(seed=42, plantar=(), intencao="fechar_mes", porte=PORTE_PADRAO, decisao_aprovador="nenhuma",
-             parametros=None, caos=None) -> ResultadoEq:
+             parametros=None, caos=None, ambiente=None) -> ResultadoEq:
     """Roda o workflow sobre a mesma empresa sintética que `build_system(seed, plantar, porte=...)` monta."""
     p = parametros or PADRAO
     bus = Bus(caos=caos)
-    ambiente = Ambiente(seed, plantar=plantar, porte=porte)
+    if ambiente is None:
+        ambiente = Ambiente(seed, plantar=plantar, porte=porte)
     ds = ambiente.dataset()
     p.aplicar_limiares(ds)
     compensatorio = "; ".join(f"{k}: {v}" for k, v in sorted(ds.perfil["controle_compensatorio"].items())) or None

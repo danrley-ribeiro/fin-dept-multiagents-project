@@ -95,7 +95,8 @@ def _estados(caminho, chaves: Path | None = None) -> dict[str, bytes]:
         return achados
     for arquivo in sorted(pasta.glob(f"*-{marca}.*")):
         rotulo, _, resto = arquivo.name.rpartition(f"-{marca}.")
-        achados[f"{rotulo}.{resto}"] = arquivo.read_bytes()
+        if (rotulo, resto) != ("trava", "lock"):  # coordenação do SO, recriada no destino
+            achados[f"{rotulo}.{resto}"] = arquivo.read_bytes()
     return achados
 
 

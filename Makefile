@@ -25,7 +25,7 @@ comparar:
 	PYTHONPATH=src $(PYTHON) -m fin_mas comparar --seeds 10 --out docs/dsm3/resultados
 
 experimento:
-	PYTHONPATH=src $(PYTHON) -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados
+	PYTHONPATH=src $(PYTHON) -m fin_mas experimento --replicas 30 --out saidas/reproducao
 
 export: comparar
 	PYTHONPATH=src $(PYTHON) -m fin_mas export --out web/public/traces

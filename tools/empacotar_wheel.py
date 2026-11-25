@@ -42,13 +42,13 @@ def montar(com_dashboard: bool) -> Path:
     return BUILD
 
 
-def gerar(saida: Path, com_dashboard: bool = True) -> Path:
+def gerar(saida: Path, com_dashboard: bool = True, *, isolamento: bool = True) -> Path:
     base = montar(com_dashboard)
     saida.mkdir(parents=True, exist_ok=True)
     antes = set(saida.glob("fin_mas-*.whl"))
     for velho in antes:  # um wheel por versão: o novo substitui o antigo
         velho.unlink()
-    subprocess.run([sys.executable, "-m", "pip", "wheel", "--no-deps", "--quiet", "-w", str(saida), str(base)],
+    subprocess.run([sys.executable, "-m", "pip", "wheel", *([] if isolamento else ["--no-build-isolation"]), "--no-deps", "--quiet", "-w", str(saida), str(base)],
                    check=True)
     wheel = next(iter(sorted(saida.glob("fin_mas-*.whl"))))
     with zipfile.ZipFile(wheel) as z:
@@ -65,8 +65,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--saida", default=str(RAIZ / "dist"))
     parser.add_argument("--sem-dashboard", action="store_true", help="não exige nem embute web/dist")
+    parser.add_argument("--sem-isolamento", action="store_true", help="usa o setuptools instalado localmente")
     args = parser.parse_args()
-    wheel = gerar(Path(args.saida), not args.sem_dashboard)
+    wheel = gerar(Path(args.saida), not args.sem_dashboard, isolamento=not args.sem_isolamento)
     with zipfile.ZipFile(wheel) as z:
         dados = [n for n in z.namelist() if "/_dados/" in n]
     print(f"{wheel} ({wheel.stat().st_size // 1024} KiB; {len(dados)} arquivo(s) de dados embutidos)")

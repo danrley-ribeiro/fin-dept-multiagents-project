@@ -472,7 +472,7 @@ items:
      esperado: "delegação, escalonamento e escopo de empresas pela CLI", entrega: DSM4, status: executado}
   - {id: TEST-315, nome: test_memory_copied_to_another_folder_is_adopted_under_permission, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
      esperado: "cópia íntegra adotada sob PERM-MEM-ADOTAR; adulterada recusada", entrega: DSM4, status: executado}
-  - {id: TEST-316, nome: test_two_runs_writing_the_same_memory_at_once_keep_both_entries, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
+  - {id: TEST-316, nome: test_four_concurrent_blocks_keep_all_entries, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
      esperado: "quatro execuções simultâneas sobre a mesma memória, nenhuma entrada perdida", entrega: DSM4, status: executado}
   - {id: TEST-317, nome: test_two_step_login_with_short_lived_pre_session, verifica: [REQ-S06], derivado_de: NORM-15, tipo: integracao,
      esperado: "login em dois passos no servidor; pré-sessão só vale em /api/login/2fa", entrega: DSM4, status: executado}
@@ -615,3 +615,5 @@ items:
      esperado: "depois de uma expiração, a entrada nova recebe outro id, também entre processos", entrega: DSM4, status: executado}
   - {id: TEST-458, nome: test_decision_after_the_deadline_is_reported_and_the_pending_item_disappears, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: robustez,
      esperado: "decidir depois do prazo avisa com o estado do ticket, registra decisao_nao_enviada no trace e tira a pendência da lista", entrega: DSM4, status: executado}
+  - {id: TEST-459, nome: test_uma_liberacao_entre_processos, verifica: [REQ-S02, REQ-F07], derivado_de: SVC-POL, tipo: integracao,
+     esperado: "dois processos abrem agosto e setembro antes de decidir; exatamente um waiver é registrado e só o vencedor publica com ressalva", entrega: DSM4, status: executado}

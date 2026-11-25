@@ -22,6 +22,13 @@ python -m fin_mas serve --demo               # contas de demonstração, senha D
 
 Use fonte grande no terminal e `| less -R` quando a saída for longa.
 
+## Quatro evidências para a apresentação presencial
+
+1. **Jiliard, negociação de prazo.** Execute `python -m fin_mas run --scenario negociacao_prazo`. Mostre o pedido de extensão e o aceite no PROT-DEL.
+2. **Jiliard, hipótese confirmada.** Execute `python -m fin_mas run --scenario orc_hipotese_local`. Identifique a consulta QRY-002 ao AG-CIN e a revisão da crença do AG-ORC após a resposta.
+3. **Danrley, veto mantido.** Execute `python -m fin_mas run --scenario veto_bloqueio`. Mostre a violação de alçada e a resposta final de bloqueio.
+4. **Danrley, aprovação indevida.** Execute `python -m fin_mas run --scenario ataque_decisao_forjada`. Mostre a recusa no barramento e confirme que o fechamento continua bloqueado. Para a pergunta sobre concorrência, rode `python -m pytest tests/e2e/test_approval_gate.py -k "recurrence or processos"`.
+
 ## Roteiro
 
 | Tempo | Passo | Comando | O que observar |

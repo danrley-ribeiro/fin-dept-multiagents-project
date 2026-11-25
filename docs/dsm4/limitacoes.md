@@ -163,8 +163,7 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
   criptografia; a troca por um cofre do sistema mantém a mesma API.
 - **Escalonamento** sobe um nível, uma vez.
 - **Trilha de acesso única por cadastro** (o cadastro de contas é global); os eventos levam a empresa.
-- **Sem tela no dashboard web** para delegações, seletor de empresa, segundo fator e cofre: só API, CLI e
-  TUI.
+- **Administração de delegações e escopos** disponível pela CLI e TUI. O dashboard permite trocar a empresa ativa, configurar o segundo fator e gerenciar as chaves de LLM.
 - **Dupla aprovação** só acima do limite do porte (nulo em micro e pequena).
 
 ## Interfaces e testes
@@ -175,8 +174,7 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
   nenhuma interface.
 - **Dashboard só web**; a sequência de uma conversa aparece como lista (o diagrama sai pela CLI).
 - **Prazos em tempo lógico**: sem calendário real; o escalonamento (POL-14) também conta em ticks.
-- **Os roteiros Playwright** rodam no CI e por `make web-test`; não foram executados na geração do
-  relatório final.
+- **Os 41 roteiros Playwright** passaram no Chrome em 25/11/2026. Usam servidores locais e contas de demonstração.
 - **`tools/trace.py` confere a existência do teste pelo nome**, não o que ele verifica.
 - **Sem testes unitários novos** desde a DSM2, por decisão dos autores: a cobertura nova é por e2e,
   integração e interface.
@@ -256,12 +254,12 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | O AG-ORC não lê a memória aprovada | lê correções aprovadas por tipo (cenário `memoria_reincidencia_orc`) |
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador, com a perda marcada pela posição da mensagem na conversa (achado C1 da correção simulada); 0 execuções sem resposta na segunda e na terceira rodada |
-| A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3) | a política confere a reincidência de novo quando o waiver é decidido (`test_recurrence_is_checked_again_when_the_waiver_is_decided`, TEST-424) |
+| A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3) | a política confere o histórico e registra a liberação sob a mesma trava; o segundo ticket continua pendente nas duas ordens de decisão, inclusive entre processos (TEST-424 e TEST-459) |
 | Aviso de decisão humana perdido contornava a POL-06 ou gerava segundo ticket | reentrega pelo transporte dos avisos ao AG-CIN, até 5 tentativas (achado C2) |
 | Segundo fator derrubável por força bruta; fontes compartilhadas entre empresas; restauração gravava fora do destino | contador por conta com bloqueio e senha exigida (C3); registro de fontes por empresa (C4); backup validado antes de gravar, com o cofre no pacote de chaves (C5) |
 | Senha como único fator | TOTP (RFC 6238) com anti-replay e códigos de recuperação, obrigatório por política para administrador e aprovador (`docs/dsm4/acesso-avancado.md`) |
 | Cargo sem limite de valor; ausência do aprovador travava o fechamento; uma pessoa liberava qualquer valor | alçada por pessoa (POL-10), delegação com prazo, teto e escopo (POL-11), dupla aprovação acima do limite do porte (POL-12), escalonamento (POL-14) |
 | Chaves de LLM só por variável de ambiente | cofre selado da plataforma, com a ressalva de não cifrar (ver acima) |
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
-| Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (só pela API) |
+| Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

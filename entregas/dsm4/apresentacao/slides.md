@@ -108,9 +108,9 @@ Responde às duas críticas da DSM3: funções diferentes e variância zero.
 | humano lento | 75,8% | 75,8% |
 | combinadas | 50,8% | 75,8% |
 
+::: notes
 **Com as mesmas funções, o SMA empata em qualidade e perde em robustez.** Nenhuma crítica publicada sem tratamento, em nenhum braço.
 
-::: notes
 O workflow ganha por construção: o modelo de falhas só atinge mensagens entre componentes, e o workflow não troca mensagens. O empate de qualidade também é em boa parte construído: o workflow foi escrito e testado até igualar. Com 5% de perda, 5 seeds diferentes: o menor p possível é 0,0625, então "não significativo" é falta de poder. A queda com a perda é em parte artefato das perdas aninhadas (números aleatórios comuns).
 :::
 
@@ -122,7 +122,7 @@ O workflow ganha por construção: o modelo de falhas só atinge mensagens entre
 - Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente; no bloco A, nenhum mudou o desfecho; no bloco D, 4 aceitos sem a premissa do ataque, e o efeito sobre o desfecho com o controle de acesso ligado **não foi testado**
 
 ::: notes
-O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida.
+O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida. Nos 240 pares adicionais com 12 ou 96 lançamentos, aumentar a frequência de alçada elevou as mensagens médias do SMA de 21,67 para 24,33. Os dois braços acertaram a conformidade em todos os pares.
 :::
 
 # Três rodadas do experimento
@@ -133,29 +133,27 @@ O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 6
 | perda de 30% | 22,5% | 32,5% | 35,0% |
 | sem resposta, 6.480 execuções | 807 | 0 | 0 |
 
+::: notes
 - 1.ª: revelou "resposta perdida vira silêncio"; 2.ª: depois da correção do barramento
 - 3.ª: depois da correção simulada da DSM4 (marca da perda, reentrega dos avisos humanos, bloco D com duas pessoas, RQ4 por seed)
 - Correções feitas **depois de ver resultados**: nenhuma rodada posterior à primeira é confirmatória
 
-::: notes
 O que não mudou nas três é o que vale como resultado: empate de qualidade, mais mensagens, robustez menor que a do workflow, zero ataque aceito indevidamente, zero crítica publicada.
 :::
 
 # Demonstração
 
 ```
-python -m fin_mas run --scenario veto_correcao
-python -m fin_mas run --scenario res_insumo_faltante --porte grande
-python -m fin_mas run --scenario ataque_acesso
-python -m pytest tests/e2e/test_equivalencia_workflow.py -q
-python -m fin_mas experimento --rapido --out /tmp/exp
-python -m fin_mas serve --demo
+python -m fin_mas run --scenario negociacao_prazo
+python -m fin_mas run --scenario orc_hipotese_local
+python -m fin_mas run --scenario veto_bloqueio
+python -m fin_mas run --scenario ataque_decisao_forjada
 ```
 
 Plano B: `./iniciar.sh replay` e os resultados versionados em `docs/dsm4/resultados/`
 
 ::: notes
-Seguir docs/dsm4/demonstracao.md: veto e correção, falha explícita com reenvio, ataque recusado, o teste da equivalência, o aparato do experimento e o dashboard.
+Seguir docs/dsm4/demonstracao.md: mostrar o aceite da extensão, a confirmação da hipótese pelo AG-CIN, o veto mantido e a aprovação indevida recusada.
 :::
 
 # Limitações

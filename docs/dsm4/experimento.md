@@ -207,7 +207,7 @@ agentes). Uma linha de `execucoes.csv` por execução.
 ## Como reproduzir
 
 ```bash
-python -m fin_mas experimento --replicas 30 --out docs/dsm4/resultados   # ou: make experimento
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # ou: make experimento
 python -m fin_mas experimento --rapido --out /tmp/experimento            # poucos segundos, para conferir o aparato
 ```
 

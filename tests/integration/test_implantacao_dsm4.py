@@ -108,20 +108,15 @@ def _deps_do_ambiente_atual(destino: Path) -> Path:
     destino.mkdir()
     for modulo in (yaml, openpyxl, et_xmlfile):
         origem = Path(modulo.__file__).parent
-        os.symlink(origem, destino / origem.name)
-    extensao = next(Path(yaml.__file__).parent.parent.glob("_yaml*"), None)
-    if extensao is not None:
-        os.symlink(extensao, destino / extensao.name)
+        shutil.copytree(origem, destino / origem.name)
     return destino
 
 
 def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path):
     dist = tmp_path / "dist"
     opcoes = [] if (RAIZ / "web" / "dist" / "index.html").exists() else ["--sem-dashboard"]
-    gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), *opcoes],
+    gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), "--sem-isolamento", *opcoes],
                            capture_output=True, text=True, encoding="utf-8", cwd=RAIZ)
-    if gerar.returncode != 0 and ("Could not find" in gerar.stderr or "NewConnectionError" in gerar.stderr):
-        pytest.skip("sem rede para o setuptools do isolamento de build do pip: " + gerar.stderr[-200:])
     assert gerar.returncode == 0, gerar.stderr
     wheel = next(dist.glob(f"fin_mas-{__version__}-*.whl"))
     ambiente = tmp_path / "venv"
@@ -130,13 +125,10 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     exe = ambiente / ("Scripts/fin-mas.exe" if os.name == "nt" else "bin/fin-mas")
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "FIN_MAS_SENHA_NOVA")}
     env.update(PYTHONUTF8="1", FIN_MAS_DIR_CHAVES=str(tmp_path / "chaves"), PIP_DISABLE_PIP_VERSION_CHECK="1")
-    com_deps = subprocess.run([str(py), "-m", "pip", "install", "--quiet", str(wheel)], capture_output=True, text=True, encoding="utf-8",
-                              env=env, timeout=300)
-    if com_deps.returncode != 0:  # sem rede: o wheel sem dependências e as do ambiente atual por PYTHONPATH
-        r = subprocess.run([str(py), "-m", "pip", "install", "--quiet", "--no-deps", "--no-index", str(wheel)],
-                           capture_output=True, text=True, encoding="utf-8", env=env)
-        assert r.returncode == 0, r.stderr
-        env["PYTHONPATH"] = str(_deps_do_ambiente_atual(tmp_path / "deps"))
+    r = subprocess.run([str(py), "-m", "pip", "install", "--quiet", "--no-deps", "--no-index", str(wheel)],
+                       capture_output=True, text=True, encoding="utf-8", env=env)
+    assert r.returncode == 0, r.stderr
+    env["PYTHONPATH"] = str(_deps_do_ambiente_atual(tmp_path / "deps"))
     fora = tmp_path / "fora-do-repositorio"
     fora.mkdir()
 
@@ -147,7 +139,7 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     onde = subprocess.run([str(py), "-c", "import fin_mas, fin_mas.recursos as r; print(fin_mas.__file__); "
                                          "print(r.origem()); print(r.models_dir())"],
                           capture_output=True, text=True, encoding="utf-8", cwd=fora, env=env)
-    arquivo, origem, modelos = onde.stdout.split()
+    arquivo, origem, modelos = onde.stdout.splitlines()
     assert str(ambiente) in arquivo and RAIZ.as_posix() not in Path(arquivo).as_posix(), onde.stdout
     assert origem == "pacote" and str(ambiente) in modelos
     lista = rodar("list")

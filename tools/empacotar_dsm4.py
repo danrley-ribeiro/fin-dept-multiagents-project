@@ -15,6 +15,8 @@ Uso: python tools/empacotar_dsm4.py [--destino ARQUIVO.zip] [--listar]
 from __future__ import annotations
 
 import argparse
+import posixpath
+import re
 import subprocess
 import sys
 import zipfile
@@ -31,6 +33,7 @@ CODIGO = (
     "Dockerfile", "compose.yaml", ".dockerignore",
     "pyproject.toml", "requirements-dev.txt", "requirements-lock.txt", ".env.example",
     "iniciar.ps1", "iniciar.sh", "Makefile", "README.md", "CHANGELOG.md", ".gitattributes", ".gitignore",
+    "enunciados/DSM4.txt",
 )
 # O projeto usa bun: web/bun.lock entra; o package-lock.json do npm fica fora.
 EXCLUIR = ("web/package-lock.json",)
@@ -53,9 +56,30 @@ def entradas() -> list[tuple[str, str]]:
             continue
         if rel.startswith("entregas/dsm4/"):
             out.append((rel, rel.removeprefix("entregas/dsm4/")))
-        elif rel.startswith(CODIGO) and rel not in EXCLUIR:
+        elif any(rel.startswith(p) if p.endswith("/") else rel == p for p in CODIGO) and rel not in EXCLUIR:
             out.append((rel, "codigo/" + rel))
     return out
+
+
+def links_do_pacote(origem: str, alvo: str, conteudo: str) -> str:
+    """A entrega sobe para a raiz do ZIP; a árvore de código desce para codigo/."""
+    def converter(m):
+        caminho, ancora = m.groups()
+        if ":" in caminho or caminho.startswith("/"):
+            return m[0]
+        rel = posixpath.normpath(posixpath.join(posixpath.dirname(origem), caminho))
+        if rel == "enunciados":
+            rel = "enunciados/DSM4.txt"
+        if rel.startswith("entregas/dsm4/"):
+            destino = rel.removeprefix("entregas/dsm4/")
+        elif rel.startswith("entregas/"):
+            return "](" + "https://github.com/danrley-ribeiro/fin-dept-multiagents-project/blob/main/" + rel + ancora + ")"
+        elif not rel.startswith("../"):
+            destino = "codigo/" + rel
+        else:
+            return m[0]
+        return "](" + posixpath.relpath(destino, posixpath.dirname(alvo) or ".") + ancora + ")"
+    return re.sub(r"\]\(([^ )#]+)(#[^)]*|)\)", converter, conteudo)
 
 
 def main() -> int:
@@ -66,7 +90,8 @@ def main() -> int:
     lista = entradas()
     obrigatorios = ("README.md", "USO_DE_IA.md", "documentacao/relatorio.pdf", "documentacao/relatorio.tex",
                     "apresentacao/slides.md", "apresentacao/roteiro.md", "codigo/docs/dsm4/resultados/execucoes.csv",
-                    "codigo/Dockerfile", "codigo/compose.yaml", "codigo/pyproject.toml")
+                    "codigo/Dockerfile", "codigo/compose.yaml", "codigo/pyproject.toml",
+                    "apresentacao/DSM4-apresentacao.pptx", "codigo/docs/dsm4/resultados/carga.csv")
     faltam = [o for o in obrigatorios if o not in {a for _, a in lista}]
     if faltam:
         print("faltam no pacote: " + ", ".join(faltam), file=sys.stderr)
@@ -78,7 +103,12 @@ def main() -> int:
         args.destino.unlink(missing_ok=True)
         with zipfile.ZipFile(args.destino, "w", zipfile.ZIP_DEFLATED) as z:
             for origem, alvo in lista:
-                z.write(RAIZ / origem, f"{PREFIXO}/{alvo}")
+                nome = f"{PREFIXO}/{alvo}"
+                if alvo.endswith(".md"):
+                    conteudo = (RAIZ / origem).read_text(encoding="utf-8")
+                    z.writestr(nome, links_do_pacote(origem, alvo, conteudo))
+                else:
+                    z.write(RAIZ / origem, nome)
     codigo = sum(1 for _, a in lista if a.startswith("codigo/"))
     tamanho = "" if args.listar else f", {args.destino.stat().st_size / 1024:.0f} KiB"
     nome = "(lista)" if args.listar else args.destino

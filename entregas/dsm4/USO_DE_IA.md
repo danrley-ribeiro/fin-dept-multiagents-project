@@ -163,3 +163,7 @@ resultados do experimento) são gerados por `python tools/relatorio_numeros.py -
 relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte sobre a versão
 entregue (41 de 41, em 14/11/2026), fora do gerador. A leitura e a revisão de todo o código e texto gerado pelos
 autores, antes da submissão, é o passo que falta e é deles: os pontos a dominar estão na seção "Autoria".
+
+## Revisão final de 25/11/2026
+
+O Codex consultou a conversa compartilhada e o feedback do professor, modificou a política de reincidência e a persistência, atualizou os testes do pacote e executou o ensaio exploratório pareado de carga. Também revisou os materiais de reprodução e demonstração. As afirmações sobre aprovação entre processos podem ser verificadas em TEST-459. Os dados do ensaio estão em `docs/dsm4/resultados/carga.csv`.

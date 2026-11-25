@@ -3546,7 +3546,7 @@
 :derived_from: SVC-IAM
 
 `test_restart_never_creates_requests_in_someone_elses_name()` — tipo *seguranca*.  
-**Resultado esperado:** reiniciar pelo dashboard não põe os pedidos do roteiro no nome de ninguém; quem reiniciou continua podendo decidir  
+**Resultado esperado:** os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa, e a POL-13 o impede de decidir sobre eles  
 **Execução:** DSM4 (status atual: executado).
 ````
 
@@ -3619,5 +3619,89 @@
 
 `test_uma_liberacao_entre_processos()` — tipo *integracao*.  
 **Resultado esperado:** dois processos abrem agosto e setembro antes de decidir; exatamente um waiver é registrado e só o vencedor publica com ressalva  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_rerunning_the_recurrence_with_the_same_memory_gives_the_same_result
+:id: TEST-460
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-F07
+:derived_from: SVC-MEM
+
+`test_rerunning_the_recurrence_with_the_same_memory_gives_the_same_result()` — tipo *regressao*.  
+**Resultado esperado:** reexecutar a reincidência com a mesma memória dá o mesmo resultado, sem ticket sem resposta e sem waiver duplicado  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_waiver_is_not_offered_when_a_later_month_was_already_waived
+:id: TEST-461
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02, REQ-F07
+:derived_from: SVC-POL
+
+`test_waiver_is_not_offered_when_a_later_month_was_already_waived()` — tipo *seguranca*.  
+**Resultado esperado:** com o waiver de um mês posterior na memória, o ticket já é emitido sem a opção (mesma janela na oferta e na decisão)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_batch_approver_blocks_instead_of_waiting_when_the_concurrent_waiver_is_refused
+:id: TEST-462
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_batch_approver_blocks_instead_of_waiting_when_the_concurrent_waiver_is_refused()` — tipo *robustez*.  
+**Resultado esperado:** em lote, o waiver concorrente recusado tira a opção do ticket e vira bloqueio explícito, sem erro de agente  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_failed_waiver_write_leaves_no_phantom_entry
+:id: TEST-463
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_failed_waiver_write_leaves_no_phantom_entry()` — tipo *robustez*.  
+**Resultado esperado:** falha na gravação do waiver não deixa entrada na memória em processo e a decisão legítima continua possível  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_lock_is_released_on_exception_and_is_not_silently_reentrant
+:id: TEST-464
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F07
+:derived_from: SVC-MEM
+
+`test_lock_is_released_on_exception_and_is_not_silently_reentrant()` — tipo *robustez*.  
+**Resultado esperado:** a trava entre processos é liberada em exceção e uma tentativa aninhada espera e recusa  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_choosing_micro_size_on_restart_does_not_exempt_the_requester
+:id: TEST-465
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_choosing_micro_size_on_restart_does_not_exempt_the_requester()` — tipo *seguranca*.  
+**Resultado esperado:** sem empresa cadastrada, reiniciar com porte micro não dispensa a POL-13 pelo controle compensatório  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_health_shows_demo_credentials_only_in_demo_mode
+:id: TEST-466
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S05
+:derived_from: SVC-IAM
+
+`test_health_shows_demo_credentials_only_in_demo_mode()` — tipo *interface*.  
+**Resultado esperado:** a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real  
 **Execução:** DSM4 (status atual: executado).
 ````

@@ -451,7 +451,8 @@ centralizado \emph{funcionalmente equivalente}, com a equivalência garantida po
 plantios, falhas, perfil do aprovador e ataques sorteados por seed, por fluxos independentes
 (\code{random.Random(f"\{seed\}:\{fator\}")}). Perguntas, hipóteses, métricas, plano de análise, critérios de parada e
 ameaças previstas foram escritos e versionados antes do código do experimento \parencite{nosek2018}; o histórico do
-git é a prova (\code{docs/dsm4/experimento.md}).
+git é a prova (\code{docs/dsm4/experimento.md}). Depois do feedback da DSM3, um bloco E exploratório acrescentou pedidos
+concorrentes, frequência de irregularidades e volume (Seção~\ref{sec:revisao-final}).
 
 \subsection{Perguntas, braços, condições e métricas}
 \begin{tabela}{Perguntas de pesquisa, hipóteses pré-registradas e veredito na versão final (terceira rodada).\label{tab:rq}}
@@ -805,7 +806,7 @@ inteiro. A amostra não teve aprovador rigoroso (probabilidade
 0,10; não saiu nas 30 seeds).
 
 % ---------------------------------------------------------------- 11
-\section{Limitações}
+\section{Limitações}\label{sec:limitacoes}
 A lista completa e sem suavização está em \code{docs/dsm4/limitacoes.md}. As que mais pesam:
 \begin{itemize}
   \item \textbf{O SMA não ganha do workflow equivalente em nenhuma métrica de resultado}, e perde em custo e em
@@ -839,10 +840,58 @@ restauração que gravava fora do destino (C5), o aprovador sem limite de valor 
 memória que perdia entradas entre processos e o cadastro de uma empresa só.
 % Integrado da branch dsm4/v1.0.0 (ADR-011 e ADR-012).
 
-\section*{Revisão final após o feedback da DSM3}
-Na decisão do waiver, o Gate valida identidade, alçada e justificativa. O serviço de memória relê o histórico sob trava e registra todos os padrões críticos antes de confirmar a liberação. Se agosto e setembro têm tickets abertos para a mesma irregularidade, a primeira liberação impede a segunda em qualquer ordem. O ticket recusado permanece pendente para correção ou bloqueio. TEST-424 cobre decisões no mesmo tick e TEST-459 sincroniza dois processos com o mesmo arquivo selado. Uma interrupção após persistir a decisão pode exigir reconciliação humana antes da publicação.
+\section{Revisão final após o feedback da DSM3}\label{sec:revisao-final}
 
-Duas repetições do plano de 9.360 execuções produziram CSVs idênticos e as mesmas métricas da terceira rodada histórica. O ensaio adicional cruzou 30 sementes, dois portes, 12 ou 96 lançamentos de base e probabilidades de 20\% e 80\% de plantar uma violação de alçada. Cada um dos 240 pares usou os mesmos dados e a decisão de corrigir. Os dois braços acertaram a conformidade em todos os fechamentos. Cada braço corrigiu 20 críticas nos 120 fechamentos de menor frequência e 100 nos 120 de maior frequência. As médias de mensagens do SMA foram 21,67 e 24,33, contra 0,33 e 1,67 no workflow. A variação de volume preservou esses resultados no intervalo exercitado. Os ticks medem etapas simuladas. O ensaio não estima vazão de processamento em produção. O arquivo \code{docs/dsm4/resultados/carga.csv} permite conferir cada par.
+\subsection{Reincidência sob aprovações concorrentes (POL-06)}
+O professor reproduziu, na DSM3, dois fechamentos simultâneos (agosto e setembro) com a mesma violação de alçada em
+que os dois waivers foram liberados: a POL-06 só era conferida na emissão do ticket. Na versão final, a decisão do
+waiver é conferida e registrada numa só transação: o serviço de memória relê o histórico sob uma trava do sistema
+operacional e grava a liberação antes de confirmá-la. A oferta (na emissão) e a decisão usam a mesma regra: um
+waiver do mesmo padrão em outra competência, antes ou depois, dentro da retenção. O ticket concorrente recusado perde
+a opção de waiver e fica pendente para correção ou bloqueio; no modo em lote, vira bloqueio explícito, sem esperar o
+prazo. TEST-424 cobre as duas ordens de decisão, TEST-459 sincroniza dois processos sobre o mesmo arquivo e
+TEST-460 a TEST-464 cobrem a reexecução com a mesma memória, o lote, a gravação interrompida e a trava. A escolha é
+conservadora: o waiver é gravado antes de a decisão chegar ao Orquestrador; se ela se perdesse depois, a
+reincidência bloquearia um waiver futuro (Seção~\ref{sec:limitacoes}).
+
+\subsection{Operar e aprovar}
+Também a pedido do professor, as permissões de operação e de aprovação foram revistas. Quem reinicia um cenário pelo
+dashboard dispara os pedidos dele: os pedidos ficam no nome de quem reiniciou e a POL-13 (quem pede não aprova) vale
+para ele; antes, uma conta que operava e aprovava liberava o pedido que ela mesma disparou. Sem empresa cadastrada, o
+controle compensatório do porte micro, que dispensa a POL-13, deixou de valer para um porte escolhido no reinício
+(TEST-453 e TEST-465). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
+precisam deles são pulados, não falham.
+
+\subsection{Bloco E: pedidos concorrentes, frequência de irregularidades e volume}
+Os blocos A a D não variavam três fatores pedidos no feedback. O bloco E, acrescentado depois dos blocos A a D e por
+isso exploratório (desvio do pré-registro declarado em \code{docs/dsm4/resultados.md}), compara o SMA básico e o
+workflow equivalente sob as mesmas 30 seeds, no porte médio, com o aprovador que corrige: 660 execuções em
+\code{docs/dsm4/resultados/bloco\_e/}. A unidade é a seed; as tabelas trazem média, desvio-padrão e IC de 95\% por
+bootstrap, e os testes são Wilcoxon pareados com Holm dentro de cada fator. As irregularidades são sorteadas por seed
+(quatro tipos, cada um com sua probabilidade), por isso as métricas variam entre seeds, ao contrário da DSM3.
+
+\paragraph{Pedidos concorrentes.} Com pedidos simultâneos do \emph{mesmo} mês, o SMA reserva o período (PROT-LCK),
+publica um e recusa os demais: zero publicações indevidas. O workflow, que atende em fila e não tem reserva, publica o
+mesmo mês duas e quatro vezes (uma e três publicações indevidas; $p<0{,}001$). Esta vantagem vem de um mecanismo
+que o workflow equivalente não implementa, e não do paradigma: num controlador único, o equivalente seria recusar mês
+já publicado. Com meses \emph{diferentes}, o SMA atende em paralelo: 19,8 ticks para um, dois ou quatro pedidos,
+contra 37,7 e 75,3 ticks do workflow em fila ($p<0{,}001$); um controlador com vários atendentes também
+paralelizaria, e o ganho de tempo é do atendimento simultâneo com reserva, não da autonomia dos agentes. O custo é de coordenação: cerca de 24 mensagens por
+pedido no SMA, contra 1,5 no workflow.
+
+\paragraph{Frequência de irregularidades.} Com 15\%, 40\% e 80\% de chance por tipo, crescem as mensagens, o tempo,
+as intervenções humanas (0,2, 0,8 e 1,0 por fechamento) e as reconsiderações de intenção do SMA (0,4, 1,5 e 2,0;
+o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em nenhum dos braços, e os dois corrigiram
+as mesmas críticas: a frequência muda o custo, não a qualidade.
+
+\paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
+barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,037 s para 0,097 s por
+fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,004 s para 0,007 s. O SMA é mais caro em
+tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O tempo de parede depende da máquina e fica
+em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.
+
+O ensaio exploratório de carga anterior (\code{carga.csv}, 240 pares) continua no pacote; o bloco E o substitui na
+análise, porque varia a frequência por tipo e por seed (e não um sorteio único de alçada) e mede o tempo de parede.
 
 % ---------------------------------------------------------------- 12
 \section{Conclusão}

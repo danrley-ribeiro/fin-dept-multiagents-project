@@ -631,3 +631,9 @@ items:
      esperado: "sem empresa cadastrada, reiniciar com porte micro não dispensa a POL-13 pelo controle compensatório", entrega: DSM4, status: executado}
   - {id: TEST-466, nome: test_health_shows_demo_credentials_only_in_demo_mode, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: interface,
      esperado: "a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real", entrega: DSM4, status: executado}
+  - {id: TEST-467, nome: test_block_e_is_reproducible, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: reprodutibilidade,
+     esperado: "o bloco E do experimento dá as mesmas linhas em duas execuções (o tempo de parede fica fora)", entrega: DSM4, status: executado}
+  - {id: TEST-468, nome: test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
+     esperado: "pedidos simultâneos do mesmo mês: o SMA publica um e recusa os demais; o workflow em fila publica o mês mais de uma vez", entrega: DSM4, status: executado}
+  - {id: TEST-469, nome: test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
+     esperado: "meses diferentes: o SMA atende em paralelo (tempo de um pedido) e o workflow em fila soma os tempos", entrega: DSM4, status: executado}

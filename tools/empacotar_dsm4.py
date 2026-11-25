@@ -91,7 +91,9 @@ def main() -> int:
     obrigatorios = ("README.md", "USO_DE_IA.md", "documentacao/relatorio.pdf", "documentacao/relatorio.tex",
                     "apresentacao/slides.md", "apresentacao/roteiro.md", "codigo/docs/dsm4/resultados/execucoes.csv",
                     "codigo/Dockerfile", "codigo/compose.yaml", "codigo/pyproject.toml",
-                    "apresentacao/DSM4-apresentacao.pptx", "codigo/docs/dsm4/resultados/carga.csv")
+                    "apresentacao/DSM4-apresentacao.pptx", "codigo/docs/dsm4/resultados/carga.csv",
+                    "codigo/docs/dsm4/resultados/bloco_e/execucoes.csv", "codigo/docs/dsm4/resultados/bloco_e/resumo.md",
+                    "codigo/src/fin_mas/estudo_e.py")
     faltam = [o for o in obrigatorios if o not in {a for _, a in lista}]
     if faltam:
         print("faltam no pacote: " + ", ".join(faltam), file=sys.stderr)

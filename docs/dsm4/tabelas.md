@@ -16,3 +16,12 @@ RQ4 usam a seed como unidade (média por seed), desvio declarado em {doc}`result
 
 ```{include} resultados/testes.md
 ```
+
+## Bloco E (exploratório)
+
+Gerado por `python -m fin_mas.estudo_e` a partir de `docs/dsm4/resultados/bloco_e/execucoes.csv`;
+a leitura está em {doc}`resultados` (seção "Bloco E").
+
+```{include} resultados/bloco_e/resumo.md
+:heading-offset: 2
+```

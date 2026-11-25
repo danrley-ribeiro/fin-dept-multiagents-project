@@ -51,6 +51,25 @@ python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # exper
 python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
 ```
 
+No Windows (PowerShell; não há `make`, e o ambiente fica em `.venv\Scripts`):
+
+```powershell
+cd codigo                                                   # dentro do zip; no repositório, a raiz
+py -3 -m venv .venv; .\.venv\Scripts\pip install -e . -r requirements-dev.txt
+.\.venv\Scripts\Activate.ps1; $env:PYTHONPATH = "src"
+python -m pytest                                            # suíte inteira, offline
+python tools\trace.py --check                               # rastreabilidade: 0 erros
+python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
+python -m fin_mas experimento --rapido --out $env:TEMP\exp  # aparato do experimento em 3 seeds
+python -m fin_mas.estudo_e --replicas 30 --out saidas\bloco_e   # bloco E: concorrência, frequência e volume
+python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
+cd web; bun run test; $env:PW_CHANNEL = "chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
+```
+
+A tela de entrada do dashboard mostra a conta de demonstração quando o servidor sobe com `--demo`. Quem
+reinicia um cenário dispara os pedidos dele e, pela POL-13, não decide sobre eles: para decidir, entre com
+outra conta (por exemplo, `controller`, com a mesma senha).
+
 Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com os modos `testes`,
 `replay`, `cli`, `docs`. Roteiro de demonstração de 10 minutos, com plano B:
 [`docs/dsm4/demonstracao.md`](../../docs/dsm4/demonstracao.md).

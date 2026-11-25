@@ -17,6 +17,8 @@ offline.
 | Planejamento da DSM4 com os autores | Claude Opus 5.5 | Claude Code | novembro de 2026 |
 | Implementação dos lotes, em paralelo, por agentes de IA em cópias isoladas do repositório | Claude Opus 5.5 | Claude Code, agentes em *worktrees* do git | novembro de 2026 |
 | Integração, verificação e documentação de fechamento | Claude Opus 5.5 | Claude Code | novembro de 2026 |
+| Revisão final pós-feedback da DSM3 (POL-06 na mesma trava da memória, pacote, ensaio exploratório de carga) | GPT Astra 6.2 | Codex | 25/11/2026 |
+| Revisão do commit anterior, correções do feedback da DSM3 (permissões, suíte do ZIP), bloco E do experimento e roteiro do vídeo | Claude Opus 5.5 | Claude Code | 25 e 26/11/2026 |
 
 ## O que a IA fez
 
@@ -160,9 +162,11 @@ Para a apresentação, os autores precisam dominar, sem apoio do texto:
 
 Os números da versão entregue (testes coletados e executados, cenários conferidos, objetos rastreados,
 resultados do experimento) são gerados por `python tools/relatorio_numeros.py --suite` e aparecem no
-relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte sobre a versão
-entregue (41 de 41, em 14/11/2026), fora do gerador. A leitura e a revisão de todo o código e texto gerado pelos
-autores, antes da submissão, é o passo que falta e é deles: os pontos a dominar estão na seção "Autoria".
+relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte, fora do gerador:
+41 de 41 em 14/11/2026 e de novo depois das revisões de 25 e 26/11/2026. Cada mudança desta etapa passou por
+pull request revisado por um dos autores, e o trabalho de uma IA foi revisado pela outra (o commit do Codex de
+25/11 foi revisado pelo Claude em 26/11, seção abaixo). Responder pelo código e pelo texto, inclusive o gerado
+por IA, é dos autores: os pontos a dominar estão na seção "Autoria".
 
 ## Revisão final de 25/11/2026
 

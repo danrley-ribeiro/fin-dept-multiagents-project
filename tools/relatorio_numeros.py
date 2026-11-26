@@ -122,8 +122,10 @@ def tex(s: str) -> str:
 
 # ---------------------------------------------------------------- fontes
 def rodar(cmd, **kw) -> subprocess.CompletedProcess:
-    env = {**os.environ, "PYTHONPATH": str(RAIZ / "src")}
-    return subprocess.run(cmd, cwd=kw.pop("cwd", RAIZ), env=env, capture_output=True, text=True, **kw)
+    # UTF-8 explícito: no Windows o padrão é a página de código local, e o JSON do git show (com acentos) não confere
+    env = {**os.environ, "PYTHONPATH": str(RAIZ / "src"), "PYTHONIOENCODING": "utf-8"}
+    return subprocess.run(cmd, cwd=kw.pop("cwd", RAIZ), env=env, capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", **kw)
 
 
 def coleta_pytest() -> dict[str, int]:

@@ -59,7 +59,7 @@ para o `.pptx`, pandoc. Passo a passo completo, com tempos: [`docs/dsm4/reproduc
 cd codigo                                                   # dentro do zip; no repositório, a raiz
 python3 -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
 source .venv/bin/activate && export PYTHONPATH=src
-python -m pytest                                            # suíte inteira, offline (cerca de 4 minutos)
+python -m pytest                                            # suíte inteira, offline (de 5 a 15 minutos, conforme a máquina)
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)

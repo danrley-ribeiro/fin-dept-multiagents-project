@@ -130,8 +130,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM4, v1.0.1): **26/26 requisitos (100%) com cadeia completa**, 523 objetos rastreados,
-302 testes modelados (302 **executados**), 29 métricas, 0 erros.
+Situação atual (DSM4, v1.1.0): **26/26 requisitos (100%) com cadeia completa**, 533 objetos rastreados,
+312 testes modelados (312 **executados**), 29 métricas, 0 erros.
 
 ## Como executar
 
@@ -145,7 +145,7 @@ python -m fin_mas run --scenario orc_hipotese_local               # hipótese ve
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
 python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, ~3 min)
-python -m pytest                                                  # 688 testes: unit 95, e2e 430, integração 140, TUI 23 (make test)
+python -m pytest                                                  # 703 testes: unit 95, e2e 435, integração 150, TUI 23 (make test)
 ```
 
 Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).

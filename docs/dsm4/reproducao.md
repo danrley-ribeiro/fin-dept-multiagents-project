@@ -33,7 +33,7 @@ dashboard com o bun.
 
 No ZIP extraído, entre em `codigo/` e comece pela criação do ambiente virtual. No Windows, ative com `.\.venv\Scripts\Activate.ps1` e use `python` nos comandos. O teste do wheel usa o backend de build já instalado por `requirements-dev.txt` e instala em um ambiente limpo sem consultar a rede. O histórico Git só é necessário para recuperar os números das rodadas anteriores ao regenerar as fontes do relatório.
 
-## 3. Testes (cerca de 4 minutos)
+## 3. Testes (de 5 a 15 minutos, conforme a máquina)
 
 ```bash
 python -m pytest                       # suíte inteira, offline (unit, e2e, integração, TUI)

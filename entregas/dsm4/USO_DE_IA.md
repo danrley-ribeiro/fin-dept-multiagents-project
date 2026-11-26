@@ -192,7 +192,16 @@ permissões e fazer um reforço focado do experimento, sem refazer o principal. 
 
 Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado como desvio do
 pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
-evidências pedidas no feedback e os dois autores em arquitetura e segurança. A suíte foi rodada em
-sequência (pytest, rastreabilidade, cenários, vitest e Playwright). Duas execuções do bloco E deram
-o mesmo `execucoes.csv`. A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
+evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
+
+- **pytest:** 703 de 703, em 12,3 minutos;
+- **rastreabilidade:** 533 objetos, 0 erros;
+- **vitest:** 12 de 12;
+- **Playwright:** 41 de 41, com o Chromium do Playwright;
+- **experimento inteiro:** rodado duas vezes, com o mesmo `execucoes.csv`; as métricas são iguais
+  às da terceira rodada em todas as linhas;
+- **bloco E:** duas execuções com o mesmo CSV;
+- **suíte a partir do ZIP:** extraído fora do repositório (sem Git), num venv só com o projeto e o
+  pytest. 677 passaram e nenhum falhou. Foram pulados os 23 da TUI (sem `textual`), um de LLM (sem
+  `anthropic`), o do wheel (sem `setuptools`) e o do empacotamento (sem Git). A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
 feita pelo coautor.

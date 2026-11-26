@@ -3777,3 +3777,15 @@
 **Resultado esperado:** serve --demo sem empresa: a simulação principal grava a memória em <pasta de dados>/memoria.json  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_two_accounts_of_the_same_person_cannot_request_and_approve
+:id: TEST-473
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_two_accounts_of_the_same_person_cannot_request_and_approve()` — tipo *seguranca*.  
+**Resultado esperado:** a conta elisa.op (mesma pessoa do ERP) pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa; outra pessoa decide  
+**Execução:** DSM4 (status atual: executado).
+````

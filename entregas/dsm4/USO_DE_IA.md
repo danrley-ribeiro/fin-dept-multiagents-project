@@ -205,3 +205,35 @@ evidências pedidas no feedback e os dois autores em arquitetura e segurança. A
   pytest. 677 passaram e nenhum falhou. Foram pulados os 23 da TUI (sem `textual`), um de LLM (sem
   `anthropic`), o do wheel (sem `setuptools`) e o do empacotamento (sem Git). A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
 feita pelo coautor.
+
+### Correção simulada da entrega final (26/11/2026)
+
+Os autores pediram duas correções simuladas no formato do professor. Cada uma foi feita por um agente
+independente (Claude Opus 5.5), que recebeu só o ZIP extraído, o enunciado, o feedback da DSM3 e, na
+segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as conclusões da revisão.
+
+- **Primeira rodada: nota 8,9.** O avaliador tentou burlar a POL-06 por vários caminhos e achou dois que
+  funcionavam:
+  - dois processos com pastas de chaves diferentes sobre o mesmo arquivo de memória liberavam os dois
+    waivers, porque a trava ficava na pasta de chaves;
+  - no dashboard de demonstração, reiniciar o cenário esquecia o waiver anterior, porque a memória
+    vivia só no processo.
+
+  Os dois foram corrigidos com teste: TEST-470 falha nas três tentativas com a trava antiga, e há ainda
+  TEST-471 e TEST-472. Também foram corrigidos:
+  - o filtro de um comando da demonstração;
+  - caminhos que não existiam no ZIP;
+  - o tempo do experimento;
+  - a prova do pré-registro sem o Git (nota com os commits).
+
+  As tabelas do experimento principal passaram a mostrar o desvio-padrão. Os autores decidiram manter
+  a conta `avaliador` com todos os papéis, para facilitar os testes do professor, e isso ficou
+  declarado nas limitações. O roteiro foi refeito para o vídeo de 15 a 30 minutos com foco no código
+  e nos testes, como o professor pediu.
+- **Segunda rodada: nota 9,2.** Nenhuma tentativa liberou dois waivers: 12 rodadas com dois processos,
+  quatro reinícios pelo dashboard e a CLI concorrente. O avaliador achou uma brecha nova: a POL-13
+  comparava só o nome da conta, e duas contas da mesma pessoa do ERP pediam e aprovavam. Ela foi
+  corrigida com teste (TEST-473, que falha sem a correção). Ficaram declarados como limitação:
+  - o caminho de memória sem normalização (falha fechada);
+  - o workflow equivalente, que vale para um pedido;
+  - o bloco E, que é exploratório.

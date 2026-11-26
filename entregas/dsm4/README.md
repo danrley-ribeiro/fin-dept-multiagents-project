@@ -25,14 +25,18 @@ estão no relatório e em
 **Revisão final (25 e 26/11), em resposta ao feedback da DSM3:**
 
 - **POL-06.** A POL-06 é conferida na aprovação e o waiver é gravado na mesma transação, sob trava do
-  sistema operacional. O segundo ticket concorrente perde a opção de waiver (TEST-424; TEST-459, com
-  dois processos no mesmo arquivo).
+  sistema operacional, ao lado do arquivo de memória. O segundo ticket concorrente perde a opção de
+  waiver (TEST-424, nas duas ordens; TEST-459, com dois processos no mesmo arquivo; TEST-470, com
+  pastas de chaves diferentes).
 - **Memória.** A oferta e a decisão usam a mesma regra. Rodar de novo com a mesma memória dá o mesmo
-  resultado (TEST-460 a 464).
-- **Permissões.** Quem reinicia um cenário pelo dashboard é o solicitante e não aprova (POL-13). O
-  porte micro escolhido no reinício não dispensa essa regra (TEST-453, TEST-465).
+  resultado (TEST-460 a 464). No dashboard, reiniciar o cenário não apaga a memória; só o
+  administrador a limpa (TEST-471, TEST-472).
+- **Permissões.** Quem reinicia um cenário pelo dashboard é o solicitante e não aprova (POL-13), nem
+  por outra conta da mesma pessoa (TEST-473). O porte micro escolhido no reinício não dispensa essa
+  regra (TEST-453, TEST-465).
 - **Suíte do ZIP.** Roda sem Git e sem as dependências opcionais; os testes que precisam delas são
-  pulados.
+  pulados. Sem `textual`, os 23 testes da TUI viram 2 pulos de módulo, então a contagem coletada é
+  menor que a do relatório, que é a do ambiente com as dependências de desenvolvimento.
 - **Bloco E.** Um bloco E exploratório varia pedidos concorrentes, frequência de irregularidades e
   volume, com desvio-padrão e testes por seed ([resultados](../../docs/dsm4/resultados.md), seção
   "Bloco E"). Para repeti-lo: `python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e`.

@@ -87,7 +87,7 @@ Danrley. É a correção do caso dos dois fechamentos simultâneos do professor:
 - `selado.trava`: trava do sistema operacional em `memoria.json.lock`, **ao lado do arquivo**, mesmo com pastas de chaves diferentes
 - A memória do dashboard fica em arquivo: **reiniciar não apaga**; limpar é `limpar_memoria`, só do administrador, com registro
 - `iam.exigir`: negado por padrão; `iam.atestar`: a decisão sai atestada pela sessão, ligada ao ticket e ao hash do veto
-- Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar
+- Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar, pela conta e pela pessoa do ERP
 
 ::: notes
 Danrley. Os dois primeiros itens vieram da correção simulada desta entrega: com a trava na pasta de chaves, dois processos com chaves diferentes liberavam os dois waivers; e o reinício do dashboard esquecia o waiver anterior.
@@ -220,7 +220,7 @@ Jiliard. A primeira revelou "resposta perdida vira silêncio"; a segunda veio de
 
 - **POL-06 na aprovação:** conferida e gravada numa transação, sob trava ao lado do arquivo; o segundo ticket concorrente perde o waiver (TEST-424, 459, 470)
 - **Memória entre execuções:** mesma regra na oferta e na decisão (TEST-460); o reinício do dashboard não apaga a memória (TEST-471)
-- **Operar × aprovar:** quem reinicia é o solicitante e não aprova (POL-13); o porte micro não dispensa a regra; limpar a memória é só do administrador
+- **Operar × aprovar:** quem reinicia é o solicitante e não aprova (POL-13), nem por outra conta da mesma pessoa (TEST-473); o porte micro não dispensa a regra; limpar a memória é só do administrador
 - **Suíte a partir do ZIP:** sem Git e sem as dependências opcionais, nenhuma falha
 - **Experimento:** workflow equivalente, 30 seeds, desvio-padrão nas tabelas e bloco E (concorrência, frequência, volume)
 

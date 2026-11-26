@@ -231,6 +231,11 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
   (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
   separação, opere com `operador` e decida com `controller`.
+- **O caminho do arquivo de memória não é normalizado** antes de derivar o nome da chave e do contador.
+  No Windows, o mesmo arquivo aberto com o caminho escrito em outra caixa (maiúsculas) é tratado como
+  outro arquivo e a memória fica "comprometida". É falha fechada (nenhum waiver passa), mas tira a
+  disponibilidade. Normalizar mudaria o nome das chaves das instalações existentes; fica para uma
+  migração.
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
 - **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.

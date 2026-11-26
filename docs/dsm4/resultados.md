@@ -682,7 +682,7 @@ unidade é a seed; as tabelas trazem média, **desvio-padrão** e IC de 95% por 
 são Wilcoxon pareados por seed, com Holm dentro de cada fator. Tabelas completas em {doc}`tabelas`.
 
 ```bash
-python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # cerca de 1 minuto; execucoes.csv idêntico
+python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # menos de 1 minuto; execucoes.csv idêntico
 ```
 
 **Pedidos concorrentes.** Com 2 e 4 pedidos simultâneos do mesmo mês, o SMA reserva o período

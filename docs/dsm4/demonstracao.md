@@ -1,8 +1,10 @@
-# Roteiro de demonstração (10 minutos)
+# Roteiro de demonstração
 
 Uma falha controlada, um ataque recusado, um teste, um resultado experimental e o dashboard, com os
-comandos exatos e o que observar. Os slides e as falas estão em `entregas/dsm4/apresentacao/`
-(`slides.md` e `roteiro.md`).
+comandos exatos e o que observar. A apresentação da DSM4 é um vídeo gravado: os slides, as falas,
+a divisão entre os autores e os filtros de cada comando estão em `entregas/dsm4/apresentacao/`
+(`slides.md` e `roteiro.md`). Esta página é a versão longa, para ensaiar e para quem quiser
+reproduzir a demonstração sem o vídeo.
 
 ## Antes de começar (fora do tempo)
 
@@ -20,14 +22,23 @@ Num segundo terminal, deixe o escritório no ar e o navegador aberto em `http://
 python -m fin_mas serve --demo               # contas de demonstração, senha Demonstracao-SMA-2026
 ```
 
+No Windows (PowerShell), o mesmo preparo é `.\.venv\Scripts\Activate.ps1`,
+`$env:PYTHONPATH = "src"`, `$env:PYTHONIOENCODING = "utf-8"` e
+`$env:FIN_MAS_DIR_CHAVES = "$env:TEMP\sma-chaves"`.
+
 Use fonte grande no terminal e `| less -R` quando a saída for longa.
 
-## Quatro evidências para a apresentação presencial
+## As evidências pedidas no feedback da DSM3
 
-1. **Jiliard, negociação de prazo.** Execute `python -m fin_mas run --scenario negociacao_prazo`. Mostre o pedido de extensão e o aceite no PROT-DEL.
-2. **Jiliard, hipótese confirmada.** Execute `python -m fin_mas run --scenario orc_hipotese_local`. Identifique a consulta QRY-002 ao AG-CIN e a revisão da crença do AG-ORC após a resposta.
-3. **Danrley, veto mantido.** Execute `python -m fin_mas run --scenario veto_bloqueio`. Mostre a violação de alçada e a resposta final de bloqueio.
-4. **Danrley, aprovação indevida.** Execute `python -m fin_mas run --scenario ataque_decisao_forjada`. Mostre a recusa no barramento e confirme que o fechamento continua bloqueado. Para a pergunta sobre concorrência, rode `python -m pytest tests/e2e/test_approval_gate.py -k "recurrence or processos"`.
+| Evidência | Comando | O que observar |
+|---|---|---|
+| Negociação de prazo | `python -m fin_mas run --scenario negociacao_prazo` | `P-NEGOCIAR-PRAZO adotada`, `propose [EM_EXECUCAO -> NEGOCIANDO]`, `accept-proposal` do Orquestrador e a hipótese confirmada com o prazo novo |
+| Hipótese confirmada por outro agente | `python -m fin_mas run --scenario orc_hipotese_local` | `HIPOTESE ... aceita`, consulta `QRY-002` ao AG-CIN, `confirmada (AG-CIN contesta ...)` e a NORM-11 |
+| Hipótese refutada | `python -m fin_mas run --scenario hipotese_refutada` | `refutada (AG-CIN não contesta ...)`; o desvio segue orçamentário |
+| Fechamento bloqueado | `python -m fin_mas run --scenario veto_bloqueio` | veto pela NORM-04, ticket da POL-01, `POL-08 ticket expirado` e `[VETADO -> BLOQUEADO]` |
+| Aprovação indevida recusada | `python -m fin_mas run --scenario ataque_decisao_forjada` | linhas `REJEITADA [...]` e `ATAQUES 14 de 14 rejeitados`; resposta final `failure` |
+| A decisão é da pessoa | dashboard, cenário `decisao_por_pessoa`, contas `carla` e `diego` | para a carla, "POL-03: você participou de um lançamento vetado" e **Decidir** desabilitado; o diego decide **Corrigir no ERP** |
+| POL-06 com fechamentos simultâneos | `python -m pytest tests/e2e/test_approval_gate.py tests/e2e/test_revisao_dsm4.py -q -k "recurrence or processos or memory or waiver"` | só o primeiro waiver passa; o segundo ticket perde a opção, inclusive com dois processos (TEST-459) |
 
 ## Roteiro
 
@@ -37,7 +48,7 @@ Use fonte grande no terminal e `| less -R` quando a saída for longa.
 | 1:00 | Caminho com veto | `python -m fin_mas run --scenario veto_correcao` | `DECISAO AG-CIN ... P-VETAR-COM-CORRECAO`, `veto [EM_ANALISE -> VETADO]`, `POLITICA POL-01 ticket emitido`, `propose-action`, `approve`, `erp.corrigir` com a aprovação e o AG-CIN reavaliando até `conforme`. Quem calcula não aprova; quem veta é independente. |
 | 2:30 | Falha controlada | `python -m fin_mas run --scenario res_insumo_faltante --porte grande \| grep -E "AG-RES\|resposta final"` | O AG-ORC não responde; o AG-RES delibera `P-CONSULTAR-DE-NOVO`, depois `P-DAR-POR-INDISPONIVEL` e, na grande, `P-FALHAR-EXPLICITAMENTE` (a completude pesa mais; na média seria `P-CONSOLIDAR-COM-RESSALVA`). O Orquestrador reenvia a subtarefa (`DEL-004`) e a resposta final é `inform`. Falha explícita, não silêncio. |
 | 4:00 | Ataque recusado | `python -m fin_mas run --scenario ataque_acesso \| tail -5` | `ATAQUES 15 de 15 rejeitados`: quem controla a caixa do aprovador tenta decidir sem ser a pessoa certa (sem atestado, atestado forjado, replay, cargo sem alçada, envolvido, solicitante). O ticket expira e nada é publicado. |
-| 5:00 | Trace íntegro | `python -m fin_mas run --scenario ataque_decisao_forjada --trace a.jsonl` e `python -m fin_mas verificar a.jsonl --ancora 2586f2c81fc2cc1c1739c12be744fce07eb2619044a5c337d2c6e1666becc76e` | "cadeia de hashes íntegra, âncora ... confere"; a âncora é a mesma em qualquer máquina. `python -m fin_mas invariantes a.jsonl` mostra "8 invariantes, 0 violação(ões)" (o número de invariantes cresce com o acesso avançado). |
+| 5:00 | Trace íntegro | `python -m fin_mas run --scenario ataque_decisao_forjada --trace a.jsonl` e `python -m fin_mas verificar a.jsonl --ancora 78f3484756cb2674089cb1340a08cfd14b1ae4158e0f28363b4c4b04c4e07cb5` | "cadeia de hashes íntegra, âncora ... confere"; a âncora é a mesma em qualquer máquina. `python -m fin_mas invariantes a.jsonl` mostra "10 invariantes, 0 violação(ões)"; a âncora muda quando a versão do pacote muda (ela entra no trace). |
 | 6:00 | Um teste | `python -m pytest tests/e2e/test_equivalencia_workflow.py -q` | Cerca de 5 s, todos passam: o workflow equivalente e o SMA básico dão o mesmo resultado sem falhas nos cenários comparáveis e em cargas sorteadas. É o teste que sustenta a palavra "equivalente". |
 | 7:00 | Resultado experimental | `python -m fin_mas experimento --rapido --out /tmp/exp` e abrir `docs/dsm4/resultados/fig_robustez.svg` | O modo rápido roda o aparato inteiro em 3 seeds em segundos (não é o resultado, é a prova de que o comando funciona). Na figura das 30 seeds: o SMA perde em robustez a partir de 15% de perda; empata sem falhas; nenhum braço publica crítica sem tratamento. Dizer em voz alta: com funções iguais, o SMA empata em qualidade e perde em custo e robustez. |
 | 8:30 | Dashboard | navegador, conta `avaliador` | Escritório ao vivo; área Aprovações com o prazo; mente do AG-ORC com crenças, desejos e deliberações; Logs filtráveis por agente. |
@@ -55,7 +66,7 @@ Use fonte grande no terminal e `| less -R` quando a saída for longa.
 | O teste demora (máquina lenta) | `python -m pytest tests/e2e/test_protocolos_invalidos.py -q` (transições inválidas dos protocolos) |
 | Projetor sem terminal legível | slides com as capturas e a página {doc}`resultados` no navegador |
 
-## Perguntas prováveis
+## Pontos que a narração deve cobrir
 
 - **Por que o workflow ganha em robustez?** Porque o modelo de falhas só atinge mensagens entre
   componentes, e o workflow monolítico não as tem; a comparação mede o preço da distribuição. Um

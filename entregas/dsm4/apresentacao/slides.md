@@ -99,9 +99,10 @@ Responde às duas críticas da DSM3: funções diferentes e variância zero.
 
 # Resultados: qualidade e robustez
 
+Sem falhas, o SMA e o workflow equivalente deram o mesmo resultado nos 240 pares (0 diferentes).
+
 | Execução correta | SMA básico | Workflow equivalente |
 |---|---|---|
-| sem falhas (pares diferentes) | 0 de 240 | — |
 | perda de 5% | 94,2% | 100% (n.s.) |
 | perda de 15% | 64,2% | 100% |
 | perda de 30% | 35,0% | 100% |
@@ -122,7 +123,7 @@ O workflow ganha por construção: o modelo de falhas só atinge mensagens entre
 - Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente; no bloco A, nenhum mudou o desfecho; no bloco D, 4 aceitos sem a premissa do ataque, e o efeito sobre o desfecho com o controle de acesso ligado **não foi testado**
 
 ::: notes
-O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida. Nos 240 pares adicionais com 12 ou 96 lançamentos, aumentar a frequência de alçada elevou as mensagens médias do SMA de 21,67 para 24,33. Os dois braços acertaram a conformidade em todos os pares.
+O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida. Nos 240 pares adicionais com 12 ou 96 lançamentos, aumentar a frequência de alçada elevou as mensagens médias do SMA de 21,67 para 24,33. Os dois braços acertaram a conformidade em todos os pares. O bloco E, adiante, substitui esse ensaio.
 :::
 
 # Três rodadas do experimento
@@ -141,19 +142,47 @@ O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 6
 O que não mudou nas três é o que vale como resultado: empate de qualidade, mais mensagens, robustez menor que a do workflow, zero ataque aceito indevidamente, zero crítica publicada.
 :::
 
+# Bloco E: concorrência, frequência e volume
+
+| 30 seeds, SMA básico × workflow equivalente | SMA | Workflow |
+|---|---|---|
+| 4 pedidos do mesmo mês: publicações indevidas | 0 (reserva) | 3 (fila sem reserva) |
+| 4 meses diferentes: ticks até o último | 19,8 | 75,3 (em fila) |
+| mensagens por pedido | ≈ 24 | ≈ 1,5 |
+| irregularidades 15% → 80%: intervenções humanas | 0,2 → 1,0 | 0,2 → 1,0 |
+| críticas publicadas sem tratamento | 0 | 0 |
+| 12 → 400 lançamentos: tempo de parede | 0,037 → 0,097 s | 0,004 → 0,007 s |
+
+::: notes
+Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). Média ± desvio-padrão e IC por bootstrap nas tabelas; as métricas agora variam entre seeds. A reserva é um mecanismo que o workflow equivalente não tem; o paralelismo também seria possível num controlador com vários atendentes. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
+:::
+
+# Revisão final: o feedback da DSM3
+
+- **POL-06 na aprovação:** waiver conferido e gravado numa transação, sob trava do sistema operacional; o segundo ticket concorrente perde o waiver (TEST-424, TEST-459: dois processos)
+- **Memória entre execuções:** a mesma regra na oferta e na decisão; rodar de novo com a mesma memória dá o mesmo resultado (TEST-460)
+- **Operar × aprovar:** quem reinicia o cenário é o solicitante e não aprova (POL-13); o porte micro não dispensa mais essa regra
+- **Suíte a partir do ZIP:** sem Git e sem as dependências opcionais, os testes que precisam delas são pulados
+- **Experimento:** bloco E com pedidos concorrentes, frequência de irregularidades e volume
+
+::: notes
+Cada item tem teste com o número do pedido do professor. O waiver é gravado antes de a decisão chegar ao Orquestrador: escolha conservadora, registrada nas limitações.
+:::
+
 # Demonstração
 
 ```
-python -m fin_mas run --scenario negociacao_prazo
-python -m fin_mas run --scenario orc_hipotese_local
-python -m fin_mas run --scenario veto_bloqueio
-python -m fin_mas run --scenario ataque_decisao_forjada
+python -m fin_mas run --scenario negociacao_prazo        # negociação de prazo
+python -m fin_mas run --scenario orc_hipotese_local      # hipótese confirmada pelo AG-CIN
+python -m fin_mas run --scenario hipotese_refutada       # hipótese refutada
+python -m fin_mas run --scenario veto_bloqueio           # fechamento bloqueado
+python -m fin_mas run --scenario ataque_decisao_forjada  # aprovação indevida recusada
 ```
 
-Plano B: `./iniciar.sh replay` e os resultados versionados em `docs/dsm4/resultados/`
+Dashboard: `decisao_por_pessoa` — a gerente envolvida não decide (POL-03), outro gerente decide
 
 ::: notes
-Seguir docs/dsm4/demonstracao.md: mostrar o aceite da extensão, a confirmação da hipótese pelo AG-CIN, o veto mantido e a aprovação indevida recusada.
+Seguir entregas/dsm4/apresentacao/roteiro.md: cada comando com o filtro indicado, para a tela mostrar só as linhas que importam.
 :::
 
 # Limitações
@@ -162,6 +191,7 @@ Seguir docs/dsm4/demonstracao.md: mostrar o aceite da extensão, a confirmação
 - Orquestrador é ponto único de falha, não exercitado; a robustez favorece o workflow por construção
 - Latência modelada, pouco poder com poucas seeds diferentes; H6b não testada com o controle de acesso ligado
 - Em aberto da correção simulada: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
+- O waiver é gravado antes de a decisão chegar ao Orquestrador; a trava da memória vale para a mesma pasta de chaves
 - Cognição local sem ganho; nenhum LLM real avaliado
 - Raiz de confiança no processo e na pasta de chaves; o cofre não cifra
 - Dados sintéticos; uma máquina, só loopback; nenhum conector de fornecedor

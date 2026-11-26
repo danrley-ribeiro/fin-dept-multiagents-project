@@ -19,7 +19,23 @@ feitas depois de ver resultados, e nenhuma rodada posterior à primeira é confi
 estão no relatório e em
 [`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md).
 
-Na revisão de 25/11, o Approval Gate passou a registrar o waiver antes de confirmar a decisão, inclusive com dois processos no mesmo arquivo. Os 240 pares do ensaio exploratório de carga e a comparação das duas novas rodadas completas estão em [resultados](../../docs/dsm4/resultados.md). Para repetir o ensaio depois do experimento principal, execute `python tools/estudo_carga.py saidas/reproducao/carga.csv`.
+**Vídeo da apresentação:** _link a preencher depois da gravação_ (roteiro em
+[`apresentacao/roteiro.md`](apresentacao/roteiro.md)).
+
+**Revisão final (25 e 26/11), em resposta ao feedback da DSM3:**
+
+- **POL-06.** A POL-06 é conferida na aprovação e o waiver é gravado na mesma transação, sob trava do
+  sistema operacional. O segundo ticket concorrente perde a opção de waiver (TEST-424; TEST-459, com
+  dois processos no mesmo arquivo).
+- **Memória.** A oferta e a decisão usam a mesma regra. Rodar de novo com a mesma memória dá o mesmo
+  resultado (TEST-460 a 464).
+- **Permissões.** Quem reinicia um cenário pelo dashboard é o solicitante e não aprova (POL-13). O
+  porte micro escolhido no reinício não dispensa essa regra (TEST-453, TEST-465).
+- **Suíte do ZIP.** Roda sem Git e sem as dependências opcionais; os testes que precisam delas são
+  pulados.
+- **Bloco E.** Um bloco E exploratório varia pedidos concorrentes, frequência de irregularidades e
+  volume, com desvio-padrão e testes por seed ([resultados](../../docs/dsm4/resultados.md), seção
+  "Bloco E"). Para repeti-lo: `python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e`.
 
 ## Conteúdo do pacote
 
@@ -71,7 +87,7 @@ reinicia um cenário dispara os pedidos dele e, pela POL-13, não decide sobre e
 outra conta (por exemplo, `controller`, com a mesma senha).
 
 Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com os modos `testes`,
-`replay`, `cli`, `docs`. Roteiro de demonstração de 10 minutos, com plano B:
+`replay`, `cli`, `docs`. Roteiro de demonstração com as evidências pedidas no feedback da DSM3 e plano B:
 [`docs/dsm4/demonstracao.md`](../../docs/dsm4/demonstracao.md).
 
 ## Critério → evidência
@@ -83,7 +99,7 @@ Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com
 | Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as três rodadas, o que não se confirmou, o que não foi testado, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (reproduzível byte a byte, SHA-256 em `manifesto.json`); relatório §10 |
 | Testes e reprodutibilidade (15%) | `codigo/tests/` (unit, e2e, integração, TUI), `codigo/web/e2e/` (Playwright), vitest; `tools/trace.py --check`; mesmo hash por seed; [reprodução do zero](../../docs/dsm4/reproducao.md); números do relatório gerados por `tools/relatorio_numeros.py` |
 | Documentação (10%) | relatório técnico (`documentacao/relatorio.pdf`); documentação navegável (`docs/`, Sphinx, <https://fin-dept-multiagents-project.readthedocs.io>); [limitações](../../docs/dsm4/limitacoes.md); diagramas editáveis; este README |
-| Demonstração e autoria (10%) | [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
+| Demonstração e autoria (10%) | vídeo (link acima) com os dois autores; [roteiro do vídeo](apresentacao/roteiro.md); [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
 
 ## O que mudou desde a DSM3 (v0.5.0)
 

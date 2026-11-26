@@ -171,3 +171,28 @@ por IA, é dos autores: os pontos a dominar estão na seção "Autoria".
 ## Revisão final de 25/11/2026
 
 O Codex consultou a conversa compartilhada e o feedback do professor, modificou a política de reincidência e a persistência, atualizou os testes do pacote e executou o ensaio exploratório pareado de carga. Também revisou os materiais de reprodução e demonstração. As afirmações sobre aprovação entre processos podem ser verificadas em TEST-459. Os dados do ensaio estão em `docs/dsm4/resultados/carga.csv`.
+
+## Revisão de 26/11/2026 (Claude Code)
+
+O Claude Code (Claude Opus 5.5) revisou o commit do Codex em modo de planejamento. Três agentes só
+leram o código e apontaram os problemas. Os autores escolheram o que fazer: corrigir de verdade as
+permissões e fazer um reforço focado do experimento, sem refazer o principal. A revisão achou:
+
+- **Regras diferentes no waiver.** A oferta, na emissão do ticket, olhava só meses anteriores. A
+  decisão olhava também o mesmo mês e os posteriores. O waiver era oferecido e depois recusado. Isso
+  quebrava o caso sequencial documentado e, no lote, deixava o ticket expirar com `erro_agente`.
+- **Ticket recusado ainda oferecia o waiver.** O segundo ticket concorrente não era reavaliado.
+- **Entrada fantasma na memória** quando a gravação falhava.
+- **Permissões.** Quem reiniciava pelo dashboard podia aprovar o próprio pedido. O porte micro
+  escolhido no reinício dispensava a POL-13.
+- **Suíte do ZIP.** Falhava sem `setuptools`/`wheel`, e havia um teste intermitente no login.
+- **Documentos inconsistentes.** A âncora do trace na demonstração estava desatualizada, assim como
+  o número de invariantes. A medida do tempo de parede do bloco E, antes da análise, incluía o
+  cálculo das métricas.
+
+Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado como desvio do
+pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
+evidências pedidas no feedback e os dois autores em arquitetura e segurança. A suíte foi rodada em
+sequência (pytest, rastreabilidade, cenários, vitest e Playwright). Duas execuções do bloco E deram
+o mesmo `execucoes.csv`. A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
+feita pelo coautor.

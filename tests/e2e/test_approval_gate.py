@@ -389,3 +389,58 @@ def test_uma_liberacao_entre_processos(tmp_path):
             if processo.is_alive():
                 processo.terminate()
                 processo.join()
+
+
+def _decidir_com_chaves_proprias(competencia, arquivo, chaves, barreira, resultados):
+    import os
+
+    os.environ["FIN_MAS_DIR_CHAVES"] = str(chaves)  # cada processo com a sua pasta de chaves
+    from fin_mas.env.scenarios import Scenario, montar
+
+    sc = Scenario("concorrente", "waiver entre processos com chaves diferentes", "fechar_mes",
+                  agenda=((competencia, ("alcada",)),), pedidos=(("fechar_mes", competencia, 1),))
+    sistema, (sid,) = montar(sc, interativo=True, memoria=arquivo)
+    rodar_ate_humano(sistema.bus)
+    barreira.wait(timeout=30)
+    try:
+        sistema.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
+    except MensagemRejeitada:
+        # reincidência, ou memória que este processo não consegue validar (selo de outra chave): nos dois casos o
+        # waiver não passa sem conferir o histórico
+        sistema.aprovador.decidir(sid, "bloquear", JUSTIFICATIVA)
+    sistema.bus.run()
+    resposta = sistema.usuario.resposta(sid)
+    resultados.put(resposta.content.get("status", resposta.performative))
+
+
+def test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes(tmp_path):
+    """Correção simulada da DSM4: com a trava na pasta de chaves, dois processos com pastas de chaves diferentes sobre
+    o mesmo arquivo travavam arquivos diferentes e os dois waivers passavam. A trava fica ao lado do arquivo de dados."""
+    import json
+    import multiprocessing
+
+    ctx = multiprocessing.get_context("spawn")
+    arquivo = tmp_path / "memoria.json"
+    for rodada in range(3):  # a corrida não é determinística: repetir aumenta a chance de pegar a ordem ruim
+        if arquivo.exists():
+            arquivo.unlink()
+        barreira, resultados = ctx.Barrier(2), ctx.Queue()
+        processos = [ctx.Process(target=_decidir_com_chaves_proprias,
+                                 args=(mes, arquivo, tmp_path / f"chaves-{rodada}-{mes}", barreira, resultados))
+                     for mes in ("2026-08", "2026-09")]
+        try:
+            for processo in processos:
+                processo.start()
+            for processo in processos:
+                processo.join(60)
+                assert processo.exitcode == 0
+            status = [resultados.get(timeout=2) for _ in processos]
+            assert status.count("publicado_com_ressalva") <= 1, status
+            if arquivo.exists():
+                entradas = json.loads(arquivo.read_text(encoding="utf-8"))["entradas"]
+                assert sum(1 for e in entradas if e["tipo"] == "waiver") <= 1
+        finally:
+            for processo in processos:
+                if processo.is_alive():
+                    processo.terminate()
+                    processo.join()

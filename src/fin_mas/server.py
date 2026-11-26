@@ -739,8 +739,12 @@ def servir(cenario="expediente_sma", seed=None, porta=8765, ms_por_tick=350, pas
     if acesso.vazio():
         raise SystemExit(f"nenhuma conta em {pasta_acesso}: crie o administrador com "
                          f"`python -m fin_mas acesso iniciar --acesso {pasta_acesso}` ou suba com --demo")
+    # A memória (SVC-MEM) da simulação principal fica em arquivo, também no modo demonstração: reiniciar um cenário
+    # não a apaga (correção simulada da DSM4: um reinício esquecia o waiver anterior e a POL-06 liberava de novo).
+    # Limpar é o comando `limpar_memoria`, do administrador (PERM-MEM-LIMPAR)
+    Path(pasta_dados).mkdir(parents=True, exist_ok=True)
     sim = Simulacao(cenario, seed, interativo=True, ms_por_tick=ms_por_tick, pasta_dados=pasta_dados, acesso=acesso,
-                    cognicao=cognicao)
+                    cognicao=cognicao, memoria=str(Path(pasta_dados) / "memoria.json"))
     if (porte and porte != sim.porte) or segmento:  # instalação com porte e segmento escolhidos
         sim._montar(cenario, seed, True, porte=porte, segmento=segmento)
     sim.iniciar()

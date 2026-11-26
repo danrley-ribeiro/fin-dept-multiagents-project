@@ -27,6 +27,7 @@ from fin_mas.core.schema import FORMATOS, _tipo_ok
 from fin_mas.env.portes import PORTES
 from fin_mas.env.segmentos import SEGMENTOS
 from fin_mas.env.scenarios import CENARIOS, montar
+from fin_mas.services.memoria import MemoriaRecusada
 from fin_mas.services.modelos import ConfiguracaoInvalida
 
 AGENTES_HUMANOS = ("SOL", "APR")
@@ -34,6 +35,7 @@ PERMISSAO_COMANDO = {  # comando -> permissão exigida (models/permissions.yaml)
     "pausar": "PERM-SIM-OPERAR", "retomar": "PERM-SIM-OPERAR", "passo": "PERM-SIM-OPERAR",
     "velocidade": "PERM-SIM-OPERAR", "reiniciar": "PERM-SIM-OPERAR", "agente": "PERM-AGT-ENERGIA",
     "solicitar": "PERM-SOL-CRIAR", "decidir": "PERM-APR-DECIDIR", "modelo": "PERM-MOD-CONFIG",
+    "limpar_memoria": "PERM-MEM-LIMPAR",  # apagar o histórico da POL-06 é administração, não operação
 }
 CAMPOS_MODELO = ("llm", "provedor", "modelo", "base_url", "usos", "consentimento_externo", "pseudonimizar",
                  "max_tokens", "cota_tokens", "preco_entrada", "preco_saida")
@@ -195,6 +197,17 @@ class Simulacao:
                 self._decisao_nao_enviada(ator, cmd, "não há pendência para essa solicitação "
                                                      "ou a opção não foi oferecida pela política")
                 return
+        elif tipo == "limpar_memoria":
+            memoria = self.sistema.memoria
+            try:
+                apagadas = memoria.limpar(getattr(ator, "usuario", None)) if memoria is not None else 0
+            except MemoriaRecusada as erro:
+                self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                              "erro": f"memória não limpa: {erro}"})
+                return
+            self._emitir({"tipo": "controle", "geracao": self.geracao, "estado": self.controle(),
+                          "aviso": f"memória limpa: {apagadas} entrada(s) apagada(s)"})
+            return
         elif tipo == "reiniciar":
             anterior = self.cognicao
             if "cognicao" in cmd:
@@ -305,7 +318,8 @@ class Simulacao:
 
 
 TIPOS = {"pausar": (), "retomar": (), "passo": (), "velocidade": ("ms_por_tick",), "agente": ("agente", "online"),
-         "solicitar": ("intencao",), "decidir": ("solicitacao", "decisao"), "reiniciar": (), "modelo": ("agente",)}
+         "solicitar": ("intencao",), "decidir": ("solicitacao", "decisao"), "reiniciar": (), "modelo": ("agente",),
+         "limpar_memoria": ()}
 
 
 class ComandoInvalido(ValueError):

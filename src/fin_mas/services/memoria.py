@@ -351,6 +351,19 @@ class Memoria:
             self._registrar(cid, "expirada", agente=self.ID, memorias=[e["id"] for e in vencidas],
                             retencao=self.retencao)
 
+    def limpar(self, ator: str | None, cid: str | None = None) -> int:
+        """Administração: apaga todas as entradas (o histórico de reincidência recomeça) e devolve quantas eram.
+
+        Reiniciar um cenário NÃO limpa a memória (correção simulada da DSM4: no dashboard de demonstração a memória
+        vivia só no processo e um reinício esquecia o waiver anterior). Limpar é um ato separado, de quem tem
+        `PERM-MEM-LIMPAR` (administrador, que não aprova), feito sob a trava e registrado no trace com o autor.
+        Memória comprometida não é limpa: a restauração é `memoria adotar` ou o backup."""
+        with self._sob_trava():
+            apagadas = [e["id"] for e in self.entradas]
+            self.entradas = []
+        self._registrar(cid, "limpa", agente=self.ID, ator=ator, memorias=apagadas)
+        return len(apagadas)
+
     # ---- persistência e integridade ---------------------------------------------------------
     def _arquivo_estado(self, sufixo: str) -> Path:
         base = Path(os.environ.get("FIN_MAS_DIR_CHAVES") or Path.home() / ".fin_mas" / "chaves")

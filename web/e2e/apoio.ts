@@ -18,22 +18,30 @@ export async function estado(request: APIRequestContext) {
   return (await request.get("/api/estado")).json();
 }
 
-let operadorApi: APIRequestContext | undefined;
+const contas: Record<string, APIRequestContext> = {};
 
-/** Sessão da conta `operador` (só opera a simulação), para reiniciar cenários nos roteiros. */
-async function operador(): Promise<APIRequestContext> {
-  if (!operadorApi) {
-    operadorApi = await playwrightRequest.newContext({ baseURL: `http://127.0.0.1:${process.env.SMA_E2E_PORTA ?? 8777}` });
-    const r = await operadorApi.post("/api/login", { data: { usuario: "operador", senha: SENHA } });
+/** Sessão de uma conta de demonstração pela API (o `operador` reinicia; o `admin` limpa a memória). */
+async function contaApi(usuario: string): Promise<APIRequestContext> {
+  if (!contas[usuario]) {
+    contas[usuario] = await playwrightRequest.newContext({ baseURL: `http://127.0.0.1:${process.env.SMA_E2E_PORTA ?? 8777}` });
+    const r = await contas[usuario].post("/api/login", { data: { usuario, senha: SENHA } });
     expect(r.ok()).toBeTruthy();
   }
-  return operadorApi;
+  return contas[usuario];
+}
+
+/** Apaga o histórico do SVC-MEM, como o administrador (PERM-MEM-LIMPAR). Reiniciar não apaga a memória: sem isto,
+ * o waiver de um roteiro faria a POL-06 recusar o waiver de outro mês num roteiro seguinte. */
+export async function limparMemoria() {
+  await comando(await contaApi("admin"), { tipo: "limpar_memoria" });
 }
 
 /** Reinicia o cenário como `operador`. Quem reinicia dispara os pedidos do roteiro e, pela POL-13, não decide
  * sobre eles: reiniciando com outra conta, o `avaliador` do contexto padrão continua podendo decidir. Trocar a
  * cognição exige PERM-MOD-CONFIG (o operador não tem): o avaliador ajusta a cognição e o operador reinicia. */
-export async function reiniciar(request: APIRequestContext, cenario: string, pausado = false, extras: Record<string, unknown> = {}) {
+export async function reiniciar(request: APIRequestContext, cenario: string, pausado = false, extras: Record<string, unknown> = {},
+  manterMemoria = false) {
+  if (!manterMemoria) await limparMemoria();  // cada roteiro começa sem histórico de outro roteiro
   await comando(request, { tipo: pausado ? "pausar" : "retomar" });
   const cognicao = (extras.cognicao as string | undefined) ?? "basico";
   if ((await estado(request)).controle.cognicao !== cognicao) {
@@ -41,7 +49,7 @@ export async function reiniciar(request: APIRequestContext, cenario: string, pau
     await expect.poll(async () => (await estado(request)).controle.cognicao).toBe(cognicao);
   }
   const geracao = (await estado(request)).controle.geracao;
-  await comando(await operador(), { tipo: "reiniciar", cenario, ...extras, cognicao });
+  await comando(await contaApi("operador"), { tipo: "reiniciar", cenario, ...extras, cognicao });
   await expect.poll(async () => (await estado(request)).controle.geracao).toBeGreaterThan(geracao);
   await expect.poll(async () => (await estado(request)).controle.cenario).toBe(cenario);
 }

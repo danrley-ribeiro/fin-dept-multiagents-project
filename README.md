@@ -144,7 +144,7 @@ python -m fin_mas run --scenario ataque_acesso                    # 15 ataques a
 python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, ~3 min)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, de 5 a 8 min)
 python -m pytest                                                  # 703 testes: unit 95, e2e 435, integração 150, TUI 23 (make test)
 ```
 

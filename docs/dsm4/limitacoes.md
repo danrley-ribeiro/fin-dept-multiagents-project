@@ -225,10 +225,12 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   concorrentes). Se esse `approve` se perdesse depois, a memória diria "liberado" sem o fechamento publicado
   com ressalva, e o próximo waiver do padrão seria negado. Escolha conservadora: na dúvida, a reincidência
   bloqueia.
-- **A trava da memória vale para processos com a mesma pasta de chaves.** O arquivo da trava fica na pasta
-  de chaves (`FIN_MAS_DIR_CHAVES`), com o nome derivado do caminho do arquivo de dados. Dois processos sobre
-  o mesmo arquivo, mas com pastas de chaves diferentes, não se excluem. Na instalação padrão (uma pasta de
-  chaves por servidor, inclusive no contêiner) isso não acontece.
+- **A conta de demonstração `avaliador` opera e aprova.** Ela acumula operação, pedidos, aprovação e
+  auditoria por decisão dos autores, para o professor testar tudo com uma conta só. A POL-13 impede que
+  ela decida sobre os pedidos que ela mesma disparou (reinício ou pedido novo). Os pedidos do cenário
+  carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
+  (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
+  separação, opere com `operador` e decida com `controller`.
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
 - **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
@@ -265,5 +267,7 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | Cargo sem limite de valor; ausência do aprovador travava o fechamento; uma pessoa liberava qualquer valor | alçada por pessoa (POL-10), delegação com prazo, teto e escopo (POL-11), dupla aprovação acima do limite do porte (POL-12), escalonamento (POL-14) |
 | Chaves de LLM só por variável de ambiente | cofre selado da plataforma, com a ressalva de não cifrar (ver acima) |
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
+| A trava da memória ficava na pasta de chaves: dois processos com pastas de chaves diferentes sobre o mesmo arquivo não se excluíam e os dois waivers passavam (correção simulada da DSM4, 3 de 6 tentativas) | a trava é `<arquivo>.lock`, ao lado do arquivo de dados (TEST-470) |
+| No dashboard de demonstração, a memória vivia só no processo: reiniciar o cenário esquecia o waiver anterior e a POL-06 liberava de novo (correção simulada da DSM4) | a memória fica em `<pasta de dados>/memoria.json` e reiniciar não a apaga; limpar é o comando `limpar_memoria`, só do administrador (`PERM-MEM-LIMPAR`), registrado no trace (TEST-471, TEST-472) |
 | Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

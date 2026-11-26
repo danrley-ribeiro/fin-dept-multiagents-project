@@ -63,7 +63,7 @@ python -m pytest                                            # suíte inteira, of
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (cerca de 3 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (de 5 a 8 minutos)
 python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
 ```
 

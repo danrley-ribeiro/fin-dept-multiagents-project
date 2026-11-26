@@ -63,7 +63,7 @@ Roteiro completo em {doc}`demonstracao`.
 
 ```bash
 python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 seeds, cerca de 5 segundos
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # o experimento inteiro, cerca de 3 minutos (make experimento)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # o experimento inteiro, de 5 a 8 minutos (make experimento)
 sha256sum saidas/reproducao/execucoes.csv                             # shasum -a 256 no macOS
 ```
 

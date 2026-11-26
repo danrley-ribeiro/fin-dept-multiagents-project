@@ -1,37 +1,41 @@
 # Roteiro do vídeo — DSM4
 
-A apresentação da DSM4 é um **vídeo gravado**, sem perguntas ao vivo. Por isso o vídeo responde, na
-própria narração, ao que o professor pediu no feedback da DSM3. **Duração-alvo:** cerca de 15 minutos.
-**Quem fala:** Danrley (D) e Jiliard (J), os dois explicando a arquitetura e a segurança.
-**Tom:** mostrar o sistema e dizer o que o experimento mostrou, inclusive o que nos é desfavorável.
+A apresentação final é um **vídeo de 15 a 30 minutos** que substitui a apresentação presencial. O professor
+pediu foco no **código-fonte e nos testes**: o vídeo passa a maior parte do tempo no editor e no terminal,
+e os slides só abrem e amarram cada parte. **Duração-alvo:** 25 minutos. **Quem fala:** Danrley (D) e
+Jiliard (J), os dois explicando arquitetura e segurança no próprio código.
+**Tom:** mostrar como o sistema funciona por dentro e dizer o que o experimento mostrou, inclusive o
+que é desfavorável a nós.
 
 **Slides:** [`DSM4-apresentacao.pptx`](DSM4-apresentacao.pptx), gerado de [`slides.md`](slides.md) por
-`make apresentacao-dsm4` (pandoc, com o tema do deck da DSM2). As falas resumidas estão nas notas do
-apresentador. O roteiro longo da demonstração, com plano B, está em
-[`docs/dsm4/demonstracao.md`](../../../docs/dsm4/demonstracao.md).
+`make apresentacao-dsm4`. As falas resumidas também estão nas notas do apresentador. A versão longa da
+demonstração, com plano B, está em [`docs/dsm4/demonstracao.md`](../../../docs/dsm4/demonstracao.md).
 
-## O que o vídeo precisa mostrar (feedback da DSM3)
+## O que o vídeo cobre
 
-| Pedido | Onde, no vídeo |
+| Pedido | Onde |
 |---|---|
-| Uma negociação de prazo | Demonstração 1 (`negociacao_prazo`) |
-| Uma hipótese confirmada ou refutada por outro agente | Demonstrações 2 e 3 (`orc_hipotese_local`, `hipotese_refutada`) |
-| Um fechamento bloqueado | Demonstração 4 (`veto_bloqueio`) |
-| Uma aprovação indevida rejeitada | Demonstração 5 (`ataque_decisao_forjada`) e cena 6 no dashboard (`decisao_por_pessoa`) |
-| Os dois autores explicando arquitetura e segurança | Slides 3 a 5 e 7, divididos entre D e J |
-| POL-06 sob concorrência, memória, permissões, ZIP, experimento | Slides 13 e 14 e cena 7 (teste dos dois processos) |
+| Código-fonte em detalhe (aviso do professor) | Parte 2, de 3:30 a 14:30: barramento, protocolos, Approval Gate, POL-06 e trava, acesso, agentes BDI, negociação, workflow equivalente |
+| Testes em detalhe (aviso do professor) | Parte 3, de 14:30 a 19:30: organização, rastreabilidade, testes da POL-06, testes negativos de protocolo, equivalência, suíte a partir do ZIP |
+| Negociação de prazo | Parte 2 (código do `_negociar_prazo`) e Parte 4, demo 1 |
+| Hipótese confirmada ou refutada por outro agente | Parte 2 (código do AG-ORC) e Parte 4, demos 2 e 3 |
+| Fechamento bloqueado por irregularidade | Parte 4, demo 4 |
+| Aprovação indevida rejeitada | Parte 4, demos 5 e 6 (14 ataques ao barramento; a gerente envolvida no dashboard) |
+| POL-06 com fechamentos simultâneos (feedback da DSM3) | Parte 2 (código), Parte 3 (TEST-424, 459, 470, 471) e Parte 4, demo 7 ao vivo no dashboard |
+| Memória entre execuções, operar × aprovar, suíte do ZIP | Parte 2 (trava e memória), Parte 3 (suíte sem Git) e slide "Revisão final" |
+| Experimento: baseline equivalente, fatores, seeds, variabilidade | Parte 5 |
+| Os dois autores explicam arquitetura e segurança | Partes 1 e 2, divididas entre D e J |
 
 ## Preparar a gravação (fora do tempo)
 
-- Gravar a tela em 1920×1080, com o terminal em fonte de 16 pt ou mais e tema claro. Fechar
-  notificações. Gravar cada bloco separado e juntar na edição: um erro custa um bloco, não o vídeo.
-- Câmera opcional; a voz de quem fala deve combinar com a coluna "Quem" abaixo. Cada um se apresenta
-  na primeira fala.
-- Ensaiar uma vez com cronômetro. Se passar de 17 minutos, cortar falas dos slides 9 a 12, nunca as
-  demonstrações.
+- Gravar a tela em 1920×1080, com fonte de 16 pt ou mais no editor e no terminal e tema claro. Fechar
+  notificações. No editor, deixar abertas as abas da Parte 2 na ordem do roteiro, com as funções já
+  localizadas (Ctrl+G para a linha). Gravar parte por parte e juntar na edição.
+- Cada um se apresenta na primeira fala e fala na sua voz nas partes indicadas.
+- Ensaiar com cronômetro. Se passar de 30 minutos, encurtar a Parte 5, nunca as Partes 2 e 3.
 - Exportar em MP4 (H.264) e publicar como link não listado; o link vai no `README.md` da entrega.
 
-Terminal 1, na raiz do repositório:
+Terminal, na raiz do repositório (Linux/macOS):
 
 ```bash
 source .venv/bin/activate && export PYTHONPATH=src
@@ -48,117 +52,103 @@ $env:FIN_MAS_DIR_CHAVES = "$env:TEMP\sma-chaves"
 python -m fin_mas cenarios --verificar
 ```
 
-Terminal 2: `python -m fin_mas serve --demo` e o navegador em `http://127.0.0.1:8765`. A tela de
-entrada mostra a conta de demonstração; todas usam a senha `Demonstracao-SMA-2026`. Deixar abertas
-duas janelas anônimas (uma para `carla`, outra para `diego`) e a figura
-`docs/dsm4/resultados/fig_robustez.svg`.
+Segundo terminal, com uma pasta de dados nova para a memória começar vazia (ela persiste entre reinícios e
+entre execuções do servidor): `python -m fin_mas serve --demo --pasta-dados saidas/video/dados
+--acesso saidas/video/acesso`, e o navegador em `http://127.0.0.1:8765`. Todas as contas usam a senha
+`Demonstracao-SMA-2026`. Deixar abertas janelas anônimas para `operador`, `controller`, `carla` e
+`diego`. Para regravar a demo 7, suba o servidor de novo com outra pasta de dados.
 
-## Falas por slide
+## Parte 1 — O problema e a arquitetura (0:00 a 3:30, slides 1 a 4)
 
-| # | Slide | Quem | Tempo | O que dizer e fazer |
+| Slide | Quem | Tempo | O que dizer |
+|---|---|---|---|
+| 1. Capa | D + J | 0:30 | Cada um se apresenta. O vídeo mostra o código e os testes, depois as demonstrações e o experimento. |
+| 2. O problema | D | 0:45 | Fechar o mês com fontes que divergem, regras por porte e decisão humana. A pergunta da DSM4: com as mesmas funções, agentes valem a pena? |
+| 3. Arquitetura final | D | 1:00 | Camadas de cima até o barramento. Quem calcula não aprova, o AG-CIN veta sozinho e a decisão humana tem dono. BDI onde há escolha sob incerteza (ADR-010). |
+| 4. Mapa do código | J | 1:15 | Onde está cada coisa em `src/fin_mas/`: `core/` (barramento, FSM, BDI), `agents/`, `services/` (política, memória, acesso, trace), `baseline_eq.py`, `estudo*.py`; `models/` como fonte da verdade (protocolos, papéis, permissões, testes); `tests/` em quatro pastas e `web/e2e/`. |
+
+## Parte 2 — Código-fonte (3:30 a 14:30, slides 5 a 9, editor aberto)
+
+Cada bloco: o slide dá o mapa, a tela vai para o editor e a fala percorre a função.
+
+| Bloco | Quem | Tempo | Arquivo e função | O que mostrar e dizer |
 |---|---|---|---|---|
-| 1 | Capa | D + J | 0:20 | Cada um se apresenta. O que vem: o sistema final, o experimento, o que ele mostrou (inclusive contra nós) e as respostas ao feedback da DSM3. |
-| 2 | O problema | D | 0:40 | Fechar o mês com fontes que divergem, regras por porte e decisão humana. Por que agentes. A pergunta: com as mesmas funções, agentes valem a pena? |
-| 3 | Arquitetura final | D | 0:50 | Camadas de cima para baixo até o barramento: interfaces, fronteira (loopback e SVC-IAM), Orquestrador, especialistas. Quem calcula não aprova; o AG-CIN veta sozinho; BDI onde há escolha sob incerteza (ADR-010). |
-| 3 | Arquitetura final | J | 0:30 | O resto das camadas: barramento que confere remetente, papel, contraparte, esquema, FSM e política; serviços (Approval Gate, reserva, memória, trace encadeado); fontes atrás do gateway MCP com allowlist. |
-| 4 | Approval Gate (FSM) | J | 0:25 | A FSM é dado (`models/protocols.yaml`), conferida pelo barramento antes de mudar o estado. |
-| 5 | O que o Approval Gate confere | D | 0:35 | Ticket com hash do veto; a decisão vale pela pessoa (atestado, cargo, alçada, envolvido, solicitante). Cada transição inválida é um teste negativo. |
-| 6 | Coordenação | J | 0:40 | Consulta direta, veto, correção, reserva, negociação. "Waiver não se repete" emerge de memória, crença do AG-CIN e política. |
-| 7 | Segurança | D | 0:35 | O barramento recusa remetente sem credencial, papel errado, contraparte fora da conversa e transição fora da FSM: 14 ataques ao barramento e 15 à decisão por pessoa, todos recusados. |
-| 7 | Segurança | J | 0:35 | Acesso avançado (segundo fator, alçada por pessoa, delegação, dupla aprovação) e invariantes conferidos só pelo trace, com cadeia de hashes e âncora. Fora do modelo: quem controla o processo ou a pasta de chaves. |
-| 8 | Cognição | J | 0:30 | Proposta não é crença; guardrail determinístico, não outro modelo. O AG-REL BDI não se justificou e está escrito. |
-| 9 | Experimento: desenho | J | 0:40 | Pré-registro antes do código; workflow com as mesmas funções; falhas sorteadas por seed; 30 seeds. Responde às duas críticas da DSM3. |
-| 10 | Qualidade e robustez | D | 0:40 | Empate sem falhas (em boa parte por construção); o SMA perde a partir de 15% de perda (64,2% contra 100%); nenhuma crítica publicada. O workflow ganha por construção. |
-| 11 | Custo, cognição, ablação, ataques | D | 0:40 | Mais mensagens (firme); cognição sem ganho significativo; reenvio, reserva e correção valem; no bloco D, 4 ataques aceitos sem a premissa e H6b não testada. |
-| 12 | Três rodadas | J | 0:25 | A primeira achou o silêncio, a segunda mediu a correção, a terceira a versão 1.0.0. Nenhuma posterior é confirmatória. |
-| 13 | Bloco E | J | 0:50 | Pedidos concorrentes: a reserva impede publicar o mesmo mês duas vezes; meses diferentes em paralelo. Frequência muda o custo, não a qualidade. Volume: ticks iguais, tempo de parede cresce. Exploratório; as métricas agora variam entre seeds (desvio-padrão nas tabelas). |
-| 14 | Revisão final | D | 0:45 | Um item por pedido do professor, cada um com o seu teste. **Passa para a demonstração.** |
-| 15 | Demonstração | D + J | 5:00 | Blocos abaixo. |
-| 16 | Limitações | J | 0:30 | As que mais pesam, inclusive o waiver gravado antes da entrega da decisão; a lista completa está na documentação. |
-| 17 | Lições | D | 0:30 | A linha de base justa mudou a conclusão; falhas sorteadas e uma correção independente acharam defeitos; o que o SMA entrega é estrutural. |
+| Protocolos como dados | J | 1:30 | `models/protocols.yaml` (PROT-APR, PROT-DEL) e `src/fin_mas/core/fsm.py` | Estados, transições e quem emite cada performativo estão no YAML. O código não tem `if` por protocolo; a FSM é carregada e conferida. |
+| Barramento: a cadeia de validação | J | 2:00 | `src/fin_mas/core/bus.py`, `Bus.send` (l. 171) | Percorrer a ordem das recusas: envelope, autenticação do remetente (credencial), esquema, destinatário, papel no protocolo, conversa, FSM e, por último, a política (l. 266). Cada recusa vira registro `rejected` com a etapa. É aqui que os ataques da DSM2 morrem. |
+| Approval Gate e POL-06 | D | 2:30 | `src/fin_mas/services/politica.py`, `emitir` (l. 138) e `_validar_apr` (l. 229); `src/fin_mas/services/memoria.py`, `_reincide` (l. 141) e `_decidir_waiver` (l. 259) | O ticket guarda o hash do veto, o prazo e as opções. Na decisão, `_validar_apr` confere a pessoa (`_validar_pessoa`: atestado, cargo, envolvido, solicitante) e, no waiver, chama `_decidir_waiver`: relê o histórico **sob a trava**, aplica a mesma regra da oferta (`_reincide`: waiver do padrão em outro mês, antes ou depois) e grava na mesma transação. Recusado, o ticket perde a opção de waiver (l. 280). É a correção do caso dos dois fechamentos simultâneos. |
+| Trava e memória entre execuções | D | 1:30 | `src/fin_mas/services/selado.py`, `trava` (l. 86); `src/fin_mas/live.py`, comando `limpar_memoria` | A trava do sistema operacional fica ao lado do arquivo (`memoria.json.lock`), então dois processos disputam a mesma trava mesmo com pastas de chaves diferentes. A memória do dashboard fica em arquivo e o reinício não a apaga; só o administrador limpa (`PERM-MEM-LIMPAR`), com registro no trace. |
+| Acesso: a decisão é da pessoa | D | 1:00 | `src/fin_mas/services/iam.py`, `atestar` (l. 569) e `exigir`; `models/permissions.yaml` e `roles.yaml` | Negado por padrão (IAM-05). A decisão sai com um atestado da sessão, ligado ao ticket e ao hash do veto; a caixa do aprovador não decide sozinha. Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar. |
+| Agentes BDI: hipótese não é crença | J | 1:30 | `src/fin_mas/agents/orc.py`, `concluir_hipotese` (l. 545); `src/fin_mas/core/inferencia.py`, `validar_proposta` (l. 165) | A hipótese nasce de uma regra local (ou do LLM, opcional), passa por regras determinísticas e vira **ação epistêmica**: consultar o AG-CIN. Só a resposta dele confirma ou refuta, e a decisão cita a NORM-11. |
+| Negociação de prazo | J | 0:30 | `src/fin_mas/agents/orq.py`, `_negociar_prazo` (l. 241) | O especialista propõe (`propose`); o Orquestrador aceita ou recusa por regra (`accept-proposal`, l. 267), com limite de extensões. |
+| Workflow equivalente | D | 0:30 | `src/fin_mas/baseline_eq.py`, `executar` (l. 340) | Um controlador com as mesmas regras, veto, correção e aprovação, sem agentes nem mensagens entre componentes. É a linha de base justa pedida no feedback. |
 
-## Demonstração (slide 15, cerca de 5 minutos)
+## Parte 3 — Testes (14:30 a 19:30, slides 10 e 11, editor e terminal)
 
-Cada comando vai com um filtro, para a tela mostrar só as linhas que importam. No PowerShell, troque
-`| grep -E "..."` por `| Select-String -Pattern "..."`.
+| Bloco | Quem | Tempo | O que mostrar |
+|---|---|---|---|
+| Organização e rastreabilidade | J | 1:00 | `tests/unit`, `e2e`, `integration`, `tui` e `web/e2e` (Playwright). Em `models/tests.yaml`, cada teste tem id, o requisito que verifica e o elemento do modelo de onde vem; `python tools/trace.py --check` fecha a cadeia (0 erros). |
+| Os testes da POL-06 | D | 1:30 | `tests/e2e/test_approval_gate.py`: `test_recurrence_is_checked_again_when_the_waiver_is_decided` (TEST-424, as duas ordens de decisão), `test_uma_liberacao_entre_processos` (TEST-459, dois processos com barreira) e `..._com_pastas_de_chaves_diferentes` (TEST-470). `tests/integration/test_revisao_dsm4_memoria.py` (TEST-471: reiniciar não apaga a memória; só o admin limpa). Rodar: `python -m pytest tests/e2e/test_approval_gate.py tests/integration/test_revisao_dsm4_memoria.py -q -k "recurrence or processos or memory"`. |
+| Testes negativos de protocolo e ataques | J | 1:00 | `tests/e2e/test_protocolos_invalidos.py` (transições fora da FSM recusadas) e os cenários `ataque_decisao_forjada` e `ataque_acesso`; `python -m fin_mas invariantes` confere 10 propriedades só pelo trace. |
+| Equivalência do workflow | D | 0:45 | `tests/e2e/test_equivalencia_workflow.py`: sem falhas, o workflow e o SMA dão o mesmo resultado nos cenários comparáveis e em cargas sorteadas. É o teste que sustenta a palavra "equivalente". |
+| A suíte inteira e a partir do ZIP | J | 0:45 | Mostrar o fim de uma execução gravada de `python -m pytest`: 706 passaram. E a execução a partir do ZIP, sem Git e sem `textual`/`anthropic`: sem falhas, com os pulados justificados (TUI, LLM, empacotamento). `python -m fin_mas cenarios --verificar`: 64 de 64. |
 
-1. **Jiliard: negociação de prazo** (0:50).
+## Parte 4 — Demonstrações (19:30 a 24:30, slide 12)
 
-   ```bash
-   python -m fin_mas run --scenario negociacao_prazo | grep -E "P-NEGOCIAR-PRAZO adotada|propose|accept-proposal|confirmada \(|resposta final"
-   ```
+No PowerShell, troque `| grep -E "..."` por `| Select-String -Pattern "..."`.
 
-   Narrar: duas consultas ao AG-CIN se perdem. O AG-ORC delibera `P-NEGOCIAR-PRAZO`. Ele envia
-   `propose` e o estado vai para `[EM_EXECUCAO -> NEGOCIANDO]`. O Orquestrador responde
-   `accept-proposal` por regra, sem LLM. Com o prazo novo, a hipótese é confirmada.
+1. **Jiliard: negociação de prazo** (0:40).
+   `python -m fin_mas run --scenario negociacao_prazo | grep -E "P-NEGOCIAR-PRAZO adotada|propose|accept-proposal|confirmada \(|resposta final"`.
+   Mostrar `propose [EM_EXECUCAO -> NEGOCIANDO]`, o `accept-proposal` do Orquestrador e a hipótese confirmada
+   com o prazo novo.
+2. **Jiliard: hipótese confirmada por outro agente** (0:30).
+   `python -m fin_mas run --scenario orc_hipotese_local | grep -E "HIPOTESE|QRY-002  AG-ORC|NORM-11|resposta final"`.
+   Mostrar "aceita", a consulta QRY-002 e "confirmada (AG-CIN contesta R$ 21.005,86)".
+3. **Jiliard: hipótese refutada** (0:20).
+   `python -m fin_mas run --scenario hipotese_refutada | grep -E "HIPOTESE|resposta final"`.
+   Mostrar "refutada (AG-CIN não contesta…)".
+4. **Danrley: fechamento bloqueado** (0:30).
+   `python -m fin_mas run --scenario veto_bloqueio | grep -E "parecer veto|POLITICA|BLOQUEADO|resposta final"`.
+   Mostrar o veto pela NORM-04, o ticket, o prazo esgotado (POL-08) e `[VETADO -> BLOQUEADO]`.
+5. **Danrley: aprovação indevida recusada no barramento** (0:40).
+   `python -m fin_mas run --scenario ataque_decisao_forjada | grep -E "REJEITADA|ATAQUES|resposta final"`.
+   Ler três recusas (remetente desconhecido, papel errado, hash do veto que não confere) e
+   "ATAQUES 14 de 14 rejeitados".
+6. **Danrley: a gerente envolvida não decide** (0:50). No dashboard, o `operador` reinicia
+   `decisao_por_pessoa`. Na janela da `carla`, aba **Aprovações**: "POL-03: você participou de um
+   lançamento vetado" e **Decidir** desabilitado. Na janela do `diego`: **Decidir** e **Corrigir no ERP**;
+   o histórico registra "diego (gerente)".
+7. **Jiliard: POL-06 com dois fechamentos, ao vivo** (1:30). O `operador` reinicia `reincidencia_waiver`.
+   O `controller` abre o ticket de agosto e dá waiver com justificativa. Em setembro há dois casos, e os
+   dois servem. Se o ticket de setembro foi emitido depois da decisão de agosto, o diálogo já chega com
+   "reincidente" e o waiver desabilitado ("não admitido pela política"). Se os dois estavam abertos ao
+   mesmo tempo (o caso do professor na DSM3), o waiver ainda aparece; ao clicar, a política recusa com
+   "POL-06: reincidência" e a opção some do ticket. Nos dois casos o controller corrige. Depois, o
+   `operador` reinicia o cenário de novo: setembro continua sem waiver, porque a memória sobreviveu ao
+   reinício. Fechar com o teste dos dois processos já mostrado na Parte 3.
 
-2. **Jiliard: hipótese confirmada por outro agente** (0:40).
+**Plano B:** sem dashboard, `./iniciar.sh replay` e os cenários `decisao_por_pessoa` e
+`reincidencia_waiver` no terminal; sem ambiente, `python3 tools/iniciar.py cli --cenario veto_correcao`.
 
-   ```bash
-   python -m fin_mas run --scenario orc_hipotese_local | grep -E "HIPOTESE|QRY-002  AG-ORC|NORM-11|resposta final"
-   ```
+## Parte 5 — Experimento, revisão final e fechamento (24:30 a 28:00, slides 13 a 20)
 
-   Narrar: a hipótese `AG-ORC-H001` nasce de uma regra local, sobre um lançamento que parece duplicado.
-   Ela não muda a avaliação. O AG-ORC pergunta ao AG-CIN (`QRY-002`), e só a resposta dele a confirma:
-   "AG-CIN contesta R$ 21.005,86". A NORM-11 aparece no trace.
-
-3. **Jiliard: hipótese refutada** (0:25).
-
-   ```bash
-   python -m fin_mas run --scenario hipotese_refutada | grep -E "HIPOTESE|resposta final"
-   ```
-
-   Narrar: a mesma regra dispara num alarme falso. Ela é refutada porque o AG-CIN não contesta os
-   lançamentos, e o desvio segue sinalizado como orçamentário.
-
-4. **Danrley: fechamento bloqueado** (0:40).
-
-   ```bash
-   python -m fin_mas run --scenario veto_bloqueio | grep -E "parecer veto|POLITICA|BLOQUEADO|resposta final"
-   ```
-
-   Narrar: a alçada foi violada e o AG-CIN veta (NORM-04). A política emite o ticket com as opções
-   abertas. Ninguém decide, o prazo esgota (POL-08) e o fechamento fica `BLOQUEADO`. Não há
-   publicação por omissão.
-
-5. **Danrley: aprovação indevida recusada** (0:50).
-
-   ```bash
-   python -m fin_mas run --scenario ataque_decisao_forjada | grep -E "REJEITADA|ATAQUES|resposta final"
-   ```
-
-   Narrar algumas linhas: remetente desconhecido, credencial ausente e papel que não pode emitir
-   `approve`. Um hash do veto que não confere também é recusado, assim como um `execute` em PENDENTE.
-   Resultado: `ATAQUES 14 de 14 rejeitados`, e a resposta final é `failure`, não publicação.
-
-6. **Danrley: a decisão é da pessoa, no dashboard** (1:00). Na conta `avaliador`, reinicie o cenário
-   `decisao_por_pessoa`. Na janela da `carla`, abra a aba **Aprovações**. O ticket mostra
-   "POL-03: você participou de um lançamento vetado", com **Decidir** desabilitado. Na janela do
-   `diego`, clique em **Decidir** e depois em **Corrigir no ERP**. O histórico registra "diego
-   (gerente)" e a solicitação fica `publicado`. Narrar: uma conta opera e outra aprova, e quem
-   reiniciou o cenário também não aprovaria (POL-13).
-
-7. **Jiliard: POL-06 com dois fechamentos simultâneos** (0:35).
-
-   ```bash
-   python -m pytest tests/e2e/test_approval_gate.py tests/e2e/test_revisao_dsm4.py -q -k "recurrence or processos or memory or waiver"
-   ```
-
-   Narrar: agosto e setembro têm a mesma violação, cada um com o seu ticket. Só o primeiro waiver
-   passa; o segundo é recusado pela POL-06 e perde a opção. No TEST-459 isso vale com dois processos
-   sobre o mesmo arquivo de memória.
-
-**Plano B:** sem ambiente, `python3 tools/iniciar.py cli --cenario veto_correcao`; sem dashboard,
-`./iniciar.sh replay` e a cena 6 vira o cenário `decisao_por_pessoa` no terminal; sem experimento,
-`docs/dsm4/resultados/resumo.md` e as figuras versionadas.
+| Slide | Quem | Tempo | O que dizer |
+|---|---|---|---|
+| 13. Experimento: desenho | J | 0:30 | Pré-registro antes do código; quatro braços; 30 seeds; falhas, plantios, aprovador e ataques sorteados por seed. |
+| 14. Qualidade e robustez | D | 0:30 | Empate sem falhas (em boa parte por construção); o SMA perde a partir de 15% de perda; nenhuma crítica publicada. Desvio-padrão nas tabelas. |
+| 15. Custo, cognição, ablação, ataques | D | 0:30 | Mais mensagens; cognição sem ganho significativo; reenvio, reserva e correção valem; 0 ataques aceitos indevidamente. |
+| 16. Bloco E | J | 0:30 | Concorrência, frequência e volume; o que é mecanismo do SMA (reserva) e o que é efeito de construção (fila sem atendentes paralelos). |
+| 17. Três rodadas | J | 0:15 | Nenhuma rodada posterior à primeira é confirmatória. A 1.1.0 repetiu o experimento inteiro: as mesmas métricas. |
+| 18. Revisão final | D | 0:30 | Um item por pedido do feedback, cada um com o seu teste. |
+| 19. Limitações | J | 0:20 | As que mais pesam; a lista completa está na documentação. |
+| 20. Lições | D + J | 0:25 | Com funções iguais, o SMA empata em qualidade e perde em custo e robustez; o que ele entrega é estrutural. Cada um fecha com uma frase. |
 
 ## Critérios do enunciado → vídeo
 
-| Critério | Slides e cenas |
+| Critério | Partes |
 |---|---|
-| Sistema final e corretude | 3, 4, 5, 7, 14; demonstrações 1 a 7 |
-| Arquitetura e SMA | 3, 4, 5, 6, 8; demonstrações 1 a 3 |
-| Experimentação e análise | 9 a 13 |
-| Testes e reprodutibilidade | 9, 14; demonstração 7 |
-| Documentação | 16, 17 |
-| Demonstração, apresentação e autoria | 15; os dois autores falam em todos os blocos |
+| Sistema final e corretude | 2, 3 e 4 |
+| Arquitetura e SMA | 1 e 2 |
+| Experimentação e análise | 5 |
+| Testes e reprodutibilidade | 3 |
+| Documentação | 1 (mapa do código) e 5 (limitações) |
+| Demonstração, apresentação e autoria | 4; os dois autores falam em todas as partes |

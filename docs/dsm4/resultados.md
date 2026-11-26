@@ -652,7 +652,14 @@ a mais:
 
 ## Revisão final de 25/11/2026
 
-As duas repetições locais do plano de 9.360 execuções produziram CSVs idênticos. A comparação com a terceira rodada histórica encontrou as mesmas chaves, desfechos e métricas em todas as linhas. Mudou a coluna de hash em 6.480 linhas. A versão do pacote integra o trace e a gravação da memória do waiver passou para o instante da aprovação. Os [dados brutos desta revisão](resultados/revisao-final/execucoes.csv) acompanham o [manifesto](resultados/revisao-final/manifesto.json) e os tempos da primeira repetição. O SHA-256 do CSV desta revisão é `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568`.
+As duas repetições locais do plano de 9.360 execuções produziram CSVs idênticos. A comparação com a terceira rodada histórica encontrou as mesmas chaves, desfechos e métricas em todas as linhas. Mudou a coluna de hash em 6.480 linhas. A versão do pacote integra o trace e a gravação da memória do waiver passou para o instante da aprovação. Os [dados brutos desta revisão](resultados/revisao-final/execucoes.csv) acompanham o [manifesto](resultados/revisao-final/manifesto.json) e os tempos da primeira repetição. O SHA-256 do CSV desta revisão, na versão 1.0.1, era `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568`.
+
+Na versão 1.1.0 (26/11/2026, com as correções da POL-06, das permissões e do pacote), o plano inteiro
+foi rodado de novo e substituiu os arquivos de `resultados/revisao-final/`. As 9.360 linhas têm as
+mesmas chaves, desfechos e métricas da terceira rodada e da 1.0.1; só a coluna de hash muda, nas
+6.480 execuções do SMA, porque a versão do pacote entra no trace. As correções da revisão final não
+mudaram nenhum número do experimento. O SHA-256 do CSV da 1.1.0 é
+`b324fc61461ee3b88cb62eb69566c5588237a2257c5f6bca872b8675646c6102`.
 
 ### Ensaio exploratório de carga
 
@@ -696,9 +703,10 @@ mesmas críticas: a frequência muda o custo, não a qualidade.
 
 **Volume.** Com 12, 96 e 400 lançamentos de base, os ticks não mudam, por construção (o relógio do
 barramento conta eventos, não lançamentos). O custo aparece no tempo de parede: o SMA passa de
-0,037 s para 0,097 s por fechamento (400 × 12, p < 0,001, Cliff 1,0) e o workflow, de 0,004 s
-para 0,007 s. O SMA custa cerca de dez vezes mais tempo de máquina por fechamento. Uma máquina,
-uma rodada: ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
+0,012 s para 0,030 s por fechamento (400 × 12, p < 0,001, Cliff 1,0) e o workflow, de 0,001 s
+para 0,002 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
+varia entre rodadas na mesma máquina (uma rodada anterior deu 0,037 s e 0,097 s), mas a proporção
+se manteve: cerca de 2,6 vezes de 12 para 400 lançamentos no SMA. Serve como ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
 CSV reproduzível.
 
 **Variabilidade.** Na DSM3 as réplicas só confirmavam o determinismo (desvio zero). No bloco E as
@@ -707,4 +715,4 @@ métricas que dependem dos plantios variam entre seeds (por exemplo, ticks 19,8 
 onde deve ser: publicações e recusas sob concorrência são decididas pela reserva, não pelos dados,
 e na frequência alta todas as seeds plantam ao menos uma irregularidade (um ticket, uma
 intervenção por fechamento), enquanto as críticas corrigidas ainda variam (1 a 3). Duas execuções do bloco produzem o mesmo
-`execucoes.csv` (SHA-256 `d1cb18b1…`).
+`execucoes.csv` (SHA-256 `ad88a6a8…`, versão 1.1.0).

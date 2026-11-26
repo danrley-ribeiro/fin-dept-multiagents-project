@@ -15,7 +15,7 @@ centralizado em qualidade e perde em custo e em robustez quando mensagens se per
 mostrou ganho significativo; nenhuma crítica foi publicada sem tratamento e nenhum ataque foi aceito
 indevidamente, em nenhuma condição. O experimento rodou três vezes; as correções entre as rodadas foram
 feitas depois de ver resultados, e nenhuma rodada posterior à primeira é confirmatória. Os números
-(versão 1.0.0, terceira rodada; a 1.0.1 só traz as correções da DSM3 v0.5.1 e não muda nenhuma execução)
+(versão 1.0.0, terceira rodada; a 1.0.1 só traz as correções da DSM3 v0.5.1 e a 1.1.0, as da revisão final; nenhuma das duas muda as métricas, ver a conferência em resultados)
 estão no relatório e em
 [`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md).
 

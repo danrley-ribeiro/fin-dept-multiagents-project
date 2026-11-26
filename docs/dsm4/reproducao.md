@@ -67,7 +67,7 @@ python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # o exp
 sha256sum saidas/reproducao/execucoes.csv                             # shasum -a 256 no macOS
 ```
 
-A terceira rodada histórica permanece em `docs/dsm4/resultados/`. Para conferir a revisão final sem sobrescrever essa referência, use o destino `saidas/reproducao` indicado acima ou rode `make experimento`. Na CLI, explicite `--out` para preservar a pasta de resultados históricos. Duas execuções devem produzir o SHA-256 `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568` para `execucoes.csv`. O hash histórico é `9d5126a696cf421170d54616dab6f77e0c47c7e85dced5bc0e64c78a284bcae4`. O tempo de parede depende da máquina. No PowerShell, confira o CSV com `Get-FileHash saidas/reproducao/execucoes.csv`.
+A terceira rodada histórica permanece em `docs/dsm4/resultados/`. Para conferir a revisão final sem sobrescrever essa referência, use o destino `saidas/reproducao` indicado acima ou rode `make experimento`. Na CLI, explicite `--out` para preservar a pasta de resultados históricos. Duas execuções devem produzir o SHA-256 `b324fc61461ee3b88cb62eb69566c5588237a2257c5f6bca872b8675646c6102` para `execucoes.csv` (versão 1.1.0; a versão do pacote entra no trace e, por isso, no hash). O hash histórico é `9d5126a696cf421170d54616dab6f77e0c47c7e85dced5bc0e64c78a284bcae4`. O tempo de parede depende da máquina. No PowerShell, confira o CSV com `Get-FileHash saidas/reproducao/execucoes.csv`.
 
 Para repetir os 240 pares do ensaio de carga, execute `python tools/estudo_carga.py saidas/reproducao/carga.csv` e compare o CSV com `docs/dsm4/resultados/carga.csv`. O desenho e as conclusões estão em {doc}`resultados`.
 

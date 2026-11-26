@@ -151,7 +151,7 @@ O que não mudou nas três é o que vale como resultado: empate de qualidade, ma
 | mensagens por pedido | ≈ 24 | ≈ 1,5 |
 | irregularidades 15% → 80%: intervenções humanas | 0,2 → 1,0 | 0,2 → 1,0 |
 | críticas publicadas sem tratamento | 0 | 0 |
-| 12 → 400 lançamentos: tempo de parede | 0,037 → 0,097 s | 0,004 → 0,007 s |
+| 12 → 400 lançamentos: tempo de parede | 0,012 → 0,030 s | 0,001 → 0,002 s |
 
 ::: notes
 Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). Média ± desvio-padrão e IC por bootstrap nas tabelas; as métricas agora variam entre seeds. A reserva é um mecanismo que o workflow equivalente não tem; o paralelismo também seria possível num controlador com vários atendentes. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.

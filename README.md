@@ -18,7 +18,7 @@ crença com evidência) e pode **negociar prazo** com o Orquestrador. A IA gener
 desligada por padrão** (Orçamento, Resultados e Relatórios; nunca Orquestrador, Custos ou Controles
 Internos), com cinco provedores, consentimento para envio externo e números conferidos contra o núcleo.
 
-Na **versão final (1.0.1, DSM4)**: Resultados, Custos e Relatórios ganham variantes BDI (as reativas seguem como
+Na **versão final (1.1.0, DSM4)**: Resultados, Custos e Relatórios ganham variantes BDI (as reativas seguem como
 nível `basico` e braço de comparação), com aprendizado local auditável, estratégias de compromisso e base normativa
 com proveniência; acesso avançado (segundo fator, alçada por pessoa, delegação, dupla aprovação, cofre, várias
 empresas); conectores genéricos e entendimento automático de fontes, sem IA generativa; portes MEI e Média empresa II
@@ -96,7 +96,7 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 | **DSM1 v2** — revisão pós-feedback | [`entregas/dsm1/documentacao/main-v2.pdf`](entregas/dsm1/documentacao/main-v2.pdf) | ✅ concluída |
 | **DSM2** — Arquitetura e protótipo (revisados após o feedback) | [`entregas/dsm2/`](entregas/dsm2/README.md) | ✅ concluída (prazo 31/10) |
 | **DSM3** — Comunicação, coordenação e protótipo funcional (v0.5.1) | [`entregas/dsm3/`](entregas/dsm3/README.md) | ✅ concluída (prazo 18/11) |
-| **DSM4** — Experimentação, documentação e entrega final (v1.0.1) | [`entregas/dsm4/`](entregas/dsm4/README.md) | ✅ concluída (prazo 02/12) |
+| **DSM4** — Experimentação, documentação e entrega final (v1.1.0) | [`entregas/dsm4/`](entregas/dsm4/README.md) | ✅ concluída (prazo 02/12) |
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 

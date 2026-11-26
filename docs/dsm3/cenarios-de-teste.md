@@ -84,7 +84,7 @@ misturar com as suas chaves):
 
 | Comando | Resultado esperado |
 |---|---|
-| `python -m fin_mas run --scenario ataque_decisao_forjada --trace a.jsonl` e `verificar a.jsonl --ancora 0708373769e1b329fe0a3e51dd83e8852dc82aaf3d37e3c3f85aa50c4173f488` | "ATAQUES 14 de 14 rejeitados"; cadeia íntegra, âncora confere, 12 rejeições auditadas (saída 0) |
+| `python -m fin_mas run --scenario ataque_decisao_forjada --trace a.jsonl` e `verificar a.jsonl --ancora 5e7e25ef4fc1d6bceeead3de63937caa0d21b792fa2f3f0eaaecc312b69f4058` | "ATAQUES 14 de 14 rejeitados"; cadeia íntegra, âncora confere, 12 rejeições auditadas (saída 0) |
 | `python -m fin_mas verificar a.jsonl` depois de alterar, remover ou cortar uma linha | adulteração acusada, saída 3 |
 | `python -m fin_mas invariantes t.jsonl` | "8 invariantes, 0 violação(ões)"; num trace forjado, a lista das violações (`test_invariant_checker_flags_a_forged_trace`) |
 | `python -m fin_mas auditoria t.jsonl --tipo hipotese` (trace de `orc_hipotese_local`) | 3 registros: aceita, em_verificacao, confirmada |

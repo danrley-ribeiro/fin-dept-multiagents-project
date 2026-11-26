@@ -436,7 +436,7 @@ Playwright (dashboard) & \V{testes.playwright} & roteiros de uso no Chrome, todo
 
 Os testes novos das DSM3 e DSM4 são todos de ponta a ponta, de integração ou de interface; os achados corrigidos da
 correção simulada da DSM4 entraram com teste próprio (TEST-420 a TEST-449). A reprodutibilidade tem três
-camadas: cada cenário repete seu hash com a mesma semente, a ordem causal é conferida nos traces, e duas execuções completas em processos independentes reproduzem o CSV byte a byte. O manifesto histórico registra \code{\V{exp.sha}\ldots}; na revisão final, o SHA-256 começa por \code{ffe746a0}. O
+camadas: cada cenário repete seu hash com a mesma semente, a ordem causal é conferida nos traces, e duas execuções completas em processos independentes reproduzem o CSV byte a byte. O manifesto histórico registra \code{\V{exp.sha}\ldots}; na revisão final (versão 1.1.0), o SHA-256 começa por \code{b324fc61}, com as mesmas métricas em todas as linhas. O
 experimento revelou um defeito de reprodutibilidade antes da primeira rodada (o trace dependia da ordem de iteração de
 um conjunto, que muda entre processos), invisível para \code{cenarios -{}-verificar} porque ele compara duas execuções no
 mesmo processo.
@@ -885,9 +885,10 @@ o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em n
 as mesmas críticas: a frequência muda o custo, não a qualidade.
 
 \paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
-barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,037 s para 0,097 s por
-fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,004 s para 0,007 s. O SMA é mais caro em
-tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O tempo de parede depende da máquina e fica
+barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,012 s para 0,030 s por
+fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,001 s para 0,002 s. O SMA é mais caro em
+tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
+entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica
 em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.
 
 O ensaio exploratório de carga anterior (\code{carga.csv}, 240 pares) continua no pacote; o bloco E o substitui na

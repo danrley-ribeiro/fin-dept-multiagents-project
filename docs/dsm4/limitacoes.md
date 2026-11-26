@@ -268,6 +268,7 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | Chaves de LLM só por variável de ambiente | cofre selado da plataforma, com a ressalva de não cifrar (ver acima) |
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
 | A trava da memória ficava na pasta de chaves: dois processos com pastas de chaves diferentes sobre o mesmo arquivo não se excluíam e os dois waivers passavam (correção simulada da DSM4, 3 de 6 tentativas) | a trava é `<arquivo>.lock`, ao lado do arquivo de dados (TEST-470) |
+| A POL-13 comparava só o nome da conta: uma conta de operação ligada à mesma pessoa do ERP pedia e a conta de aprovação dessa pessoa aprovava (correção simulada da DSM4) | a POL-13 confere a conta e a pessoa do ERP, como a POL-12 (TEST-473) |
 | No dashboard de demonstração, a memória vivia só no processo: reiniciar o cenário esquecia o waiver anterior e a POL-06 liberava de novo (correção simulada da DSM4) | a memória fica em `<pasta de dados>/memoria.json` e reiniciar não a apaga; limpar é o comando `limpar_memoria`, só do administrador (`PERM-MEM-LIMPAR`), registrado no trace (TEST-471, TEST-472) |
 | Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

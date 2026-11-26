@@ -3741,3 +3741,39 @@
 **Resultado esperado:** meses diferentes: o SMA atende em paralelo (tempo de um pedido) e o workflow em fila soma os tempos  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes
+:id: TEST-470
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes()` — tipo *concorrencia*.  
+**Resultado esperado:** dois processos com pastas de chaves diferentes sobre o mesmo arquivo de memória: no máximo um waiver publicado e gravado (a trava fica ao lado do arquivo de dados)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_restart_keeps_the_waiver_memory_and_only_the_administrator_clears_it
+:id: TEST-471
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_restart_keeps_the_waiver_memory_and_only_the_administrator_clears_it()` — tipo *seguranca*.  
+**Resultado esperado:** reiniciar o cenário no dashboard não apaga a memória: setembro não recebe waiver depois de agosto; só o administrador limpa a memória, com registro no trace  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_demo_server_gives_the_main_simulation_a_memory_file
+:id: TEST-472
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_demo_server_gives_the_main_simulation_a_memory_file()` — tipo *configuracao*.  
+**Resultado esperado:** serve --demo sem empresa: a simulação principal grava a memória em <pasta de dados>/memoria.json  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -165,3 +165,11 @@ Definir e remover chaves de LLM e credenciais de conector no cofre selado, sem n
 
 Adotar no lugar um arquivo íntegro do SVC-MEM vindo de outra pasta ou de um backup (memoria adotar).
 ````
+
+````{perm} Limpar memória
+:id: PERM-MEM-LIMPAR
+:entrega: DSM4
+:status: especificado
+
+Apagar o histórico do SVC-MEM da simulação (o histórico de reincidência da POL-06 recomeça). Reiniciar um cenário não limpa a memória; limpar é ato separado do administrador, que não aprova, e fica registrado no trace.
+````

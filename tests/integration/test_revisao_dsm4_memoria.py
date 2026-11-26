@@ -90,3 +90,28 @@ def test_demo_server_gives_the_main_simulation_a_memory_file(tmp_path, monkeypat
     sim = capturado.value.args[0]
     assert sim.memoria == str(pasta / "memoria.json")
     assert sim.sistema.memoria.caminho == pasta / "memoria.json"
+
+
+def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico):  # noqa: F811
+    """Correção simulada da DSM4: a POL-13 comparava só o nome da conta. A conta "elisa.op" (operação, ligada à
+    pessoa elisa do ERP) reiniciava o cenário e a conta "elisa" aprovava. Agora vale também a pessoa do ERP."""
+    from fin_mas.services.iam import SENHA_DEMO
+
+    sim, acesso, porta = servico("veto_waiver")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "elisa.op", "Elisa Prado (operação)", SENHA_DEMO, ("ROLE-OPE",), pessoa_erp="elisa",
+                       trocar_senha=False)
+    elisa_op, elisa, diego = entrar(porta, "elisa.op"), entrar(porta, "elisa"), entrar(porta, "diego")
+    assert elisa_op.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})[0] == 202
+    sim.processar_comandos()
+    _ate_humano(sim)
+    sid = next(iter(sim.sistema.aprovador.pendentes))
+    decisao = {"tipo": "decidir", "solicitacao": sid, "decisao": "corrigir", "justificativa": JUSTIFICATIVA}
+    assert elisa.post("/api/comando", decisao)[0] == 202
+    sim.processar_comandos()
+    recusas = [r for r in sim.registros if r["kind"] == "rejected"]
+    assert recusas and "POL-13" in recusas[-1]["motivo"] and "mesma pessoa" in recusas[-1]["motivo"]
+    assert sid in sim.sistema.aprovador.pendentes  # a pendência continua para outra pessoa
+    assert diego.post("/api/comando", decisao)[0] == 202  # outra pessoa decide
+    sim.processar_comandos()
+    assert sid not in sim.sistema.aprovador.pendentes

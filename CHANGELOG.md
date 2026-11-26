@@ -24,7 +24,8 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   arquivo de dados (com pastas de chaves diferentes, dois processos liberavam os dois waivers; TEST-470); a memória
   do dashboard de demonstração fica em arquivo e o reinício do cenário não a apaga (TEST-471, TEST-472); limpar é o
   comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
-  principal mostram o desvio-padrão entre seeds, como o pré-registro prometia.
+  principal mostram o desvio-padrão entre seeds, como o pré-registro prometia. Na segunda rodada, a POL-13 passou a
+  conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
 - Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
   local; agora leem em UTF-8.
 - Apresentação em vídeo de 15 a 30 minutos, com foco no código-fonte e nos testes (aviso do professor): roteiro em

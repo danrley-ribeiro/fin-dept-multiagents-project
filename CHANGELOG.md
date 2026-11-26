@@ -20,8 +20,17 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
 - Experimento: bloco E exploratório (`python -m fin_mas.estudo_e`), com pedidos concorrentes, frequência de
   irregularidades por tipo e volume com tempo de parede; 660 execuções, 30 seeds, desvio-padrão e IC por
   bootstrap (TEST-467 a 469).
-- Apresentação em vídeo: roteiro com as evidências pedidas (negociação, hipótese confirmada e refutada,
-  fechamento bloqueado, aprovação indevida recusada) e os dois autores em arquitetura e segurança.
+- Correção simulada da entrega (avaliador independente, só com o ZIP): a trava da memória passou para o lado do
+  arquivo de dados (com pastas de chaves diferentes, dois processos liberavam os dois waivers; TEST-470); a memória
+  do dashboard de demonstração fica em arquivo e o reinício do cenário não a apaga (TEST-471, TEST-472); limpar é o
+  comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
+  principal mostram o desvio-padrão entre seeds, como o pré-registro prometia.
+- Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
+  local; agora leem em UTF-8.
+- Apresentação em vídeo de 15 a 30 minutos, com foco no código-fonte e nos testes (aviso do professor): roteiro em
+  cinco partes, com arquivo e função de cada trecho, as evidências pedidas (negociação, hipótese confirmada e
+  refutada, fechamento bloqueado, aprovação indevida recusada, POL-06 ao vivo) e os dois autores em arquitetura e
+  segurança; 20 slides.
 
 ## DSM4 — revisão de entrega (25/11/2026)
 

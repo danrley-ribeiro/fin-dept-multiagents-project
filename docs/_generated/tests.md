@@ -3705,3 +3705,39 @@
 **Resultado esperado:** a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_block_e_is_reproducible
+:id: TEST-467
+:entrega: DSM4
+:status: executado
+:verifies: REQ-NF01
+:derived_from: SVC-AUD
+
+`test_block_e_is_reproducible()` — tipo *reprodutibilidade*.  
+**Resultado esperado:** o bloco E do experimento dá as mesmas linhas em duas execuções (o tempo de parede fica fora)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue
+:id: TEST-468
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: PROT-LCK
+
+`test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue()` — tipo *experimento*.  
+**Resultado esperado:** pedidos simultâneos do mesmo mês: o SMA publica um e recusa os demais; o workflow em fila publica o mês mais de uma vez  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue
+:id: TEST-469
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: PROT-LCK
+
+`test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue()` — tipo *experimento*.  
+**Resultado esperado:** meses diferentes: o SMA atende em paralelo (tempo de um pedido) e o workflow em fila soma os tempos  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -42,11 +42,14 @@ def _n(v, pct=False, casas=2) -> str:
 
 
 def _d(d, metrica) -> str:
-    """Média por seed com IC de 95%: `87,5% [80,0%; 93,3%]`."""
+    """Média por seed, desvio-padrão entre seeds e IC de 95%: `87,5% ± 4,2 pp [80,0%; 93,3%]`."""
     if not d or d.get("media") is None:
         return "—"
     pct = metrica in FRACOES
-    return f"{_n(d['media'], pct)} [{_n(d['ic95'][0], pct)}; {_n(d['ic95'][1], pct)}]"
+    dp = ""
+    if d.get("desvio") is not None:  # variabilidade entre seeds (feedback da DSM3); em fração, em pontos percentuais
+        dp = f" ± {_n(d['desvio'] * 100, casas=1)} pp" if pct else f" ± {_n(d['desvio'])}"
+    return f"{_n(d['media'], pct)}{dp} [{_n(d['ic95'][0], pct)}; {_n(d['ic95'][1], pct)}]"
 
 
 def _tabela(cabecalho, linhas) -> list[str]:
@@ -59,8 +62,8 @@ def resumo_md(resumo, manifesto) -> str:
     t = resumo["tabelas"]
     out = ["<!-- gerado por `python -m fin_mas experimento`; não editar à mão -->",
            f"Execuções: {resumo['execucoes']} ({', '.join(f'bloco {k}: {v}' for k, v in manifesto['execucoes_por_bloco'].items())}). "
-           f"Seeds: {resumo['seeds'][0]} a {resumo['seeds'][-1]}. Cada célula mostra a média por seed e o IC de 95% "
-           f"por bootstrap entre colchetes.", ""]
+           f"Seeds: {resumo['seeds'][0]} a {resumo['seeds'][-1]}. Cada célula mostra a média por seed, o desvio-padrão entre "
+           f"seeds (±; em pontos percentuais nas proporções) e o IC de 95% por bootstrap entre colchetes.", ""]
     metricas = list(next(iter(t["rq1_qualidade_nominal"].values())))
     out += ["**RQ1 — qualidade na condição nominal (bloco A)**", ""]
     out += _tabela(["Braço", *(NOMES[m] for m in metricas)],

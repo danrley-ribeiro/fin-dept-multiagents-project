@@ -2,6 +2,6 @@
 |---|---|
 | Requisitos DSM1 | 26 |
 | Requisitos com cadeia completa (até teste planejado e métrica) | 26/26 (100%) |
-| Objetos rastreados (total) | 530 |
+| Objetos rastreados (total) | 533 |
 | Testes e componentes ainda sem evidência | 0 |
-| Testes executados | 309 de 309 |
+| Testes executados | 312 de 312 |

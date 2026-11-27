@@ -22,7 +22,8 @@ Invariantes novos: INV-09 (liberação com dupla aprovação tem duas pessoas di
 
 `PERM-APR-DELEGAR` (ROLE-APR), `PERM-IAM-POLITICA`, `PERM-IAM-EMPRESAS`, `PERM-MOD-SEGREDOS`,
 `PERM-MEM-ADOTAR` e `PERM-MEM-LIMPAR` (ROLE-ADM). A última apaga o histórico do SVC-MEM da simulação
-(comando `limpar_memoria` do dashboard, registrado no trace). Reiniciar um cenário não limpa a memória;
+(comando `limpar_memoria`, enviado a `POST /api/comando`, registrado no trace; a interface não tem botão para
+ele). Reiniciar um cenário não limpa a memória;
 quem opera não consegue apagar o histórico da POL-06 para liberar um waiver de novo.
 
 ## Como usar

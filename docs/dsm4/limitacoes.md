@@ -225,6 +225,11 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   concorrentes). Se esse `approve` se perdesse depois, a memória diria "liberado" sem o fechamento publicado
   com ressalva, e o próximo waiver do padrão seria negado. Escolha conservadora: na dúvida, a reincidência
   bloqueia.
+- **A POL-06 não limita o waiver repetido do mesmo mês.** A reincidência é o waiver do mesmo padrão em
+  *outra* competência. Reexecutar um mês já liberado, com a mesma memória, oferece e aceita o waiver de novo,
+  quantas vezes o mês for reexecutado (TEST-460). A memória guarda uma entrada por padrão e competência, com a
+  proveniência do primeiro ticket; as liberações seguintes do mesmo mês ficam só no trace e na trilha de
+  acesso, não na memória.
 - **A conta de demonstração `avaliador` opera e aprova.** Ela acumula operação, pedidos, aprovação e
   auditoria por decisão dos autores, para o professor testar tudo com uma conta só. A POL-13 impede que
   ela decida sobre os pedidos que ela mesma disparou (reinício ou pedido novo). Os pedidos do cenário

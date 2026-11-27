@@ -239,9 +239,10 @@ def _fmt(d) -> str:
 
 
 def tabela_md(resumo) -> str:
+    seeds = max((d["segundos"]["n"] for d in resumo["descricao"]), default=0)
     linhas = ["# Bloco E: concorrência, frequência de irregularidades e volume", "",
               f"Versão {resumo['versao']}. Cada célula: média ± desvio-padrão [IC 95% por bootstrap], com a seed como",
-              "unidade (30 seeds). Testes: Wilcoxon pareado por seed (SMA − workflow), Holm dentro de cada fator.", ""]
+              f"unidade ({seeds} seeds). Testes: Wilcoxon pareado por seed (SMA − workflow), Holm dentro de cada fator.", ""]
     cols = ("publicados", "recusados", "publicacoes_indevidas", "criticas_publicadas_sem_tratamento", "mensagens",
             "makespan_ticks", "reconsideracoes", "intervencoes_humanas", "segundos")
     for fator in ("concorrencia", "frequencia", "volume"):

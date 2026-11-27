@@ -73,6 +73,10 @@ import re
 from fin_mas.core import permissoes
 from fin_mas.core.fsm import ProtocolViolation
 
+# Início do motivo com que o SVC-MEM recusa o waiver por reincidência (POL-06). A política reconhece a recusa por
+# este prefixo para reavaliar o ticket; a memória indisponível também cita a POL-06, com outro texto
+MOTIVO_REINCIDENCIA = "POL-06: reincidência"
+
 PRAZO_APROVACAO = 20  # ticks lógicos para o aprovador decidir (execução em lote)
 MIN_JUSTIFICATIVA = 10
 DECISOES = ("waiver", "corrigir", "bloquear")
@@ -274,7 +278,7 @@ class PoliticaAprovacao:
             if decisao == "waiver" and self.decidir_waiver is not None:
                 motivo = self.decidir_waiver(t, cadastro if msg.performative == "approve" else None)
                 if motivo:
-                    if "reincidência" in motivo and "waiver" in t["opcoes"]:
+                    if motivo.startswith(MOTIVO_REINCIDENCIA) and "waiver" in t["opcoes"]:
                         # ticket concorrente: o outro waiver foi decidido depois da emissão deste. A política
                         # reavalia o ticket: o waiver sai das opções (não é oferecido de novo) e fica em `negadas`
                         t["opcoes"] = [o for o in t["opcoes"] if o != "waiver"]

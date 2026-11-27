@@ -521,7 +521,8 @@ def criar_servidor(sim: Simulacao, host="127.0.0.1", porta=8765, acesso=None, fa
                 self.connection.settimeout(None)
 
         def _recusar(self, tamanho, status, motivo):
-            """Recusa antes de ler: corpo grande de quem não se autenticou nunca é lido."""
+            """Recusa sem usar o corpo: até DESCARTE_MAXIMO ele é lido e descartado (sem isso a conexão aborta no meio
+            do envio); acima disso, nem é lido."""
             if 0 < tamanho <= DESCARTE_MAXIMO:
                 self._ler(tamanho)  # descarta o corpo pequeno: responder no meio do envio aborta a conexão
             self.close_connection = True

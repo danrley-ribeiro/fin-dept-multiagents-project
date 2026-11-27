@@ -52,6 +52,7 @@ import threading
 from pathlib import Path
 
 from fin_mas.core.schema import FORMATOS
+from fin_mas.services.politica import MOTIVO_REINCIDENCIA
 from fin_mas.services.redacao import FalhaRedacao, redigir
 from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcupada, _estado, pasta_de_chaves, trava
 
@@ -275,7 +276,7 @@ class Memoria:
                     # com a mesma memória; em lote, o ticket ficava sem resposta até o prazo)
                     if e["tipo"] == "waiver" and e["chave"] in padroes and _reincide(mes, e["competencia"], self.retencao):
                         lado = "anterior" if _meses(e["competencia"]) < mes else "posterior"
-                        return f"POL-06: reincidência: waiver {lado} {e['id']} em {e['competencia']}"
+                        return f"{MOTIVO_REINCIDENCIA}: waiver {lado} {e['id']} em {e['competencia']}"
                 if aprovador is not None:
                     decisao = dict(ticket, decisao="waiver", aprovado_por=aprovador)
                     ja = {e["chave"] for e in self.entradas if e["tipo"] == "waiver" and e["competencia"] == competencia}

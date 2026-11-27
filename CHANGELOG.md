@@ -30,7 +30,8 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   local; agora leem em UTF-8.
 - Experimento (terceira correção simulada): o workflow equivalente passou a usar a mesma memória da POL-06 (SVC-MEM,
   com a chave de reincidência do AG-CIN) e a recusar mês já atendido na fila, o equivalente à reserva de período
-  (TEST-474 a 476). O bloco E ganhou o fator porte e o aprovador sorteado (900 execuções): publicações, recusas,
+  (TEST-474 a 476). O bloco E ganhou o fator porte, o aprovador sorteado e a concorrência sob perda de mensagens
+  (1.020 execuções; TEST-478): publicações, recusas,
   waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
   experimento principal não muda (mesmo CSV, `b324fc61…`).
 - Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun

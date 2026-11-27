@@ -874,7 +874,7 @@ precisam deles são pulados, não falham.
 \subsection{Bloco E: pedidos concorrentes, frequência de irregularidades, volume e porte}
 Os blocos A a D não variavam três fatores pedidos no feedback. O bloco E, acrescentado depois dos blocos A a D e por
 isso exploratório (desvio do pré-registro declarado em \code{docs/dsm4/resultados.md}), compara o SMA básico e o
-workflow equivalente sob as mesmas 30 seeds: 900 execuções em \code{docs/dsm4/resultados/bloco\_e/}. O workflow atende
+workflow equivalente sob as mesmas 30 seeds: 1.020 execuções em \code{docs/dsm4/resultados/bloco\_e/}. O workflow atende
 os pedidos em fila com a \emph{mesma memória} (SVC-MEM: a POL-06 vale entre pedidos) e recusa mês já atendido na fila,
 o equivalente, num controlador único, à reserva de período do SMA; a equivalência na reincidência é testada
 (TEST-474 e TEST-475). O aprovador corrige nos fatores frequência e volume e é sorteado por seed (corrigir, waiver ou
@@ -892,14 +892,21 @@ atendimento simultâneo, não da autonomia. O custo é de coordenação: cerca d
 1,5. Na primeira versão do bloco, o workflow não tinha memória nem recusa de mês já atendido e publicava o mesmo mês
 mais de uma vez; a correção simulada apontou que isso media um mecanismo ausente, e ele passou a ter os dois.
 
+\paragraph{Concorrência sob perda de mensagens.} Com 2 e 4 meses diferentes ao mesmo tempo e 15\% de perda entre
+agentes (só a perda, sem trocar o aprovador), o SMA publica menos (0,63 contra 1,23 e 1,07 contra 2,30;
+$p<0{,}01$): os pedidos atingidos terminam em falha explícita, nunca em silêncio, e nenhuma crítica é publicada sem
+tratamento. O workflow não troca mensagens entre componentes e não é atingido. É o resultado do bloco A sob
+concorrência.
+
 \paragraph{Frequência de irregularidades.} Com 15\%, 40\% e 80\% de chance por tipo, crescem as mensagens, o tempo,
 as intervenções humanas (0,2, 0,8 e 1,0 por fechamento) e as reconsiderações de intenção do SMA (0,4, 1,5 e 2,0;
 o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em nenhum dos braços, e os dois corrigiram
 as mesmas críticas: a frequência muda o custo, não a qualidade.
 
 \paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
-barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,012 s para 0,032 s por
-fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,001 s para 0,002 s. O SMA é mais caro em
+barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,011 s para 0,028 s por
+fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,001 s para 0,003 s. O fator volume mede só isso: o
+relógio lógico não muda com o volume. O SMA é mais caro em
 tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
 entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica
 em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.

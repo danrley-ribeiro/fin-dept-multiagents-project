@@ -238,3 +238,16 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
   - o workflow equivalente, que valia para um pedido: depois desta rodada ele ganhou a mesma memória da POL-06 e a
     recusa de mês já atendido, com teste (TEST-474 a 476), e o bloco E ganhou o fator porte e o aprovador sorteado;
   - o bloco E, que é exploratório.
+- **Terceira rodada: nota 9,1, depois de os autores pedirem as correções que a segunda apontou.** O workflow
+  equivalente ganhou a mesma memória da POL-06 e a recusa de mês já atendido; o bloco E ganhou porte e aprovador
+  sorteado. O avaliador não conseguiu liberar dois waivers em 26 rodadas concorrentes. Achou:
+  - a POL-13 comparando a pessoa do ERP como texto exato ("Elisa" e "elisa " contornavam a regra);
+  - o painel sem o aviso do impedimento pela pessoa;
+  - `/api/estado` com as opções desatualizadas;
+  - o teste de empacotamento pulado no ZIP;
+  - o SHA antigo no README e o diagrama da arquitetura desatualizado;
+  - no roteiro: o fechamento bloqueado só por prazo, a conta "14 de 14" sem explicação e pouco tempo para o
+    experimento.
+
+  Tudo foi corrigido, com teste (TEST-473 com as grafias, TEST-477), e o bloco E ganhou a concorrência sob perda
+  de mensagens (TEST-478; 1.020 execuções).

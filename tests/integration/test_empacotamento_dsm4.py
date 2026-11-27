@@ -20,13 +20,18 @@ LINK = re.compile(r"\]\(([^)\s#]+)(?:#[^)]*)?\)")
 CERCA = re.compile(r"```.*?```", re.S)  # links dentro de blocos de código não são links
 
 
-def _empacotador():
-    if not (RAIZ / ".git").exists() or shutil.which("git") is None:
-        pytest.skip("sem repositório Git: o empacotador lista os arquivos versionados")
+def _carregar_empacotador():
     spec = importlib.util.spec_from_file_location("empacotar_dsm4", RAIZ / "tools" / "empacotar_dsm4.py")
     modulo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulo)
     return modulo
+
+
+def _empacotador():
+    if not (RAIZ / ".git").exists() or shutil.which("git") is None:
+        pytest.skip("sem repositório Git: o empacotador lista os arquivos versionados (no ZIP extraído, os links são "
+                    "conferidos por test_links_open_inside_the_extracted_package)")
+    return _carregar_empacotador()
 
 
 def test_every_relative_link_in_the_package_opens_inside_the_zip(tmp_path, monkeypatch, capsys):
@@ -56,7 +61,7 @@ def test_package_carries_the_dashboard_build_only_when_it_is_fresh(tmp_path, mon
     fontes da interface: build ausente ou velha impede o pacote, em vez de entregar uma interface desatualizada."""
     import os
 
-    empacotar = _empacotador()
+    empacotar = _carregar_empacotador()  # não usa o Git: a lista de fontes é substituída abaixo
     monkeypatch.setattr(empacotar, "RAIZ", tmp_path)
     fonte = tmp_path / "web" / "src" / "App.tsx"
     fonte.parent.mkdir(parents=True)
@@ -76,3 +81,26 @@ def test_package_carries_the_dashboard_build_only_when_it_is_fresh(tmp_path, mon
     arquivos, motivo = empacotar.dashboard()
     assert motivo is None
     assert sorted(alvo for _, alvo in arquivos) == ["codigo/web/dist/assets/app.js", "codigo/web/dist/index.html"]
+
+
+IGNORAR = {".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "saidas", "dados"}
+
+
+def test_links_open_inside_the_extracted_package():
+    """Rodando de dentro do ZIP extraído (sem Git, como o professor): todo link relativo dos Markdown do pacote abre
+    na própria árvore, e o dashboard vem construído. No repositório, quem confere é o teste que monta o ZIP."""
+    pacote = RAIZ.parent
+    if (RAIZ / ".git").exists() or RAIZ.name != "codigo" or not (pacote / "USO_DE_IA.md").is_file():
+        pytest.skip("fora do ZIP extraído: o teste que monta o pacote confere os links")
+    assert (RAIZ / "web" / "dist" / "index.html").is_file()  # serve --demo abre sem bun nem Node
+    quebrados = []
+    for md in sorted(pacote.rglob("*.md")):
+        if IGNORAR & set(md.relative_to(pacote).parts):
+            continue
+        texto = CERCA.sub("", md.read_text(encoding="utf-8"))
+        for alvo in LINK.findall(texto):
+            if re.match(r"[a-z]+:", alvo) or alvo.startswith("/"):
+                continue
+            if not (md.parent / alvo).exists():
+                quebrados.append(f"{md.relative_to(pacote).as_posix()}: {alvo}")
+    assert not quebrados, "links que não abrem no pacote:" + chr(10) + chr(10).join(quebrados[:40])

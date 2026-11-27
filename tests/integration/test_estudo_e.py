@@ -16,8 +16,9 @@ def test_block_e_is_reproducible():
     plano = list(estudo_e.celulas(1))[:4]  # um pedaço do plano com a seed 1 basta para conferir
 
     def medir():
-        rodadas = [(estudo_e._sma if b == "sma_basico" else estudo_e._workflow)(seed, pedidos, volume, porte, decide)
-                   for _, _, _, seed, pedidos, volume, porte, decide in plano for b in estudo_e.BRACOS]
+        rodadas = [(estudo_e._sma if b == "sma_basico" else estudo_e._workflow)(seed, pedidos, volume, porte, decide,
+                                                                               perda)
+                   for _, _, _, seed, pedidos, volume, porte, decide, perda in plano for b in estudo_e.BRACOS]
         return [{k: v for k, v in r.items() if k != "segundos"} for r in rodadas]
     assert medir() == medir()
 
@@ -68,3 +69,18 @@ def test_logical_time_does_not_depend_on_volume():
     medidas = [estudo_e._sma(1, [(MES, ("alcada",))], v) for v in estudo_e.VOLUMES]
     assert len({m["makespan_ticks"] for m in medidas}) == 1
     assert [m["lancamentos"] for m in medidas] == sorted(m["lancamentos"] for m in medidas)
+
+
+def test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical():
+    """concorrencia_perda: 15% de perda entre agentes, quatro meses ao mesmo tempo. O SMA pode deixar de publicar
+    (falha explícita), mas não publica crítica sem tratamento; só a perda muda, não a decisão do aprovador; o workflow,
+    sem mensagens entre componentes, não é atingido."""
+    pedidos = [(c, ("alcada",)) for c in estudo_e.COMPETENCIAS[:4]]
+    for seed in range(1, 6):
+        sem, com = estudo_e._sma(seed, pedidos), estudo_e._sma(seed, pedidos, perda=0.15)
+        assert com["criticas_publicadas_sem_tratamento"] == 0
+        assert com["publicados"] + com["falhas"] + com["recusados"] == 4  # todo pedido tem resposta explícita
+        assert com["publicados"] <= sem["publicados"]
+    wf_sem = {k: v for k, v in estudo_e._workflow(1, pedidos).items() if k != "segundos"}
+    wf_com = {k: v for k, v in estudo_e._workflow(1, pedidos, perda=0.15).items() if k != "segundos"}
+    assert wf_sem == wf_com

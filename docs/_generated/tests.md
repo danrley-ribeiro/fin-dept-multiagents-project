@@ -3790,6 +3790,18 @@
 **Execução:** DSM4 (status atual: executado).
 ````
 
+````{test} test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical
+:id: TEST-478
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03
+:derived_from: PROT-SOL
+
+`test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical()` — tipo *experimento*.  
+**Resultado esperado:** quatro meses ao mesmo tempo com 15% de perda: o SMA pode não publicar (falha explícita, toda solicitação com resposta), nunca publica crítica sem tratamento; o workflow não é atingido  
+**Execução:** DSM4 (status atual: executado).
+````
+
 ````{test} test_state_shows_the_live_ticket_options_after_a_recurrence_refusal
 :id: TEST-477
 :entrega: DSM4

@@ -102,27 +102,22 @@ Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
 ## Branches e tags
 
-O trabalho segue no **`main`**, que é a versão final (DSM4). As outras branches estão concluídas e ficam só como
-histórico, sem desenvolvimento novo: o conteúdo de cada uma já está no `main` ou numa tag.
-
-| Branch | O que é | Onde o conteúdo está |
-|---|---|---|
-| `main` | DSM4, versão final (1.1.0); onde o trabalho continua | — |
-| `dsm3-entrega` | DSM3 como foi entregue em 16/11/2026 | tag `dsm3-entrega-final` |
-| `dsm3` | início da DSM3 (12/11/2026), antes da revisão do PR | substituída pela história do `main` |
-| `dsm3-ajustes-finais` | ajustes finais da DSM3 (PR #4: Windows, waiver negado no dashboard, MET-01) | `main` |
-| `dsm3-windows` | correções de Windows da DSM3 (15/11/2026) | tag `dsm3-entrega-final` |
-| `dsm3-links-zip` | links do README e do USO_DE_IA dentro do ZIP da DSM3 (16/11/2026) | tag `dsm3-entrega-final` |
-| `dsm3-v0.5.1` | rodadas 5 e 6 da correção simulada da DSM3 (16/11/2026) | `main`, pelo PR #7 |
-| `dsm4-correcoes-dsm3-v0.5.1` | correções da DSM3 v0.5.1 levadas para a DSM4 (PR #7) | `main` |
-| `dsm4-revisao` | revisão final da DSM4 e resposta ao feedback da DSM3 (PR #8) | `main` |
-| `dsm4-ajustes-pos-revisao` | ajustes do Danrley depois da revisão do PR #8 | `main` |
+O trabalho segue no **`main`**, que é a versão final (DSM4). Mudanças entram por pull request, a partir de uma
+branch de trabalho que é apagada depois do merge.
 
 | Tag | O que é |
 |---|---|
 | `dsm3-v0.5.0` | versão 0.5.0 da DSM3, citada na documentação da DSM3 |
-| `dsm3-entrega-final` | commit de onde saiu o ZIP entregue na DSM3 |
+| `dsm3-entrega-final` | commit de onde saiu o ZIP entregue na DSM3 (16/11/2026) |
 | `dsm4-v1.1.0` | entrega final da DSM4, de onde sai o ZIP (criada no fechamento) |
+| `arquivo/dsm3-inicial` | a antiga branch `dsm3`: início da DSM3 (12/11/2026), substituída pela história do `main` |
+| `arquivo/dsm3-v0.5.1` | a antiga branch `dsm3-v0.5.1`: rodadas 5 e 6 da correção simulada da DSM3, levadas ao `main` pelo PR #7 |
+
+As branches das entregas anteriores foram apagadas em 27/11/2026, depois de conferir que todo commit delas estava
+no `main` ou numa tag: `dsm3-entrega`, `dsm3-windows` e `dsm3-links-zip` (na tag `dsm3-entrega-final`);
+`dsm3-ajustes-finais` (PR #4), `dsm4-correcoes-dsm3-v0.5.1` (PR #7), `dsm4-revisao` (PR #8) e
+`dsm4-ajustes-pos-revisao` (no `main`); `dsm3` e `dsm3-v0.5.1`, as duas únicas com commits fora do `main`, nas tags
+`arquivo/…` acima.
 
 A documentação da DSM3 cita também uma tag `dsm3-base` (a suíte com 249 testes, antes da revisão do PR); ela não
 existe mais no repositório, e a menção ficou só como registro histórico.

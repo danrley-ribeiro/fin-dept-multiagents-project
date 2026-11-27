@@ -100,6 +100,33 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
+## Branches e tags
+
+O trabalho segue no **`main`**, que é a versão final (DSM4). As outras branches estão concluídas e ficam só como
+histórico, sem desenvolvimento novo: o conteúdo de cada uma já está no `main` ou numa tag.
+
+| Branch | O que é | Onde o conteúdo está |
+|---|---|---|
+| `main` | DSM4, versão final (1.1.0); onde o trabalho continua | — |
+| `dsm3-entrega` | DSM3 como foi entregue em 16/11/2026 | tag `dsm3-entrega-final` |
+| `dsm3` | início da DSM3 (12/11/2026), antes da revisão do PR | substituída pela história do `main` |
+| `dsm3-ajustes-finais` | ajustes finais da DSM3 (PR #4: Windows, waiver negado no dashboard, MET-01) | `main` |
+| `dsm3-windows` | correções de Windows da DSM3 (15/11/2026) | tag `dsm3-entrega-final` |
+| `dsm3-links-zip` | links do README e do USO_DE_IA dentro do ZIP da DSM3 (16/11/2026) | tag `dsm3-entrega-final` |
+| `dsm3-v0.5.1` | rodadas 5 e 6 da correção simulada da DSM3 (16/11/2026) | `main`, pelo PR #7 |
+| `dsm4-correcoes-dsm3-v0.5.1` | correções da DSM3 v0.5.1 levadas para a DSM4 (PR #7) | `main` |
+| `dsm4-revisao` | revisão final da DSM4 e resposta ao feedback da DSM3 (PR #8) | `main` |
+| `dsm4-ajustes-pos-revisao` | ajustes do Danrley depois da revisão do PR #8 | `main` |
+
+| Tag | O que é |
+|---|---|
+| `dsm3-v0.5.0` | versão 0.5.0 da DSM3, citada na documentação da DSM3 |
+| `dsm3-entrega-final` | commit de onde saiu o ZIP entregue na DSM3 |
+| `dsm4-v1.1.0` | entrega final da DSM4, de onde sai o ZIP (criada no fechamento) |
+
+A documentação da DSM3 cita também uma tag `dsm3-base` (a suíte com 249 testes, antes da revisão do PR); ela não
+existe mais no repositório, e a menção ficou só como registro histórico.
+
 ## Estrutura
 
 ```
@@ -130,8 +157,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM4, v1.1.0): **26/26 requisitos (100%) com cadeia completa**, 538 objetos rastreados,
-316 testes modelados (316 **executados**), 29 métricas, 0 erros.
+Situação atual (DSM4, v1.1.0): **26/26 requisitos (100%) com cadeia completa**, 541 objetos rastreados,
+319 testes modelados (319 **executados**), 29 métricas, 0 erros.
 
 ## Como executar
 
@@ -145,7 +172,7 @@ python -m fin_mas run --scenario orc_hipotese_local               # hipótese ve
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
 python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, de 5 a 8 min)
-python -m pytest                                                  # 707 testes: unit 95, e2e 436, integração 153, TUI 23 (make test)
+python -m pytest                                                  # 712 testes: unit 95, e2e 438, integração 156, TUI 23 (make test)
 ```
 
 Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).

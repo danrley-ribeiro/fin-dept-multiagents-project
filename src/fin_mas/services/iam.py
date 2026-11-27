@@ -42,6 +42,7 @@ import hmac
 import secrets
 import threading
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -65,12 +66,16 @@ MANTER = object()  # sentinela: "não alterar este campo" (diferente de None, qu
 
 
 def pessoa_canonica(pessoa):
-    """Forma canônica da pessoa do ERP (sem espaços nas pontas, sem diferença de maiúsculas). É a forma gravada no
-    cadastro e a usada nas POL-03, POL-12 e POL-13: "Elisa" e "elisa " são a mesma pessoa que "elisa" (correção
-    simulada da DSM4: uma grafia diferente contornava "quem pede não aprova")."""
-    if not isinstance(pessoa, str) or not pessoa.strip():
-        return pessoa if not isinstance(pessoa, str) else None
-    return pessoa.strip().casefold()
+    """Forma canônica da pessoa do ERP: Unicode NFKC (largura total vira a letra comum), sem acentos, espaços internos
+    reduzidos a um, sem espaços nas pontas e sem diferença de maiúsculas. É a forma gravada no cadastro e a usada nas
+    POL-03, POL-12 e POL-13: "Elisa", " elisa ", "Élisa" e "ｅｌｉｓａ" são a mesma pessoa que "elisa" (correção
+    simulada da DSM4: uma grafia diferente contornava "quem pede não aprova" e "quem participou não decide")."""
+    if not isinstance(pessoa, str):
+        return pessoa
+    texto = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", pessoa))
+    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    texto = " ".join(texto.split()).casefold()
+    return texto or None
 
 
 class AcessoNegado(PermissionError):

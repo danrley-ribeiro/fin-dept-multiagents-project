@@ -83,7 +83,7 @@ def test_package_carries_the_dashboard_build_only_when_it_is_fresh(tmp_path, mon
     assert sorted(alvo for _, alvo in arquivos) == ["codigo/web/dist/assets/app.js", "codigo/web/dist/index.html"]
 
 
-IGNORAR = {".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "saidas", "dados"}
+IGNORAR = {".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "saidas", "dados", "build", "dist"}  # gerados
 
 
 def test_links_open_inside_the_extracted_package():

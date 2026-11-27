@@ -26,6 +26,12 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
   principal mostram o desvio-padrão entre seeds, como o pré-registro prometia. Na segunda rodada, a POL-13 passou a
   conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
+- Quarta correção simulada: a pessoa do ERP passa a ser comparada pela forma canônica completa (Unicode NFKC, sem
+  acentos, espaços e maiúsculas: "Élisa" e a grafia em largura total não contornam mais a POL-13, nem "Cárla" a
+  POL-03; TEST-473, TEST-479); o nome dos arquivos de estado usa o caminho com `normcase`, com migração do nome
+  antigo e leitura dos dois no backup (TEST-480, TEST-481); o teste de links ignora `build/` (a suíte do ZIP pode
+  rodar duas vezes); um teste confere toda referência de linha do roteiro do vídeo; o diagrama da arquitetura
+  mostra a ligação SVC-POL → SVC-MEM.
 - Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
   local; agora leem em UTF-8.
 - Experimento (terceira correção simulada): o workflow equivalente passou a usar a mesma memória da POL-06 (SVC-MEM,

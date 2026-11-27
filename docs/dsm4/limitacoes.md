@@ -236,11 +236,6 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
   (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
   separação, opere com `operador` e decida com `controller`.
-- **O caminho do arquivo de memória não é normalizado** antes de derivar o nome da chave e do contador.
-  No Windows, o mesmo arquivo aberto com o caminho escrito em outra caixa (maiúsculas) é tratado como
-  outro arquivo e a memória fica "comprometida". É falha fechada (nenhum waiver passa), mas tira a
-  disponibilidade. Normalizar mudaria o nome das chaves das instalações existentes; fica para uma
-  migração.
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
 - **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
@@ -279,6 +274,8 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
 | A trava da memória ficava na pasta de chaves: dois processos com pastas de chaves diferentes sobre o mesmo arquivo não se excluíam e os dois waivers passavam (correção simulada da DSM4, 3 de 6 tentativas) | a trava é `<arquivo>.lock`, ao lado do arquivo de dados (TEST-470) |
 | A POL-13 comparava só o nome da conta: uma conta de operação ligada à mesma pessoa do ERP pedia e a conta de aprovação dessa pessoa aprovava (correção simulada da DSM4) | a POL-13 confere a conta e a pessoa do ERP, como a POL-12 (TEST-473) |
+| A pessoa do ERP era comparada como texto exato: "Elisa", " elisa ", "Élisa" ou a grafia em largura total contornavam a POL-13, e "Cárla" a POL-03 (correções simuladas da DSM4) | forma canônica gravada no cadastro e usada nas POL-03, 12 e 13 (Unicode NFKC, sem acentos, espaços e maiúsculas); o painel mostra o mesmo impedimento (TEST-473, TEST-479) |
+| No Windows, o mesmo arquivo de memória com o caminho escrito em outra caixa, criado por dois processos ao mesmo tempo, gerava duas chaves e a memória ficava "comprometida" | o nome dos arquivos de estado usa o caminho com `normcase`; o nome antigo é migrado na primeira abertura, e o backup lê os dois (TEST-480, TEST-481) |
 | No dashboard de demonstração, a memória vivia só no processo: reiniciar o cenário esquecia o waiver anterior e a POL-06 liberava de novo (correção simulada da DSM4) | a memória fica em `<pasta de dados>/memoria.json` e reiniciar não a apaga; limpar é o comando `limpar_memoria`, só do administrador (`PERM-MEM-LIMPAR`), registrado no trace (TEST-471, TEST-472) |
 | Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

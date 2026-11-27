@@ -92,7 +92,7 @@ def test_demo_server_gives_the_main_simulation_a_memory_file(tmp_path, monkeypat
     assert sim.sistema.memoria.caminho == pasta / "memoria.json"
 
 
-@pytest.mark.parametrize("grafia", ["elisa", "Elisa", "  elisa "])
+@pytest.mark.parametrize("grafia", ["elisa", "Elisa", "  elisa ", "Élisa", "ｅｌｉｓａ"])
 def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico, grafia):  # noqa: F811
     """Correção simulada da DSM4: a POL-13 comparava só o nome da conta; depois, a pessoa do ERP como texto exato. A
     conta de operação da mesma pessoa (com qualquer grafia: "Elisa", " elisa ") reinicia o cenário e a conta "elisa"
@@ -138,3 +138,28 @@ def test_state_shows_the_live_ticket_options_after_a_recurrence_refusal(servico,
     setembro = next(p for p in estado["pendentes_humanos"] if p["solicitacao"] == sid)
     aprovacoes = {t["id"]: t["opcoes"] for t in controller.get("/api/aprovacoes")[1]["aprovacoes"]}
     assert "waiver" not in setembro["opcoes"] and setembro["opcoes"] == aprovacoes[ticket]
+
+
+@pytest.mark.parametrize("grafia", ["carla", "Cárla", " CARLA ", "ｃａｒｌａ"])
+def test_an_account_of_an_involved_person_cannot_decide_with_another_spelling(servico, grafia):  # noqa: F811
+    """POL-03 pela pessoa do ERP canônica: uma conta ligada a "Cárla" (ou outra grafia) é a Carla, que participou do
+    lançamento vetado em decisao_por_pessoa, e não decide sobre ele (correção simulada da DSM4)."""
+    from fin_mas.services.iam import SENHA_DEMO
+
+    sim, acesso, porta = servico("decisao_por_pessoa")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "carla.acc", "Carla Mendes (outra conta)", SENHA_DEMO, ("ROLE-APR",), pessoa_erp=grafia,
+                       cargo="gerente", trocar_senha=False)
+    operador, outra = entrar(porta, "operador"), entrar(porta, "carla.acc")
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cenario": "decisao_por_pessoa"})[0] == 202
+    sim.processar_comandos()
+    _ate_humano(sim)
+    sid = next(iter(sim.sistema.aprovador.pendentes))
+    painel = outra.get("/api/aprovacoes")[1]["aprovacoes"]
+    assert any("POL-03" in (t.get("impedimento") or "") for t in painel)
+    assert outra.post("/api/comando", {"tipo": "decidir", "solicitacao": sid, "decisao": "corrigir",
+                                       "justificativa": JUSTIFICATIVA})[0] == 202
+    sim.processar_comandos()
+    recusas = [r for r in sim.registros if r["kind"] == "rejected"]
+    assert recusas and "POL-03" in recusas[-1]["motivo"]
+    assert sid in sim.sistema.aprovador.pendentes

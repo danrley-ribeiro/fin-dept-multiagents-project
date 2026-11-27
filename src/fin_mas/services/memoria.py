@@ -367,9 +367,7 @@ class Memoria:
 
     # ---- persistência e integridade ---------------------------------------------------------
     def _arquivo_estado(self, sufixo: str) -> Path:
-        base = Path(os.environ.get("FIN_MAS_DIR_CHAVES") or Path.home() / ".fin_mas" / "chaves")
-        nome = hashlib.sha256(str(self.caminho.resolve()).encode("utf-8")).hexdigest()[:16]
-        return base / f"memoria-{nome}.{sufixo}"
+        return _estado("memoria", self.caminho, sufixo)  # a mesma regra (e a migração) dos arquivos selados
 
     def _carregar_chave(self) -> bytes:
         if os.environ.get("FIN_MAS_CHAVE_MEMORIA"):

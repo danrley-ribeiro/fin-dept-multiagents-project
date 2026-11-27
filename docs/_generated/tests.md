@@ -3790,6 +3790,42 @@
 **Execução:** DSM4 (status atual: executado).
 ````
 
+````{test} test_an_account_of_an_involved_person_cannot_decide_with_another_spelling
+:id: TEST-479
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_an_account_of_an_involved_person_cannot_decide_with_another_spelling()` — tipo *seguranca*.  
+**Resultado esperado:** uma conta ligada a Cárla (ou outra grafia da carla) não decide sobre o lançamento vetado de que a Carla participou (POL-03); o painel mostra o impedimento  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_two_spellings_of_a_file_not_yet_created_get_the_same_state_name
+:id: TEST-480
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_two_spellings_of_a_file_not_yet_created_get_the_same_state_name()` — tipo *concorrencia*.  
+**Resultado esperado:** no Windows, duas grafias do caminho de um arquivo de memória ainda não criado dão o mesmo nome de estado (a marca antiga dava dois)  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_state_files_with_the_legacy_name_are_migrated
+:id: TEST-481
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_state_files_with_the_legacy_name_are_migrated()` — tipo *robustez*.  
+**Resultado esperado:** chave e contador com o nome da versão anterior são migrados na primeira abertura e a memória continua íntegra  
+**Execução:** DSM4 (status atual: executado).
+````
+
 ````{test} test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical
 :id: TEST-478
 :entrega: DSM4

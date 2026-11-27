@@ -25,6 +25,10 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
   foram feitas depois de ver resultados (a do barramento, depois da primeira; as da correção simulada
   da DSM4, depois da segunda). Entre a primeira e a segunda mudaram três coisas (correção, lugar do
   sorteio do atraso, conteúdo do braço local).
+- **O bloco E foi exploratório; a confirmação é no mesmo aparato.** As oito conclusões dele foram
+  pré-registradas e confirmadas com seeds novas (31 a 60, {doc}`experimento-bloco-e`). Isso afasta o
+  acaso das primeiras seeds, não as ameaças do próprio simulador (dados sintéticos, latência
+  modelada, uma máquina).
 
 ## Validade do experimento
 

@@ -669,3 +669,7 @@ items:
      esperado: "no workflow, o segundo waiver do mesmo padrão não passa e o mesmo mês pedido duas vezes é recusado na segunda", entrega: DSM4, status: executado}
   - {id: TEST-476, nome: test_recurrence_limits_waivers_in_both_arms, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: experimento,
      esperado: "bloco E: quatro meses com a mesma violação e aprovador pedindo waiver: um waiver por padrão nos dois braços, nenhuma crítica sem tratamento", entrega: DSM4, status: executado}
+  - {id: TEST-486, nome: test_confirmatory_replication_uses_only_new_seeds, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "a replicação confirmatória do bloco E usa as seeds 31 a 60, disjuntas das 1 a 30 do exploratório, com o mesmo plano por seed", entrega: DSM4, status: executado}
+  - {id: TEST-487, nome: test_hypothesis_checker_confirms_and_refutes_from_the_data, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "o verificador aplica os critérios pré-registrados de H-E1 a H-E8, a conferência publicada bate com os dados publicados e uma publicação indevida plantada refuta a H-E1", entrega: DSM4, status: executado}

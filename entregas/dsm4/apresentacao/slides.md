@@ -191,7 +191,7 @@ Danrley. A latência entre os braços é modelada, não medida.
 
 # Bloco E: concorrência, frequência, volume e porte
 
-| 30 seeds, SMA básico × workflow equivalente (mesma memória, recusa de mês já atendido) | SMA | Workflow |
+| Seeds 1 a 30; confirmado nas seeds 31 a 60 (8 de 8 hipóteses pré-registradas) | SMA | Workflow |
 |---|---|---|
 | 4 pedidos do mesmo mês: publicações indevidas | 0 (reserva) | 0 (recusa) |
 | meses diferentes, aprovador pede waiver: waivers por padrão | 1 (POL-06) | 1 (POL-06) |
@@ -204,7 +204,7 @@ Danrley. A latência entre os braços é modelada, não medida.
 | 12 → 400 lançamentos: só tempo de parede | 0,015 → 0,039 s | 0,002 → 0,003 s |
 
 ::: notes
-Jiliard. Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). As métricas variam entre seeds. Com os mesmos mecanismos nos dois braços (memória da POL-06 e recusa de mês já atendido no workflow), o resultado é igual seed a seed; o que sobra é o paralelismo, que um controlador com vários atendentes também teria, e o custo em mensagens. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
+Jiliard. Exploratório nas seeds 1 a 30, acrescentado depois do feedback da DSM3 (desvio declarado). As oito conclusões viraram hipóteses pré-registradas antes de rodar seeds novas e se confirmaram na replicação com as seeds 31 a 60. As métricas variam entre seeds. Com os mesmos mecanismos nos dois braços (memória da POL-06 e recusa de mês já atendido no workflow), o resultado é igual seed a seed; o que sobra é o paralelismo, que um controlador com vários atendentes também teria, e o custo em mensagens. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
 :::
 
 # Três rodadas do experimento

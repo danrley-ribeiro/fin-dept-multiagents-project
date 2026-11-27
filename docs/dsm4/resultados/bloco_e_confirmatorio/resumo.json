@@ -1,0 +1,8711 @@
+{
+ "descricao": [
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6965,
+    "ic95": [
+     22.5333,
+     23.7
+    ],
+    "media": 23.1333,
+    "mediana": 24.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "1",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.6,
+     1.1333
+    ],
+    "media": 0.8667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0095,
+    "ic95": [
+     0.0194,
+     0.0258
+    ],
+    "media": 0.0223,
+    "mediana": 0.0207,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1238,
+    "ic95": [
+     16.0333,
+     17.5333
+    ],
+    "media": 16.8,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "1",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0022,
+    "ic95": [
+     0.0019,
+     0.0034
+    ],
+    "media": 0.0025,
+    "mediana": 0.0024,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6965,
+    "ic95": [
+     24.5333,
+     25.7
+    ],
+    "media": 25.1333,
+    "mediana": 26.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.6,
+     1.1333
+    ],
+    "media": 0.8667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0075,
+    "ic95": [
+     0.0192,
+     0.0244
+    ],
+    "media": 0.0216,
+    "mediana": 0.0198,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1238,
+    "ic95": [
+     16.0333,
+     17.5333
+    ],
+    "media": 16.8,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0015,
+    "ic95": [
+     0.0019,
+     0.003
+    ],
+    "media": 0.0024,
+    "mediana": 0.0023,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 1.7953,
+    "ic95": [
+     0.2667,
+     1.5333
+    ],
+    "media": 0.8667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.7497,
+    "ic95": [
+     0.4667,
+     0.9667
+    ],
+    "media": 0.7,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 3.1193,
+    "ic95": [
+     44.1,
+     46.2667
+    ],
+    "media": 45.1667,
+    "mediana": 45.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.7497,
+    "ic95": [
+     1.0333,
+     1.5333
+    ],
+    "media": 1.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 1.5643,
+    "ic95": [
+     0.8333,
+     1.9333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0146,
+    "ic95": [
+     0.0389,
+     0.049
+    ],
+    "media": 0.0435,
+    "mediana": 0.0388,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.5683,
+    "ic95": [
+     0.2333,
+     0.6333
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 1.7953,
+    "ic95": [
+     0.2667,
+     1.5333
+    ],
+    "media": 0.8667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.7497,
+    "ic95": [
+     0.4667,
+     0.9667
+    ],
+    "media": 0.7,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 4.3924,
+    "ic95": [
+     31.0333,
+     34.0333
+    ],
+    "media": 32.5,
+    "mediana": 31.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.7497,
+    "ic95": [
+     1.0333,
+     1.5333
+    ],
+    "media": 1.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0028,
+    "ic95": [
+     0.0039,
+     0.0059
+    ],
+    "media": 0.0049,
+    "mediana": 0.0049,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.5683,
+    "ic95": [
+     0.2333,
+     0.6333
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6965,
+    "ic95": [
+     28.5333,
+     29.7
+    ],
+    "media": 29.1333,
+    "mediana": 30.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.6,
+     1.1333
+    ],
+    "media": 0.8667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     3.0,
+     3.0
+    ],
+    "media": 3.0,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0097,
+    "ic95": [
+     0.0229,
+     0.0297
+    ],
+    "media": 0.0262,
+    "mediana": 0.0237,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1238,
+    "ic95": [
+     16.0333,
+     17.5333
+    ],
+    "media": 16.8,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "mesma",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     3.0,
+     3.0
+    ],
+    "media": 3.0,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0015,
+    "ic95": [
+     0.0023,
+     0.0034
+    ],
+    "media": 0.0029,
+    "mediana": 0.0032,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 3.5905,
+    "ic95": [
+     0.5333,
+     3.0667
+    ],
+    "media": 1.7333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.2333,
+     2.4
+    ],
+    "media": 1.8,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 6.3828,
+    "ic95": [
+     86.9667,
+     91.4
+    ],
+    "media": 89.1333,
+    "mediana": 87.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.6,
+     2.7667
+    ],
+    "media": 2.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 3.2413,
+    "ic95": [
+     1.2333,
+     3.4667
+    ],
+    "media": 2.3333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0296,
+    "ic95": [
+     0.0772,
+     0.0976
+    ],
+    "media": 0.087,
+    "mediana": 0.0867,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.6814,
+    "ic95": [
+     0.2333,
+     0.7
+    ],
+    "media": 0.4667,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 3.5905,
+    "ic95": [
+     0.5333,
+     3.0667
+    ],
+    "media": 1.7333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.2333,
+     2.4
+    ],
+    "media": 1.8,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia",
+   "intervencoes_humanas": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 9.2528,
+    "ic95": [
+     60.7,
+     67.1
+    ],
+    "media": 63.8,
+    "mediana": 59.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 3.2547,
+    "ic95": [
+     5.0667,
+     7.4667
+    ],
+    "media": 6.4,
+    "mediana": 8.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.6,
+     2.7667
+    ],
+    "media": 2.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0068,
+    "ic95": [
+     0.0085,
+     0.0132
+    ],
+    "media": 0.0107,
+    "mediana": 0.01,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.6814,
+    "ic95": [
+     0.2333,
+     0.7
+    ],
+    "media": 0.4667,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.2667,
+     0.8333
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.4914,
+    "ic95": [
+     17.1667,
+     18.8333
+    ],
+    "media": 18.0,
+    "mediana": 16.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.9931,
+    "ic95": [
+     21.9333,
+     23.2667
+    ],
+    "media": 22.6,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "baixa",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.9965,
+    "ic95": [
+     0.4667,
+     1.1333
+    ],
+    "media": 0.8,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0123,
+    "ic95": [
+     0.0188,
+     0.0273
+    ],
+    "media": 0.0228,
+    "mediana": 0.0187,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.2667,
+     0.8333
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.4914,
+    "ic95": [
+     16.1667,
+     17.8333
+    ],
+    "media": 17.0,
+    "mediana": 15.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.9965,
+    "ic95": [
+     0.4667,
+     1.1333
+    ],
+    "media": 0.8,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "baixa",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0017,
+    "ic95": [
+     0.001,
+     0.0022
+    ],
+    "media": 0.0016,
+    "mediana": 0.0006,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     19.1667,
+     20.6667
+    ],
+    "media": 20.0,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     23.5333,
+     24.7333
+    ],
+    "media": 24.2,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "media",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0115,
+    "ic95": [
+     0.0223,
+     0.0301
+    ],
+    "media": 0.026,
+    "mediana": 0.0239,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     18.1667,
+     19.6667
+    ],
+    "media": 19.0,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "media",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0017,
+    "ic95": [
+     0.0021,
+     0.0032
+    ],
+    "media": 0.0027,
+    "mediana": 0.0024,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8769,
+    "ic95": [
+     1.9667,
+     2.5667
+    ],
+    "media": 2.3,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.1826,
+    "ic95": [
+     0.9,
+     1.0
+    ],
+    "media": 0.9667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 0.9129,
+    "ic95": [
+     20.5,
+     21.0
+    ],
+    "media": 20.8333,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.7303,
+    "ic95": [
+     24.6,
+     25.0
+    ],
+    "media": 24.8667,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "alta",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.3651,
+    "ic95": [
+     1.8,
+     2.0
+    ],
+    "media": 1.9333,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.011,
+    "ic95": [
+     0.0239,
+     0.0317
+    ],
+    "media": 0.0272,
+    "mediana": 0.0249,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8769,
+    "ic95": [
+     1.9667,
+     2.5667
+    ],
+    "media": 2.3,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "frequencia",
+   "intervencoes_humanas": {
+    "desvio": 0.1826,
+    "ic95": [
+     0.9,
+     1.0
+    ],
+    "media": 0.9667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 0.9129,
+    "ic95": [
+     19.5,
+     20.0
+    ],
+    "media": 19.8333,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.3651,
+    "ic95": [
+     1.8,
+     2.0
+    ],
+    "media": 1.9333,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "alta",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0039,
+    "ic95": [
+     0.0033,
+     0.006
+    ],
+    "media": 0.0044,
+    "mediana": 0.0032,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     19.1667,
+     20.6667
+    ],
+    "media": 20.0,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     23.5333,
+     24.7333
+    ],
+    "media": 24.2,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "12",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0129,
+    "ic95": [
+     0.023,
+     0.0317
+    ],
+    "media": 0.027,
+    "mediana": 0.0237,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     18.1667,
+     19.6667
+    ],
+    "media": 19.0,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "12",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0017,
+    "ic95": [
+     0.0022,
+     0.0033
+    ],
+    "media": 0.0027,
+    "mediana": 0.0025,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     19.1667,
+     20.6667
+    ],
+    "media": 20.0,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     23.5333,
+     24.7333
+    ],
+    "media": 24.2,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "96",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0148,
+    "ic95": [
+     0.0316,
+     0.0417
+    ],
+    "media": 0.0363,
+    "mediana": 0.0312,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     18.1667,
+     19.6667
+    ],
+    "media": 19.0,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "96",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.002,
+    "ic95": [
+     0.0027,
+     0.0041
+    ],
+    "media": 0.0034,
+    "mediana": 0.0033,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     19.1667,
+     20.6667
+    ],
+    "media": 20.0,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     23.5333,
+     24.7333
+    ],
+    "media": 24.2,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "400",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0278,
+    "ic95": [
+     0.0613,
+     0.0801
+    ],
+    "media": 0.0702,
+    "mediana": 0.063,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9994,
+    "ic95": [
+     1.0333,
+     1.7333
+    ],
+    "media": 1.3667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.0342,
+    "ic95": [
+     18.1667,
+     19.6667
+    ],
+    "media": 19.0,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "400",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.004,
+    "ic95": [
+     0.0042,
+     0.0069
+    ],
+    "media": 0.0055,
+    "mediana": 0.0044,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.6609,
+    "ic95": [
+     0.1333,
+     0.6
+    ],
+    "media": 0.3333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4498,
+    "ic95": [
+     0.5667,
+     0.8667
+    ],
+    "media": 0.7333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.4033,
+    "ic95": [
+     16.6667,
+     18.3333
+    ],
+    "media": 17.5,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.7604,
+    "ic95": [
+     22.3,
+     23.5333
+    ],
+    "media": 22.9333,
+    "mediana": 24.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "micro",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8052,
+    "ic95": [
+     0.5333,
+     1.0667
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0155,
+    "ic95": [
+     0.0238,
+     0.0343
+    ],
+    "media": 0.029,
+    "mediana": 0.0249,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4795,
+    "ic95": [
+     0.1667,
+     0.5
+    ],
+    "media": 0.3333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.6609,
+    "ic95": [
+     0.1333,
+     0.6
+    ],
+    "media": 0.3333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4498,
+    "ic95": [
+     0.5667,
+     0.8667
+    ],
+    "media": 0.7333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1709,
+    "ic95": [
+     15.9333,
+     17.4333
+    ],
+    "media": 16.6667,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8996,
+    "ic95": [
+     1.1333,
+     1.7333
+    ],
+    "media": 1.4667,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "micro",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0023,
+    "ic95": [
+     0.0026,
+     0.0042
+    ],
+    "media": 0.0034,
+    "mediana": 0.0035,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4795,
+    "ic95": [
+     0.1667,
+     0.5
+    ],
+    "media": 0.3333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6965,
+    "ic95": [
+     22.5333,
+     23.7
+    ],
+    "media": 23.1333,
+    "mediana": 24.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "pequena",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.6,
+     1.1333
+    ],
+    "media": 0.8667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0104,
+    "ic95": [
+     0.0204,
+     0.0276
+    ],
+    "media": 0.0237,
+    "mediana": 0.0204,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1238,
+    "ic95": [
+     16.0333,
+     17.5333
+    ],
+    "media": 16.8,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "pequena",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0016,
+    "ic95": [
+     0.0019,
+     0.0031
+    ],
+    "media": 0.0025,
+    "mediana": 0.0023,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.3706,
+    "ic95": [
+     16.8,
+     18.4333
+    ],
+    "media": 17.6333,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6965,
+    "ic95": [
+     22.5333,
+     23.7
+    ],
+    "media": 23.1333,
+    "mediana": 24.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "media",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7761,
+    "ic95": [
+     0.6,
+     1.1333
+    ],
+    "media": 0.8667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0073,
+    "ic95": [
+     0.0198,
+     0.0249
+    ],
+    "media": 0.0223,
+    "mediana": 0.0204,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.8976,
+    "ic95": [
+     0.1333,
+     0.7667
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.379,
+    "ic95": [
+     0.0667,
+     0.3
+    ],
+    "media": 0.1667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6333,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1238,
+    "ic95": [
+     16.0333,
+     17.5333
+    ],
+    "media": 16.8,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "media",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.379,
+    "ic95": [
+     0.7,
+     0.9333
+    ],
+    "media": 0.8333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0017,
+    "ic95": [
+     0.002,
+     0.0032
+    ],
+    "media": 0.0026,
+    "mediana": 0.0024,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4983,
+    "ic95": [
+     0.2333,
+     0.5667
+    ],
+    "media": 0.4,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9732,
+    "ic95": [
+     0.2333,
+     0.9
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.0667,
+     0.3333
+    ],
+    "media": 0.2,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.3051,
+    "ic95": [
+     0.7667,
+     1.0
+    ],
+    "media": 0.9,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.483,
+    "ic95": [
+     16.9,
+     18.6333
+    ],
+    "media": 17.8,
+    "mediana": 18.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6291,
+    "ic95": [
+     22.7667,
+     23.9
+    ],
+    "media": 23.3667,
+    "mediana": 24.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "grande",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6667,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.7649,
+    "ic95": [
+     0.7,
+     1.2333
+    ],
+    "media": 0.9667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0107,
+    "ic95": [
+     0.0223,
+     0.0296
+    ],
+    "media": 0.0257,
+    "mediana": 0.0216,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.504,
+    "ic95": [
+     0.2667,
+     0.6
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.9732,
+    "ic95": [
+     0.2333,
+     0.9
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.0667,
+     0.3333
+    ],
+    "media": 0.2,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "porte",
+   "intervencoes_humanas": {
+    "desvio": 0.3051,
+    "ic95": [
+     0.7667,
+     1.0
+    ],
+    "media": 0.9,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1814,
+    "ic95": [
+     16.2,
+     17.7333
+    ],
+    "media": 17.0,
+    "mediana": 17.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.6103,
+    "ic95": [
+     1.5333,
+     2.0
+    ],
+    "media": 1.8,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "grande",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.6667,
+     0.9333
+    ],
+    "media": 0.8,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0014,
+    "ic95": [
+     0.0022,
+     0.0032
+    ],
+    "media": 0.0027,
+    "mediana": 0.0026,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.504,
+    "ic95": [
+     0.2667,
+     0.6
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 0.5509,
+    "ic95": [
+     0.0333,
+     0.4
+    ],
+    "media": 0.2,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.5724,
+    "ic95": [
+     1.3,
+     1.7
+    ],
+    "media": 1.5,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "fator": "concorrencia_perda",
+   "intervencoes_humanas": {
+    "desvio": 0.6789,
+    "ic95": [
+     0.3333,
+     0.8
+    ],
+    "media": 0.5667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 19.2237,
+    "ic95": [
+     58.4667,
+     72.0
+    ],
+    "media": 65.3667,
+    "mediana": 65.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 7.5335,
+    "ic95": [
+     39.6,
+     44.8333
+    ],
+    "media": 42.2667,
+    "mediana": 43.5,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.5724,
+    "ic95": [
+     0.3,
+     0.7
+    ],
+    "media": 0.5,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.9371,
+    "ic95": [
+     0.2333,
+     0.8667
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0248,
+    "ic95": [
+     0.0308,
+     0.0479
+    ],
+    "media": 0.0378,
+    "mediana": 0.0302,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4068,
+    "ic95": [
+     0.0667,
+     0.3333
+    ],
+    "media": 0.2,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 1.7953,
+    "ic95": [
+     0.2667,
+     1.5333
+    ],
+    "media": 0.8667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.7497,
+    "ic95": [
+     0.4667,
+     0.9667
+    ],
+    "media": 0.7,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "fator": "concorrencia_perda",
+   "intervencoes_humanas": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 4.3924,
+    "ic95": [
+     31.0333,
+     34.0333
+    ],
+    "media": 32.5,
+    "mediana": 31.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.7497,
+    "ic95": [
+     1.0333,
+     1.5333
+    ],
+    "media": 1.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0032,
+    "ic95": [
+     0.0038,
+     0.006
+    ],
+    "media": 0.0049,
+    "mediana": 0.0047,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.5683,
+    "ic95": [
+     0.2333,
+     0.6333
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 1.4077,
+    "ic95": [
+     0.1,
+     1.1
+    ],
+    "media": 0.5333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.803,
+    "ic95": [
+     2.8,
+     3.3667
+    ],
+    "media": 3.1,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia_perda",
+   "intervencoes_humanas": {
+    "desvio": 1.1567,
+    "ic95": [
+     0.8,
+     1.6
+    ],
+    "media": 1.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 20.2211,
+    "ic95": [
+     72.1333,
+     86.2333
+    ],
+    "media": 78.9333,
+    "mediana": 77.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 12.7135,
+    "ic95": [
+     79.3333,
+     88.0667
+    ],
+    "media": 83.7667,
+    "mediana": 86.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.803,
+    "ic95": [
+     0.6333,
+     1.2
+    ],
+    "media": 0.9,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 1.5421,
+    "ic95": [
+     0.4667,
+     1.5333
+    ],
+    "media": 0.9667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.022,
+    "ic95": [
+     0.0588,
+     0.074
+    ],
+    "media": 0.066,
+    "mediana": 0.0625,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.4661,
+    "ic95": [
+     0.1333,
+     0.4667
+    ],
+    "media": 0.3,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 3.5905,
+    "ic95": [
+     0.5333,
+     3.0667
+    ],
+    "media": 1.7333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.2333,
+     2.4
+    ],
+    "media": 1.8,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia_perda",
+   "intervencoes_humanas": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 9.2528,
+    "ic95": [
+     60.7,
+     67.1
+    ],
+    "media": 63.8,
+    "mediana": 59.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 3.2547,
+    "ic95": [
+     5.0667,
+     7.4667
+    ],
+    "media": 6.4,
+    "mediana": 8.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.6,
+     2.7667
+    ],
+    "media": 2.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0072,
+    "ic95": [
+     0.0077,
+     0.0126
+    ],
+    "media": 0.0102,
+    "mediana": 0.0089,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.6814,
+    "ic95": [
+     0.2333,
+     0.7
+    ],
+    "media": 0.4667,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 1.7953,
+    "ic95": [
+     0.2667,
+     1.5333
+    ],
+    "media": 0.8667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.7497,
+    "ic95": [
+     0.4667,
+     0.9667
+    ],
+    "media": 0.7,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "fator": "concorrencia_indisponibilidade",
+   "intervencoes_humanas": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 13.7652,
+    "ic95": [
+     22.3333,
+     31.8
+    ],
+    "media": 27.0333,
+    "mediana": 19.5,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 4.6505,
+    "ic95": [
+     44.9,
+     48.0
+    ],
+    "media": 46.4,
+    "mediana": 45.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.7497,
+    "ic95": [
+     1.0333,
+     1.5333
+    ],
+    "media": 1.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 1.583,
+    "ic95": [
+     0.8,
+     1.9
+    ],
+    "media": 1.3333,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0191,
+    "ic95": [
+     0.0391,
+     0.0527
+    ],
+    "media": 0.0457,
+    "mediana": 0.0394,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.5683,
+    "ic95": [
+     0.2333,
+     0.6333
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 1.7953,
+    "ic95": [
+     0.2667,
+     1.5333
+    ],
+    "media": 0.8667,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.7497,
+    "ic95": [
+     0.4667,
+     0.9667
+    ],
+    "media": 0.7,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "fator": "concorrencia_indisponibilidade",
+   "intervencoes_humanas": {
+    "desvio": 0.8137,
+    "ic95": [
+     1.2667,
+     1.8667
+    ],
+    "media": 1.6,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 4.3924,
+    "ic95": [
+     31.0333,
+     34.0333
+    ],
+    "media": 32.5,
+    "mediana": 31.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "2",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.7497,
+    "ic95": [
+     1.0333,
+     1.5333
+    ],
+    "media": 1.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0029,
+    "ic95": [
+     0.0038,
+     0.0058
+    ],
+    "media": 0.0048,
+    "mediana": 0.0048,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.5683,
+    "ic95": [
+     0.2333,
+     0.6333
+    ],
+    "media": 0.4333,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "criticas_corrigidas": {
+    "desvio": 3.5905,
+    "ic95": [
+     0.5333,
+     3.0667
+    ],
+    "media": 1.7333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.2333,
+     2.4
+    ],
+    "media": 1.8,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia_indisponibilidade",
+   "intervencoes_humanas": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 13.7652,
+    "ic95": [
+     22.3333,
+     31.8
+    ],
+    "media": 27.0333,
+    "mediana": 19.5,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 9.4276,
+    "ic95": [
+     88.5333,
+     94.7333
+    ],
+    "media": 91.5,
+    "mediana": 88.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.6,
+     2.7667
+    ],
+    "media": 2.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 3.2605,
+    "ic95": [
+     1.2,
+     3.4333
+    ],
+    "media": 2.3,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0543,
+    "ic95": [
+     0.0759,
+     0.1139
+    ],
+    "media": 0.0928,
+    "mediana": 0.0748,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.6814,
+    "ic95": [
+     0.2333,
+     0.7
+    ],
+    "media": 0.4667,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "criticas_corrigidas": {
+    "desvio": 3.5905,
+    "ic95": [
+     0.5333,
+     3.0667
+    ],
+    "media": 1.7333,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.2333,
+     2.4
+    ],
+    "media": 1.8,
+    "mediana": 3.0,
+    "n": 30
+   },
+   "fator": "concorrencia_indisponibilidade",
+   "intervencoes_humanas": {
+    "desvio": 1.6274,
+    "ic95": [
+     2.5333,
+     3.7333
+    ],
+    "media": 3.2,
+    "mediana": 4.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 9.2528,
+    "ic95": [
+     60.7,
+     67.1
+    ],
+    "media": 63.8,
+    "mediana": 59.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 3.2547,
+    "ic95": [
+     5.0667,
+     7.4667
+    ],
+    "media": 6.4,
+    "mediana": 8.0,
+    "n": 30
+   },
+   "modo": "distintas",
+   "nivel": "4",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 1.6897,
+    "ic95": [
+     1.6,
+     2.7667
+    ],
+    "media": 2.2,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0078,
+    "ic95": [
+     0.008,
+     0.0135
+    ],
+    "media": 0.0107,
+    "mediana": 0.009,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.6814,
+    "ic95": [
+     0.2333,
+     0.7
+    ],
+    "media": 0.4667,
+    "mediana": 0.0,
+    "n": 30
+   }
+  }
+ ],
+ "testes": [
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2544,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.6333,
+   "media_b": 16.8,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 21.5333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    21.0667,
+    21.9667
+   ],
+   "magnitude": "grande",
+   "media_a": 23.1333,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4,
+   "media_b": 0.4,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "1/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2544,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.6333,
+   "media_b": 16.8,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 23.5333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    23.0667,
+    23.9667
+   ],
+   "magnitude": "grande",
+   "media_a": 25.1333,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4,
+   "media_b": 0.4,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -1.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": -14.8667,
+   "estatistica": 0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    -15.7333,
+    -14.0667
+   ],
+   "magnitude": "grande",
+   "media_a": 17.6333,
+   "media_b": 32.5,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 41.9667,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    41.0667,
+    42.9
+   ],
+   "magnitude": "grande",
+   "media_a": 45.1667,
+   "media_b": 3.2,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8667,
+   "media_b": 0.8667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3,
+   "media_b": 1.3,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.7,
+   "media_b": 0.7,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2544,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.6333,
+   "media_b": 16.8,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 27.5333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    27.0667,
+    27.9667
+   ],
+   "magnitude": "grande",
+   "media_a": 29.1333,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4,
+   "media_b": 0.4,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/mesma",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -1.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": -46.1667,
+   "estatistica": 0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    -48.8667,
+    -43.7333
+   ],
+   "magnitude": "grande",
+   "media_a": 17.6333,
+   "media_b": 63.8,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 82.7333,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    80.7667,
+    84.7667
+   ],
+   "magnitude": "grande",
+   "media_a": 89.1333,
+   "media_b": 6.4,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 7e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.7333,
+   "media_b": 1.7333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4667,
+   "media_b": 0.4667,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 2.2,
+   "media_b": 2.2,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.8,
+   "media_b": 1.8,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.52,
+   "comparacao": "baixa/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 18.0,
+   "media_b": 17.0,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 21.8,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    21.4667,
+    22.1333
+   ],
+   "magnitude": "grande",
+   "media_a": 22.6,
+   "media_b": 0.8,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 1e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.5333,
+   "media_b": 0.5333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "baixa/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.68,
+   "comparacao": "media/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 20.0,
+   "media_b": 19.0,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "media/-",
+   "diferenca_media": 22.6,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    22.2667,
+    22.8667
+   ],
+   "magnitude": "grande",
+   "media_a": 24.2,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3667,
+   "media_b": 1.3667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.9356,
+   "comparacao": "alta/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 20.8333,
+   "media_b": 19.8333,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 22.9333,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    22.8,
+    23.0
+   ],
+   "magnitude": "grande",
+   "media_a": 24.8667,
+   "media_b": 1.9333,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 2.3,
+   "media_b": 2.3,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "alta/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:frequencia",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.68,
+   "comparacao": "12/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 20.0,
+   "media_b": 19.0,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "12/-",
+   "diferenca_media": 22.6,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    22.2667,
+    22.8667
+   ],
+   "magnitude": "grande",
+   "media_a": 24.2,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3667,
+   "media_b": 1.3667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "12/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.68,
+   "comparacao": "96/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 20.0,
+   "media_b": 19.0,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "96/-",
+   "diferenca_media": 22.6,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    22.2667,
+    22.8667
+   ],
+   "magnitude": "grande",
+   "media_a": 24.2,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3667,
+   "media_b": 1.3667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "96/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.68,
+   "comparacao": "400/-",
+   "diferenca_media": 1.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    1.0,
+    1.0
+   ],
+   "magnitude": "grande",
+   "media_a": 20.0,
+   "media_b": 19.0,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "400/-",
+   "diferenca_media": 22.6,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    22.2667,
+    22.8667
+   ],
+   "magnitude": "grande",
+   "media_a": 24.2,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3667,
+   "media_b": 1.3667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.0,
+   "media_b": 1.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "400/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2367,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.5,
+   "media_b": 16.6667,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 21.4667,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    21.0,
+    21.9
+   ],
+   "magnitude": "grande",
+   "media_a": 22.9333,
+   "media_b": 1.4667,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.3333,
+   "media_b": 0.3333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.3333,
+   "media_b": 0.3333,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "micro/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2544,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.6333,
+   "media_b": 16.8,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 21.5333,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    21.0667,
+    21.9667
+   ],
+   "magnitude": "grande",
+   "media_a": 23.1333,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4,
+   "media_b": 0.4,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "pequena/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2544,
+   "comparacao": "media/-",
+   "diferenca_media": 0.8333,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.7,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.6333,
+   "media_b": 16.8,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 25,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "media/-",
+   "diferenca_media": 21.5333,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    21.0667,
+    21.9667
+   ],
+   "magnitude": "grande",
+   "media_a": 23.1333,
+   "media_b": 1.6,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4,
+   "media_b": 0.4,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8333,
+   "media_b": 0.8333,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "media/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.1667,
+   "media_b": 0.1667,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.2689,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.8,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.6667,
+    0.9333
+   ],
+   "magnitude": "pequeno",
+   "media_a": 17.8,
+   "media_b": 17.0,
+   "metodo": "exato",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.0,
+   "p_holm": 0.0,
+   "pares_diferentes": 24,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 21.5667,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    21.0333,
+    22.0333
+   ],
+   "magnitude": "grande",
+   "media_a": 23.3667,
+   "media_b": 1.8,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 1e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.5333,
+   "media_b": 0.5333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8,
+   "media_b": 0.8,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "grande/-",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:porte",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.2,
+   "media_b": 0.2,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.8778,
+   "comparacao": "2/distintas",
+   "diferenca_media": 32.8667,
+   "estatistica": 3.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    25.8667,
+    39.3
+   ],
+   "magnitude": "grande",
+   "media_a": 65.3667,
+   "media_b": 32.5,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 2.4e-05,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 39.0667,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    36.3,
+    41.7333
+   ],
+   "magnitude": "grande",
+   "media_a": 42.2667,
+   "media_b": 3.2,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 2.4e-05,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.1244,
+   "comparacao": "2/distintas",
+   "diferenca_media": -0.6667,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -1.3,
+    -0.1333
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.2,
+   "media_b": 0.8667,
+   "metodo": "exato",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 0.03125,
+   "p_holm": 0.09375,
+   "pares_diferentes": 6,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.2067,
+   "comparacao": "2/distintas",
+   "diferenca_media": -0.2333,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -0.4333,
+    -0.0667
+   ],
+   "magnitude": "pequeno",
+   "media_a": 0.2,
+   "media_b": 0.4333,
+   "metodo": "exato",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 0.03125,
+   "p_holm": 0.09375,
+   "pares_diferentes": 6,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.5567,
+   "comparacao": "2/distintas",
+   "diferenca_media": -0.8,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -1.0667,
+    -0.5333
+   ],
+   "magnitude": "grande",
+   "media_a": 0.5,
+   "media_b": 1.3,
+   "metodo": "exato",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 8e-06,
+   "p_holm": 7.2e-05,
+   "pares_diferentes": 18,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.5567,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.8,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.5333,
+    1.0667
+   ],
+   "magnitude": "grande",
+   "media_a": 1.5,
+   "media_b": 0.7,
+   "metodo": "exato",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 8e-06,
+   "p_holm": 7.2e-05,
+   "pares_diferentes": 18,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.5856,
+   "comparacao": "4/distintas",
+   "diferenca_media": 15.1333,
+   "estatistica": 22.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    9.3333,
+    21.8667
+   ],
+   "magnitude": "grande",
+   "media_a": 78.9333,
+   "media_b": 63.8,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 2.4e-05,
+   "p_holm": 0.00012,
+   "pares_diferentes": 29,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 77.3667,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    72.7667,
+    81.9
+   ],
+   "magnitude": "grande",
+   "media_a": 83.7667,
+   "media_b": 6.4,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 2.4e-05,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.0956,
+   "comparacao": "4/distintas",
+   "diferenca_media": -1.2,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -2.2667,
+    -0.3333
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.5333,
+   "media_b": 1.7333,
+   "metodo": "exato",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 0.015625,
+   "p_holm": 0.0625,
+   "pares_diferentes": 7,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.11,
+   "comparacao": "4/distintas",
+   "diferenca_media": -0.1667,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -0.3333,
+    -0.0333
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.3,
+   "media_b": 0.4667,
+   "metodo": "exato",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 0.125,
+   "p_holm": 0.125,
+   "pares_diferentes": 4,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.4033,
+   "comparacao": "4/distintas",
+   "diferenca_media": -1.3,
+   "estatistica": 0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    -1.8,
+    -0.8333
+   ],
+   "magnitude": "médio",
+   "media_a": 0.9,
+   "media_b": 2.2,
+   "metodo": "exato",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.5e-05,
+   "p_holm": 0.000105,
+   "pares_diferentes": 17,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.4033,
+   "comparacao": "4/distintas",
+   "diferenca_media": 1.3,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_perda",
+   "ic95_diferenca": [
+    0.8333,
+    1.8
+   ],
+   "magnitude": "médio",
+   "media_a": 3.1,
+   "media_b": 1.8,
+   "metodo": "exato",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.5e-05,
+   "p_holm": 0.000105,
+   "pares_diferentes": 17,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -0.3511,
+   "comparacao": "2/distintas",
+   "diferenca_media": -5.4667,
+   "estatistica": 172.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    -10.3333,
+    -0.2
+   ],
+   "magnitude": "médio",
+   "media_a": 27.0333,
+   "media_b": 32.5,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 0.21519,
+   "p_holm": 0.21519,
+   "pares_diferentes": 30,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 43.2,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    41.8333,
+    44.7
+   ],
+   "magnitude": "grande",
+   "media_a": 46.4,
+   "media_b": 3.2,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 8e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.8667,
+   "media_b": 0.8667,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4333,
+   "media_b": 0.4333,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.3,
+   "media_b": 1.3,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "2/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.7,
+   "media_b": 0.7,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": -1.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": -36.7667,
+   "estatistica": 0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    -42.5333,
+    -30.6667
+   ],
+   "magnitude": "grande",
+   "media_a": 27.0333,
+   "media_b": 63.8,
+   "metodo": "normal",
+   "metrica": "makespan_ticks",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 8e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 1.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 85.1,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    82.2,
+    88.2333
+   ],
+   "magnitude": "grande",
+   "media_a": 91.5,
+   "media_b": 6.4,
+   "metodo": "normal",
+   "metrica": "mensagens",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 8e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "publicacoes_indevidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.0,
+   "media_b": 0.0,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_publicadas_sem_tratamento",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.7333,
+   "media_b": 1.7333,
+   "metodo": "sem diferenças",
+   "metrica": "criticas_corrigidas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 0.4667,
+   "media_b": 0.4667,
+   "metodo": "sem diferenças",
+   "metrica": "waivers",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 2.2,
+   "media_b": 2.2,
+   "metodo": "sem diferenças",
+   "metrica": "publicados",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "SMA",
+   "b": "workflow",
+   "cliff": 0.0,
+   "comparacao": "4/distintas",
+   "diferenca_media": 0.0,
+   "estatistica": 0.0,
+   "familia": "E:concorrencia_indisponibilidade",
+   "ic95_diferenca": [
+    0.0,
+    0.0
+   ],
+   "magnitude": "desprezível",
+   "media_a": 1.8,
+   "media_b": 1.8,
+   "metodo": "sem diferenças",
+   "metrica": "falhas",
+   "n": 30,
+   "p": 1.0,
+   "p_holm": null,
+   "pares_diferentes": 0,
+   "significativo": false,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "400",
+   "b": "12",
+   "cliff": 0.8989,
+   "comparacao": "400 x 12 (sma_basico)",
+   "diferenca_media": 0.0432,
+   "estatistica": 0.0,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.037,
+    0.0494
+   ],
+   "magnitude": "grande",
+   "media_a": 0.0702,
+   "media_b": 0.027,
+   "metodo": "normal",
+   "metrica": "segundos",
+   "n": 30,
+   "p": 2e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  },
+  {
+   "a": "400",
+   "b": "12",
+   "cliff": 0.4744,
+   "comparacao": "400 x 12 (wf_equivalente)",
+   "diferenca_media": 0.0028,
+   "estatistica": 22.5,
+   "familia": "E:volume",
+   "ic95_diferenca": [
+    0.0018,
+    0.0038
+   ],
+   "magnitude": "grande",
+   "media_a": 0.0055,
+   "media_b": 0.0027,
+   "metodo": "normal",
+   "metrica": "segundos",
+   "n": 30,
+   "p": 1.6e-05,
+   "p_holm": 1.6e-05,
+   "pares_diferentes": 30,
+   "significativo": true,
+   "tipo": "Wilcoxon pareado"
+  }
+ ],
+ "versao": "1.1.0"
+}

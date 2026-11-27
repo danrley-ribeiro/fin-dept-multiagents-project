@@ -3933,3 +3933,27 @@
 **Resultado esperado:** bloco E: quatro meses com a mesma violação e aprovador pedindo waiver: um waiver por padrão nos dois braços, nenhuma crítica sem tratamento  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_confirmatory_replication_uses_only_new_seeds
+:id: TEST-486
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03
+:derived_from: PROT-SOL
+
+`test_confirmatory_replication_uses_only_new_seeds()` — tipo *experimento*.  
+**Resultado esperado:** a replicação confirmatória do bloco E usa as seeds 31 a 60, disjuntas das 1 a 30 do exploratório, com o mesmo plano por seed  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_hypothesis_checker_confirms_and_refutes_from_the_data
+:id: TEST-487
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03
+:derived_from: PROT-SOL
+
+`test_hypothesis_checker_confirms_and_refutes_from_the_data()` — tipo *experimento*.  
+**Resultado esperado:** o verificador aplica os critérios pré-registrados de H-E1 a H-E8, a conferência publicada bate com os dados publicados e uma publicação indevida plantada refuta a H-E1  
+**Execução:** DSM4 (status atual: executado).
+````

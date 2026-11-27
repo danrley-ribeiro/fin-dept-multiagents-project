@@ -585,7 +585,9 @@ resposta).
     Depois da correção simulada da entrega, o workflow passou a ter a memória da POL-06 e a recusa
     de mês já atendido, e o bloco ganhou o fator porte, o aprovador sorteado e a concorrência sob perda de
     mensagens e com um especialista fora do ar (1.140 execuções). A
-    primeira versão está no histórico do git.
+    primeira versão está no histórico do git. Para tirar o bloco do exploratório, as suas oito
+    conclusões foram pré-registradas ({doc}`experimento-bloco-e`) e replicadas com as seeds 31 a 60;
+    as oito se confirmaram (seção "Replicação confirmatória").
 
 ## Ameaças à validade
 
@@ -750,3 +752,41 @@ e na frequência alta todas as seeds plantam ao menos uma irregularidade (um tic
 intervenção por fechamento), enquanto as críticas corrigidas ainda variam (1 a 3). Duas execuções do bloco produzem o mesmo
 `execucoes.csv` (SHA-256 `d0850b42…`, versão 1.1.0, com o workflow com memória e recusa de mês já
 atendido).
+
+### Replicação confirmatória (seeds 31 a 60)
+
+O bloco E acima é exploratório: foi desenhado depois dos blocos A a D, e o que ele mostrou poderia
+ser acaso das seeds 1 a 30. As oito conclusões viraram hipóteses fechadas (H-E1 a H-E8), com
+critério de decisão, pré-registradas em {doc}`experimento-bloco-e` no commit `95e7923`, publicado
+antes de rodar qualquer seed nova. A replicação usa as seeds 31 a 60, que nenhuma rodada anterior
+usou; o código, os fatores, os braços e a análise são os mesmos.
+
+```bash
+python -m fin_mas.estudo_e --replicas 30 --primeira-seed 31 --out docs/dsm4/resultados/bloco_e_confirmatorio
+python tools/confirmar_bloco_e.py docs/dsm4/resultados/bloco_e_confirmatorio --gravar
+```
+
+O verificador `tools/confirmar_bloco_e.py` aplica os critérios pré-registrados aos dados e grava
+`resultados/bloco_e_confirmatorio/confirmacao.md`. Ele foi escrito depois do pré-registro, enquanto a
+replicação rodava, e foi conferido antes nas seeds 1 a 30, onde as oito hipóteses valem (foram
+tiradas delas). Um teste confere que a conferência publicada é a que os dados produzem e que um dado
+adulterado (uma publicação indevida plantada) refuta a H-E1 (TEST-486 e TEST-487).
+
+**Resultado: as oito hipóteses foram confirmadas.**
+
+| Id | Hipótese | Replicação (SMA × workflow) |
+|---|---|---|
+| H-E1 | mesmo mês publicado no máximo uma vez | 0 publicações indevidas; recusados = n − 1 em todas as seeds, nos dois braços |
+| H-E2 | meses diferentes: SMA termina antes | 17,6 × 32,5 ticks (2 meses) e 17,6 × 63,8 (4); p < 0,001 |
+| H-E3 | SMA troca mais mensagens | de 23,1 × 1,6 (1 pedido) a 89,1 × 6,4 (4 meses); p < 0,001 nos cinco níveis |
+| H-E4 | mesmos mecanismos, mesmo resultado | 270 pares seed a seed (concorrência e porte), nenhum diferente |
+| H-E5 | 15% de perda: SMA publica menos | 0,5 × 1,3 e 0,9 × 2,2; p < 0,001; nenhuma crítica sem tratamento |
+| H-E6 | especialista fora do ar: o reenvio recupera | publicados idênticos seed a seed; 27,0 × 63,8 ticks com 4 meses (p < 0,001) |
+| H-E7 | mais irregularidades, mais intervenções | 0,40, 0,80 e 0,97 por fechamento nos dois braços; nenhuma crítica sem tratamento |
+| H-E8 | tempo lógico não depende do volume | ticks idênticos entre 12, 96 e 400 lançamentos nas 60 séries; segundos 400 > 12 no SMA, p < 0,001 |
+
+Os números são próximos dos do exploratório (por exemplo, 17,1 × 64,2 ticks virou 17,6 × 63,8) e
+nenhum mudou de sentido. Duas execuções da replicação produzem o mesmo `execucoes.csv` (SHA-256
+`052615d2…`). O alcance é o de uma replicação com seeds novas no mesmo aparato: ela afasta o acaso
+das seeds 1 a 30, não as ameaças que vêm do próprio simulador (dados sintéticos, latência
+modelada, uma máquina).

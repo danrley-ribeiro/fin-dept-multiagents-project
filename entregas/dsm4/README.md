@@ -40,6 +40,9 @@ estão no relatório e em
 - **Bloco E.** Um bloco E exploratório varia pedidos concorrentes, frequência de irregularidades e
   volume, com desvio-padrão e testes por seed ([resultados](../../docs/dsm4/resultados.md), seção
   "Bloco E"). Para repeti-lo: `python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e`.
+  As oito conclusões dele foram pré-registradas ([experimento-bloco-e](../../docs/dsm4/experimento-bloco-e.md))
+  e confirmadas numa replicação com as seeds 31 a 60: `python -m fin_mas.estudo_e --replicas 30
+  --primeira-seed 31 --out saidas/bloco_e_conf` e `python tools/confirmar_bloco_e.py saidas/bloco_e_conf`.
 
 ## Conteúdo do pacote
 
@@ -146,7 +149,7 @@ A lista completa está em [`docs/dsm4/limitacoes.md`](../../docs/dsm4/limitacoes
 - A cognição local não mostrou ganho na medida registrada; o AG-REL BDI não acrescenta capacidade; nenhum
   LLM real foi avaliado.
 - A robustez favorece o workflow por construção; um workflow distribuído não foi construído. Dados
-  sintéticos com plantio. Nenhuma rodada depois da primeira é confirmatória. A latência entre os braços é
+  sintéticos com plantio. Nenhuma rodada depois da primeira é confirmatória (o bloco E, sim: replicado com seeds novas). A latência entre os braços é
   modelada (3 ticks por etapa no workflow, premissa que decide o sinal sem falhas); com 5 seeds diferentes ou
   menos os testes não têm poder; H6b não foi testada com o controle de acesso ligado.
 - Raiz de confiança no processo e na pasta de chaves; o cofre garante integridade, não confidencialidade

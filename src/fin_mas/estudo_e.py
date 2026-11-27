@@ -201,8 +201,9 @@ def estudo_conformidade(w) -> int | None:
 
 
 # ---- plano ----------------------------------------------------------------------------------------
-def celulas(replicas: int = 30):
-    for seed in range(1, replicas + 1):
+def celulas(replicas: int = 30, primeira: int = 1):
+    """Plano do bloco E. `primeira` escolhe as seeds: 1 a 30 no exploratório, 31 a 60 na replicação confirmatória."""
+    for seed in range(primeira, primeira + replicas):
         # concorrência e volume: irregularidades sorteadas por seed (frequência média), para o efeito estrutural
         # (reserva, paralelismo, custo do volume) aparecer sobre dados que variam, e não sobre um plantio fixo
         base = plantios(seed, FREQUENCIAS["media"])
@@ -226,12 +227,12 @@ def celulas(replicas: int = 30):
             yield "porte", porte, "-", seed, [(COMPETENCIAS[0], base)], 12, porte, decisao(seed), 0.0, 0
 
 
-def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
+def executar(replicas: int = 30, primeira: int = 1) -> tuple[list[dict], list[dict]]:
     linhas, tempos = [], []
     with protocolos_em_cache():
         _sma(1, [(COMPETENCIAS[0], ())])  # aquecimento (imports e caches): fora do tempo de parede medido
         _workflow(1, [(COMPETENCIAS[0], ())])
-        for fator, nivel, modo, seed, pedidos, volume, porte, decide, perda, fora in celulas(replicas):
+        for fator, nivel, modo, seed, pedidos, volume, porte, decide, perda, fora in celulas(replicas, primeira):
             for braco in BRACOS:
                 medidas = (_sma if braco == "sma_basico" else _workflow)(seed, pedidos, volume, porte, decide, perda,
                                                                          fora)
@@ -349,9 +350,11 @@ def gravar(out: Path, linhas, tempos, resumo) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="bloco E do experimento da DSM4")
     ap.add_argument("--replicas", type=int, default=30)
+    ap.add_argument("--primeira-seed", type=int, default=1,
+                    help="primeira seed (1 no exploratório; 31 na replicação confirmatória pré-registrada)")
     ap.add_argument("--out", type=Path, default=Path("docs/dsm4/resultados/bloco_e"))
     args = ap.parse_args(argv)
-    linhas, tempos = executar(args.replicas)
+    linhas, tempos = executar(args.replicas, args.primeira_seed)
     resumo = analisar(linhas, tempos)
     sha = gravar(args.out, linhas, tempos, resumo)
     print(f"{len(linhas)} execuções em {args.out} (execucoes.csv sha256 {sha[:16]}…)")

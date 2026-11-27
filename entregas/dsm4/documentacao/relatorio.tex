@@ -452,7 +452,8 @@ plantios, falhas, perfil do aprovador e ataques sorteados por seed, por fluxos i
 (\code{random.Random(f"\{seed\}:\{fator\}")}). Perguntas, hipóteses, métricas, plano de análise, critérios de parada e
 ameaças previstas foram escritos e versionados antes do código do experimento \parencite{nosek2018}; o histórico do
 git é a prova (\code{docs/dsm4/experimento.md}). Depois do feedback da DSM3, um bloco E exploratório acrescentou pedidos
-concorrentes, frequência de irregularidades e volume (Seção~\ref{sec:revisao-final}).
+concorrentes, frequência de irregularidades e volume (Seção~\ref{sec:revisao-final}); as hipóteses que ele sugeriu
+foram pré-registradas e confirmadas numa replicação com seeds novas (Tabela~\ref{tab:blocoe}).
 
 \subsection{Perguntas, braços, condições e métricas}
 \begin{tabela}{Perguntas de pesquisa, hipóteses pré-registradas e veredito na versão final (terceira rodada).\label{tab:rq}}
@@ -915,6 +916,32 @@ relógio lógico não muda com o volume. O SMA é mais caro em
 tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
 entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica
 em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.
+
+\paragraph{Replicação confirmatória.} O bloco E foi desenhado depois de ver os blocos A a D; o que ele mostrou
+poderia ser acaso das seeds 1 a 30. Por isso as oito conclusões viraram hipóteses fechadas, com critério de decisão,
+pré-registradas em \code{docs/dsm4/experimento-bloco-e.md} (commit \code{95e7923}, publicado antes de rodar) e testadas
+numa replicação com as seeds 31 a 60, que nenhuma rodada anterior usou: mesmo código, fatores, braços e análise, só as
+seeds mudam (\code{python -m fin\_mas.estudo\_e -{}-replicas 30 -{}-primeira-seed 31}). O script
+\code{tools/confirmar\_bloco\_e.py} aplica os critérios aos dados e grava \code{confirmacao.md}; um teste confere que a
+conferência publicada é a que os dados produzem e que um dado adulterado refuta a hipótese (TEST-486 e TEST-487).
+As oito foram confirmadas (Tabela~\ref{tab:blocoe}). Duas execuções da replicação dão o mesmo \code{execucoes.csv}
+(SHA-256 começando por \code{052615d2}).
+
+\begin{tabela}{Bloco E: hipóteses pré-registradas e replicação com as seeds 31 a 60 (1.140 execuções; Wilcoxon pareado por seed, Holm dentro de cada fator).\label{tab:blocoe}}
+\begin{tabularx}{\linewidth}{l Y Y l}
+\toprule
+\textbf{Id} & \textbf{Hipótese} & \textbf{Replicação (SMA × workflow)} & \textbf{Veredito}\\ \midrule
+H-E1 & Mesmo mês publicado no máximo uma vez; os demais recusados & 0 publicações indevidas; recusados $= n-1$ em todas as seeds & confirmada\\
+H-E2 & Meses diferentes: SMA termina antes & 17,6 × 32,5 e 17,6 × 63,8 ticks; $p<0{,}001$ & confirmada\\
+H-E3 & SMA troca mais mensagens & de 23,1 × 1,6 a 89,1 × 6,4; $p<0{,}001$ nos cinco níveis & confirmada\\
+H-E4 & Mesmos mecanismos, mesmo resultado & 270 pares seed a seed, nenhum diferente & confirmada\\
+H-E5 & 15\% de perda: SMA publica menos, sem crítica sem tratamento & 0,5 × 1,3 e 0,9 × 2,2; $p<0{,}001$; 0 críticas & confirmada\\
+H-E6 & Especialista fora do ar: o reenvio recupera & publicados idênticos; 27,0 × 63,8 ticks com 4 meses & confirmada\\
+H-E7 & Mais irregularidades, mais intervenções & 0,40, 0,80 e 0,97 nos dois braços; 0 críticas & confirmada\\
+H-E8 & Tempo lógico não depende do volume; o de parede, sim & ticks idênticos nas 60 séries; 400 > 12 lançamentos, $p<0{,}001$ & confirmada\\
+\bottomrule
+\end{tabularx}
+\end{tabela}
 
 O ensaio exploratório de carga anterior (\code{carga.csv}, 240 pares) continua no pacote; o bloco E o substitui na
 análise, porque varia a frequência por tipo e por seed (e não um sorteio único de alçada) e mede o tempo de parede.

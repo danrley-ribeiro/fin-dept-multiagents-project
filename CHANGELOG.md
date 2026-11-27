@@ -45,6 +45,10 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   (1.020 execuções; TEST-478) e com um especialista fora do ar (1.140 execuções): publicações, recusas,
   waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
   experimento principal não muda (mesmo CSV, `b324fc61…`).
+- Experimento: replicação confirmatória do bloco E. As oito conclusões do exploratório viraram hipóteses com
+  critério de decisão, pré-registradas em `docs/dsm4/experimento-bloco-e.md` (commit `95e7923`, antes de rodar),
+  e foram testadas com as seeds 31 a 60 (`--primeira-seed 31`; 1.140 execuções, CSV `052615d2…`, idêntico em
+  duas execuções). `tools/confirmar_bloco_e.py` aplica os critérios: 8 de 8 confirmadas (TEST-486, TEST-487).
 - Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun
   nem Node; o empacotador recusa build ausente ou mais velha que as fontes da interface. Antes, quem seguia o README
   a partir do ZIP recebia um 404 pedindo `npm run build`.

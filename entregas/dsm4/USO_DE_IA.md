@@ -194,8 +194,8 @@ Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado com
 pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
 evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
 
-- **pytest:** 731 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 21,8 minutos (12,5 numa rodada anterior, com a máquina livre);
-- **rastreabilidade:** 550 objetos, 0 erros;
+- **pytest:** 733 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 24,1 minutos (12,5 numa rodada anterior, com a máquina livre);
+- **rastreabilidade:** 552 objetos, 0 erros;
 - **vitest:** 12 de 12;
 - **Playwright:** 41 de 41, com o Chromium do Playwright;
 - **experimento inteiro:** rodado duas vezes, com o mesmo `execucoes.csv`; as métricas são iguais
@@ -277,3 +277,21 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
   Tudo foi corrigido, com teste (TEST-482 a 485). A correção da pessoa do ERP mudou de natureza: em vez de só
   normalizar texto livre, o vínculo passou a ser validado como identificador do ERP. O bloco E ganhou a
   concorrência com um especialista fora do ar.
+
+### Replicação confirmatória do bloco E (27/11/2026)
+
+Depois da quinta correção simulada restavam limitações declaradas. A pedido dos autores, o Claude avaliou quais
+dava para corrigir e foi feita a que dependia só de método: o bloco E deixou de ser apenas exploratório. A ordem
+foi esta:
+
+1. As oito conclusões do bloco E viraram hipóteses com critério de decisão (H-E1 a H-E8), escritas em
+   `docs/dsm4/experimento-bloco-e.md` e publicadas no PR (commit `95e7923`) **antes** de rodar qualquer seed nova
+   e antes de mudar o código.
+2. O código ganhou só a opção `--primeira-seed`; a replicação rodou com as seeds 31 a 60, duas vezes, com o mesmo
+   `execucoes.csv`.
+3. O verificador `tools/confirmar_bloco_e.py` foi escrito enquanto a replicação rodava e conferido primeiro nas
+   seeds 1 a 30. Resultado na replicação: 8 de 8 confirmadas. Os testes TEST-486 e TEST-487 conferem as seeds
+   novas e que um dado adulterado refuta a hipótese.
+
+O Orquestrador como ponto único de falha e o workflow distribuído continuam como limitações declaradas: corrigi-los
+mudaria a arquitetura na véspera da entrega.

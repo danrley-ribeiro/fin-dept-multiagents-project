@@ -11,7 +11,7 @@ usa a internet depois da instalação das dependências.
 | Python 3.11 ou mais novo | sistema, testes, experimento, documentação | sim |
 | Graphviz (executável `dot` no PATH) | grafos do Sphinx | para o HTML |
 | git | gerador de números do relatório (lê a primeira e a segunda rodada do experimento no histórico) | para o relatório |
-| bun | dashboard (build, vitest, Playwright) | para o dashboard |
+| bun | reconstruir o dashboard, vitest e Playwright (o ZIP da entrega já traz a build em `web/dist`; no clone do repositório, `cd web && bun install && bun run build`) | para mudar a interface e para os testes de navegador |
 | Google Chrome (ou `PW_CHANNEL=chromium`) | roteiros Playwright e PNG dos diagramas | para o dashboard |
 | TeX Live com `latexmk` e `rsvg-convert` (librsvg) | PDF do relatório | para o PDF |
 | pandoc | `.pptx` da apresentação | para a apresentação |

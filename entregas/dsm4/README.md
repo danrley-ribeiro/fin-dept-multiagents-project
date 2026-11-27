@@ -15,11 +15,31 @@ centralizado em qualidade e perde em custo e em robustez quando mensagens se per
 mostrou ganho significativo; nenhuma crítica foi publicada sem tratamento e nenhum ataque foi aceito
 indevidamente, em nenhuma condição. O experimento rodou três vezes; as correções entre as rodadas foram
 feitas depois de ver resultados, e nenhuma rodada posterior à primeira é confirmatória. Os números
-(versão 1.0.0, terceira rodada; a 1.0.1 só traz as correções da DSM3 v0.5.1 e não muda nenhuma execução)
+(versão 1.0.0, terceira rodada; a 1.0.1 só traz as correções da DSM3 v0.5.1 e a 1.1.0, as da revisão final; nenhuma das duas muda as métricas, ver a conferência em resultados)
 estão no relatório e em
 [`docs/dsm4/resultados.md`](../../docs/dsm4/resultados.md).
 
-Na revisão de 25/11, o Approval Gate passou a registrar o waiver antes de confirmar a decisão, inclusive com dois processos no mesmo arquivo. Os 240 pares do ensaio exploratório de carga e a comparação das duas novas rodadas completas estão em [resultados](../../docs/dsm4/resultados.md). Para repetir o ensaio depois do experimento principal, execute `python tools/estudo_carga.py saidas/reproducao/carga.csv`.
+**Vídeo da apresentação:** _link a preencher depois da gravação_ (roteiro em
+[`apresentacao/roteiro.md`](apresentacao/roteiro.md)).
+
+**Revisão final (25 e 26/11), em resposta ao feedback da DSM3:**
+
+- **POL-06.** A POL-06 é conferida na aprovação e o waiver é gravado na mesma transação, sob trava do
+  sistema operacional, ao lado do arquivo de memória. O segundo ticket concorrente perde a opção de
+  waiver (TEST-424, nas duas ordens; TEST-459, com dois processos no mesmo arquivo; TEST-470, com
+  pastas de chaves diferentes).
+- **Memória.** A oferta e a decisão usam a mesma regra. Rodar de novo com a mesma memória dá o mesmo
+  resultado (TEST-460 a 464). No dashboard, reiniciar o cenário não apaga a memória; só o
+  administrador a limpa (TEST-471, TEST-472).
+- **Permissões.** Quem reinicia um cenário pelo dashboard é o solicitante e não aprova (POL-13), nem
+  por outra conta da mesma pessoa (TEST-473). O porte micro escolhido no reinício não dispensa essa
+  regra (TEST-453, TEST-465).
+- **Suíte do ZIP.** Roda sem Git e sem as dependências opcionais; os testes que precisam delas são
+  pulados. Sem `textual`, os 23 testes da TUI viram 2 pulos de módulo, então a contagem coletada é
+  menor que a do relatório, que é a do ambiente com as dependências de desenvolvimento.
+- **Bloco E.** Um bloco E exploratório varia pedidos concorrentes, frequência de irregularidades e
+  volume, com desvio-padrão e testes por seed ([resultados](../../docs/dsm4/resultados.md), seção
+  "Bloco E"). Para repeti-lo: `python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e`.
 
 ## Conteúdo do pacote
 
@@ -36,23 +56,43 @@ Na revisão de 25/11, o Approval Gate passou a registrar o waiver antes de confi
 
 ## Como executar do zero
 
-Requer Python 3.11+. Para o dashboard, bun e o Chrome; para o PDF, TeX Live com `latexmk` e `rsvg-convert`;
-para o `.pptx`, pandoc. Passo a passo completo, com tempos: [`docs/dsm4/reproducao.md`](../../docs/dsm4/reproducao.md).
+Requer Python 3.11+. O ZIP já traz o dashboard construído (`codigo/web/dist/`): `serve --demo` abre no
+navegador sem bun nem Node. bun e o Chrome só são necessários para reconstruir a interface e para os testes de
+navegador (Playwright); para o PDF, TeX Live com `latexmk` e `rsvg-convert`; para o `.pptx`, pandoc. Passo a passo completo, com tempos: [`docs/dsm4/reproducao.md`](../../docs/dsm4/reproducao.md).
 
 ```bash
 cd codigo                                                   # dentro do zip; no repositório, a raiz
 python3 -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
 source .venv/bin/activate && export PYTHONPATH=src
-python -m pytest                                            # suíte inteira, offline (cerca de 4 minutos)
+python -m pytest                                            # suíte inteira, offline (de 5 a 15 minutos, conforme a máquina)
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (cerca de 3 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (de 5 a 8 minutos)
 python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
 ```
 
+No Windows (PowerShell; não há `make`, e o ambiente fica em `.venv\Scripts`):
+
+```powershell
+cd codigo                                                   # dentro do zip; no repositório, a raiz
+py -3 -m venv .venv; .\.venv\Scripts\pip install -e . -r requirements-dev.txt
+.\.venv\Scripts\Activate.ps1; $env:PYTHONPATH = "src"
+python -m pytest                                            # suíte inteira, offline
+python tools\trace.py --check                               # rastreabilidade: 0 erros
+python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
+python -m fin_mas experimento --rapido --out $env:TEMP\exp  # aparato do experimento em 3 seeds
+python -m fin_mas.estudo_e --replicas 30 --out saidas\bloco_e   # bloco E: concorrência, frequência e volume
+python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
+cd web; bun run test; $env:PW_CHANNEL = "chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
+```
+
+A tela de entrada do dashboard mostra a conta de demonstração quando o servidor sobe com `--demo`. Quem
+reinicia um cenário dispara os pedidos dele e, pela POL-13, não decide sobre eles: para decidir, entre com
+outra conta (por exemplo, `controller`, com a mesma senha).
+
 Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com os modos `testes`,
-`replay`, `cli`, `docs`. Roteiro de demonstração de 10 minutos, com plano B:
+`replay`, `cli`, `docs`. Roteiro de demonstração com as evidências pedidas no feedback da DSM3 e plano B:
 [`docs/dsm4/demonstracao.md`](../../docs/dsm4/demonstracao.md).
 
 ## Critério → evidência
@@ -64,7 +104,7 @@ Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com
 | Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as três rodadas, o que não se confirmou, o que não foi testado, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (reproduzível byte a byte, SHA-256 em `manifesto.json`); relatório §10 |
 | Testes e reprodutibilidade (15%) | `codigo/tests/` (unit, e2e, integração, TUI), `codigo/web/e2e/` (Playwright), vitest; `tools/trace.py --check`; mesmo hash por seed; [reprodução do zero](../../docs/dsm4/reproducao.md); números do relatório gerados por `tools/relatorio_numeros.py` |
 | Documentação (10%) | relatório técnico (`documentacao/relatorio.pdf`); documentação navegável (`docs/`, Sphinx, <https://fin-dept-multiagents-project.readthedocs.io>); [limitações](../../docs/dsm4/limitacoes.md); diagramas editáveis; este README |
-| Demonstração e autoria (10%) | [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
+| Demonstração e autoria (10%) | vídeo (link acima) com os dois autores; [roteiro do vídeo](apresentacao/roteiro.md); [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
 
 ## O que mudou desde a DSM3 (v0.5.0)
 

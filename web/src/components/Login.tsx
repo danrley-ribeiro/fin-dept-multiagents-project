@@ -116,6 +116,10 @@ export function Login({ saude, aoEntrar, aviso }: { saude: Saude; aoEntrar: (s: 
           {!saude.acesso.integro && (
             <Alert severity="error">O cadastro de acesso está comprometido (IAM-07): ninguém entra até o administrador
               restaurá-lo.</Alert>)}
+          {saude.demo && (
+            <Alert severity="info" role="note" aria-label="Contas de demonstração">Modo demonstração: entre como
+              <b> {saude.demo.usuario}</b>, senha <code>{saude.demo.senha}</code>. As outras contas (operador, controller,
+              auditor, carla, diego…) usam a mesma senha.</Alert>)}
           {saude.acesso.sem_contas && (
             <Alert severity="info">Ainda não há contas. Crie o administrador com
               <code> python -m fin_mas acesso iniciar</code> ou suba o servidor com <code>--demo</code>.</Alert>)}

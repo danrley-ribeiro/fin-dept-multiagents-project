@@ -11,7 +11,7 @@ usa a internet depois da instalação das dependências.
 | Python 3.11 ou mais novo | sistema, testes, experimento, documentação | sim |
 | Graphviz (executável `dot` no PATH) | grafos do Sphinx | para o HTML |
 | git | gerador de números do relatório (lê a primeira e a segunda rodada do experimento no histórico) | para o relatório |
-| bun | dashboard (build, vitest, Playwright) | para o dashboard |
+| bun | reconstruir o dashboard, vitest e Playwright (o ZIP da entrega já traz a build em `web/dist`; no clone do repositório, `cd web && bun install && bun run build`) | para mudar a interface e para os testes de navegador |
 | Google Chrome (ou `PW_CHANNEL=chromium`) | roteiros Playwright e PNG dos diagramas | para o dashboard |
 | TeX Live com `latexmk` e `rsvg-convert` (librsvg) | PDF do relatório | para o PDF |
 | pandoc | `.pptx` da apresentação | para a apresentação |
@@ -33,7 +33,7 @@ dashboard com o bun.
 
 No ZIP extraído, entre em `codigo/` e comece pela criação do ambiente virtual. No Windows, ative com `.\.venv\Scripts\Activate.ps1` e use `python` nos comandos. O teste do wheel usa o backend de build já instalado por `requirements-dev.txt` e instala em um ambiente limpo sem consultar a rede. O histórico Git só é necessário para recuperar os números das rodadas anteriores ao regenerar as fontes do relatório.
 
-## 3. Testes (cerca de 4 minutos)
+## 3. Testes (de 5 a 15 minutos, conforme a máquina)
 
 ```bash
 python -m pytest                       # suíte inteira, offline (unit, e2e, integração, TUI)
@@ -63,11 +63,11 @@ Roteiro completo em {doc}`demonstracao`.
 
 ```bash
 python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 seeds, cerca de 5 segundos
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # o experimento inteiro, cerca de 3 minutos (make experimento)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # o experimento inteiro, de 5 a 8 minutos (make experimento)
 sha256sum saidas/reproducao/execucoes.csv                             # shasum -a 256 no macOS
 ```
 
-A terceira rodada histórica permanece em `docs/dsm4/resultados/`. Para conferir a revisão final sem sobrescrever essa referência, use o destino `saidas/reproducao` indicado acima ou rode `make experimento`. Na CLI, explicite `--out` para preservar a pasta de resultados históricos. Duas execuções devem produzir o SHA-256 `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568` para `execucoes.csv`. O hash histórico é `9d5126a696cf421170d54616dab6f77e0c47c7e85dced5bc0e64c78a284bcae4`. O tempo de parede depende da máquina. No PowerShell, confira o CSV com `Get-FileHash saidas/reproducao/execucoes.csv`.
+A terceira rodada histórica permanece em `docs/dsm4/resultados/`. Para conferir a revisão final sem sobrescrever essa referência, use o destino `saidas/reproducao` indicado acima ou rode `make experimento`. Na CLI, explicite `--out` para preservar a pasta de resultados históricos. Duas execuções devem produzir o SHA-256 `b324fc61461ee3b88cb62eb69566c5588237a2257c5f6bca872b8675646c6102` para `execucoes.csv` (versão 1.1.0; a versão do pacote entra no trace e, por isso, no hash). O hash histórico é `9d5126a696cf421170d54616dab6f77e0c47c7e85dced5bc0e64c78a284bcae4`. O tempo de parede depende da máquina. No PowerShell, confira o CSV com `Get-FileHash saidas/reproducao/execucoes.csv`.
 
 Para repetir os 240 pares do ensaio de carga, execute `python tools/estudo_carga.py saidas/reproducao/carga.csv` e compare o CSV com `docs/dsm4/resultados/carga.csv`. O desenho e as conclusões estão em {doc}`resultados`.
 

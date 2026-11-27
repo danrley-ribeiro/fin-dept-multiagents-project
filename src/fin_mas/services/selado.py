@@ -8,7 +8,7 @@ servidor do dashboard leem e gravam ao mesmo tempo. Mesmo desenho do arquivo do 
 - **contador**: sobe a cada gravação e também fica fora da pasta; um arquivo com contador menor
   que o último gravado é uma versão antiga recolocada no lugar (rollback) e é recusado;
 - **gravação atômica**: arquivo temporário e `os.replace`;
-- **trava entre processos**: arquivo estável na pasta de chaves, travado pelo sistema operacional (funciona em Windows, Linux e
+- **trava entre processos**: arquivo `<dados>.lock` ao lado do arquivo de dados, travado pelo sistema operacional (Windows, Linux e
   macOS); toda alteração relê o arquivo dentro da trava, então duas escritas concorrentes
   nunca se sobrescrevem;
 - **falha fechada**: arquivo ausente depois de já ter sido gravado, ilegível, de outra versão,
@@ -84,8 +84,13 @@ def _estado(rotulo: str, caminho: Path, sufixo: str) -> Path:
 
 @contextlib.contextmanager
 def trava(caminho: Path):
-    """A trava pertence ao descritor aberto. O SO a libera mesmo se o processo terminar."""
-    alvo = _estado("trava", caminho, "lock")
+    """A trava pertence ao descritor aberto. O SO a libera mesmo se o processo terminar.
+
+    O arquivo da trava fica ao lado do arquivo de dados (`memoria.json.lock`), não na pasta de chaves: dois
+    processos com pastas de chaves diferentes sobre o mesmo arquivo de dados disputam a mesma trava (antes, cada um
+    travava o seu arquivo e as gravações se perdiam; achado da correção simulada da DSM4). O backup ignora `.lock`."""
+    caminho = Path(caminho)
+    alvo = caminho.with_name(caminho.name + ".lock")
     alvo.parent.mkdir(parents=True, exist_ok=True)
     fd = os.open(alvo, os.O_CREAT | os.O_RDWR, 0o600)
     try:
@@ -107,6 +112,11 @@ def trava(caminho: Path):
                 time.sleep(0.02)
         yield
     finally:
+        if os.name == "nt":  # libera já: no Windows, o desbloqueio no fechamento pode demorar (doc. da Microsoft)
+            import msvcrt
+            with contextlib.suppress(OSError):
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
         os.close(fd)
 
 

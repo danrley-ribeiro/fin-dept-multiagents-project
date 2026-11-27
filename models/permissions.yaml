@@ -92,6 +92,12 @@ items:
     titulo: Adotar memória
     descricao: Adotar no lugar um arquivo íntegro do SVC-MEM vindo de outra pasta ou de um backup (memoria adotar).
     entrega: DSM4
+  - id: PERM-MEM-LIMPAR
+    titulo: Limpar memória
+    descricao: >-
+      Apagar o histórico do SVC-MEM da simulação (o histórico de reincidência da POL-06 recomeça). Reiniciar um cenário
+      não limpa a memória; limpar é ato separado do administrador, que não aprova, e fica registrado no trace.
+    entrega: DSM4
 
 # Decisões do Approval Gate por cargo (POL-02): o cargo vem da conta, ligada à pessoa do ERP.
 decisoes_por_cargo:

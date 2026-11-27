@@ -27,6 +27,7 @@ export interface Saude {
   ok: boolean;
   versao: string;
   acesso: { sem_contas: boolean; integro: boolean; cabecalho: string };
+  demo?: { usuario: string; senha: string };  // só no modo demonstração (`serve --demo`)
 }
 
 let csrf = "";

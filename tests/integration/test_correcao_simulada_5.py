@@ -71,23 +71,47 @@ def _ultimo_pedido(sim):
 
 
 def test_restart_never_creates_requests_in_someone_elses_name(servico):  # noqa: F811
+    """Revisão da DSM4 (feedback da DSM3): quem reinicia dispara os pedidos do roteiro e responde por eles. Os
+    pedidos ficam no nome de quem reiniciou (nunca de outra pessoa) e a POL-13 vale: quem reiniciou não decide."""
     sim, _, porta = servico("solicitante_nao_aprova")
     assert _ultimo_pedido(sim).get("solicitado_por") == "elisa"  # ao subir o servidor, vale o roteiro do cenário
-    operador, avaliador = entrar(porta, "operador"), entrar(porta, "avaliador")
+    operador, avaliador, controller = entrar(porta, "operador"), entrar(porta, "avaliador"), entrar(porta, "controller")
     reinicio = {"tipo": "reiniciar", "cenario": "solicitante_nao_aprova"}
     assert operador.post("/api/comando", reinicio)[0] == 202  # operar a simulação continua permitido
     sim.processar_comandos()
-    assert _ultimo_pedido(sim).get("solicitado_por") is None  # operador não pode solicitar: pedido sem pessoa
+    assert _ultimo_pedido(sim)["solicitado_por"] == "operador"  # no nome de quem disparou, nunca de outra pessoa
     assert [r["ator"] for r in sim.registros if r["kind"] == "operador"] == ["operador"]  # e o trace diz quem reiniciou
     assert avaliador.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})[0] == 202
     sim.processar_comandos()
-    assert _ultimo_pedido(sim).get("solicitado_por") is None  # nem no nome de quem reiniciou
+    assert _ultimo_pedido(sim)["solicitado_por"] == "avaliador"
     _ate_humano(sim)
     decisao = {"tipo": "decidir", "solicitacao": "SOL-001", "decisao": "waiver", "justificativa": "risco aceito pela diretoria"}
+    assert avaliador.post("/api/comando", decisao)[0] == 202  # o comando entra; quem recusa é a política
+    sim.processar_comandos()
+    recusas = [r for r in sim.registros if r["kind"] == "rejected"]
+    assert recusas and "POL-13" in recusas[-1]["motivo"]  # quem reiniciou não libera o pedido que disparou
+    assert sim.sistema.aprovador.pendentes  # a pendência continua para outra pessoa decidir
+    assert controller.post("/api/comando", decisao)[0] == 202
+    sim.processar_comandos()
+    assert not sim.sistema.aprovador.pendentes  # o controller, que não disparou o pedido, decide
+
+
+def test_choosing_micro_size_on_restart_does_not_exempt_the_requester(servico):  # noqa: F811
+    """Feedback da DSM3: sem empresa cadastrada, quem opera trocava o porte para micro e, pelo controle
+    compensatório, liberava o próprio pedido. No dashboard, o controle só vale para o porte do cadastro."""
+    sim, _, porta = servico("fechar_mes")
+    avaliador = entrar(porta, "avaliador")
+    assert avaliador.post("/api/comando", {"tipo": "reiniciar", "cenario": "micro_controle_compensatorio",
+                                           "porte": "micro"})[0] == 202
+    sim.processar_comandos()
+    assert sim.porte == "micro" and sim.sistema.politica.controle_compensatorio is None
+    _ate_humano(sim)
+    sid = next(iter(sim.sistema.aprovador.pendentes))
+    decisao = {"tipo": "decidir", "solicitacao": sid, "decisao": "corrigir", "justificativa": "corrigir no próprio mês"}
     assert avaliador.post("/api/comando", decisao)[0] == 202
     sim.processar_comandos()
-    assert not [r for r in sim.registros if r["kind"] == "rejected"]  # quem reiniciou continua podendo decidir (POL-13)
-    assert not sim.sistema.aprovador.pendentes
+    recusas = [r for r in sim.registros if r["kind"] == "rejected"]
+    assert recusas and "POL-13" in recusas[-1]["motivo"]
 
 
 # ---- 4. atraso de entrega ---------------------------------------------------------------------------

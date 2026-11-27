@@ -374,8 +374,9 @@ class Bus:
     # Protocolos em que o iniciador é avisado quando uma mensagem da conversa se perde depois da abertura.
     AVISO_DE_PERDA = frozenset({"PROT-DEL", "PROT-CMP", "PROT-QRY"})
 
-    # Avisos de decisão humana ao AG-CIN: a memória da decisão (waiver, correção, bloqueio) é gravada quando o
-    # agente recebe o aviso. Se ele se perdesse, a regra de reincidência (POL-06) ficava sem a memória, ou o
+    # Avisos de decisão humana ao AG-CIN: a memória da correção e do bloqueio é gravada quando o agente recebe o
+    # aviso (a do waiver é gravada pelo SVC-POL na própria decisão, POL-06 na mesma trava). Se o aviso se perdesse,
+    # a memória ficava incompleta, ou o
     # Orquestrador reabria a conformidade e gerava um segundo ticket para o mesmo veto (correção simulada da
     # DSM4, C2). Para estes performativos o transporte reentrega (pelo menos uma vez), até MAX_REENTREGAS.
     ENTREGA_GARANTIDA = frozenset({("PROT-CMP", "waiver_humano"), ("PROT-CMP", "correcao"),

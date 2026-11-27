@@ -220,13 +220,22 @@ apagada por um pedido de competência distante, ids de memória repetidos, decis
 registro, instalação sem terminal no Windows) também foram aplicados à versão final, com teste (TEST-450 a
 TEST-458). Conferidos contra o código da versão final, estes continuam:
 
-- **Reiniciar cria a demanda do roteiro sem dono, e a POL-13 não vale para ela.** Reiniciar é operar a
-  simulação (`PERM-SIM-OPERAR`): os pedidos do roteiro não ficam no nome de ninguém e o trace registra
-  quem reiniciou. Quem opera e aprova (a conta `avaliador`) pode reiniciar e decidir sobre o pedido que
-  disparou.
-- **Trocar o porte para micro dispensa a POL-13 quando não há empresa cadastrada.** Com empresa
-  cadastrada, trocar porte ou segmento exige `PERM-IAM-EMPRESAS` (IAM-09); sem ela, quem opera reinicia
-  com `porte: micro`, e o controle compensatório da micro deixa quem pediu decidir.
+- **O waiver é gravado na memória antes de a decisão chegar ao Orquestrador.** A política confere a
+  reincidência e grava o waiver na mesma trava, dentro da validação do `approve` (é o que impede dois waivers
+  concorrentes). Se esse `approve` se perdesse depois, a memória diria "liberado" sem o fechamento publicado
+  com ressalva, e o próximo waiver do padrão seria negado. Escolha conservadora: na dúvida, a reincidência
+  bloqueia.
+- **A conta de demonstração `avaliador` opera e aprova.** Ela acumula operação, pedidos, aprovação e
+  auditoria por decisão dos autores, para o professor testar tudo com uma conta só. A POL-13 impede que
+  ela decida sobre os pedidos que ela mesma disparou (reinício ou pedido novo). Os pedidos do cenário
+  carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
+  (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
+  separação, opere com `operador` e decida com `controller`.
+- **O caminho do arquivo de memória não é normalizado** antes de derivar o nome da chave e do contador.
+  No Windows, o mesmo arquivo aberto com o caminho escrito em outra caixa (maiúsculas) é tratado como
+  outro arquivo e a memória fica "comprometida". É falha fechada (nenhum waiver passa), mas tira a
+  disponibilidade. Normalizar mudaria o nome das chaves das instalações existentes; fica para uma
+  migração.
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
 - **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
@@ -254,12 +263,17 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | O AG-ORC não lê a memória aprovada | lê correções aprovadas por tipo (cenário `memoria_reincidencia_orc`) |
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador, com a perda marcada pela posição da mensagem na conversa (achado C1 da correção simulada); 0 execuções sem resposta na segunda e na terceira rodada |
-| A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3) | a política confere o histórico e registra a liberação sob a mesma trava; o segundo ticket continua pendente nas duas ordens de decisão, inclusive entre processos (TEST-424 e TEST-459) |
+| A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3; reproduzida pelo professor na correção da DSM3) | a política confere o histórico e registra a liberação sob a mesma trava; o segundo ticket continua pendente nas duas ordens de decisão, inclusive entre processos (TEST-424 e TEST-459). Na revisão de 26/11, oferta e decisão passaram a usar a mesma janela (waiver do padrão em outra competência, antes ou depois), o ticket concorrente recusado perde a opção de waiver e o modo em lote bloqueia em vez de esperar o prazo (TEST-460 a TEST-464) |
+| Reinício pelo dashboard criava a demanda do roteiro sem dono: quem operava e aprovava liberava o pedido que disparou (feedback da DSM3) | os pedidos do reinício ficam no nome de quem reiniciou e a POL-13 vale para ele; os roteiros de navegador reiniciam como `operador` e decidem como `avaliador` (TEST-453) |
+| Trocar o porte para micro, sem empresa cadastrada, dispensava a POL-13 pelo controle compensatório (feedback da DSM3) | no dashboard o controle compensatório só vale para o porte do cadastro da empresa; o cenário em lote (`run`) continua com o controle do porte (TEST-465) |
 | Aviso de decisão humana perdido contornava a POL-06 ou gerava segundo ticket | reentrega pelo transporte dos avisos ao AG-CIN, até 5 tentativas (achado C2) |
 | Segundo fator derrubável por força bruta; fontes compartilhadas entre empresas; restauração gravava fora do destino | contador por conta com bloqueio e senha exigida (C3); registro de fontes por empresa (C4); backup validado antes de gravar, com o cofre no pacote de chaves (C5) |
 | Senha como único fator | TOTP (RFC 6238) com anti-replay e códigos de recuperação, obrigatório por política para administrador e aprovador (`docs/dsm4/acesso-avancado.md`) |
 | Cargo sem limite de valor; ausência do aprovador travava o fechamento; uma pessoa liberava qualquer valor | alçada por pessoa (POL-10), delegação com prazo, teto e escopo (POL-11), dupla aprovação acima do limite do porte (POL-12), escalonamento (POL-14) |
 | Chaves de LLM só por variável de ambiente | cofre selado da plataforma, com a ressalva de não cifrar (ver acima) |
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
+| A trava da memória ficava na pasta de chaves: dois processos com pastas de chaves diferentes sobre o mesmo arquivo não se excluíam e os dois waivers passavam (correção simulada da DSM4, 3 de 6 tentativas) | a trava é `<arquivo>.lock`, ao lado do arquivo de dados (TEST-470) |
+| A POL-13 comparava só o nome da conta: uma conta de operação ligada à mesma pessoa do ERP pedia e a conta de aprovação dessa pessoa aprovava (correção simulada da DSM4) | a POL-13 confere a conta e a pessoa do ERP, como a POL-12 (TEST-473) |
+| No dashboard de demonstração, a memória vivia só no processo: reiniciar o cenário esquecia o waiver anterior e a POL-06 liberava de novo (correção simulada da DSM4) | a memória fica em `<pasta de dados>/memoria.json` e reiniciar não a apaga; limpar é o comando `limpar_memoria`, só do administrador (`PERM-MEM-LIMPAR`), registrado no trace (TEST-471, TEST-472) |
 | Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

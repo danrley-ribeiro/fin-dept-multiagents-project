@@ -1,6 +1,6 @@
 ---
 title: "DSM4 — Sistema Multiagente de Controladoria"
-subtitle: "Entrega final: o sistema, o experimento e o que ele mostrou"
+subtitle: "Entrega final: o código, os testes, as demonstrações e o experimento"
 author: "Danrley Moreira Ribeiro · Jiliard Mai Peifer — INE5628 Sistemas Multiagentes · UFSC"
 date: "dezembro de 2026"
 ---
@@ -14,7 +14,7 @@ date: "dezembro de 2026"
 - Pergunta da DSM4: **com as mesmas funções, agentes valem a pena?**
 
 ::: notes
-Contexto em 40 segundos. A condição de rejeição da DSM1 continua valendo: se um controlador central com as mesmas regras fizer o mesmo com menos custo, o paradigma não se justifica pelo resultado.
+Danrley. Contexto em 45 segundos. A condição de rejeição da DSM1 continua valendo: se um controlador central com as mesmas regras fizer o mesmo com menos custo, o paradigma não se justifica pelo resultado.
 :::
 
 # Arquitetura final
@@ -30,58 +30,121 @@ Contexto em 40 segundos. A condição de rejeição da DSM1 continua valendo: se
 | Fontes | gateway MCP com allowlist; conectores (ERP simulado, planilhas, REST, MCP) |
 
 ::: notes
-Uma frase por camada. O ponto: quem calcula não aprova, quem julga conformidade pode vetar, e a decisão humana tem dono. BDI: AG-ORC e AG-CIN sempre; AG-RES, AG-CUS e AG-REL só no nível local (ADR-010).
+Danrley. Uma frase por camada. Quem calcula não aprova, quem julga conformidade pode vetar, e a decisão humana tem dono. BDI: AG-ORC e AG-CIN sempre; AG-RES, AG-CUS e AG-REL só no nível local (ADR-010).
 :::
 
-# Um protocolo: o Approval Gate (PROT-APR)
+# Mapa do código
+
+| Onde | O quê |
+|---|---|
+| `models/*.yaml` | fonte da verdade: protocolos (FSM), papéis, permissões, normas, testes |
+| `src/fin_mas/core/` | `bus.py` (barramento), `fsm.py`, `bdi.py`, `inferencia.py` |
+| `src/fin_mas/agents/` | `orq.py`, `orc.py`, `cin.py`, `cus*.py`, `res*.py`, `rel*.py` |
+| `src/fin_mas/services/` | `politica.py` (Approval Gate), `memoria.py`, `selado.py`, `iam.py`, `locks.py`, `audit.py` |
+| `src/fin_mas/` | `baseline_eq.py` (workflow equivalente), `estudo.py` e `estudo_e.py` (experimento), `invariantes.py` |
+| `tests/` e `web/e2e/` | unit, e2e, integração, TUI e Playwright; `tools/trace.py --check` |
+
+::: notes
+Jiliard. O código não tem regra de protocolo escrita à mão: estados, transições e quem pode emitir cada performativo vêm do YAML. Os testes também estão modelados: cada um diz que requisito verifica.
+:::
+
+# Protocolos como dados: o Approval Gate (PROT-APR)
 
 ![FSM do PROT-APR, lida de models/protocols.yaml](../diagramas/fsm_prot_apr.png)
 
-# Approval Gate: o que é conferido
-
-- O veto do AG-CIN vira ticket: hash do veto, aprovador, prazo e opções abertas pela política
-- Decisão vale pela pessoa autenticada: atestado, cargo e alçada, quem participou não decide, quem pediu não aprova
-- Transições inválidas testadas: `execute` em PENDENTE; `approve` em NEGADA, APROVADA, EXECUTADA ou EXPIRADA
-
 ::: notes
-Mostrar que a FSM é dado (models/protocols.yaml), conferida pelo barramento antes de mudar estado. Cada transição inválida é um teste negativo.
+Jiliard, com models/protocols.yaml e core/fsm.py abertos. A FSM é dado, conferida pelo barramento antes de mudar estado. Transições inválidas (execute em PENDENTE; approve em NEGADA, APROVADA, EXECUTADA ou EXPIRADA) são testes negativos.
 :::
 
-# Coordenação e comportamento coletivo
+# Barramento: a cadeia de validação (`core/bus.py`, `Bus.send`)
 
-- Delegação com prazo e reenvio; consulta direta AG-ORC → AG-CIN sem passar pelo Orquestrador
-- Veto → decisão humana → correção no ERP → AG-CIN percebe de novo e reavalia
-- Reserva do período: único mecanismo que impede dois fechamentos do mesmo mês
-- Negociação de prazo: o especialista propõe, o Orquestrador decide por regras
-- **"Waiver não se repete"** não está em nenhum agente: emerge de memória (SVC-MEM) + crença do AG-CIN + política
-- Sem falhas, 77% das decisões são tomadas fora do Orquestrador (84% com os especialistas BDI)
+- Envelope e atraso de entrega válidos
+- **Autenticação:** remetente conhecido, com a credencial que o barramento emitiu
+- **Esquema:** campos e tipos do conteúdo por protocolo e performativo
+- **Destinatário e papel:** quem recebe participa do protocolo; o papel pode emitir aquele performativo
+- **Conversa e FSM:** a mensagem pertence à conversa e a transição existe no estado atual
+- **Política:** por último, o Approval Gate (`politica._validar_apr`)
+- Cada recusa vira registro `rejected` com a etapa: 14 ataques ao barramento e 15 à decisão por pessoa, todos recusados
 
 ::: notes
-O comportamento coletivo é observável no trace: em reincidencia_waiver a decisão de agosto vira memória, muda a crença de setembro, o veto e as opções da política.
+Jiliard, percorrendo Bus.send no editor. É aqui que morreram os ataques da DSM2: decisão forjada, transição por quem não participa, mensagem malformada.
 :::
 
-# Segurança: o que não passa
+# Approval Gate e a POL-06 (`services/politica.py`, `services/memoria.py`)
 
-- Barramento: remetente com credencial, papel por performativo, contraparte, esquema, FSM, política
-- Ataques com o veto pendente: 14 ao barramento e 15 à decisão por pessoa, todos recusados
-- Acesso avançado: segundo fator, alçada por pessoa, delegação, dupla aprovação, escalonamento
-- Invariantes conferidos só pelo trace, em qualquer execução: nenhuma publicação vetada sem tratamento, nenhum efeito externo sem aprovação, toda solicitação com resposta, nenhum segredo no trace
-- Trace com cadeia de hashes, selo e âncora pública
+- `emitir`: o veto do AG-CIN vira ticket com hash do veto, prazo e opções abertas pela política
+- `_validar_apr`: a decisão vale pela pessoa (atestado, cargo e alçada, envolvido, solicitante)
+- No waiver, `_decidir_waiver` relê o histórico **sob a trava** e grava na mesma transação
+- Oferta e decisão usam a mesma regra (`_reincide`): waiver do padrão em outro mês, antes ou depois
+- Recusado pela POL-06, o ticket perde a opção de waiver e a negação vai para a trilha
 
 ::: notes
-Os quatro ataques do feedback da DSM2 estão no cenário ataque_decisao_forjada. Fora do modelo: quem controla o processo ou a pasta de chaves.
+Danrley. É a correção do caso dos dois fechamentos simultâneos do professor: antes a reincidência só era conferida na emissão; agora é conferida e registrada no instante da aprovação.
 :::
 
-# Cognição: proposta não é crença
+# Trava, memória e acesso
 
-- BDI onde há escolha sob incerteza, tempo ou dependência: **AG-RES sim, AG-CUS pouco, AG-REL não** (ADR-010)
-- Hipóteses vêm de regras locais ou, opcionalmente, de um LLM, e passam por 5 regras determinísticas
-- Sem número no texto, sem ação proposta, só evidência que o agente já tem
-- Hipótese aceita gera **ação epistêmica** (consultar, conferir histórico, negociar prazo); quem muda a avaliação é a evidência
-- LLM desligado por padrão, proibido no Orquestrador, Custos e Controles; fora do experimento
+- `selado.trava`: trava do sistema operacional em `memoria.json.lock`, **ao lado do arquivo**, mesmo com pastas de chaves diferentes
+- A memória do dashboard fica em arquivo: **reiniciar não apaga**; limpar é `limpar_memoria`, só do administrador, com registro
+- `iam.exigir`: negado por padrão; `iam.atestar`: a decisão sai atestada pela sessão, ligada ao ticket e ao hash do veto
+- Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar, pela conta e pela pessoa do ERP
 
 ::: notes
-Guardrail não é outro LLM: é verificação determinística. O AG-REL BDI não acrescenta capacidade: uma tabela de decisão faria o mesmo, e isso está escrito no ADR.
+Danrley. Os dois primeiros itens vieram da correção simulada desta entrega: com a trava na pasta de chaves, dois processos com chaves diferentes liberavam os dois waivers; e o reinício do dashboard esquecia o waiver anterior.
+:::
+
+# Agentes: hipótese não é crença, negociação e workflow equivalente
+
+- `orc.concluir_hipotese`: a hipótese vira **ação epistêmica** (consultar o AG-CIN); só a evidência confirma ou refuta (NORM-11)
+- `inferencia.validar_proposta`: regras determinísticas sobre o que um LLM (opcional) propõe
+- `orq._negociar_prazo`: o especialista propõe; o Orquestrador aceita ou recusa por regra
+- "Waiver não se repete" não está em nenhum agente: emerge de memória + crença do AG-CIN + política
+- `baseline_eq.executar`: um controlador com as mesmas regras, veto, correção e aprovação
+
+::: notes
+Jiliard (hipótese e negociação) e Danrley (workflow equivalente). O AG-REL BDI não se justificou e está escrito no ADR-010.
+:::
+
+# Testes: organização e rastreabilidade
+
+| Pasta | O quê |
+|---|---|
+| `tests/unit`, `tests/tui` | serviços isolados e a TUI de administração |
+| `tests/e2e` | cenários, protocolos, ataques, POL-06, equivalência |
+| `tests/integration` | dashboard pela API, acesso, experimento, empacotamento, wheel |
+| `web/e2e` | 41 roteiros Playwright no navegador |
+| `models/tests.yaml` | cada teste com id, requisito e elemento do modelo; `tools/trace.py --check` sem erros |
+
+::: notes
+Jiliard. Os números exatos estão no relatório, gerados pela própria suíte.
+:::
+
+# Os testes que sustentam as afirmações
+
+- **POL-06:** TEST-424 (as duas ordens de decisão), TEST-459 (dois processos), TEST-470 (pastas de chaves diferentes), TEST-471 (reiniciar não apaga a memória)
+- **Protocolos:** `test_protocolos_invalidos.py` e os cenários de ataque; `invariantes` confere 10 propriedades só pelo trace
+- **Equivalência:** `test_equivalencia_workflow.py`, mesmo resultado sem falhas
+- **Reprodutibilidade:** mesma seed, mesmo hash; experimento inteiro com o mesmo CSV byte a byte
+- **Do ZIP:** sem Git e sem `textual`/`anthropic`, nenhuma falha; os pulados têm motivo
+
+::: notes
+Danrley mostra os testes da POL-06 rodando; Jiliard mostra a suíte inteira e a execução a partir do ZIP.
+:::
+
+# Demonstração
+
+```
+python -m fin_mas run --scenario negociacao_prazo        # negociação de prazo
+python -m fin_mas run --scenario orc_hipotese_local      # hipótese confirmada pelo AG-CIN
+python -m fin_mas run --scenario hipotese_refutada       # hipótese refutada
+python -m fin_mas run --scenario veto_bloqueio           # fechamento bloqueado
+python -m fin_mas run --scenario ataque_decisao_forjada  # aprovação indevida recusada
+```
+
+Dashboard: `decisao_por_pessoa` (a gerente envolvida não decide) e `reincidencia_waiver` (POL-06 ao vivo)
+
+::: notes
+Seguir o roteiro: cada comando com o filtro indicado, para a tela mostrar só as linhas que importam.
 :::
 
 # Experimento: desenho
@@ -89,19 +152,20 @@ Guardrail não é outro LLM: é verificação determinística. O AG-REL BDI não
 - **Pré-registrado** antes do código: 7 perguntas, hipóteses e o que refuta cada uma
 - Braços: SMA básico · SMA com cognição local · **workflow equivalente** (mesmas regras, veto, correção, aprovação) · workflow mínimo da DSM3
 - 30 seeds; plantios, perfil do aprovador, perdas e ataques sorteados por seed
-- Condições: sem falhas, perda de 5/15/30%, especialista fora do ar, humano lento, combinadas (+ ataque)
-- 9.360 execuções em 4 blocos; unidade estatística = seed; bootstrap, Wilcoxon, delta de Cliff, Holm
+- Condições: sem falhas, perda de 5/15/30%, especialista fora do ar, humano lento, combinadas (+ ataque); quatro portes
+- 9.360 execuções em 4 blocos; unidade estatística = seed; média ± desvio-padrão, bootstrap, Wilcoxon, delta de Cliff, Holm
 - `execucoes.csv` idêntico byte a byte numa segunda execução
 
 ::: notes
-Responde às duas críticas da DSM3: funções diferentes e variância zero.
+Jiliard. Responde às duas críticas da DSM3: funções diferentes e variância zero.
 :::
 
 # Resultados: qualidade e robustez
 
+Sem falhas, o SMA e o workflow equivalente deram o mesmo resultado nos 240 pares (0 diferentes).
+
 | Execução correta | SMA básico | Workflow equivalente |
 |---|---|---|
-| sem falhas (pares diferentes) | 0 de 240 | — |
 | perda de 5% | 94,2% | 100% (n.s.) |
 | perda de 15% | 64,2% | 100% |
 | perda de 30% | 35,0% | 100% |
@@ -109,20 +173,35 @@ Responde às duas críticas da DSM3: funções diferentes e variância zero.
 | combinadas | 50,8% | 75,8% |
 
 ::: notes
-**Com as mesmas funções, o SMA empata em qualidade e perde em robustez.** Nenhuma crítica publicada sem tratamento, em nenhum braço.
+Danrley. **Com as mesmas funções, o SMA empata em qualidade e perde em robustez.** Nenhuma crítica publicada sem tratamento, em nenhum braço.
 
-O workflow ganha por construção: o modelo de falhas só atinge mensagens entre componentes, e o workflow não troca mensagens. O empate de qualidade também é em boa parte construído: o workflow foi escrito e testado até igualar. Com 5% de perda, 5 seeds diferentes: o menor p possível é 0,0625, então "não significativo" é falta de poder. A queda com a perda é em parte artefato das perdas aninhadas (números aleatórios comuns).
+O workflow ganha por construção: o modelo de falhas só atinge mensagens entre componentes, e o workflow não troca mensagens. O empate de qualidade também é em boa parte construído: o workflow foi escrito e testado até igualar. Com 5% de perda, 5 seeds diferentes: o menor p possível é 0,0625, então "não significativo" é falta de poder.
 :::
 
 # Resultados: custo, cognição, ablação, ataques
 
 - Custo sem falhas: 15,75 mensagens de coordenação contra 0,88 (firme); 15,9 ticks contra 12,7 só sob a premissa de 3 ticks por etapa no workflow (com 4, o sinal se inverte)
-- Cognição local: **sem ganho significativo** na medida registrada (sinal exploratório, não significativo); na recuperação, com a seed como unidade, também não (p = 0,26)
+- Cognição local: **sem ganho significativo** na medida registrada; na recuperação, com a seed como unidade, também não (p = 0,26)
 - Ablação: reenvio (63,3% → 31,7% sem ele), reserva (2 publicações do mesmo mês sem ela) e correção têm efeito; negociação, não
-- Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente; no bloco A, nenhum mudou o desfecho; no bloco D, 4 aceitos sem a premissa do ataque, e o efeito sobre o desfecho com o controle de acesso ligado **não foi testado**
+- Ataques sob falha: 2.227 tentados, 0 aceitos indevidamente; no bloco D, 4 aceitos sem a premissa do ataque, e o efeito sobre o desfecho com o controle de acesso ligado **não foi testado**
 
 ::: notes
-O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 60 fechamentos mudarem (seeds 7 e 28) por uma decisão legítima emitida pelo roteiro de ataque. A latência entre os braços é modelada, não medida. Nos 240 pares adicionais com 12 ou 96 lançamentos, aumentar a frequência de alçada elevou as mensagens médias do SMA de 21,67 para 24,33. Os dois braços acertaram a conformidade em todos os pares.
+Danrley. A latência entre os braços é modelada, não medida.
+:::
+
+# Bloco E: concorrência, frequência e volume
+
+| 30 seeds, SMA básico × workflow equivalente | SMA | Workflow |
+|---|---|---|
+| 4 pedidos do mesmo mês: publicações indevidas | 0 (reserva) | 3 (fila sem reserva) |
+| 4 meses diferentes: ticks até o último | 19,8 | 75,3 (em fila) |
+| mensagens por pedido | ≈ 24 | ≈ 1,5 |
+| irregularidades 15% → 80%: intervenções humanas | 0,2 → 1,0 | 0,2 → 1,0 |
+| críticas publicadas sem tratamento | 0 | 0 |
+| 12 → 400 lançamentos: tempo de parede | 0,012 → 0,030 s | 0,001 → 0,002 s |
+
+::: notes
+Jiliard. Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). As métricas agora variam entre seeds. A reserva é um mecanismo que o workflow equivalente não tem; o paralelismo também seria possível num controlador com vários atendentes. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
 :::
 
 # Três rodadas do experimento
@@ -134,50 +213,42 @@ O avaliador da correção simulada rodou o par que falta no bloco D e viu 2 de 6
 | sem resposta, 6.480 execuções | 807 | 0 | 0 |
 
 ::: notes
-- 1.ª: revelou "resposta perdida vira silêncio"; 2.ª: depois da correção do barramento
-- 3.ª: depois da correção simulada da DSM4 (marca da perda, reentrega dos avisos humanos, bloco D com duas pessoas, RQ4 por seed)
-- Correções feitas **depois de ver resultados**: nenhuma rodada posterior à primeira é confirmatória
-
-O que não mudou nas três é o que vale como resultado: empate de qualidade, mais mensagens, robustez menor que a do workflow, zero ataque aceito indevidamente, zero crítica publicada.
+Jiliard. A primeira revelou "resposta perdida vira silêncio"; a segunda veio depois da correção do barramento; a terceira, depois da correção simulada. Correções feitas depois de ver resultados: nenhuma rodada posterior à primeira é confirmatória. A versão 1.1.0 repetiu o experimento inteiro, com as mesmas métricas em todas as linhas.
 :::
 
-# Demonstração
+# Revisão final: o feedback da DSM3
 
-```
-python -m fin_mas run --scenario negociacao_prazo
-python -m fin_mas run --scenario orc_hipotese_local
-python -m fin_mas run --scenario veto_bloqueio
-python -m fin_mas run --scenario ataque_decisao_forjada
-```
-
-Plano B: `./iniciar.sh replay` e os resultados versionados em `docs/dsm4/resultados/`
+- **POL-06 na aprovação:** conferida e gravada numa transação, sob trava ao lado do arquivo; o segundo ticket concorrente perde o waiver (TEST-424, 459, 470)
+- **Memória entre execuções:** mesma regra na oferta e na decisão (TEST-460); o reinício do dashboard não apaga a memória (TEST-471)
+- **Operar × aprovar:** quem reinicia é o solicitante e não aprova (POL-13), nem por outra conta da mesma pessoa (TEST-473); o porte micro não dispensa a regra; limpar a memória é só do administrador
+- **Suíte a partir do ZIP:** sem Git e sem as dependências opcionais, nenhuma falha
+- **Experimento:** workflow equivalente, 30 seeds, desvio-padrão nas tabelas e bloco E (concorrência, frequência, volume)
 
 ::: notes
-Seguir docs/dsm4/demonstracao.md: mostrar o aceite da extensão, a confirmação da hipótese pelo AG-CIN, o veto mantido e a aprovação indevida recusada.
+Danrley. Cada item tem teste. O waiver é gravado antes de a decisão chegar ao Orquestrador: escolha conservadora, registrada nas limitações.
 :::
 
 # Limitações
 
 - O SMA não ganha do workflow em nenhuma métrica de resultado; recuperação é um reenvio por subtarefa
 - Orquestrador é ponto único de falha, não exercitado; a robustez favorece o workflow por construção
-- Latência modelada, pouco poder com poucas seeds diferentes; H6b não testada com o controle de acesso ligado
-- Em aberto da correção simulada: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
-- Cognição local sem ganho; nenhum LLM real avaliado
-- Raiz de confiança no processo e na pasta de chaves; o cofre não cifra
-- Dados sintéticos; uma máquina, só loopback; nenhum conector de fornecedor
+- O workflow equivalente vale para um pedido: não tem memória da POL-06 nem reserva de período
+- Em aberto: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
+- O waiver é gravado antes de a decisão chegar ao Orquestrador; a conta de demonstração `avaliador` acumula papéis por praticidade
+- Cognição local sem ganho; nenhum LLM real avaliado; dados sintéticos, uma máquina, só loopback
 
 ::: notes
-A lista completa está em docs/dsm4/limitacoes.md, sem suavizar.
+Jiliard. A lista completa está em docs/dsm4/limitacoes.md, sem suavizar.
 :::
 
 # Lições
 
 - Comparar com uma linha de base **com as mesmas funções** mudou a conclusão
-- Falhas sorteadas acharam um defeito que os cenários fixos nunca exercitaram; uma correção simulada independente achou mais dois no mesmo transporte e dois problemas de método
+- Falhas sorteadas acharam um defeito que os cenários fixos nunca exercitaram; correções simuladas independentes acharam mais defeitos, inclusive nesta entrega
 - O que o SMA entrega é estrutural: separação auditável, veto independente, decisão humana atestada, negociação, extensibilidade, e isso se manteve com o sistema degradado
 - Agentificar tudo não ajudou: cognição só onde há escolha sob incerteza
-- Pré-registro e números gerados das fontes tornam o relato honesto verificável
+- Pré-registro, testes modelados e números gerados das fontes tornam o relato verificável
 
 ::: notes
-Fechar com a frase do resumo: com funções iguais, empata em qualidade e perde em custo e robustez; o que ganha não é número, é desenho.
+Danrley e Jiliard, uma frase cada. Com funções iguais, empata em qualidade e perde em custo e robustez; o que ganha não é número, é desenho.
 :::

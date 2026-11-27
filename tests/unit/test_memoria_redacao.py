@@ -281,7 +281,10 @@ def test_memory_key_and_counter_live_outside_the_data_folder(tmp_path):
 
     arquivo = tmp_path / "dados" / "memoria.json"
     run_scenario(AGOSTO, memoria=arquivo)
-    assert [p.name for p in arquivo.parent.iterdir()] == ["memoria.json"]
+    # ao lado dos dados ficam só o arquivo e a trava entre processos (vazia; ao lado para que processos com pastas de
+    # chaves diferentes disputem a mesma trava, TEST-470); chave e contador, não
+    assert sorted(p.name for p in arquivo.parent.iterdir()) == ["memoria.json", "memoria.json.lock"]
+    assert (arquivo.parent / "memoria.json.lock").stat().st_size == 0
     externos = [p.name for p in pathlib.Path(os.environ["FIN_MAS_DIR_CHAVES"]).iterdir()]
     assert any(n.endswith(".chave") for n in externos) and any(n.endswith(".contador") for n in externos)
 

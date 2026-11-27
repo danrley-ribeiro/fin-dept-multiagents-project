@@ -55,7 +55,8 @@ items:
     perm: [Criar e bloquear contas, Atribuir papéis, Revogar sessões]
     obl: [Não acumular o papel de aprovador, Manter ao menos um administrador ativo]
     permissoes: [PERM-IAM-USUARIOS, PERM-IAM-PAPEIS, PERM-IAM-SESSOES, PERM-AUD-VER, PERM-AUD-EXPORTAR, PERM-SIM-VER,
-                 PERM-IAM-POLITICA, PERM-IAM-EMPRESAS, PERM-MOD-SEGREDOS, PERM-MEM-ADOTAR, PERM-DAD-VER, PERM-DAD-REDE]
+                 PERM-IAM-POLITICA, PERM-IAM-EMPRESAS, PERM-MOD-SEGREDOS, PERM-MEM-ADOTAR, PERM-MEM-LIMPAR, PERM-DAD-VER,
+                 PERM-DAD-REDE]
     llm: nao_aplicavel
     entrega: DSM3
 

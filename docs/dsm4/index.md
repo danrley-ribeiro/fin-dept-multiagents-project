@@ -8,7 +8,7 @@ Entrega final do SMA de Controladoria (prazo 02/12/2026). O pacote para envio é
 |---|---|
 | {doc}`arquitetura-final` | Visão consolidada da arquitetura, quem é BDI e quem é reativo, fluxo de um fechamento, propriedades garantidas e todos os ADRs. |
 | {doc}`limitacoes` | O que continua limitado na versão final, sem suavizar, e o que saiu da lista na DSM4. |
-| {doc}`demonstracao` | Roteiro de demonstração de 10 minutos com comandos exatos e plano B. |
+| {doc}`demonstracao` | Roteiro de demonstração com comandos exatos, as evidências pedidas no feedback da DSM3 e plano B (o vídeo segue `entregas/dsm4/apresentacao/roteiro.md`). |
 | {doc}`cenarios-de-teste` | Catálogo dos cenários e dos testes novos da DSM4 (página gerada). |
 | {doc}`reproducao` | Passo a passo do zero: instalar, testes, cenários, experimento, documentação, PDF e pacote. |
 
@@ -26,7 +26,7 @@ Páginas da DSM4 disponíveis até aqui.
 | {doc}`ADR-011-conectores-e-entendimento` | Conectores genéricos e entendimento automático de fontes, sem IA generativa. |
 
 ```bash
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # ou: make experimento (cerca de 3 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # ou: make experimento (de 5 a 8 minutos, conforme a máquina)
 python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 seeds, alguns segundos
 ```
 

@@ -333,9 +333,14 @@ def test_recurrence_is_checked_again_when_the_waiver_is_decided(inverter):
     if inverter:
         agosto, setembro = setembro, agosto
     assert s.aprovador.decidir(agosto, "waiver", JUSTIFICATIVA) is True
-    with pytest.raises(MensagemRejeitada, match="POL-06: reincidência após waiver anterior"):
+    lado = "posterior" if inverter else "anterior"
+    with pytest.raises(MensagemRejeitada, match=f"POL-06: reincidência: waiver {lado}"):
         s.aprovador.decidir(setembro, "waiver", JUSTIFICATIVA)
     assert setembro in s.aprovador.pendentes and tickets[setembro]["estado"] == "pendente"
+    # a política reavalia o ticket concorrente: o waiver sai das opções e não é oferecido de novo
+    assert "waiver" not in tickets[setembro]["opcoes"]
+    assert tickets[setembro]["negadas"][-1]["regra"] == "POL-06"
+    assert s.aprovador.decidir(setembro, "waiver", JUSTIFICATIVA) is False  # não enviada: opção retirada
     assert s.aprovador.decidir(setembro, "corrigir") is True
     s.bus.run()
     assert s.usuario.resposta(agosto).content["status"] == "publicado_com_ressalva"
@@ -353,7 +358,8 @@ def _decidir_em_processo(competencia, arquivo, barreira, resultados):
     try:
         sistema.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
     except MensagemRejeitada as erro:
-        assert "POL-06" in str(erro)
+        # a recusa precisa ser a da reincidência, não a da memória ocupada ou indisponível (que também cita a POL-06)
+        assert "POL-06: reincidência" in str(erro), str(erro)
         sistema.aprovador.decidir(sid, "bloquear", JUSTIFICATIVA)
     sistema.bus.run()
     resposta = sistema.usuario.resposta(sid)
@@ -377,9 +383,64 @@ def test_uma_liberacao_entre_processos(tmp_path):
             assert processo.exitcode == 0
         assert sorted(resultados.get(timeout=2) for _ in processos) == ["failure", "publicado_com_ressalva"]
         entradas = json.loads(arquivo.read_text(encoding="utf-8"))["entradas"]
-        assert sorted(e["tipo"] for e in entradas) == ["bloqueio", "waiver"]
+        assert sorted(e["tipo"] for e in entradas) == ["bloqueio", "waiver"]  # exatamente um waiver gravado
     finally:
         for processo in processos:
             if processo.is_alive():
                 processo.terminate()
                 processo.join()
+
+
+def _decidir_com_chaves_proprias(competencia, arquivo, chaves, barreira, resultados):
+    import os
+
+    os.environ["FIN_MAS_DIR_CHAVES"] = str(chaves)  # cada processo com a sua pasta de chaves
+    from fin_mas.env.scenarios import Scenario, montar
+
+    sc = Scenario("concorrente", "waiver entre processos com chaves diferentes", "fechar_mes",
+                  agenda=((competencia, ("alcada",)),), pedidos=(("fechar_mes", competencia, 1),))
+    sistema, (sid,) = montar(sc, interativo=True, memoria=arquivo)
+    rodar_ate_humano(sistema.bus)
+    barreira.wait(timeout=30)
+    try:
+        sistema.aprovador.decidir(sid, "waiver", JUSTIFICATIVA)
+    except MensagemRejeitada:
+        # reincidência, ou memória que este processo não consegue validar (selo de outra chave): nos dois casos o
+        # waiver não passa sem conferir o histórico
+        sistema.aprovador.decidir(sid, "bloquear", JUSTIFICATIVA)
+    sistema.bus.run()
+    resposta = sistema.usuario.resposta(sid)
+    resultados.put(resposta.content.get("status", resposta.performative))
+
+
+def test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes(tmp_path):
+    """Correção simulada da DSM4: com a trava na pasta de chaves, dois processos com pastas de chaves diferentes sobre
+    o mesmo arquivo travavam arquivos diferentes e os dois waivers passavam. A trava fica ao lado do arquivo de dados."""
+    import json
+    import multiprocessing
+
+    ctx = multiprocessing.get_context("spawn")
+    arquivo = tmp_path / "memoria.json"
+    for rodada in range(3):  # a corrida não é determinística: repetir aumenta a chance de pegar a ordem ruim
+        if arquivo.exists():
+            arquivo.unlink()
+        barreira, resultados = ctx.Barrier(2), ctx.Queue()
+        processos = [ctx.Process(target=_decidir_com_chaves_proprias,
+                                 args=(mes, arquivo, tmp_path / f"chaves-{rodada}-{mes}", barreira, resultados))
+                     for mes in ("2026-08", "2026-09")]
+        try:
+            for processo in processos:
+                processo.start()
+            for processo in processos:
+                processo.join(60)
+                assert processo.exitcode == 0
+            status = [resultados.get(timeout=2) for _ in processos]
+            assert status.count("publicado_com_ressalva") <= 1, status
+            if arquivo.exists():
+                entradas = json.loads(arquivo.read_text(encoding="utf-8"))["entradas"]
+                assert sum(1 for e in entradas if e["tipo"] == "waiver") <= 1
+        finally:
+            for processo in processos:
+                if processo.is_alive():
+                    processo.terminate()
+                    processo.join()

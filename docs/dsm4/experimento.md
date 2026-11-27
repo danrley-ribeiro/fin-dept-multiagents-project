@@ -213,3 +213,17 @@ python -m fin_mas experimento --rapido --out /tmp/experimento            # pouco
 
 Saídas: `execucoes.csv` (dado bruto), `resumo.json`, `resumo.md`, `testes.md`, figuras SVG,
 `manifesto.json` (versão, seeds, parâmetros e hash do CSV) e `tempo_parede.csv`.
+
+## Nota posterior (26/11/2026): como conferir a ordem sem o Git
+
+Esta nota foi acrescentada depois do experimento. O texto acima não mudou. O pacote entregue (ZIP) não
+leva o histórico do git. A ordem pode ser conferida no repositório público
+<https://github.com/danrley-ribeiro/fin-dept-multiagents-project>, com `git log --diff-filter=A --format="%h %ad" -- <arquivo>`:
+
+| Arquivo | Commit que o criou | Data |
+|---|---|---|
+| `docs/dsm4/experimento.md` (este pré-registro) | `767b37f` | 12/11/2026 22:19 |
+| `src/fin_mas/caos.py` (modelo de falhas) | `95a6f28` | 13/11/2026 05:04 |
+| `src/fin_mas/baseline_eq.py` (workflow equivalente) | `39f7df5` | 13/11/2026 09:58 |
+| `src/fin_mas/estudo.py` e `estatistica.py` | `d8bd66d` | 13/11/2026 10:08 |
+| `docs/dsm4/resultados/execucoes.csv` (primeira rodada) | `cfa6b6f` | 13/11/2026 10:16 |

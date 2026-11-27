@@ -30,8 +30,9 @@ valer pela **pessoa autenticada** que a tomou:
 - POL-02 e POL-03 passam a conferir a pessoa real: o cargo da conta define o que ela decide,
           e quem criou ou aprovou um lançamento vetado (vínculo da conta com a pessoa do ERP)
           não decide sobre ele;
-- POL-13  quem fez a solicitação não decide sobre ela; onde só há uma pessoa (porte com
-          controle compensatório registrado), a decisão passa e o controle fica anotado.
+- POL-13  quem fez a solicitação não decide sobre ela, pela conta e pela pessoa do ERP (duas contas
+          da mesma pessoa não contornam a regra); onde só há uma pessoa (porte com controle
+          compensatório registrado), a decisão passa e o controle fica anotado.
 
 Sem `acesso` (cenários em lote da primeira versão da DSM3) valem as regras POL-01 a POL-08
 com o cadastro por identidade, como antes.
@@ -273,6 +274,15 @@ class PoliticaAprovacao:
             if decisao == "waiver" and self.decidir_waiver is not None:
                 motivo = self.decidir_waiver(t, cadastro if msg.performative == "approve" else None)
                 if motivo:
+                    if "reincidência" in motivo and "waiver" in t["opcoes"]:
+                        # ticket concorrente: o outro waiver foi decidido depois da emissão deste. A política
+                        # reavalia o ticket: o waiver sai das opções (não é oferecido de novo) e fica em `negadas`
+                        t["opcoes"] = [o for o in t["opcoes"] if o != "waiver"]
+                        t["negadas"].append({"opcao": "waiver", "regra": "POL-06", "motivo": motivo})
+                        self._auditar(t["id"], "reavaliado", regra="POL-06", motivo=motivo, opcoes=t["opcoes"])
+                    if self.acesso is not None:
+                        self._trilha("decisao", cadastro.get("pessoa"), "negado", regra="POL-06", motivo=motivo,
+                                     ticket=t["id"])
                     return motivo
             if decisao == "corrigir":
                 pedidas = [_par(x) for x in c.get("correcoes") or [] if isinstance(x, dict)]
@@ -349,10 +359,18 @@ class PoliticaAprovacao:
             if pessoa_erp and pessoa_erp in t["envolvidos"]:
                 return negar("POL-03", f"{nome} participou de um lançamento vetado e não pode decidir sobre ele")
         compensatorio = None
-        for _, nome in pessoas:
-            if t.get("solicitado_por") and t["solicitado_por"] == nome:
+        # POL-13 pela conta e pela pessoa do ERP (como a POL-12): duas contas da mesma pessoa não contornam "quem
+        # pede não aprova" (correção simulada da DSM4: a conta "elisa.op" pediu e a conta "elisa" aprovou)
+        solicitante = t.get("solicitado_por")
+        conta_solicitante = self.acesso.conta(solicitante) if solicitante and hasattr(self.acesso, "conta") else None
+        pessoa_solicitante = (conta_solicitante or {}).get("pessoa_erp")
+        for pessoa_erp, nome in pessoas:
+            if solicitante and (solicitante == nome or (pessoa_solicitante and pessoa_erp == pessoa_solicitante)):
                 if not self.controle_compensatorio:
-                    return negar("POL-13", f"{nome} fez a solicitação {t['solicitacao']} e não pode decidir sobre ela")
+                    if solicitante == nome:
+                        return negar("POL-13", f"{nome} fez a solicitação {t['solicitacao']} e não pode decidir sobre ela")
+                    return negar("POL-13", f"{nome} é a mesma pessoa do ERP ({pessoa_erp}) da conta {solicitante}, que "
+                                           f"fez a solicitação {t['solicitacao']}, e não pode decidir sobre ela")
                 compensatorio = self.controle_compensatorio
         cadastro = {"pessoa": sessao.usuario, "titulo": cargo, "sessao": sessao.id,
                     "pessoas_erp": sorted({p for p, _ in pessoas if p})}

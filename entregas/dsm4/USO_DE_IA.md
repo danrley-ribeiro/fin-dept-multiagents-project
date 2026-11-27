@@ -17,6 +17,8 @@ offline.
 | Planejamento da DSM4 com os autores | Claude Opus 5.5 | Claude Code | novembro de 2026 |
 | Implementação dos lotes, em paralelo, por agentes de IA em cópias isoladas do repositório | Claude Opus 5.5 | Claude Code, agentes em *worktrees* do git | novembro de 2026 |
 | Integração, verificação e documentação de fechamento | Claude Opus 5.5 | Claude Code | novembro de 2026 |
+| Revisão final pós-feedback da DSM3 (POL-06 na mesma trava da memória, pacote, ensaio exploratório de carga) | GPT Astra 6.2 | Codex | 25/11/2026 |
+| Revisão do commit anterior, correções do feedback da DSM3 (permissões, suíte do ZIP), bloco E do experimento e roteiro do vídeo | Claude Opus 5.5 | Claude Code | 25 e 26/11/2026 |
 
 ## O que a IA fez
 
@@ -160,10 +162,78 @@ Para a apresentação, os autores precisam dominar, sem apoio do texto:
 
 Os números da versão entregue (testes coletados e executados, cenários conferidos, objetos rastreados,
 resultados do experimento) são gerados por `python tools/relatorio_numeros.py --suite` e aparecem no
-relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte sobre a versão
-entregue (41 de 41, em 14/11/2026), fora do gerador. A leitura e a revisão de todo o código e texto gerado pelos
-autores, antes da submissão, é o passo que falta e é deles: os pontos a dominar estão na seção "Autoria".
+relatório técnico; nenhum foi escrito à mão. Os 41 roteiros Playwright foram executados à parte, fora do gerador:
+41 de 41 em 14/11/2026 e de novo depois das revisões de 25 e 26/11/2026. Cada mudança desta etapa passou por
+pull request revisado por um dos autores, e o trabalho de uma IA foi revisado pela outra (o commit do Codex de
+25/11 foi revisado pelo Claude em 26/11, seção abaixo). Responder pelo código e pelo texto, inclusive o gerado
+por IA, é dos autores: os pontos a dominar estão na seção "Autoria".
 
 ## Revisão final de 25/11/2026
 
 O Codex consultou a conversa compartilhada e o feedback do professor, modificou a política de reincidência e a persistência, atualizou os testes do pacote e executou o ensaio exploratório pareado de carga. Também revisou os materiais de reprodução e demonstração. As afirmações sobre aprovação entre processos podem ser verificadas em TEST-459. Os dados do ensaio estão em `docs/dsm4/resultados/carga.csv`.
+
+## Revisão de 26/11/2026 (Claude Code)
+
+O Claude Code (Claude Opus 5.5) revisou o commit do Codex em modo de planejamento. Três agentes só
+leram o código e apontaram os problemas. Os autores escolheram o que fazer: corrigir de verdade as
+permissões e fazer um reforço focado do experimento, sem refazer o principal. A revisão achou:
+
+- **Regras diferentes no waiver.** A oferta, na emissão do ticket, olhava só meses anteriores. A
+  decisão olhava também o mesmo mês e os posteriores. O waiver era oferecido e depois recusado. Isso
+  quebrava o caso sequencial documentado e, no lote, deixava o ticket expirar com `erro_agente`.
+- **Ticket recusado ainda oferecia o waiver.** O segundo ticket concorrente não era reavaliado.
+- **Entrada fantasma na memória** quando a gravação falhava.
+- **Permissões.** Quem reiniciava pelo dashboard podia aprovar o próprio pedido. O porte micro
+  escolhido no reinício dispensava a POL-13.
+- **Suíte do ZIP.** Falhava sem `setuptools`/`wheel`, e havia um teste intermitente no login.
+- **Documentos inconsistentes.** A âncora do trace na demonstração estava desatualizada, assim como
+  o número de invariantes. A medida do tempo de parede do bloco E, antes da análise, incluía o
+  cálculo das métricas.
+
+Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado como desvio do
+pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
+evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
+
+- **pytest:** 707 de 707, em 11,5 minutos;
+- **rastreabilidade:** 538 objetos, 0 erros;
+- **vitest:** 12 de 12;
+- **Playwright:** 41 de 41, com o Chromium do Playwright;
+- **experimento inteiro:** rodado duas vezes, com o mesmo `execucoes.csv`; as métricas são iguais
+  às da terceira rodada em todas as linhas;
+- **bloco E:** duas execuções com o mesmo CSV;
+- **suíte a partir do ZIP:** extraído fora do repositório (sem Git), num venv só com o projeto e o
+  pytest. 677 passaram e nenhum falhou. Foram pulados os 23 da TUI (sem `textual`), um de LLM (sem
+  `anthropic`), o do wheel (sem `setuptools`) e o do empacotamento (sem Git). A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
+feita pelo coautor.
+
+### Correção simulada da entrega final (26/11/2026)
+
+Os autores pediram duas correções simuladas no formato do professor. Cada uma foi feita por um agente
+independente (Claude Opus 5.5), que recebeu só o ZIP extraído, o enunciado, o feedback da DSM3 e, na
+segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as conclusões da revisão.
+
+- **Primeira rodada: nota 8,9.** O avaliador tentou burlar a POL-06 por vários caminhos e achou dois que
+  funcionavam:
+  - dois processos com pastas de chaves diferentes sobre o mesmo arquivo de memória liberavam os dois
+    waivers, porque a trava ficava na pasta de chaves;
+  - no dashboard de demonstração, reiniciar o cenário esquecia o waiver anterior, porque a memória
+    vivia só no processo.
+
+  Os dois foram corrigidos com teste: TEST-470 falha nas três tentativas com a trava antiga, e há ainda
+  TEST-471 e TEST-472. Também foram corrigidos:
+  - o filtro de um comando da demonstração;
+  - caminhos que não existiam no ZIP;
+  - o tempo do experimento;
+  - a prova do pré-registro sem o Git (nota com os commits).
+
+  As tabelas do experimento principal passaram a mostrar o desvio-padrão. Os autores decidiram manter
+  a conta `avaliador` com todos os papéis, para facilitar os testes do professor, e isso ficou
+  declarado nas limitações. O roteiro foi refeito para o vídeo de 15 a 30 minutos com foco no código
+  e nos testes, como o professor pediu.
+- **Segunda rodada: nota 9,2.** Nenhuma tentativa liberou dois waivers: 12 rodadas com dois processos,
+  quatro reinícios pelo dashboard e a CLI concorrente. O avaliador achou uma brecha nova: a POL-13
+  comparava só o nome da conta, e duas contas da mesma pessoa do ERP pediam e aprovavam. Ela foi
+  corrigida com teste (TEST-473, que falha sem a correção). Ficaram declarados como limitação:
+  - o caminho de memória sem normalização (falha fechada);
+  - o workflow equivalente, que vale para um pedido;
+  - o bloco E, que é exploratório.

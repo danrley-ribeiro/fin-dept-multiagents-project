@@ -9,12 +9,15 @@ Estrutura do zip:
       codigo/                        código-fonte, configurações, testes, modelos, documentação e resultados
 
 Só entram arquivos versionados ou não ignorados pelo git (sem .venv, node_modules, dist, build, saidas), e
-nunca a apostila da disciplina nem zips de entregas anteriores.
+nunca a apostila da disciplina nem zips de entregas anteriores. A exceção é a build do dashboard (`web/dist/`):
+entra pronta em `codigo/web/dist/`, para `serve --demo` abrir o dashboard sem bun nem Node na máquina de quem
+avalia. Ela precisa ser mais nova que todas as fontes da interface; se não for, o pacote não é gerado.
 Uso: python tools/empacotar_dsm4.py [--destino ARQUIVO.zip] [--listar]
 """
 from __future__ import annotations
 
 import argparse
+import os
 import posixpath
 import re
 import subprocess
@@ -61,6 +64,23 @@ def entradas() -> list[tuple[str, str]]:
     return out
 
 
+# fontes que a build do dashboard (vite) compila ou copia para web/dist
+FONTES_WEB = ("web/src/", "web/public/", "web/index.html", "web/vite.config.ts", "web/package.json", "web/tsconfig")
+
+
+def dashboard() -> tuple[list[tuple[str, str]], str | None]:
+    """Arquivos de web/dist para codigo/web/dist e, se a build faltar ou estiver velha, o motivo."""
+    dist = RAIZ / "web" / "dist"
+    if not (dist / "index.html").is_file():
+        return [], "web/dist não existe: rode `bun install && bun run build` em web/ antes de empacotar"
+    fontes = [p for p in arquivos_git() if p.startswith(FONTES_WEB)]
+    mais_nova = max((os.path.getmtime(RAIZ / p) for p in fontes), default=0)
+    if (dist / "index.html").stat().st_mtime < mais_nova:
+        return [], "web/dist é mais velho que as fontes da interface: rode `bun run build` em web/ antes de empacotar"
+    return [(a.relative_to(RAIZ).as_posix(), "codigo/" + a.relative_to(RAIZ).as_posix())
+            for a in sorted(dist.rglob("*")) if a.is_file()], None
+
+
 def links_do_pacote(origem: str, alvo: str, conteudo: str) -> str:
     """A entrega sobe para a raiz do ZIP; a árvore de código desce para codigo/."""
     def converter(m):
@@ -88,10 +108,17 @@ def main() -> int:
     ap.add_argument("--listar", action="store_true", help="só lista o que entraria, sem gravar o zip")
     args = ap.parse_args()
     lista = entradas()
+    construido, motivo = dashboard()
+    if motivo:
+        print(motivo, file=sys.stderr)
+        return 1
+    lista += construido
     obrigatorios = ("README.md", "USO_DE_IA.md", "documentacao/relatorio.pdf", "documentacao/relatorio.tex",
                     "apresentacao/slides.md", "apresentacao/roteiro.md", "codigo/docs/dsm4/resultados/execucoes.csv",
                     "codigo/Dockerfile", "codigo/compose.yaml", "codigo/pyproject.toml",
-                    "apresentacao/DSM4-apresentacao.pptx", "codigo/docs/dsm4/resultados/carga.csv")
+                    "apresentacao/DSM4-apresentacao.pptx", "codigo/docs/dsm4/resultados/carga.csv",
+                    "codigo/docs/dsm4/resultados/bloco_e/execucoes.csv", "codigo/docs/dsm4/resultados/bloco_e/resumo.md",
+                    "codigo/src/fin_mas/estudo_e.py")
     faltam = [o for o in obrigatorios if o not in {a for _, a in lista}]
     if faltam:
         print("faltam no pacote: " + ", ".join(faltam), file=sys.stderr)

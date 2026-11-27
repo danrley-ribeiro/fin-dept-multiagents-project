@@ -575,6 +575,13 @@ resposta).
     versionado.
 13. **Falta o bloco de fuzz** citado no plano geral do projeto (invariantes em milhares de
     seeds): não estava no pré-registro e não foi feito.
+14. **Bloco E acrescentado depois dos resultados** (26/11/2026, após o feedback da DSM3). Pedidos
+    concorrentes, frequência de irregularidades por tipo e volume com tempo de parede não estavam
+    no pré-registro; o bloco foi desenhado depois de conhecidos os blocos A a D e é
+    **exploratório**. As seeds (1 a 30), os braços e as funções estatísticas são os mesmos; as
+    probabilidades (15%, 40%, 80%) e os volumes (12, 96, 400) foram fixados antes da primeira
+    execução do bloco. A medida do tempo de parede foi corrigida uma vez, antes da análise: cobria
+    também o cálculo das métricas; passou a cobrir só o fechamento. O `execucoes.csv` não mudou.
 
 ## Ameaças à validade
 
@@ -645,7 +652,14 @@ a mais:
 
 ## Revisão final de 25/11/2026
 
-As duas repetições locais do plano de 9.360 execuções produziram CSVs idênticos. A comparação com a terceira rodada histórica encontrou as mesmas chaves, desfechos e métricas em todas as linhas. Mudou a coluna de hash em 6.480 linhas. A versão do pacote integra o trace e a gravação da memória do waiver passou para o instante da aprovação. Os [dados brutos desta revisão](resultados/revisao-final/execucoes.csv) acompanham o [manifesto](resultados/revisao-final/manifesto.json) e os tempos da primeira repetição. O SHA-256 do CSV desta revisão é `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568`.
+As duas repetições locais do plano de 9.360 execuções produziram CSVs idênticos. A comparação com a terceira rodada histórica encontrou as mesmas chaves, desfechos e métricas em todas as linhas. Mudou a coluna de hash em 6.480 linhas. A versão do pacote integra o trace e a gravação da memória do waiver passou para o instante da aprovação. Os [dados brutos desta revisão](resultados/revisao-final/execucoes.csv) acompanham o [manifesto](resultados/revisao-final/manifesto.json) e os tempos da primeira repetição. O SHA-256 do CSV desta revisão, na versão 1.0.1, era `ffe746a004e00fb6e1c3e6e58e6e4dffad265194cebb72480b39cddbf8ad1568`.
+
+Na versão 1.1.0 (26/11/2026, com as correções da POL-06, das permissões e do pacote), o plano inteiro
+foi rodado de novo e substituiu os arquivos de `resultados/revisao-final/`. As 9.360 linhas têm as
+mesmas chaves, desfechos e métricas da terceira rodada e da 1.0.1; só a coluna de hash muda, nas
+6.480 execuções do SMA, porque a versão do pacote entra no trace. As correções da revisão final não
+mudaram nenhum número do experimento. O SHA-256 do CSV da 1.1.0 é
+`b324fc61461ee3b88cb62eb69566c5588237a2257c5f6bca872b8675646c6102`.
 
 ### Ensaio exploratório de carga
 
@@ -656,4 +670,49 @@ Foram 240 pares de fechamento nominal. Cruzamos 30 sementes com dois portes (peq
 | 20% | 5 de 30 | 20 em 120 fechamentos | 21,67 / 0,33 | 16,83 / 15,83 |
 | 80% | 25 de 30 | 100 em 120 fechamentos | 24,33 / 1,67 | 20,17 / 19,17 |
 
-Ambos classificaram corretamente a conformidade em todos os fechamentos e publicaram zero críticas sem tratamento. Mais meses com violação exigiram mais intervenções e mensagens. Aumentar o volume de 12 para 96 lançamentos, mantendo a semente e o plantio, preservou essas métricas. O relógio lógico avança por etapa e mensagem. Este ensaio não mede a capacidade de processamento em lançamentos por segundo. Dados linha a linha em [carga.csv](resultados/carga.csv).
+Ambos classificaram corretamente a conformidade em todos os fechamentos e publicaram zero críticas sem tratamento. Mais meses com violação exigiram mais intervenções e mensagens. Aumentar o volume de 12 para 96 lançamentos, mantendo a semente e o plantio, preservou essas métricas. O relógio lógico avança por etapa e mensagem. Este ensaio não mede a capacidade de processamento em lançamentos por segundo. Dados linha a linha em [carga.csv](resultados/carga.csv). O bloco E, abaixo, substitui este ensaio na análise.
+
+## Bloco E — pedidos concorrentes, frequência de irregularidades e volume
+
+Exploratório (desvio 14). Compara o SMA básico e o workflow equivalente nas seeds 1 a 30, porte
+média, aprovador que corrige: 660 execuções em `resultados/bloco_e/`. Cada seed sorteia, para cada
+um de quatro tipos de irregularidade (alçada, SoD, duplicidade, competência), se ele é plantado;
+os sorteios são aninhados (o que sai na frequência baixa sai também na média e na alta). A
+unidade é a seed; as tabelas trazem média, **desvio-padrão** e IC de 95% por bootstrap; os testes
+são Wilcoxon pareados por seed, com Holm dentro de cada fator. Tabelas completas em {doc}`tabelas`.
+
+```bash
+python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # menos de 1 minuto; execucoes.csv idêntico
+```
+
+**Pedidos concorrentes.** Com 2 e 4 pedidos simultâneos do mesmo mês, o SMA reserva o período
+(PROT-LCK), publica um e recusa os demais: zero publicações indevidas em todas as seeds. O workflow
+atende em fila e não tem reserva: publica o mesmo mês 2 e 4 vezes (1 e 3 publicações indevidas,
+p < 0,001). A diferença vem de um mecanismo que o workflow equivalente não implementa (ele é
+equivalente para **um** pedido); num controlador único, o equivalente seria recusar mês já
+publicado. Com meses diferentes, o SMA atende em paralelo: 19,8 ± 2,2 ticks para 1, 2 ou 4
+pedidos, contra 37,7 ± 4,3 e 75,3 ± 8,6 do workflow em fila. Um controlador com vários
+atendentes também paralelizaria; o ganho é do atendimento simultâneo com reserva, não da
+autonomia. O custo é de coordenação: cerca de 24 mensagens por pedido no SMA, contra 1,5.
+
+**Frequência de irregularidades.** Com 15%, 40% e 80% de chance por tipo, as intervenções humanas
+sobem de 0,2 para 0,8 e 1,0 por fechamento, as críticas corrigidas de 0,2 para 1,0 e 2,2, e as
+reconsiderações de intenção do SMA de 0,4 para 1,5 e 2,0 (o workflow não reconsidera). Nenhuma
+crítica foi publicada sem tratamento, nos dois braços e nos três níveis, e os dois corrigiram as
+mesmas críticas: a frequência muda o custo, não a qualidade.
+
+**Volume.** Com 12, 96 e 400 lançamentos de base, os ticks não mudam, por construção (o relógio do
+barramento conta eventos, não lançamentos). O custo aparece no tempo de parede: o SMA passa de
+0,012 s para 0,030 s por fechamento (400 × 12, p < 0,001, Cliff 1,0) e o workflow, de 0,001 s
+para 0,002 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
+varia entre rodadas na mesma máquina (uma rodada anterior deu 0,037 s e 0,097 s), mas a proporção
+se manteve: cerca de 2,6 vezes de 12 para 400 lançamentos no SMA. Serve como ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
+CSV reproduzível.
+
+**Variabilidade.** Na DSM3 as réplicas só confirmavam o determinismo (desvio zero). No bloco E as
+métricas que dependem dos plantios variam entre seeds (por exemplo, ticks 19,8 ± 2,2 e mensagens
+24,1 ± 1,7 por fechamento na frequência média; intervenções 0,2 ± 0,4 na baixa). O desvio é zero
+onde deve ser: publicações e recusas sob concorrência são decididas pela reserva, não pelos dados,
+e na frequência alta todas as seeds plantam ao menos uma irregularidade (um ticket, uma
+intervenção por fechamento), enquanto as críticas corrigidas ainda variam (1 a 3). Duas execuções do bloco produzem o mesmo
+`execucoes.csv` (SHA-256 `ad88a6a8…`, versão 1.1.0).

@@ -57,7 +57,8 @@ from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, TravaOcu
 
 VERSAO = 4  # v4: pseudônimo com HMAC (chave da memória) em vez de SHA-256 sem chave
 RETENCAO_COMPETENCIAS = 12
-# tipo -> (quem grava, quem lê). Só o AG-CIN grava (é ele quem recebe a decisão humana validada). A leitura
+# tipo -> (quem grava, quem lê). As entradas são do AG-CIN: correção e bloqueio ele grava ao receber a decisão
+# humana validada; o waiver é gravado em nome dele pelo SVC-POL, na decisão, sob a trava (POL-06). A leitura
 # segue o menor privilégio (DSM4, ADR-010): correção aprovada é um fato sobre os dados (um lançamento saiu
 # ou mudou), que o AG-ORC e o AG-RES precisam para interpretar desvio e indicador, e o AG-REL para contar o
 # histórico; waiver e bloqueio são decisões de risco sobre um veto e continuam só com quem veta (AG-CIN): o
@@ -135,6 +136,11 @@ def _sem_pseudonimo(valor):
 
 def _meses(competencia: str) -> int:
     return int(competencia[:4]) * 12 + int(competencia[5:7])
+
+
+def _reincide(mes: int, competencia: str, retencao: int) -> bool:
+    """POL-06: outra competência (não a mesma) a até `retencao` meses, antes ou depois."""
+    return 0 < abs(mes - _meses(competencia)) <= retencao
 
 
 def _canonico(entrada: dict) -> bytes:
@@ -255,18 +261,32 @@ class Memoria:
         competencia = ticket["competencia"]
         mes = _meses(competencia)
         novas = []
+        try:  # redação antes da trava: uma falha aqui não deixa gravação pela metade
+            valores = {chave: redigir(valor) for chave, valor in padroes.items()}
+        except FalhaRedacao as erro:
+            return f"POL-06: histórico de decisões indisponível ({erro})"
+        antes, ultimo_id = list(self.entradas), self._ultimo_id
         try:
             with self._sob_trava():
                 for e in self.entradas:
-                    if (e["tipo"] == "waiver" and e["chave"] in padroes
-                            and abs(mes - _meses(e["competencia"])) <= self.retencao):
-                        return f"POL-06: reincidência após waiver anterior: {e['id']} em {e['competencia']}"
+                    # mesma regra da oferta (`consultar(..., janela="outras")`): waiver do mesmo padrão em outra
+                    # competência dentro da retenção, antes ou depois. Antes a decisão contava também o mesmo mês e
+                    # a oferta só os meses anteriores: o waiver era oferecido e depois recusado (reexecução do mês
+                    # com a mesma memória; em lote, o ticket ficava sem resposta até o prazo)
+                    if e["tipo"] == "waiver" and e["chave"] in padroes and _reincide(mes, e["competencia"], self.retencao):
+                        lado = "anterior" if _meses(e["competencia"]) < mes else "posterior"
+                        return f"POL-06: reincidência: waiver {lado} {e['id']} em {e['competencia']}"
                 if aprovador is not None:
                     decisao = dict(ticket, decisao="waiver", aprovado_por=aprovador)
-                    for chave, valor in padroes.items():
-                        novas.append(self._inserir("AG-CIN", "waiver", chave, redigir(valor), competencia,
+                    ja = {e["chave"] for e in self.entradas if e["tipo"] == "waiver" and e["competencia"] == competencia}
+                    for chave, valor in valores.items():
+                        if chave in ja:  # mesmo mês já liberado (reexecução com a mesma memória): não duplica
+                            continue
+                        novas.append(self._inserir("AG-CIN", "waiver", chave, valor, competencia,
                                                   ticket["id"], f"PROT-APR {ticket['id']}", decisao))
-        except (MemoriaRecusada, FalhaRedacao, OSError) as erro:
+        except (MemoriaRecusada, OSError) as erro:
+            # nada foi gravado; sem arquivo, as entradas inseridas ficariam só em memória e bloqueariam waivers futuros
+            self.entradas, self._ultimo_id = antes, ultimo_id
             return f"POL-06: histórico de decisões indisponível ({erro})"
         for e in novas:
             self._registrar(ticket["cmp"], "gravada", agente="AG-CIN", memoria=e["id"], tipo="waiver",
@@ -275,8 +295,10 @@ class Memoria:
 
     # ---- leitura --------------------------------------------------------------------
     def consultar(self, agente: str, tipo: str, chave: str | None = None, *, competencia_atual: str,
-                  cid: str | None = None, token: str | None = None) -> list[dict]:
-        """Entradas do tipo (e chave) de competências anteriores, dentro da retenção.
+                  cid: str | None = None, token: str | None = None, janela: str = "anteriores") -> list[dict]:
+        """Entradas do tipo (e chave) dentro da retenção: de competências anteriores (`janela="anteriores"`) ou
+        de qualquer outra competência, antes ou depois (`janela="outras"`: a regra da POL-06, a mesma que a
+        decisão do waiver confere em `_decidir_waiver`).
 
         A retenção é um filtro desta consulta: nada é apagado aqui. Antes, a consulta apagava do arquivo
         tudo o que estivesse fora da janela da competência *pedida*; um pedido de `2099-12` apagava o
@@ -300,8 +322,14 @@ class Memoria:
             self._registrar(cid, "indisponivel", agente=agente, tipo=tipo, motivo=self.comprometida)
             return []
         atual = _meses(competencia_atual)
+
+        def na_janela(e) -> bool:
+            if janela == "outras":
+                return _reincide(atual, e["competencia"], self.retencao)
+            return atual - self.retencao <= _meses(e["competencia"]) < atual
+
         achadas = [e for e in self.entradas if e["tipo"] == tipo and (chave is None or e["chave"] == chave)
-                   and atual - self.retencao <= _meses(e["competencia"]) < atual]
+                   and na_janela(e)]
         if achadas:
             self._registrar(cid, "consultada", agente=agente, tipo=tipo, chave=chave,
                             memorias=[e["id"] for e in achadas])
@@ -322,6 +350,19 @@ class Memoria:
         if vencidas:
             self._registrar(cid, "expirada", agente=self.ID, memorias=[e["id"] for e in vencidas],
                             retencao=self.retencao)
+
+    def limpar(self, ator: str | None, cid: str | None = None) -> int:
+        """Administração: apaga todas as entradas (o histórico de reincidência recomeça) e devolve quantas eram.
+
+        Reiniciar um cenário NÃO limpa a memória (correção simulada da DSM4: no dashboard de demonstração a memória
+        vivia só no processo e um reinício esquecia o waiver anterior). Limpar é um ato separado, de quem tem
+        `PERM-MEM-LIMPAR` (administrador, que não aprova), feito sob a trava e registrado no trace com o autor.
+        Memória comprometida não é limpa: a restauração é `memoria adotar` ou o backup."""
+        with self._sob_trava():
+            apagadas = [e["id"] for e in self.entradas]
+            self.entradas = []
+        self._registrar(cid, "limpa", agente=self.ID, ator=ator, memorias=apagadas)
+        return len(apagadas)
 
     # ---- persistência e integridade ---------------------------------------------------------
     def _arquivo_estado(self, sufixo: str) -> Path:

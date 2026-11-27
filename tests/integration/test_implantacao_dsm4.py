@@ -113,10 +113,16 @@ def _deps_do_ambiente_atual(destino: Path) -> Path:
 
 
 def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path):
+    # o build sem isolamento usa o setuptools e o wheel do ambiente (requirements-dev.txt), e o venv novo precisa do
+    # ensurepip. Fora desse ambiente (ex.: a suíte rodada do ZIP só com `pip install -e .` e o pytest, como na
+    # correção da DSM3) o teste é pulado em vez de falhar por falta de ferramenta de build
+    pytest.importorskip("setuptools", reason="sem setuptools: build do wheel indisponível neste ambiente")
+    pytest.importorskip("wheel", reason="sem o pacote wheel: build do wheel indisponível neste ambiente")
+    pytest.importorskip("ensurepip", reason="sem ensurepip: não dá para criar o venv limpo")
     dist = tmp_path / "dist"
     opcoes = [] if (RAIZ / "web" / "dist" / "index.html").exists() else ["--sem-dashboard"]
     gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), "--sem-isolamento", *opcoes],
-                           capture_output=True, text=True, encoding="utf-8", cwd=RAIZ)
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=RAIZ)
     assert gerar.returncode == 0, gerar.stderr
     wheel = next(dist.glob(f"fin_mas-{__version__}-*.whl"))
     ambiente = tmp_path / "venv"
@@ -126,19 +132,19 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     env = {k: v for k, v in os.environ.items() if k not in ("PYTHONPATH", "VIRTUAL_ENV", "FIN_MAS_SENHA_NOVA")}
     env.update(PYTHONUTF8="1", FIN_MAS_DIR_CHAVES=str(tmp_path / "chaves"), PIP_DISABLE_PIP_VERSION_CHECK="1")
     r = subprocess.run([str(py), "-m", "pip", "install", "--quiet", "--no-deps", "--no-index", str(wheel)],
-                       capture_output=True, text=True, encoding="utf-8", env=env)
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
     assert r.returncode == 0, r.stderr
     env["PYTHONPATH"] = str(_deps_do_ambiente_atual(tmp_path / "deps"))
     fora = tmp_path / "fora-do-repositorio"
     fora.mkdir()
 
     def rodar(*args):
-        return subprocess.run([str(exe), *args], capture_output=True, text=True, encoding="utf-8", cwd=fora, env=env,
+        return subprocess.run([str(exe), *args], capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=fora, env=env,
                               stdin=subprocess.DEVNULL, timeout=300)
 
     onde = subprocess.run([str(py), "-c", "import fin_mas, fin_mas.recursos as r; print(fin_mas.__file__); "
                                          "print(r.origem()); print(r.models_dir())"],
-                          capture_output=True, text=True, encoding="utf-8", cwd=fora, env=env)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=fora, env=env)
     arquivo, origem, modelos = onde.stdout.splitlines()
     assert str(ambiente) in arquivo and RAIZ.as_posix() not in Path(arquivo).as_posix(), onde.stdout
     assert origem == "pacote" and str(ambiente) in modelos

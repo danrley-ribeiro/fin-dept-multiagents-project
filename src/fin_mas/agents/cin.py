@@ -255,13 +255,17 @@ class AgenteControlesInternos(AgenteBDI):
             return
         for a in achados:
             chave = self.chave_reincidencia(a, competencia) if a["severidade"] == "critica" else None
-            anteriores = self.memoria.consultar("waiver", chave, competencia_atual=competencia, cid=cid) if chave else []
+            # mesma janela da decisão (POL-06): waiver do padrão em outra competência, antes ou depois. Assim o waiver
+            # que a decisão recusaria nem é oferecido (antes: oferecido na emissão e recusado na decisão)
+            anteriores = self.memoria.consultar("waiver", chave, competencia_atual=competencia, cid=cid,
+                                                janela="outras") if chave else []
             if not anteriores:
                 continue
             m = anteriores[-1]
             a["reincidencia"] = {"memoria": m["id"], "competencia": m["competencia"],
                                  "aprovacao": m["proveniencia"]["aprovacao"]}
-            a["evidencia"] += (f"; reincidente: waiver anterior {m['id']} em {m['competencia']} "
+            lado = "anterior" if m["competencia"] < competencia else "posterior"
+            a["evidencia"] += (f"; reincidente: waiver {lado} {m['id']} em {m['competencia']} "
                                f"({m['proveniencia']['aprovacao']})")
             self.crencas.revisar(f"reincidencia[{a['lancamento']}]@{competencia}", a["reincidencia"],
                                  f"SVC-MEM {m['id']}", cid)

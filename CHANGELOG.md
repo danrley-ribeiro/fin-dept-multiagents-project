@@ -2,6 +2,40 @@
 
 Registro por entrega.
 
+## DSM4 v1.1.0 — revisão final (26/11/2026)
+
+Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisao`).
+
+- POL-06: a oferta (na emissão) e a decisão do waiver usam a mesma regra (waiver do mesmo padrão em outra
+  competência, antes ou depois, dentro da retenção). Antes, a oferta olhava só meses anteriores e a decisão
+  recusava o que tinha sido oferecido. O ticket recusado perde a opção de waiver, com a negação em `negadas`
+  e na trilha de acesso; no lote, a recusa vira bloqueio explícito. Gravação interrompida não deixa entrada
+  fantasma na memória; a trava do Windows é liberada explicitamente (TEST-460 a 464).
+- Operar × aprovar: quem reinicia um cenário pelo dashboard é o solicitante dos pedidos (POL-13); sem empresa
+  cadastrada, o porte micro escolhido no reinício não dispensa a POL-13 (TEST-453, TEST-465).
+- Servidor: a dica da conta de demonstração aparece na tela de entrada só com `--demo` (TEST-466); o login com
+  corpo grande demais drena o corpo antes do 413 (TEST-118 intermitente).
+- Suíte a partir do ZIP: o teste do wheel é pulado sem setuptools, wheel ou ensurepip; um teste confere que todo
+  link relativo dos `.md` da entrega abre dentro do ZIP.
+- Experimento: bloco E exploratório (`python -m fin_mas.estudo_e`), com pedidos concorrentes, frequência de
+  irregularidades por tipo e volume com tempo de parede; 660 execuções, 30 seeds, desvio-padrão e IC por
+  bootstrap (TEST-467 a 469).
+- Correção simulada da entrega (avaliador independente, só com o ZIP): a trava da memória passou para o lado do
+  arquivo de dados (com pastas de chaves diferentes, dois processos liberavam os dois waivers; TEST-470); a memória
+  do dashboard de demonstração fica em arquivo e o reinício do cenário não a apaga (TEST-471, TEST-472); limpar é o
+  comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
+  principal mostram o desvio-padrão entre seeds, como o pré-registro prometia. Na segunda rodada, a POL-13 passou a
+  conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
+- Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
+  local; agora leem em UTF-8.
+- Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun
+  nem Node; o empacotador recusa build ausente ou mais velha que as fontes da interface. Antes, quem seguia o README
+  a partir do ZIP recebia um 404 pedindo `npm run build`.
+- Apresentação em vídeo de 15 a 30 minutos, com foco no código-fonte e nos testes (aviso do professor): roteiro em
+  cinco partes, com arquivo e função de cada trecho, as evidências pedidas (negociação, hipótese confirmada e
+  refutada, fechamento bloqueado, aprovação indevida recusada, POL-06 ao vivo) e os dois autores em arquitetura e
+  segurança; 20 slides.
+
 ## DSM4 — revisão de entrega (25/11/2026)
 
 - A POL-06 relê e registra todos os padrões na mesma transação. O ticket perdedor permanece pendente, inclusive entre processos; a restauração de backup preserva o contador monotônico.

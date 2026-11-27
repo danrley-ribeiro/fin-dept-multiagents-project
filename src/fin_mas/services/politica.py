@@ -357,17 +357,19 @@ class PoliticaAprovacao:
         quem = f"{sessao.usuario} (por delegação de {delegante['usuario']})" if delegante else sessao.usuario
         if decisao not in permissoes.decisoes_do_cargo(cargo_efetivo):
             return negar("POL-02", f"{quem} ({cargo}) não pode decidir '{decisao}'")
-        pessoas = [(sessao.pessoa_erp, sessao.usuario)] + ([(delegante.get("pessoa_erp"), delegante["usuario"])]
-                                                           if delegante else [])
+        from fin_mas.services.iam import pessoa_canonica
+        envolvidos = {pessoa_canonica(p) for p in t["envolvidos"]}
+        pessoas = [(pessoa_canonica(sessao.pessoa_erp), sessao.usuario)] + (
+            [(pessoa_canonica(delegante.get("pessoa_erp")), delegante["usuario"])] if delegante else [])
         for pessoa_erp, nome in pessoas:
-            if pessoa_erp and pessoa_erp in t["envolvidos"]:
+            if pessoa_erp and pessoa_erp in envolvidos:
                 return negar("POL-03", f"{nome} participou de um lançamento vetado e não pode decidir sobre ele")
         compensatorio = None
         # POL-13 pela conta e pela pessoa do ERP (como a POL-12): duas contas da mesma pessoa não contornam "quem
         # pede não aprova" (correção simulada da DSM4: a conta "elisa.op" pediu e a conta "elisa" aprovou)
         solicitante = t.get("solicitado_por")
         conta_solicitante = self.acesso.conta(solicitante) if solicitante and hasattr(self.acesso, "conta") else None
-        pessoa_solicitante = (conta_solicitante or {}).get("pessoa_erp")
+        pessoa_solicitante = pessoa_canonica((conta_solicitante or {}).get("pessoa_erp"))
         for pessoa_erp, nome in pessoas:
             if solicitante and (solicitante == nome or (pessoa_solicitante and pessoa_erp == pessoa_solicitante)):
                 if not self.controle_compensatorio:

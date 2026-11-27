@@ -3786,7 +3786,19 @@
 :derived_from: SVC-POL
 
 `test_two_accounts_of_the_same_person_cannot_request_and_approve()` — tipo *seguranca*.  
-**Resultado esperado:** a conta elisa.op (mesma pessoa do ERP) pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa; outra pessoa decide  
+**Resultado esperado:** a conta elisa.op (mesma pessoa do ERP, com qualquer grafia: elisa, Elisa, ' elisa ') pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa e o painel já mostra o impedimento; outra pessoa decide  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_state_shows_the_live_ticket_options_after_a_recurrence_refusal
+:id: TEST-477
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_state_shows_the_live_ticket_options_after_a_recurrence_refusal()` — tipo *interface*.  
+**Resultado esperado:** depois da recusa do waiver pela POL-06, /api/estado e /api/aprovacoes mostram as mesmas opções vivas do ticket, sem o waiver  
 **Execução:** DSM4 (status atual: executado).
 ````
 

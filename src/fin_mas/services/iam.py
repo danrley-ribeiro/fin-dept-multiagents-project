@@ -64,6 +64,15 @@ PAPEL_ADM = "ROLE-ADM"
 MANTER = object()  # sentinela: "não alterar este campo" (diferente de None, que remove)
 
 
+def pessoa_canonica(pessoa):
+    """Forma canônica da pessoa do ERP (sem espaços nas pontas, sem diferença de maiúsculas). É a forma gravada no
+    cadastro e a usada nas POL-03, POL-12 e POL-13: "Elisa" e "elisa " são a mesma pessoa que "elisa" (correção
+    simulada da DSM4: uma grafia diferente contornava "quem pede não aprova")."""
+    if not isinstance(pessoa, str) or not pessoa.strip():
+        return pessoa if not isinstance(pessoa, str) else None
+    return pessoa.strip().casefold()
+
+
 class AcessoNegado(PermissionError):
     """Negação com a regra aplicada; a mensagem pode ir para a interface (nunca traz segredo)."""
 
@@ -248,7 +257,8 @@ class Acesso(AcessoAvancado):
         return self.conta(usuario)
 
     def _nova(self, usuario, nome, papeis, senha, pessoa_erp, cargo, trocar) -> dict:
-        return {"usuario": usuario, "nome": nome, "papeis": list(papeis), "pessoa_erp": pessoa_erp, "cargo": cargo,
+        return {"usuario": usuario, "nome": nome, "papeis": list(papeis), "pessoa_erp": pessoa_canonica(pessoa_erp),
+                "cargo": cargo,
                 "estado": "ativa", "senha": _hash_senha(senha, self.custo) if senha else None, "trocar_senha": trocar,
                 "falhas": 0, "bloqueada_ate": None, "criada_em": round(self.relogio(), 3)}
 
@@ -303,6 +313,8 @@ class Acesso(AcessoAvancado):
                                                                     or not pessoa_erp.strip()):
             # "" apagaria o vínculo sem pedido explícito (e a POL-03 deixaria de reconhecer a pessoa)
             raise AcessoNegado("IAM-05", "pessoa do ERP vazia: para remover o vínculo, peça explicitamente")
+        if pessoa_erp is not MANTER:
+            pessoa_erp = pessoa_canonica(pessoa_erp)
         novos = {k: v for k, v in (("pessoa_erp", pessoa_erp), ("cargo", cargo)) if v is not MANTER}
         if not novos:
             raise AcessoNegado("IAM-05", "informe a pessoa do ERP, o cargo ou ambos")

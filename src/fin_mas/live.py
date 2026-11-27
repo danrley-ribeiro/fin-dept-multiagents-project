@@ -308,7 +308,10 @@ class Simulacao:
                 "conversas": {cid: {"protocolo": c.protocol.id, "estado": c.state, "iniciador": c.initiator,
                                     "contraparte": c.counterpart, "final": c.is_final}
                               for cid, c in s.bus.conversations.items()},
-                "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content}
+                # opções vivas do ticket (a política pode tirar o waiver depois da proposta, POL-06): as mesmas de
+                # /api/aprovacoes; antes vinham do conteúdo da proposta e ficavam desatualizadas
+                "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content,
+                                       "opcoes": s.aprovador._opcoes(m)}
                                       for sid, m in s.aprovador.pendentes.items()
                                       if not s.bus.conversations[m.conversation_id].is_final],  # vencidas saem
                 "solicitacoes": {sid: (lambda r: None if r is None else {"performative": r.performative,

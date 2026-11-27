@@ -69,7 +69,7 @@ from fin_mas.live import PERMISSAO_COMANDO, ComandoInvalido, Simulacao
 from fin_mas.recursos import web_dist
 from fin_mas.services import consulta, explicacao, provedores
 from fin_mas.services.audit import formatar
-from fin_mas.services.iam import SENHA_DEMO, AcessoNegado, SegundoFatorPendente, criar_demo
+from fin_mas.services.iam import SENHA_DEMO, AcessoNegado, SegundoFatorPendente, criar_demo, pessoa_canonica
 from fin_mas.services.modelos import PERMITIDOS, USOS_POR_AGENTE
 from fin_mas.services.selado import ArquivoComprometido
 
@@ -363,7 +363,19 @@ def _solicitacoes(sim) -> list[dict]:
         return saida
 
 
+def _mesma_pessoa_que_pediu(t, sessao, pessoa, acesso) -> bool:
+    """A mesma regra da POL-13 na política: a conta que pediu, ou outra conta da mesma pessoa do ERP."""
+    solicitante = t.get("solicitado_por")
+    if not solicitante:
+        return False
+    if solicitante == sessao.usuario:
+        return True
+    conta = acesso.conta(solicitante) if pessoa and acesso is not None else None
+    return bool(pessoa and conta and pessoa_canonica(conta.get("pessoa_erp")) == pessoa)
+
+
 def _aprovacoes(sim, sessao) -> list[dict]:
+    pessoa = pessoa_canonica(sessao.pessoa_erp)
     with sim.lock:
         politica, pendentes = sim.sistema.politica, sim.sistema.aprovador.pendentes
         saida = []
@@ -372,10 +384,12 @@ def _aprovacoes(sim, sessao) -> list[dict]:
             if t["estado"] == "pendente":
                 if not sessao.pode("PERM-APR-DECIDIR"):
                     impedimento = "sua conta não tem o papel de aprovador"
-                elif sessao.pessoa_erp and sessao.pessoa_erp in t["envolvidos"]:
+                elif pessoa and pessoa in {pessoa_canonica(p) for p in t["envolvidos"]}:
                     impedimento = "POL-03: você participou de um lançamento vetado"
-                elif t.get("solicitado_por") == sessao.usuario and not politica.controle_compensatorio:
-                    impedimento = "POL-13: você fez esta solicitação"
+                elif not politica.controle_compensatorio and _mesma_pessoa_que_pediu(t, sessao, pessoa, sim.acesso):
+                    impedimento = ("POL-13: você fez esta solicitação" if t.get("solicitado_por") == sessao.usuario
+                                   else f"POL-13: a solicitação foi feita pela conta {t['solicitado_por']}, da mesma "
+                                        "pessoa do ERP")
             saida.append({"id": t["id"], "solicitacao": t["solicitacao"], "competencia": t["competencia"],
                           "estado": t["estado"], "classe": t["classe"], "opcoes": t["opcoes"], "negadas": t["negadas"],
                           "achados": t["achados"], "correcoes_sugeridas": t["correcoes_sugeridas"],

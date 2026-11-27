@@ -28,6 +28,11 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
 - Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
   local; agora leem em UTF-8.
+- Experimento (terceira correção simulada): o workflow equivalente passou a usar a mesma memória da POL-06 (SVC-MEM,
+  com a chave de reincidência do AG-CIN) e a recusar mês já atendido na fila, o equivalente à reserva de período
+  (TEST-474 a 476). O bloco E ganhou o fator porte e o aprovador sorteado (900 execuções): publicações, recusas,
+  waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
+  experimento principal não muda (mesmo CSV, `b324fc61…`).
 - Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun
   nem Node; o empacotador recusa build ausente ou mais velha que as fontes da interface. Antes, quem seguia o README
   a partir do ZIP recebia um 404 pedindo `npm run build`.

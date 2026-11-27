@@ -582,6 +582,9 @@ resposta).
     probabilidades (15%, 40%, 80%) e os volumes (12, 96, 400) foram fixados antes da primeira
     execução do bloco. A medida do tempo de parede foi corrigida uma vez, antes da análise: cobria
     também o cálculo das métricas; passou a cobrir só o fechamento. O `execucoes.csv` não mudou.
+    Depois da correção simulada da entrega, o workflow passou a ter a memória da POL-06 e a recusa
+    de mês já atendido, e o bloco ganhou o fator porte e o aprovador sorteado (900 execuções). A
+    primeira versão está no histórico do git.
 
 ## Ameaças à validade
 
@@ -672,10 +675,15 @@ Foram 240 pares de fechamento nominal. Cruzamos 30 sementes com dois portes (peq
 
 Ambos classificaram corretamente a conformidade em todos os fechamentos e publicaram zero críticas sem tratamento. Mais meses com violação exigiram mais intervenções e mensagens. Aumentar o volume de 12 para 96 lançamentos, mantendo a semente e o plantio, preservou essas métricas. O relógio lógico avança por etapa e mensagem. Este ensaio não mede a capacidade de processamento em lançamentos por segundo. Dados linha a linha em [carga.csv](resultados/carga.csv). O bloco E, abaixo, substitui este ensaio na análise.
 
-## Bloco E — pedidos concorrentes, frequência de irregularidades e volume
+## Bloco E — pedidos concorrentes, frequência de irregularidades, volume e porte
 
-Exploratório (desvio 14). Compara o SMA básico e o workflow equivalente nas seeds 1 a 30, porte
-média, aprovador que corrige: 660 execuções em `resultados/bloco_e/`. Cada seed sorteia, para cada
+Exploratório (desvio 14). Compara o SMA básico e o workflow equivalente nas seeds 1 a 30: 900
+execuções em `resultados/bloco_e/`. O workflow atende os pedidos em fila com a **mesma memória**
+(SVC-MEM, a POL-06 vale entre pedidos) e **recusa mês já atendido** na fila, que é o equivalente,
+num controlador único, à reserva de período do SMA. A equivalência na reincidência é testada
+(TEST-474, TEST-475). O aprovador corrige nos fatores frequência e volume, para isolá-los, e é
+sorteado por seed (corrigir, waiver ou bloquear) nos fatores concorrência e porte; o mesmo aprovador
+decide nos dois braços. Cada seed sorteia, para cada
 um de quatro tipos de irregularidade (alçada, SoD, duplicidade, competência), se ele é plantado;
 os sorteios são aninhados (o que sai na frequência baixa sai também na média e na alta). A
 unidade é a seed; as tabelas trazem média, **desvio-padrão** e IC de 95% por bootstrap; os testes
@@ -685,15 +693,25 @@ são Wilcoxon pareados por seed, com Holm dentro de cada fator. Tabelas completa
 python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # menos de 1 minuto; execucoes.csv idêntico
 ```
 
-**Pedidos concorrentes.** Com 2 e 4 pedidos simultâneos do mesmo mês, o SMA reserva o período
-(PROT-LCK), publica um e recusa os demais: zero publicações indevidas em todas as seeds. O workflow
-atende em fila e não tem reserva: publica o mesmo mês 2 e 4 vezes (1 e 3 publicações indevidas,
-p < 0,001). A diferença vem de um mecanismo que o workflow equivalente não implementa (ele é
-equivalente para **um** pedido); num controlador único, o equivalente seria recusar mês já
-publicado. Com meses diferentes, o SMA atende em paralelo: 19,8 ± 2,2 ticks para 1, 2 ou 4
-pedidos, contra 37,7 ± 4,3 e 75,3 ± 8,6 do workflow em fila. Um controlador com vários
-atendentes também paralelizaria; o ganho é do atendimento simultâneo com reserva, não da
-autonomia. O custo é de coordenação: cerca de 24 mensagens por pedido no SMA, contra 1,5.
+**Pedidos concorrentes.** Com os mesmos mecanismos nos dois braços, o resultado é o mesmo. Com 2 e
+4 pedidos simultâneos do mesmo mês, os dois publicam no máximo uma vez e recusam os demais: zero
+publicações indevidas (no SMA, pela reserva do período; no workflow, pela recusa de mês já
+atendido). Com meses diferentes e o aprovador pedindo waiver, a POL-06 deixa passar um waiver por
+padrão nos dois braços (0,23 e 0,30 waiver por seed, idênticos). Publicações, recusas, waivers e
+críticas sem tratamento são iguais seed a seed. O que difere é o tempo e o custo:
+- com meses diferentes, o SMA atende em paralelo (17,1 ± 2,8 ticks para 2 ou 4 pedidos), contra
+  32,4 ± 4,9 e 64,2 ± 10,0 do workflow em fila (p < 0,001). Um controlador com vários atendentes
+  também paralelizaria; o ganho é do atendimento simultâneo, não da autonomia;
+- o custo é de coordenação: cerca de 22 mensagens por pedido no SMA, contra 1,5.
+
+Na primeira versão do bloco E o workflow não tinha memória nem recusa de mês já atendido e publicava
+o mesmo mês 2 e 4 vezes. A correção simulada da entrega apontou que isso comparava um mecanismo
+presente com um ausente, e o workflow passou a ter os dois.
+
+**Porte.** Nos quatro portes (micro, pequena, média, grande), com o aprovador sorteado, os dois
+braços publicam, recusam e concedem waiver igualmente; nenhuma crítica é publicada sem tratamento.
+A diferença é a mesma em todos: cerca de 0,7 tick a mais e 21 mensagens a mais por fechamento no
+SMA.
 
 **Frequência de irregularidades.** Com 15%, 40% e 80% de chance por tipo, as intervenções humanas
 sobem de 0,2 para 0,8 e 1,0 por fechamento, as críticas corrigidas de 0,2 para 1,0 e 2,2, e as
@@ -703,8 +721,7 @@ mesmas críticas: a frequência muda o custo, não a qualidade.
 
 **Volume.** Com 12, 96 e 400 lançamentos de base, os ticks não mudam, por construção (o relógio do
 barramento conta eventos, não lançamentos). O custo aparece no tempo de parede: o SMA passa de
-0,012 s para 0,030 s por fechamento (400 × 12, p < 0,001, Cliff 1,0) e o workflow, de 0,001 s
-para 0,002 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
+0,012 s para 0,032 s por fechamento (400 × 12, p < 0,001) e o workflow, de 0,001 s para 0,002 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
 varia entre rodadas na mesma máquina (uma rodada anterior deu 0,037 s e 0,097 s), mas a proporção
 se manteve: cerca de 2,6 vezes de 12 para 400 lançamentos no SMA. Serve como ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
 CSV reproduzível.
@@ -712,7 +729,8 @@ CSV reproduzível.
 **Variabilidade.** Na DSM3 as réplicas só confirmavam o determinismo (desvio zero). No bloco E as
 métricas que dependem dos plantios variam entre seeds (por exemplo, ticks 19,8 ± 2,2 e mensagens
 24,1 ± 1,7 por fechamento na frequência média; intervenções 0,2 ± 0,4 na baixa). O desvio é zero
-onde deve ser: publicações e recusas sob concorrência são decididas pela reserva, não pelos dados,
+onde deve ser: as recusas sob concorrência são decididas pela reserva (ou pela recusa de mês já atendido), não pelos dados,
 e na frequência alta todas as seeds plantam ao menos uma irregularidade (um ticket, uma
 intervenção por fechamento), enquanto as críticas corrigidas ainda variam (1 a 3). Duas execuções do bloco produzem o mesmo
-`execucoes.csv` (SHA-256 `ad88a6a8…`, versão 1.1.0).
+`execucoes.csv` (SHA-256 `98853cd2…`, versão 1.1.0, com o workflow com memória e recusa de mês já
+atendido).

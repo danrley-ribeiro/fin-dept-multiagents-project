@@ -189,19 +189,20 @@ O workflow ganha por construção: o modelo de falhas só atinge mensagens entre
 Danrley. A latência entre os braços é modelada, não medida.
 :::
 
-# Bloco E: concorrência, frequência e volume
+# Bloco E: concorrência, frequência, volume e porte
 
-| 30 seeds, SMA básico × workflow equivalente | SMA | Workflow |
+| 30 seeds, SMA básico × workflow equivalente (mesma memória, recusa de mês já atendido) | SMA | Workflow |
 |---|---|---|
-| 4 pedidos do mesmo mês: publicações indevidas | 0 (reserva) | 3 (fila sem reserva) |
-| 4 meses diferentes: ticks até o último | 19,8 | 75,3 (em fila) |
-| mensagens por pedido | ≈ 24 | ≈ 1,5 |
+| 4 pedidos do mesmo mês: publicações indevidas | 0 (reserva) | 0 (recusa) |
+| meses diferentes, aprovador pede waiver: waivers por padrão | 1 (POL-06) | 1 (POL-06) |
+| 4 meses diferentes: ticks até o último | 17,1 (paralelo) | 64,2 (em fila) |
+| mensagens por pedido | ≈ 22 | ≈ 1,5 |
 | irregularidades 15% → 80%: intervenções humanas | 0,2 → 1,0 | 0,2 → 1,0 |
-| críticas publicadas sem tratamento | 0 | 0 |
-| 12 → 400 lançamentos: tempo de parede | 0,012 → 0,030 s | 0,001 → 0,002 s |
+| quatro portes: publicações, recusas, waivers | iguais | iguais |
+| 12 → 400 lançamentos: tempo de parede | 0,012 → 0,032 s | 0,001 → 0,002 s |
 
 ::: notes
-Jiliard. Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). As métricas agora variam entre seeds. A reserva é um mecanismo que o workflow equivalente não tem; o paralelismo também seria possível num controlador com vários atendentes. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
+Jiliard. Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). As métricas variam entre seeds. Com os mesmos mecanismos nos dois braços (memória da POL-06 e recusa de mês já atendido no workflow), o resultado é igual seed a seed; o que sobra é o paralelismo, que um controlador com vários atendentes também teria, e o custo em mensagens. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.
 :::
 
 # Três rodadas do experimento
@@ -232,7 +233,7 @@ Danrley. Cada item tem teste. O waiver é gravado antes de a decisão chegar ao 
 
 - O SMA não ganha do workflow em nenhuma métrica de resultado; recuperação é um reenvio por subtarefa
 - Orquestrador é ponto único de falha, não exercitado; a robustez favorece o workflow por construção
-- O workflow equivalente vale para um pedido: não tem memória da POL-06 nem reserva de período
+- O workflow equivalente atende em fila: não paraleliza meses diferentes (um controlador com vários atendentes paralelizaria)
 - Em aberto: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
 - O waiver é gravado antes de a decisão chegar ao Orquestrador; a conta de demonstração `avaliador` acumula papéis por praticidade
 - Cognição local sem ganho; nenhum LLM real avaliado; dados sintéticos, uma máquina, só loopback

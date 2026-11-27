@@ -854,6 +854,15 @@ TEST-460 a TEST-464 cobrem a reexecução com a mesma memória, o lote, a grava�
 conservadora: o waiver é gravado antes de a decisão chegar ao Orquestrador; se ela se perdesse depois, a
 reincidência bloquearia um waiver futuro (Seção~\ref{sec:limitacoes}).
 
+\subsection{Onde mora a garantia da POL-06}
+A garantia de que dois waivers do mesmo padrão não passam fica num serviço (SVC-POL com o SVC-MEM) chamado pelo
+barramento como validador do PROT-APR, e não numa negociação entre agentes. É uma decisão de segurança: um agente pode
+falhar, perder mensagens ou ser comprometido, e a regra não pode depender de ele cooperar. O comportamento coletivo
+continua nos agentes: o AG-CIN marca a reincidência ao vetar, a política deixa de oferecer o waiver, o Orquestrador
+respeita a decisão; o serviço só garante que, mesmo se essa cooperação falhar, a decisão é conferida e registrada numa
+transação sob trava. O preço é concentrar a garantia num componente, o que o relatório registra junto do Orquestrador
+como ponto único (Seção~\ref{sec:limitacoes}).
+
 \subsection{Operar e aprovar}
 Também a pedido do professor, as permissões de operação e de aprovação foram revistas. Quem reinicia um cenário pelo
 dashboard dispara os pedidos dele: os pedidos ficam no nome de quem reiniciou e a POL-13 (quem pede não aprova) vale
@@ -862,22 +871,26 @@ controle compensatório do porte micro, que dispensa a POL-13, deixou de valer p
 (TEST-453 e TEST-465). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
 precisam deles são pulados, não falham.
 
-\subsection{Bloco E: pedidos concorrentes, frequência de irregularidades e volume}
+\subsection{Bloco E: pedidos concorrentes, frequência de irregularidades, volume e porte}
 Os blocos A a D não variavam três fatores pedidos no feedback. O bloco E, acrescentado depois dos blocos A a D e por
 isso exploratório (desvio do pré-registro declarado em \code{docs/dsm4/resultados.md}), compara o SMA básico e o
-workflow equivalente sob as mesmas 30 seeds, no porte médio, com o aprovador que corrige: 660 execuções em
-\code{docs/dsm4/resultados/bloco\_e/}. A unidade é a seed; as tabelas trazem média, desvio-padrão e IC de 95\% por
+workflow equivalente sob as mesmas 30 seeds: 900 execuções em \code{docs/dsm4/resultados/bloco\_e/}. O workflow atende
+os pedidos em fila com a \emph{mesma memória} (SVC-MEM: a POL-06 vale entre pedidos) e recusa mês já atendido na fila,
+o equivalente, num controlador único, à reserva de período do SMA; a equivalência na reincidência é testada
+(TEST-474 e TEST-475). O aprovador corrige nos fatores frequência e volume e é sorteado por seed (corrigir, waiver ou
+bloquear) em concorrência e porte, o mesmo nos dois braços. A unidade é a seed; as tabelas trazem média, desvio-padrão e IC de 95\% por
 bootstrap, e os testes são Wilcoxon pareados com Holm dentro de cada fator. As irregularidades são sorteadas por seed
 (quatro tipos, cada um com sua probabilidade), por isso as métricas variam entre seeds, ao contrário da DSM3.
 
-\paragraph{Pedidos concorrentes.} Com pedidos simultâneos do \emph{mesmo} mês, o SMA reserva o período (PROT-LCK),
-publica um e recusa os demais: zero publicações indevidas. O workflow, que atende em fila e não tem reserva, publica o
-mesmo mês duas e quatro vezes (uma e três publicações indevidas; $p<0{,}001$). Esta vantagem vem de um mecanismo
-que o workflow equivalente não implementa, e não do paradigma: num controlador único, o equivalente seria recusar mês
-já publicado. Com meses \emph{diferentes}, o SMA atende em paralelo: 19,8 ticks para um, dois ou quatro pedidos,
-contra 37,7 e 75,3 ticks do workflow em fila ($p<0{,}001$); um controlador com vários atendentes também
-paralelizaria, e o ganho de tempo é do atendimento simultâneo com reserva, não da autonomia dos agentes. O custo é de coordenação: cerca de 24 mensagens por
-pedido no SMA, contra 1,5 no workflow.
+\paragraph{Pedidos concorrentes e porte.} Com os mesmos mecanismos nos dois braços, o resultado é o mesmo:
+publicações, recusas, waivers e críticas sem tratamento são iguais seed a seed, nos quatro portes. Com 2 e 4 pedidos do
+\emph{mesmo} mês, os dois publicam no máximo uma vez (zero publicações indevidas); com meses diferentes e o aprovador
+pedindo waiver, a POL-06 deixa passar um waiver por padrão nos dois. O que difere é o tempo e o custo. Com meses
+\emph{diferentes}, o SMA atende em paralelo (17,1 ticks para dois ou quatro pedidos) contra 32,4 e 64,2 ticks do
+workflow em fila ($p<0{,}001$); um controlador com vários atendentes também paralelizaria, e o ganho é do
+atendimento simultâneo, não da autonomia. O custo é de coordenação: cerca de 22 mensagens por pedido no SMA, contra
+1,5. Na primeira versão do bloco, o workflow não tinha memória nem recusa de mês já atendido e publicava o mesmo mês
+mais de uma vez; a correção simulada apontou que isso media um mecanismo ausente, e ele passou a ter os dois.
 
 \paragraph{Frequência de irregularidades.} Com 15\%, 40\% e 80\% de chance por tipo, crescem as mensagens, o tempo,
 as intervenções humanas (0,2, 0,8 e 1,0 por fechamento) e as reconsiderações de intenção do SMA (0,4, 1,5 e 2,0;
@@ -885,7 +898,7 @@ o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em n
 as mesmas críticas: a frequência muda o custo, não a qualidade.
 
 \paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
-barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,012 s para 0,030 s por
+barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,012 s para 0,032 s por
 fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,001 s para 0,002 s. O SMA é mais caro em
 tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
 entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica

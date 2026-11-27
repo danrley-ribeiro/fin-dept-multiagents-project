@@ -235,5 +235,6 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
   comparava só o nome da conta, e duas contas da mesma pessoa do ERP pediam e aprovavam. Ela foi
   corrigida com teste (TEST-473, que falha sem a correção). Ficaram declarados como limitação:
   - o caminho de memória sem normalização (falha fechada);
-  - o workflow equivalente, que vale para um pedido;
+  - o workflow equivalente, que valia para um pedido: depois desta rodada ele ganhou a mesma memória da POL-06 e a
+    recusa de mês já atendido, com teste (TEST-474 a 476), e o bloco E ganhou o fator porte e o aprovador sorteado;
   - o bloco E, que é exploratório.

@@ -3718,15 +3718,15 @@
 **Execução:** DSM4 (status atual: executado).
 ````
 
-````{test} test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue
+````{test} test_same_period_requests_publish_once_in_both_arms
 :id: TEST-468
 :entrega: DSM4
 :status: executado
 :verifies: REQ-S02
 :derived_from: PROT-LCK
 
-`test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue()` — tipo *experimento*.  
-**Resultado esperado:** pedidos simultâneos do mesmo mês: o SMA publica um e recusa os demais; o workflow em fila publica o mês mais de uma vez  
+`test_same_period_requests_publish_once_in_both_arms()` — tipo *experimento*.  
+**Resultado esperado:** pedidos simultâneos do mesmo mês: o SMA reserva o período e o workflow recusa mês já atendido na fila; os dois publicam uma vez  
 **Execução:** DSM4 (status atual: executado).
 ````
 
@@ -3787,5 +3787,41 @@
 
 `test_two_accounts_of_the_same_person_cannot_request_and_approve()` — tipo *seguranca*.  
 **Resultado esperado:** a conta elisa.op (mesma pessoa do ERP) pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa; outra pessoa decide  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_equivalent_workflow_applies_recurrence_with_the_same_memory
+:id: TEST-474
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05
+:derived_from: SVC-MEM
+
+`test_equivalent_workflow_applies_recurrence_with_the_same_memory()` — tipo *experimento*.  
+**Resultado esperado:** reincidencia_waiver: o workflow com a mesma memória não oferece o waiver em setembro (POL-06) e chega ao mesmo resultado que o SMA  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_served
+:id: TEST-475
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05
+:derived_from: SVC-MEM
+
+`test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_served()` — tipo *experimento*.  
+**Resultado esperado:** no workflow, o segundo waiver do mesmo padrão não passa e o mesmo mês pedido duas vezes é recusado na segunda  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_recurrence_limits_waivers_in_both_arms
+:id: TEST-476
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-MEM
+
+`test_recurrence_limits_waivers_in_both_arms()` — tipo *experimento*.  
+**Resultado esperado:** bloco E: quatro meses com a mesma violação e aprovador pedindo waiver: um waiver por padrão nos dois braços, nenhuma crítica sem tratamento  
 **Execução:** DSM4 (status atual: executado).
 ````

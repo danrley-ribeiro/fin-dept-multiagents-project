@@ -11,8 +11,16 @@ O professor pediu, além do que os blocos A a D já cobrem, três fatores que es
   lógico (ticks) não depende do volume, por construção do relógio do barramento; quem mede o custo do volume
   é o tempo de parede, que fica num CSV separado porque varia entre execuções e máquinas.
 
-Dois braços, sob as mesmas seeds: o SMA básico e o workflow centralizado equivalente (`baseline_eq`), com o
-mesmo aprovador (decide corrigir). Cada execução vira uma linha de `execucoes.csv`, gravada antes da análise.
+- **porte da empresa** (micro, pequena, média e grande), com frequência média de irregularidades e o
+  aprovador sorteado por seed.
+
+Dois braços, sob as mesmas seeds: o SMA básico e o workflow centralizado equivalente (`baseline_eq`). O workflow
+atende os pedidos em fila com a **mesma memória** (SVC-MEM, POL-06 entre pedidos) e recusa mês já atendido na
+fila, o equivalente, num controlador único, à reserva de período do SMA (revisão de 26/11, depois da correção
+simulada: antes o workflow não tinha nenhum dos dois e o bloco comparava mecanismo presente com mecanismo
+ausente). O aprovador corrige nos fatores frequência e volume (para isolá-los) e é sorteado por seed (corrigir,
+waiver ou bloquear) nos fatores concorrência e porte; o mesmo aprovador decide nos dois braços.
+Cada execução vira uma linha de `execucoes.csv`, gravada antes da análise.
 A análise usa a seed como unidade, IC de 95% por bootstrap, desvio-padrão, Wilcoxon pareado SMA x workflow em
 cada nível e Holm dentro de cada fator (`estudo.comparar`, `estudo.ajustar`).
 
@@ -29,7 +37,7 @@ from pathlib import Path
 from fin_mas import __version__, baseline_eq, estatistica, metricas
 from fin_mas.env.dataset import Ambiente, Dataset
 from fin_mas.env.scenarios import Scenario, run_scenario
-from fin_mas.estudo import ajustar, comparar, medir_sma, protocolos_em_cache, selecionar
+from fin_mas.estudo import PORTES, ajustar, comparar, medir_sma, protocolos_em_cache, selecionar
 
 BRACOS = ("sma_basico", "wf_equivalente")
 PORTE = "media"
@@ -39,13 +47,14 @@ COMPETENCIAS = ("2026-09", "2026-08", "2026-07", "2026-06")
 FREQUENCIAS = {"baixa": 0.15, "media": 0.40, "alta": 0.80}
 TIPOS = ("alcada", "sod", "duplicidade", "competencia")
 VOLUMES = (12, 96, 400)
+DECISOES = ("corrigir", "waiver", "bloquear")
 CAMPOS = ["fator", "nivel", "modo", "braco", "seed", "pedidos", "plantios", "lancamentos", "publicados", "recusados",
           "falhas", "publicacoes_indevidas", "conformidade_correta", "criticas_corrigidas",
           "criticas_publicadas_sem_tratamento", "intervencoes_humanas", "reconsideracoes", "mensagens",
-          "makespan_ticks", "hash"]
+          "makespan_ticks", "waivers", "porte", "decisao", "hash"]
 METRICAS = ("publicados", "recusados", "publicacoes_indevidas", "conformidade_correta", "criticas_corrigidas",
             "criticas_publicadas_sem_tratamento", "intervencoes_humanas", "reconsideracoes", "mensagens",
-            "makespan_ticks")
+            "makespan_ticks", "waivers")
 
 
 def plantios(seed: int, frequencia: float) -> tuple:
@@ -54,18 +63,23 @@ def plantios(seed: int, frequencia: float) -> tuple:
     return tuple(t for t in TIPOS if sorteio.random() < frequencia)
 
 
+def decisao(seed: int) -> str:
+    """Decisão do aprovador nesta seed (concorrência e porte): a mesma nos dois braços."""
+    return random.Random(f"bloco-e-aprovador:{seed}").choice(DECISOES)
+
+
 # ---- execução de um braço ------------------------------------------------------------------------
-def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12) -> dict:
+def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao_aprovador="corrigir") -> dict:
     """`pedidos`: [(competência, plantios), ...] abertos ao mesmo tempo (atraso 1)."""
     agenda = {}
     for c, p in pedidos:
         agenda.setdefault(c, p)
     if len(agenda) == 1 and volume != 12:  # volume: um mês só, com a base de lançamentos pedida
         (c, p), = agenda.items()
-        ambiente = Ambiente.de_dataset(Dataset(seed, competencia=c, porte=PORTE, plantar=p, volume_base=volume))
+        ambiente = Ambiente.de_dataset(Dataset(seed, competencia=c, porte=porte, plantar=p, volume_base=volume))
     else:
-        ambiente = Ambiente(seed, agenda=agenda, porte=PORTE)
-    sc = Scenario("bloco_e", "bloco E", "fechar_mes", decisao_aprovador="corrigir",
+        ambiente = Ambiente(seed, agenda=agenda, porte=porte)
+    sc = Scenario("bloco_e", "bloco E", "fechar_mes", decisao_aprovador=decisao_aprovador, porte=porte,
                   pedidos=tuple(("fechar_mes", c, 1) for c, _ in pedidos))
     inicio = time.perf_counter()
     e = run_scenario(sc, seed=seed, ambiente=ambiente)
@@ -89,21 +103,26 @@ def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12) -> dict:
         **{k: sum(m[k] or 0 for m in medidas) for k in ("criticas_publicadas_sem_tratamento", "intervencoes_humanas",
                                                          "reconsideracoes")},
         "mensagens": sum(m["mensagens_a2a"] for m in medidas),
-        "makespan_ticks": (max(fins) - min(abertura[s] for s in e.sids)) if fins else None, "hash": e.hash,
-        "segundos": segundos,
+        "makespan_ticks": (max(fins) - min(abertura[s] for s in e.sids)) if fins else None,
+        "waivers": sum(1 for r in e.audit.records if r["kind"] == "politica" and r.get("evento") == "decidido"
+                       and r.get("decisao") == "waiver"),
+        "hash": e.hash, "segundos": segundos,
     }
 
 
-def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12) -> dict:
-    """O controlador centralizado atende os pedidos em fila, sobre os mesmos dados (o ERP guarda as correções)."""
+def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao_aprovador="corrigir") -> dict:
+    """O controlador centralizado atende os pedidos em fila, sobre os mesmos dados (o ERP guarda as correções), com a
+    mesma memória (POL-06 entre pedidos) e recusando mês já atendido na fila (equivalente à reserva de período)."""
     ambientes, linhas, digest, segundos = {}, [], hashlib.sha256(), 0.0
+    memoria, atendidos = baseline_eq.nova_memoria(), set()
     for c, p in pedidos:
         if c not in ambientes:
-            ds = Dataset(seed, competencia=c, porte=PORTE, plantar=p, volume_base=volume) if volume != 12 else \
-                Ambiente(seed, agenda={c: p}, porte=PORTE).dataset(c)
+            ds = Dataset(seed, competencia=c, porte=porte, plantar=p, volume_base=volume) if volume != 12 else \
+                Ambiente(seed, agenda={c: p}, porte=porte).dataset(c)
             ambientes[c] = Ambiente.de_dataset(ds)
         inicio = time.perf_counter()
-        w = baseline_eq.executar(seed=seed, ambiente=ambientes[c], decisao_aprovador="corrigir")
+        w = baseline_eq.executar(seed=seed, ambiente=ambientes[c], decisao_aprovador=decisao_aprovador,
+                                 memoria=memoria, atendidos=atendidos)
         segundos += time.perf_counter() - inicio
         criticas = [n for n in w.dataset.gold["nao_conformidades"] if n["severidade"] == "critica"]
         corrigidos = {x["lancamento"] for x in w.dataset.correcoes}
@@ -116,8 +135,9 @@ def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12) -> dict:
     w0 = linhas[0][1]
     return {
         "pedidos": len(pedidos), "lancamentos": sum(len(a.dataset().lancamentos) for a in ambientes.values()),
-        "publicados": sum(1 for _, w, _, _ in linhas if w.publicado), "recusados": 0,
-        "falhas": sum(1 for _, w, _, _ in linhas if not w.publicado),
+        "publicados": sum(1 for _, w, _, _ in linhas if w.publicado),
+        "recusados": sum(1 for _, w, _, _ in linhas if w.status == "recusado"),
+        "falhas": sum(1 for _, w, _, _ in linhas if not w.publicado and w.status != "recusado"),
         "publicacoes_indevidas": sum(n - 1 for n in por_mes.values() if n > 1),
         "conformidade_correta": (estudo_conformidade(w0) if len(pedidos) == 1 else None),
         "criticas_corrigidas": _criticas_corrigidas(a.dataset() for a in ambientes.values()),
@@ -131,6 +151,7 @@ def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12) -> dict:
         "mensagens": sum(sum(1 for r in w.audit.records if r["kind"] in ("open", "send") and r.get("protocol"))
                          for _, w, _, _ in linhas),
         "makespan_ticks": sum(w.ticks for _, w, _, _ in linhas),  # em fila: um depois do outro
+        "waivers": sum(1 for _, w, _, _ in linhas for _, desfecho in w.aprovacoes if desfecho == "waiver"),
         "hash": digest.hexdigest(), "segundos": segundos,
     }
 
@@ -162,11 +183,13 @@ def celulas(replicas: int = 30):
                 if n == 1 and modo == "distintas":
                     continue  # um pedido só: os dois modos são a mesma coisa
                 comps = [COMPETENCIAS[0]] * n if modo == "mesma" else list(COMPETENCIAS[:n])
-                yield "concorrencia", str(n), modo, seed, [(c, base) for c in comps], 12
+                yield "concorrencia", str(n), modo, seed, [(c, base) for c in comps], 12, PORTE, decisao(seed)
         for nivel, p in FREQUENCIAS.items():
-            yield "frequencia", nivel, "-", seed, [(COMPETENCIAS[0], plantios(seed, p))], 12
+            yield "frequencia", nivel, "-", seed, [(COMPETENCIAS[0], plantios(seed, p))], 12, PORTE, "corrigir"
         for v in VOLUMES:
-            yield "volume", str(v), "-", seed, [(COMPETENCIAS[0], base)], v
+            yield "volume", str(v), "-", seed, [(COMPETENCIAS[0], base)], v, PORTE, "corrigir"
+        for porte in PORTES:
+            yield "porte", porte, "-", seed, [(COMPETENCIAS[0], base)], 12, porte, decisao(seed)
 
 
 def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
@@ -174,10 +197,11 @@ def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
     with protocolos_em_cache():
         _sma(1, [(COMPETENCIAS[0], ())])  # aquecimento (imports e caches): fora do tempo de parede medido
         _workflow(1, [(COMPETENCIAS[0], ())])
-        for fator, nivel, modo, seed, pedidos, volume in celulas(replicas):
+        for fator, nivel, modo, seed, pedidos, volume, porte, decide in celulas(replicas):
             for braco in BRACOS:
-                medidas = (_sma if braco == "sma_basico" else _workflow)(seed, pedidos, volume)
+                medidas = (_sma if braco == "sma_basico" else _workflow)(seed, pedidos, volume, porte, decide)
                 linha = {"fator": fator, "nivel": nivel, "modo": modo, "braco": braco, "seed": seed,
+                         "porte": porte, "decisao": decide,
                          "plantios": "+".join(sorted({t for _, p in pedidos for t in p})) or "nenhum", **medidas}
                 linhas.append({k: linha.get(k) for k in CAMPOS})
                 tempos.append({"fator": fator, "nivel": nivel, "modo": modo, "braco": braco, "seed": seed,
@@ -188,7 +212,8 @@ def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
 # ---- análise --------------------------------------------------------------------------------------
 def analisar(linhas, tempos) -> dict:
     niveis = {"concorrencia": [(str(n), m) for n in CONCORRENCIA for m in MODOS if not (n == 1 and m == "distintas")],
-              "frequencia": [(n, "-") for n in FREQUENCIAS], "volume": [(str(v), "-") for v in VOLUMES]}
+              "frequencia": [(n, "-") for n in FREQUENCIAS], "volume": [(str(v), "-") for v in VOLUMES],
+              "porte": [(p, "-") for p in PORTES]}
     descricao, testes = [], []
     for fator, combinacoes in niveis.items():
         for nivel, modo in combinacoes:
@@ -205,7 +230,7 @@ def analisar(linhas, tempos) -> dict:
             sma = selecionar(linhas, fator=fator, nivel=nivel, modo=modo, braco="sma_basico")
             wf = selecionar(linhas, fator=fator, nivel=nivel, modo=modo, braco="wf_equivalente")
             for m in ("makespan_ticks", "mensagens", "publicacoes_indevidas", "criticas_publicadas_sem_tratamento",
-                      "criticas_corrigidas"):
+                      "criticas_corrigidas", "waivers"):
                 testes.append(comparar(f"E:{fator}", f"{nivel}/{modo}", m, sma, wf, "SMA", "workflow"))
     for braco in BRACOS:  # o custo do volume está no tempo de parede: 400 x 12 lançamentos, pareado por seed
         maior = selecionar(tempos, fator="volume", nivel=str(VOLUMES[-1]), braco=braco)
@@ -240,12 +265,14 @@ def _fmt(d) -> str:
 
 def tabela_md(resumo) -> str:
     seeds = max((d["segundos"]["n"] for d in resumo["descricao"]), default=0)
-    linhas = ["# Bloco E: concorrência, frequência de irregularidades e volume", "",
+    linhas = ["# Bloco E: concorrência, frequência de irregularidades, volume e porte", "",
               f"Versão {resumo['versao']}. Cada célula: média ± desvio-padrão [IC 95% por bootstrap], com a seed como",
-              f"unidade ({seeds} seeds). Testes: Wilcoxon pareado por seed (SMA − workflow), Holm dentro de cada fator.", ""]
+              f"unidade ({seeds} seeds). Testes: Wilcoxon pareado por seed (SMA − workflow), Holm dentro de cada fator.",
+              "O workflow atende em fila com a mesma memória (POL-06) e recusa mês já atendido; o aprovador corrige em",
+              "frequência e volume e é sorteado por seed (corrigir, waiver, bloquear) em concorrência e porte.", ""]
     cols = ("publicados", "recusados", "publicacoes_indevidas", "criticas_publicadas_sem_tratamento", "mensagens",
-            "makespan_ticks", "reconsideracoes", "intervencoes_humanas", "segundos")
-    for fator in ("concorrencia", "frequencia", "volume"):
+            "makespan_ticks", "reconsideracoes", "intervencoes_humanas", "waivers", "segundos")
+    for fator in ("concorrencia", "frequencia", "volume", "porte"):
         linhas += [f"## {fator}", "", "| nível | modo | braço | " + " | ".join(cols) + " |",
                    "|" + "---|" * (3 + len(cols))]
         for d in resumo["descricao"]:

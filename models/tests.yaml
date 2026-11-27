@@ -633,8 +633,8 @@ items:
      esperado: "a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real", entrega: DSM4, status: executado}
   - {id: TEST-467, nome: test_block_e_is_reproducible, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: reprodutibilidade,
      esperado: "o bloco E do experimento dá as mesmas linhas em duas execuções (o tempo de parede fica fora)", entrega: DSM4, status: executado}
-  - {id: TEST-468, nome: test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
-     esperado: "pedidos simultâneos do mesmo mês: o SMA publica um e recusa os demais; o workflow em fila publica o mês mais de uma vez", entrega: DSM4, status: executado}
+  - {id: TEST-468, nome: test_same_period_requests_publish_once_in_both_arms, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
+     esperado: "pedidos simultâneos do mesmo mês: o SMA reserva o período e o workflow recusa mês já atendido na fila; os dois publicam uma vez", entrega: DSM4, status: executado}
   - {id: TEST-469, nome: test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
      esperado: "meses diferentes: o SMA atende em paralelo (tempo de um pedido) e o workflow em fila soma os tempos", entrega: DSM4, status: executado}
   - {id: TEST-470, nome: test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: concorrencia,
@@ -645,3 +645,9 @@ items:
      esperado: "serve --demo sem empresa: a simulação principal grava a memória em <pasta de dados>/memoria.json", entrega: DSM4, status: executado}
   - {id: TEST-473, nome: test_two_accounts_of_the_same_person_cannot_request_and_approve, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
      esperado: "a conta elisa.op (mesma pessoa do ERP) pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa; outra pessoa decide", entrega: DSM4, status: executado}
+  - {id: TEST-474, nome: test_equivalent_workflow_applies_recurrence_with_the_same_memory, verifica: [REQ-F05], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "reincidencia_waiver: o workflow com a mesma memória não oferece o waiver em setembro (POL-06) e chega ao mesmo resultado que o SMA", entrega: DSM4, status: executado}
+  - {id: TEST-475, nome: test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_served, verifica: [REQ-F05], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "no workflow, o segundo waiver do mesmo padrão não passa e o mesmo mês pedido duas vezes é recusado na segunda", entrega: DSM4, status: executado}
+  - {id: TEST-476, nome: test_recurrence_limits_waivers_in_both_arms, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "bloco E: quatro meses com a mesma violação e aprovador pedindo waiver: um waiver por padrão nos dois braços, nenhuma crítica sem tratamento", entrega: DSM4, status: executado}

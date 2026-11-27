@@ -202,8 +202,10 @@ evidências pedidas no feedback e os dois autores em arquitetura e segurança. A
   às da terceira rodada em todas as linhas;
 - **bloco E:** duas execuções com o mesmo CSV;
 - **suíte a partir do ZIP:** extraído fora do repositório (sem Git), num venv só com o projeto e o
-  pytest. 677 passaram e nenhum falhou. Foram pulados os 23 da TUI (sem `textual`), um de LLM (sem
-  `anthropic`), o do wheel (sem `setuptools`) e o do empacotamento (sem Git). A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
+  pytest (Python 3.12). Rodada duas vezes seguidas, com `setuptools` e `wheel` para o teste do wheel rodar:
+  nas duas, 701 passaram, nenhum falhou e 4 foram pulados (os 2 módulos da TUI, sem `textual`; um de LLM, sem
+  `anthropic`; o que monta o pacote pelo Git). Os links dos Markdown e a build do dashboard são conferidos
+  dentro do próprio pacote. A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
 feita pelo coautor.
 
 ### Correção simulada da entrega final (26/11/2026)
@@ -251,3 +253,16 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
 
   Tudo foi corrigido, com teste (TEST-473 com as grafias, TEST-477), e o bloco E ganhou a concorrência sob perda
   de mensagens (TEST-478; 1.020 execuções).
+- **Quarta rodada: nota 9,1.** Nenhuma tentativa liberou dois waivers (20 rodadas com dois processos,
+  dashboard com reinícios do cenário e do servidor, CLI concorrente). O avaliador achou:
+  - a pessoa do ERP ainda contornável por acento ou caracteres de largura total ("Élisa" na POL-13, "Cárla"
+    na POL-03);
+  - a suíte do ZIP falhando numa segunda execução, por causa do `build/` deixado pelo teste do wheel;
+  - duas referências de linha erradas no roteiro e números antigos neste arquivo;
+  - o diagrama da arquitetura sem a ligação SVC-POL → SVC-MEM;
+  - a memória "comprometida" quando dois processos criam o mesmo arquivo com grafias diferentes do caminho
+    (limitação que estava declarada).
+
+  Tudo foi corrigido, com teste (TEST-473 e TEST-479 com as grafias Unicode, TEST-480 e TEST-481 para o nome dos
+  arquivos de estado e a migração). Um teste novo confere toda referência de linha do roteiro, e a suíte do ZIP
+  foi rodada duas vezes seguidas sem falha.

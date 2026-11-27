@@ -64,7 +64,7 @@ navegador (Playwright); para o PDF, TeX Live com `latexmk` e `rsvg-convert`; par
 cd codigo                                                   # dentro do zip; no repositório, a raiz
 python3 -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
 source .venv/bin/activate && export PYTHONPATH=src
-python -m pytest                                            # suíte inteira, offline (de 5 a 15 minutos, conforme a máquina)
+python -m pytest                                            # suíte inteira, offline (de 10 a 25 minutos, conforme a máquina)
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)

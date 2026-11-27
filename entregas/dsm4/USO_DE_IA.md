@@ -194,8 +194,8 @@ Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado com
 pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
 evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
 
-- **pytest:** 712 de 712, em 13,4 minutos;
-- **rastreabilidade:** 541 objetos, 0 erros;
+- **pytest:** 716 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 11,8 minutos;
+- **rastreabilidade:** 543 objetos, 0 erros;
 - **vitest:** 12 de 12;
 - **Playwright:** 41 de 41, com o Chromium do Playwright;
 - **experimento inteiro:** rodado duas vezes, com o mesmo `execucoes.csv`; as métricas são iguais

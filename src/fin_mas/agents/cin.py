@@ -326,8 +326,11 @@ class AgenteControlesInternos(AgenteBDI):
         vistos, atuais = set(), []
         for lanc in lancamentos["dados"]:
             violacoes = []
-            teto = alcadas["limites"][alcadas["cargos"][lanc["aprovador"]]]
-            if teto is not None and lanc["valor"] > teto:
+            cargo = alcadas["cargos"].get(lanc["aprovador"])
+            if cargo is None:  # aprovador sem cargo no porte: a alçada não pode ser verificada (antes, KeyError)
+                violacoes.append(("alcada", f"aprovador {lanc['aprovador']} sem cargo cadastrado no porte: "
+                                            "alçada não verificável"))
+            elif (teto := alcadas["limites"][cargo]) is not None and lanc["valor"] > teto:
                 violacoes.append(("alcada", f"valor acima da alçada de {lanc['aprovador']}"))
             if lanc["criador"] == lanc["aprovador"]:
                 extra = f"; {compensatorio['sod']}" if "sod" in compensatorio else ""

@@ -219,7 +219,7 @@ def test_each_role_can_only_do_what_its_permissions_allow(servico):
     desligar = {"tipo": "agente", "agente": "AG-CUS", "online": False}
     modelo = {"tipo": "modelo", "agente": "AG-REL", "llm": True, "modelo": "mock-narrador"}
     esperado = {  # conta -> (pausar, pedir, decidir, desligar, modelo)
-        "operador": (202, 403, 403, 202, 403), "auditor": (403, 403, 403, 403, 403),
+        "operador": (202, 202, 403, 202, 403), "auditor": (403, 403, 403, 403, 403),  # operador também pede (reinicia)
         "bruno": (403, 202, 403, 403, 403), "carla": (403, 403, 202, 403, 202), "admin": (403, 403, 403, 403, 403),
     }
     for usuario, codigos in esperado.items():

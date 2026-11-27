@@ -584,7 +584,7 @@ resposta).
     também o cálculo das métricas; passou a cobrir só o fechamento. O `execucoes.csv` não mudou.
     Depois da correção simulada da entrega, o workflow passou a ter a memória da POL-06 e a recusa
     de mês já atendido, e o bloco ganhou o fator porte, o aprovador sorteado e a concorrência sob perda de
-    mensagens (1.020 execuções). A
+    mensagens e com um especialista fora do ar (1.140 execuções). A
     primeira versão está no histórico do git.
 
 ## Ameaças à validade
@@ -678,7 +678,7 @@ Ambos classificaram corretamente a conformidade em todos os fechamentos e public
 
 ## Bloco E — pedidos concorrentes, frequência de irregularidades, volume e porte
 
-Exploratório (desvio 14). Compara o SMA básico e o workflow equivalente nas seeds 1 a 30: 1.020
+Exploratório (desvio 14). Compara o SMA básico e o workflow equivalente nas seeds 1 a 30: 1.140
 execuções em `resultados/bloco_e/`. O workflow atende os pedidos em fila com a **mesma memória**
 (SVC-MEM, a POL-06 vale entre pedidos) e **recusa mês já atendido** na fila, que é o equivalente,
 num controlador único, à reserva de período do SMA. A equivalência na reincidência é testada
@@ -691,7 +691,7 @@ unidade é a seed; as tabelas trazem média, **desvio-padrão** e IC de 95% por 
 são Wilcoxon pareados por seed, com Holm dentro de cada fator. Tabelas completas em {doc}`tabelas`.
 
 ```bash
-python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # menos de 1 minuto; execucoes.csv idêntico
+python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e   # cerca de 1 a 2 minutos; execucoes.csv idêntico
 ```
 
 **Pedidos concorrentes.** Com os mesmos mecanismos nos dois braços, o resultado é o mesmo. Com 2 e
@@ -717,6 +717,13 @@ nunca em silêncio, e nenhuma crítica é publicada sem tratamento. O tempo até
 p = 0,054). O workflow não troca mensagens entre componentes e não é atingido. É o mesmo resultado do bloco A,
 agora sob concorrência: a distribuição tem um preço em robustez.
 
+**Concorrência com um especialista fora do ar.** Com 2 e 4 meses diferentes ao mesmo tempo e um especialista
+fora do ar por 8 a 30 ticks (a condição `indisponibilidade` do bloco A, sem trocar o aprovador), o SMA publica o
+mesmo que o workflow (1,20 contra 1,23 com 2 meses; 2,27 contra 2,30 com 4; p = 1,0): o reenvio da subtarefa
+recupera. Continua mais rápido (24,9 ticks contra 32,4 e 64,2; p < 0,05), e nenhuma crítica é publicada sem
+tratamento. A comparação com a perda de mensagens mostra onde está o preço da distribuição: um especialista que
+volta é recuperado, mensagens perdidas em vários pontos não.
+
 **Porte.** Nos quatro portes (micro, pequena, média, grande), com o aprovador sorteado, os dois
 braços publicam, recusam e concedem waiver igualmente; nenhuma crítica é publicada sem tratamento.
 A diferença é a mesma em todos: cerca de 0,7 tick a mais e 21 mensagens a mais por fechamento no
@@ -730,7 +737,7 @@ mesmas críticas: a frequência muda o custo, não a qualidade.
 
 **Volume.** Com 12, 96 e 400 lançamentos de base, os ticks não mudam, por construção (o relógio do
 barramento conta eventos, não lançamentos). O custo aparece no tempo de parede: o SMA passa de
-0,011 s para 0,028 s por fechamento (400 × 12, p < 0,001) e o workflow, de 0,001 s para 0,003 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
+0,015 s para 0,039 s por fechamento (400 × 12, p < 0,001) e o workflow, de 0,002 s para 0,003 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
 varia entre rodadas na mesma máquina (uma rodada anterior deu 0,037 s e 0,097 s), mas a proporção
 se manteve: cerca de 2,6 vezes de 12 para 400 lançamentos no SMA. Serve como ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
 CSV reproduzível.
@@ -741,5 +748,5 @@ métricas que dependem dos plantios variam entre seeds (por exemplo, ticks 19,8 
 onde deve ser: as recusas sob concorrência são decididas pela reserva (ou pela recusa de mês já atendido), não pelos dados,
 e na frequência alta todas as seeds plantam ao menos uma irregularidade (um ticket, uma
 intervenção por fechamento), enquanto as críticas corrigidas ainda variam (1 a 3). Duas execuções do bloco produzem o mesmo
-`execucoes.csv` (SHA-256 `a4cfc292…`, versão 1.1.0, com o workflow com memória e recusa de mês já
+`execucoes.csv` (SHA-256 `d0850b42…`, versão 1.1.0, com o workflow com memória e recusa de mês já
 atendido).

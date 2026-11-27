@@ -127,6 +127,10 @@ class Simulacao:
         validar(cmd)
         if self.acesso is not None:  # negado por padrão: sem sessão ou sem a permissão do comando, não entra na fila
             self.acesso.exigir(ator, PERMISSAO_COMANDO[cmd["tipo"]])
+            if cmd["tipo"] == "reiniciar":
+                # reiniciar dispara os pedidos do roteiro do cenário, no nome de quem reiniciou: quem não pode pedir
+                # não reinicia (correção simulada da DSM4: o operador, sem PERM-SOL-CRIAR, criava pedidos)
+                self.acesso.exigir(ator, "PERM-SOL-CRIAR")
             if cmd["tipo"] == "reiniciar" and cmd.get("cognicao") not in (None, self.cognicao or self.cenario.cognicao):
                 self.acesso.exigir(ator, "PERM-MOD-CONFIG")  # mudar o nível de cognição é ajuste de modelo
             cadastro = self.cadastro_da_empresa()

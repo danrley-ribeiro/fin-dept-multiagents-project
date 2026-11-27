@@ -143,3 +143,24 @@ def test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_serve
                         pedidos=(("fechar_mes", "2026-09", 1), ("fechar_mes", "2026-09", 1)))
     fila, _ = _fila_do_workflow(repetido, decisoes=("corrigir", "corrigir"))
     assert [w.status for _, w in fila] == ["publicado", "recusado"]  # como a reserva de período do SMA
+
+
+def test_an_approver_without_a_role_in_the_size_is_an_explicit_finding_in_both_arms():
+    """Correção simulada da DSM4: um aprovador que não existe no cadastro do porte ("Ana" em vez de "ana") derrubava o
+    AG-CIN (KeyError), e o pedido terminava em timeout sem diagnóstico. Agora é violação de alçada ("alçada não
+    verificável"), vetada e corrigida como as outras, e o workflow equivalente faz o mesmo."""
+    from fin_mas.env.dataset import Ambiente
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system(plantar=(), decisao_aprovador="corrigir")
+    s.ambiente.dataset().lancamentos[0]["aprovador"] = "Ana"
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert not [r for r in s.bus.audit.records if r["kind"] == "erro_agente"]
+    assert any("alçada não verificável" in str(r) for r in s.bus.audit.records)  # o motivo fica no trace
+    assert any(r["kind"] == "politica" and r.get("evento") == "emitido" for r in s.bus.audit.records)  # vetado
+    ambiente = Ambiente(42)
+    ambiente.dataset().lancamentos[0]["aprovador"] = "Ana"
+    w = baseline_eq.executar(ambiente=ambiente, decisao_aprovador="corrigir")
+    assert any(a["regra"] == "alcada" and a["lancamento"] == "L-001" for a in w.achados)
+    assert s.usuario.resposta(sid).content["status"] == w.status

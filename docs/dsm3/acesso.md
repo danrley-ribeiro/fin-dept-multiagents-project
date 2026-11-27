@@ -207,7 +207,7 @@ propósito; não use fora de avaliação e aula). O modo ao vivo do comando úni
 |---|---|---|---|---|
 | `avaliador` | OPE, SOL, APR, AUD | controller | — | ver tudo numa conta só (não administra acesso) |
 | `admin` | ADM | — | — | administrar contas, papéis e sessões |
-| `operador` | OPE | — | — | operar a simulação; não pede nem decide |
+| `operador` | OPE, SOL | — | — | operar a simulação e reiniciar cenários (o reinício dispara os pedidos do roteiro, por isso exige PERM-SOL-CRIAR desde a DSM4); não decide |
 | `auditor` | AUD | — | — | ler e exportar logs e trilha; não opera |
 | `controller` | APR, SOL | controller | — | decidir qualquer opção; também pede (aviso POL-13 na TUI) |
 | `elisa` | SOL, APR | diretor | elisa | solicitante dos cenários de acesso; recusada pela POL-13 ao decidir o próprio pedido |

@@ -101,7 +101,7 @@ def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico, gra
 
     sim, acesso, porta = servico("veto_waiver")
     adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
-    acesso.criar_conta(adm, "elisa.op", "Elisa Prado (operação)", SENHA_DEMO, ("ROLE-OPE",), pessoa_erp=grafia,
+    acesso.criar_conta(adm, "elisa.op", "Elisa Prado (operação)", SENHA_DEMO, ("ROLE-OPE", "ROLE-SOL"), pessoa_erp=grafia,
                        trocar_senha=False)
     assert acesso.conta("elisa.op")["pessoa_erp"] == "elisa"  # gravada na forma canônica
     elisa_op, elisa, diego = entrar(porta, "elisa.op"), entrar(porta, "elisa"), entrar(porta, "diego")
@@ -163,3 +163,32 @@ def test_an_account_of_an_involved_person_cannot_decide_with_another_spelling(se
     recusas = [r for r in sim.registros if r["kind"] == "rejected"]
     assert recusas and "POL-03" in recusas[-1]["motivo"]
     assert sid in sim.sistema.aprovador.pendentes
+
+
+def test_restarting_fires_requests_so_it_needs_the_request_permission(servico):  # noqa: F811
+    """Correção simulada da DSM4: o reinício dispara os pedidos do roteiro no nome de quem reiniciou; uma conta só de
+    operação (sem PERM-SOL-CRIAR) criava pedidos assim. Agora reiniciar exige também PERM-SOL-CRIAR."""
+    from fin_mas.services.iam import SENHA_DEMO
+
+    sim, acesso, porta = servico("veto_waiver")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "so.opera", "Só operação", SENHA_DEMO, ("ROLE-OPE",), trocar_senha=False)
+    so_opera = entrar(porta, "so.opera")
+    status, erro = so_opera.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})
+    assert status == 403 and "PERM-SOL-CRIAR" in erro["erro"]
+    assert so_opera.post("/api/comando", {"tipo": "pausar"})[0] == 202  # operar continua permitido
+
+
+@pytest.mark.parametrize("grafia", ["\u0435lisa", "ana lima", "elisa!"])
+def test_an_erp_person_link_outside_the_erp_identifier_format_is_refused(servico, grafia):  # noqa: F811
+    """Homóglifos ("е" cirílico) e textos que não são identificador do ERP não viram vínculo: a forma canônica não
+    fecha essa classe, a validação fecha (correção simulada da DSM4)."""
+    from fin_mas.services.iam import SENHA_DEMO, AcessoNegado
+
+    _, acesso, _ = servico("veto_waiver")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    with pytest.raises(AcessoNegado, match="pessoa do ERP inválida"):
+        acesso.criar_conta(adm, "outra", "Outra conta", SENHA_DEMO, ("ROLE-SOL",), pessoa_erp=grafia,
+                           trocar_senha=False)
+    with pytest.raises(AcessoNegado, match="pessoa do ERP inválida"):
+        acesso.definir_vinculo(adm, "bruno", pessoa_erp=grafia)

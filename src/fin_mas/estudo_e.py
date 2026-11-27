@@ -14,8 +14,9 @@ O professor pediu, além do que os blocos A a D já cobrem, três fatores que es
 - **porte da empresa** (micro, pequena, média e grande), com frequência média de irregularidades e o
   aprovador sorteado por seed;
 - **concorrência sob perda de mensagens** (2 e 4 meses diferentes ao mesmo tempo, com 15% de perda entre
-  agentes, a condição `perda_media` do bloco A): só a perda, sem trocar a decisão do aprovador. O workflow não
-  troca mensagens entre componentes e não é atingido, como no bloco A.
+  agentes, a condição `perda_media` do bloco A) e **concorrência com um especialista fora do ar** (a condição
+  `indisponibilidade` do bloco A), sem trocar a decisão do aprovador. O workflow não troca mensagens entre
+  componentes nem tem especialistas, e não é atingido, como no bloco A.
 
 O fator volume mede só o **tempo de parede**: o relógio lógico conta eventos, não lançamentos, e não muda com
 o volume, por construção.
@@ -71,11 +72,20 @@ def plantios(seed: int, frequencia: float) -> tuple:
 
 
 class SoPerda(ModeloFalhas):
-    """O modelo de falhas do experimento, só com a perda de mensagens entre agentes: não troca o aprovador nem
-    agenda indisponibilidades (a decisão continua a sorteada para a seed, a mesma nos dois braços)."""
+    """O modelo de falhas do experimento sem trocar o aprovador (a decisão continua a sorteada para a seed, a mesma nos
+    dois braços): a perda de mensagens entre agentes e, se pedidas, as indisponibilidades de especialistas, sorteadas
+    como no bloco A."""
 
     def instalar(self, sistema) -> None:
         sistema.bus.caos = self
+        if self.indisponibilidades:
+            from fin_mas.caos import DURACAO_INDISPONIBILIDADE, ESPECIALISTAS, INICIO_INDISPONIBILIDADE
+            bus, rng = sistema.bus, self._rng("indisponibilidade")
+            for _ in range(self.indisponibilidades):
+                agente = rng.choice(ESPECIALISTAS)
+                inicio, duracao = rng.randint(*INICIO_INDISPONIBILIDADE), rng.randint(*DURACAO_INDISPONIBILIDADE)
+                bus.agendar(inicio, lambda a=agente: bus.set_online(a, False), f"caos: {agente} fora do ar por {duracao} ticks")
+                bus.agendar(inicio + duracao, lambda a=agente: bus.set_online(a, True), f"caos: {agente} de volta")
 
 
 def decisao(seed: int) -> str:
@@ -85,7 +95,7 @@ def decisao(seed: int) -> str:
 
 # ---- execução de um braço ------------------------------------------------------------------------
 def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao_aprovador="corrigir",
-         perda=0.0) -> dict:
+         perda=0.0, indisponibilidades=0) -> dict:
     """`pedidos`: [(competência, plantios), ...] abertos ao mesmo tempo (atraso 1)."""
     agenda = {}
     for c, p in pedidos:
@@ -98,7 +108,8 @@ def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao
     sc = Scenario("bloco_e", "bloco E", "fechar_mes", decisao_aprovador=decisao_aprovador, porte=porte,
                   pedidos=tuple(("fechar_mes", c, 1) for c, _ in pedidos))
     inicio = time.perf_counter()
-    e = run_scenario(sc, seed=seed, ambiente=ambiente, caos=SoPerda(seed, perda=perda) if perda else None)
+    caos = SoPerda(seed, perda=perda, indisponibilidades=indisponibilidades) if perda or indisponibilidades else None
+    e = run_scenario(sc, seed=seed, ambiente=ambiente, caos=caos)
     segundos = time.perf_counter() - inicio  # só o fechamento; as medidas abaixo ficam fora do tempo de parede
     medidas = [metricas.medir(e, sid) for sid in e.sids]
     respostas = e.respostas
@@ -127,7 +138,7 @@ def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao
 
 
 def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao_aprovador="corrigir",
-              perda=0.0) -> dict:  # perda: sem mensagens entre componentes, o workflow não é atingido
+              perda=0.0, indisponibilidades=0) -> dict:  # sem especialistas nem mensagens: não é atingido
     """O controlador centralizado atende os pedidos em fila, sobre os mesmos dados (o ERP guarda as correções), com a
     mesma memória (POL-06 entre pedidos) e recusando mês já atendido na fila (equivalente à reserva de período)."""
     ambientes, linhas, digest, segundos = {}, [], hashlib.sha256(), 0.0
@@ -200,17 +211,19 @@ def celulas(replicas: int = 30):
                 if n == 1 and modo == "distintas":
                     continue  # um pedido só: os dois modos são a mesma coisa
                 comps = [COMPETENCIAS[0]] * n if modo == "mesma" else list(COMPETENCIAS[:n])
-                yield "concorrencia", str(n), modo, seed, [(c, base) for c in comps], 12, PORTE, decisao(seed), 0.0
+                yield "concorrencia", str(n), modo, seed, [(c, base) for c in comps], 12, PORTE, decisao(seed), 0.0, 0
         perda = CONDICOES["perda_media"]["perda"]
         for n in CONCORRENCIA[1:]:
             yield ("concorrencia_perda", str(n), "distintas", seed, [(c, base) for c in COMPETENCIAS[:n]], 12, PORTE,
-                   decisao(seed), perda)
+                   decisao(seed), perda, 0)
+            yield ("concorrencia_indisponibilidade", str(n), "distintas", seed, [(c, base) for c in COMPETENCIAS[:n]], 12,
+                   PORTE, decisao(seed), 0.0, 1)
         for nivel, p in FREQUENCIAS.items():
-            yield "frequencia", nivel, "-", seed, [(COMPETENCIAS[0], plantios(seed, p))], 12, PORTE, "corrigir", 0.0
+            yield "frequencia", nivel, "-", seed, [(COMPETENCIAS[0], plantios(seed, p))], 12, PORTE, "corrigir", 0.0, 0
         for v in VOLUMES:
-            yield "volume", str(v), "-", seed, [(COMPETENCIAS[0], base)], v, PORTE, "corrigir", 0.0
+            yield "volume", str(v), "-", seed, [(COMPETENCIAS[0], base)], v, PORTE, "corrigir", 0.0, 0
         for porte in PORTES:
-            yield "porte", porte, "-", seed, [(COMPETENCIAS[0], base)], 12, porte, decisao(seed), 0.0
+            yield "porte", porte, "-", seed, [(COMPETENCIAS[0], base)], 12, porte, decisao(seed), 0.0, 0
 
 
 def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
@@ -218,9 +231,10 @@ def executar(replicas: int = 30) -> tuple[list[dict], list[dict]]:
     with protocolos_em_cache():
         _sma(1, [(COMPETENCIAS[0], ())])  # aquecimento (imports e caches): fora do tempo de parede medido
         _workflow(1, [(COMPETENCIAS[0], ())])
-        for fator, nivel, modo, seed, pedidos, volume, porte, decide, perda in celulas(replicas):
+        for fator, nivel, modo, seed, pedidos, volume, porte, decide, perda, fora in celulas(replicas):
             for braco in BRACOS:
-                medidas = (_sma if braco == "sma_basico" else _workflow)(seed, pedidos, volume, porte, decide, perda)
+                medidas = (_sma if braco == "sma_basico" else _workflow)(seed, pedidos, volume, porte, decide, perda,
+                                                                         fora)
                 linha = {"fator": fator, "nivel": nivel, "modo": modo, "braco": braco, "seed": seed,
                          "porte": porte, "decisao": decide,
                          "plantios": "+".join(sorted({t for _, p in pedidos for t in p})) or "nenhum", **medidas}
@@ -235,7 +249,8 @@ def analisar(linhas, tempos) -> dict:
     niveis = {"concorrencia": [(str(n), m) for n in CONCORRENCIA for m in MODOS if not (n == 1 and m == "distintas")],
               "frequencia": [(n, "-") for n in FREQUENCIAS], "volume": [(str(v), "-") for v in VOLUMES],
               "porte": [(p, "-") for p in PORTES],
-              "concorrencia_perda": [(str(n), "distintas") for n in CONCORRENCIA[1:]]}
+              "concorrencia_perda": [(str(n), "distintas") for n in CONCORRENCIA[1:]],
+              "concorrencia_indisponibilidade": [(str(n), "distintas") for n in CONCORRENCIA[1:]]}
     descricao, testes = [], []
     for fator, combinacoes in niveis.items():
         for nivel, modo in combinacoes:
@@ -292,12 +307,14 @@ def tabela_md(resumo) -> str:
               f"unidade ({seeds} seeds). Testes: Wilcoxon pareado por seed (SMA − workflow), Holm dentro de cada fator.",
               "O workflow atende em fila com a mesma memória (POL-06) e recusa mês já atendido; o aprovador corrige em",
               "frequência e volume e é sorteado por seed (corrigir, waiver, bloquear) em concorrência e porte.",
-              "Em concorrencia_perda, 15% das mensagens entre agentes se perdem (o workflow não as tem). O fator volume",
+              "Em concorrencia_perda, 15% das mensagens entre agentes se perdem; em concorrencia_indisponibilidade, um",
+              "especialista sai do ar por um tempo (como no bloco A); o workflow não tem nenhum dos dois. O fator volume",
               "mede só o tempo de parede: o relógio lógico não muda com o volume, por construção.", ""]
     cols = ("publicados", "recusados", "falhas", "publicacoes_indevidas", "criticas_publicadas_sem_tratamento",
             "mensagens",
             "makespan_ticks", "reconsideracoes", "intervencoes_humanas", "waivers", "segundos")
-    for fator in ("concorrencia", "concorrencia_perda", "frequencia", "volume", "porte"):
+    for fator in ("concorrencia", "concorrencia_perda", "concorrencia_indisponibilidade", "frequencia", "volume",
+                  "porte"):
         linhas += [f"## {fator}", "", "| nível | modo | braço | " + " | ".join(cols) + " |",
                    "|" + "---|" * (3 + len(cols))]
         for d in resumo["descricao"]:

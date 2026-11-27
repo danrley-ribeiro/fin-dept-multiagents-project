@@ -39,6 +39,7 @@ import base64
 import contextlib
 import hashlib
 import hmac
+import re
 import secrets
 import threading
 import time
@@ -73,9 +74,25 @@ def pessoa_canonica(pessoa):
     if not isinstance(pessoa, str):
         return pessoa
     texto = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", pessoa))
-    texto = "".join(c for c in texto if not unicodedata.combining(c))
+    # sem acentos e sem caracteres de formatação invisíveis (espaço de largura zero, hífen suave...)
+    texto = "".join(c for c in texto if not unicodedata.combining(c) and unicodedata.category(c) != "Cf")
     texto = " ".join(texto.split()).casefold()
     return texto or None
+
+
+PESSOA_ERP = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")
+
+
+def validar_pessoa_erp(pessoa):
+    """O vínculo da conta com o ERP é um identificador de pessoa do ERP (ex.: `elisa`): letras ASCII minúsculas,
+    números, ponto, hífen e sublinhado, depois da forma canônica. Homóglifos (o "е" cirílico em "еlisa"), letras de
+    outros alfabetos e espaços não passam: normalizar texto livre não fecha essa classe, validar fecha (correção
+    simulada da DSM4: uma conta "еlisa" pedia e a conta "elisa" aprovava)."""
+    canonica = pessoa_canonica(pessoa)
+    if canonica is not None and (not isinstance(canonica, str) or not PESSOA_ERP.fullmatch(canonica)):
+        raise AcessoNegado("IAM-05", f"pessoa do ERP inválida: {pessoa!r} (use o identificador do ERP: letras sem "
+                                     "acento, números, ponto, hífen ou sublinhado)")
+    return canonica
 
 
 class AcessoNegado(PermissionError):
@@ -275,6 +292,7 @@ class Acesso(AcessoAvancado):
         papeis = self._validar_papeis(papeis)
         if cargo is not None and cargo not in permissoes.cargos():
             raise AcessoNegado("IAM-05", f"cargo desconhecido: {cargo} (use {', '.join(permissoes.cargos())})")
+        pessoa_erp = validar_pessoa_erp(pessoa_erp)
         with self._tx(self._contas) as dados:
             if usuario in dados["contas"]:
                 raise AcessoNegado("IAM-02", f"o usuário {usuario} já existe")
@@ -319,7 +337,7 @@ class Acesso(AcessoAvancado):
             # "" apagaria o vínculo sem pedido explícito (e a POL-03 deixaria de reconhecer a pessoa)
             raise AcessoNegado("IAM-05", "pessoa do ERP vazia: para remover o vínculo, peça explicitamente")
         if pessoa_erp is not MANTER:
-            pessoa_erp = pessoa_canonica(pessoa_erp)
+            pessoa_erp = validar_pessoa_erp(pessoa_erp)
         novos = {k: v for k, v in (("pessoa_erp", pessoa_erp), ("cargo", cargo)) if v is not MANTER}
         if not novos:
             raise AcessoNegado("IAM-05", "informe a pessoa do ERP, o cargo ou ambos")
@@ -647,7 +665,9 @@ SENHA_DEMO = "Demonstracao-SMA-2026"
 CONTAS_DEMO = (
     # usuario, nome, papeis, pessoa_erp, cargo
     ("admin", "Administração de Acesso", ("ROLE-ADM",), None, None),
-    ("operador", "Operação da Plataforma", ("ROLE-OPE",), None, None),
+    # operar e pedir: reiniciar um cenário dispara os pedidos do roteiro (exige PERM-SOL-CRIAR); a POL-13 impede
+    # que quem reiniciou aprove esses pedidos, e o operador não tem o papel de aprovador
+    ("operador", "Operação da Plataforma", ("ROLE-OPE", "ROLE-SOL"), None, None),
     ("auditor", "Auditoria Interna", ("ROLE-AUD",), None, None),
     ("controller", "Controller", ("ROLE-APR", "ROLE-SOL"), None, "controller"),
     ("elisa", "Elisa Prado", ("ROLE-SOL", "ROLE-APR"), "elisa", "diretor"),

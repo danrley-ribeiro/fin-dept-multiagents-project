@@ -266,3 +266,14 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
   Tudo foi corrigido, com teste (TEST-473 e TEST-479 com as grafias Unicode, TEST-480 e TEST-481 para o nome dos
   arquivos de estado e a migração). Um teste novo confere toda referência de linha do roteiro, e a suíte do ZIP
   foi rodada duas vezes seguidas sem falha.
+- **Quinta rodada: nota 9,3.** Nenhum caminho liberou dois waivers (12 corridas entre processos, sete grafias do
+  caminho, dois servidores sobre a mesma pasta, arquivo apagado e versão antiga recolocada). O avaliador achou:
+  - a pessoa do ERP ainda contornável por homóglifo ("е" cirílico) ou caractere invisível;
+  - o `operador` disparando pedidos sem ter a permissão de pedir;
+  - um aprovador sem cargo no porte derrubando o AG-CIN (KeyError) em vez de virar achado;
+  - a demo 7 que, na velocidade padrão, mostra o caso sequencial e não o simultâneo;
+  - tempos declarados abaixo do medido.
+
+  Tudo foi corrigido, com teste (TEST-482 a 485). A correção da pessoa do ERP mudou de natureza: em vez de só
+  normalizar texto livre, o vínculo passou a ser validado como identificador do ERP. O bloco E ganhou a
+  concorrência com um especialista fora do ar.

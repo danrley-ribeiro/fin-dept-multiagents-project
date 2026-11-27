@@ -203,8 +203,11 @@ class Controlador(Agent):
         vistos, por_lancamento = set(), {}
         for lanc in ds.lancamentos:
             v = []
-            teto = p["limites_alcada"][p["pessoas"][lanc["aprovador"]]]
-            if teto is not None and lanc["valor"] > teto:
+            cargo = p["pessoas"].get(lanc["aprovador"])
+            if cargo is None:  # a mesma regra do AG-CIN: aprovador sem cargo no porte é violação de alçada
+                v.append(("alcada", f"aprovador {lanc['aprovador']} sem cargo cadastrado no porte: "
+                                    "alçada não verificável"))
+            elif (teto := p["limites_alcada"][cargo]) is not None and lanc["valor"] > teto:
                 v.append(("alcada", f"valor acima da alçada de {lanc['aprovador']}"))
             if lanc["criador"] == lanc["aprovador"]:
                 extra = f"; {compensatorio['sod']}" if "sod" in compensatorio else ""

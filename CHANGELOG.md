@@ -26,6 +26,11 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
   principal mostram o desvio-padrão entre seeds, como o pré-registro prometia. Na segunda rodada, a POL-13 passou a
   conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
+- Quinta correção simulada: o vínculo da conta com o ERP é validado (identificador ASCII do ERP; homóglifos como o
+  "е" cirílico são recusados, caracteres invisíveis removidos; TEST-483); reiniciar um cenário dispara pedidos e
+  passa a exigir PERM-SOL-CRIAR (a conta de demonstração `operador` ganhou ROLE-SOL; TEST-482); um aprovador sem
+  cargo no porte vira achado de alçada explícito, no AG-CIN e no workflow (antes, KeyError e timeout; TEST-484); o
+  bloco E cruza a concorrência com um especialista fora do ar (1.140 execuções; TEST-485).
 - Quarta correção simulada: a pessoa do ERP passa a ser comparada pela forma canônica completa (Unicode NFKC, sem
   acentos, espaços e maiúsculas: "Élisa" e a grafia em largura total não contornam mais a POL-13, nem "Cárla" a
   POL-03; TEST-473, TEST-479); o nome dos arquivos de estado usa o caminho com `normcase`, com migração do nome
@@ -37,7 +42,7 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
 - Experimento (terceira correção simulada): o workflow equivalente passou a usar a mesma memória da POL-06 (SVC-MEM,
   com a chave de reincidência do AG-CIN) e a recusar mês já atendido na fila, o equivalente à reserva de período
   (TEST-474 a 476). O bloco E ganhou o fator porte, o aprovador sorteado e a concorrência sob perda de mensagens
-  (1.020 execuções; TEST-478): publicações, recusas,
+  (1.020 execuções; TEST-478) e com um especialista fora do ar (1.140 execuções): publicações, recusas,
   waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
   experimento principal não muda (mesmo CSV, `b324fc61…`).
 - Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun

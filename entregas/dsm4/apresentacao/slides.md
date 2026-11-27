@@ -200,7 +200,8 @@ Danrley. A latência entre os braços é modelada, não medida.
 | irregularidades 15% → 80%: intervenções humanas | 0,2 → 1,0 | 0,2 → 1,0 |
 | quatro portes: publicações, recusas, waivers | iguais | iguais |
 | 4 meses com 15% de perda: publicados (de 2,3) | 1,1 (falha explícita) | 2,3 (sem mensagens) |
-| 12 → 400 lançamentos: só tempo de parede | 0,011 → 0,028 s | 0,001 → 0,003 s |
+| 4 meses, um especialista fora do ar: publicados | 2,27 (o reenvio recupera) | 2,30 |
+| 12 → 400 lançamentos: só tempo de parede | 0,015 → 0,039 s | 0,002 → 0,003 s |
 
 ::: notes
 Jiliard. Exploratório, acrescentado depois do feedback da DSM3 (desvio declarado). As métricas variam entre seeds. Com os mesmos mecanismos nos dois braços (memória da POL-06 e recusa de mês já atendido no workflow), o resultado é igual seed a seed; o que sobra é o paralelismo, que um controlador com vários atendentes também teria, e o custo em mensagens. O tempo lógico não depende do volume; o custo aparece no tempo de parede, que é de uma máquina.

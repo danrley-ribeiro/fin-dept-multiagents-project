@@ -3790,6 +3790,54 @@
 **Execução:** DSM4 (status atual: executado).
 ````
 
+````{test} test_restarting_fires_requests_so_it_needs_the_request_permission
+:id: TEST-482
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: ROLE-OPE
+
+`test_restarting_fires_requests_so_it_needs_the_request_permission()` — tipo *seguranca*.  
+**Resultado esperado:** uma conta só de operação (sem PERM-SOL-CRIAR) não reinicia o cenário, que dispara pedidos; continua operando a simulação  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_an_erp_person_link_outside_the_erp_identifier_format_is_refused
+:id: TEST-483
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-IAM
+
+`test_an_erp_person_link_outside_the_erp_identifier_format_is_refused()` — tipo *seguranca*.  
+**Resultado esperado:** vínculo com homóglifo (е cirílico) ou texto que não é identificador do ERP é recusado na criação e na alteração da conta  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_an_approver_without_a_role_in_the_size_is_an_explicit_finding_in_both_arms
+:id: TEST-484
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F05
+:derived_from: ROLE-CIN
+
+`test_an_approver_without_a_role_in_the_size_is_an_explicit_finding_in_both_arms()` — tipo *robustez*.  
+**Resultado esperado:** aprovador sem cargo no porte vira violação de alçada explícita no AG-CIN e no workflow, sem erro de agente, com o mesmo desfecho nos dois  
+**Execução:** DSM4 (status atual: executado).
+````
+
+````{test} test_an_unavailable_specialist_under_concurrency_never_publishes_an_untreated_critical
+:id: TEST-485
+:entrega: DSM4
+:status: executado
+:verifies: REQ-F03
+:derived_from: PROT-SOL
+
+`test_an_unavailable_specialist_under_concurrency_never_publishes_an_untreated_critical()` — tipo *experimento*.  
+**Resultado esperado:** quatro meses ao mesmo tempo com um especialista fora do ar: toda solicitação com resposta explícita, nenhuma crítica sem tratamento; o workflow não é atingido  
+**Execução:** DSM4 (status atual: executado).
+````
+
 ````{test} test_an_account_of_an_involved_person_cannot_decide_with_another_spelling
 :id: TEST-479
 :entrega: DSM4

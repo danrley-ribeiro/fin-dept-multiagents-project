@@ -17,8 +17,8 @@ def test_block_e_is_reproducible():
 
     def medir():
         rodadas = [(estudo_e._sma if b == "sma_basico" else estudo_e._workflow)(seed, pedidos, volume, porte, decide,
-                                                                               perda)
-                   for _, _, _, seed, pedidos, volume, porte, decide, perda in plano for b in estudo_e.BRACOS]
+                                                                               perda, fora)
+                   for _, _, _, seed, pedidos, volume, porte, decide, perda, fora in plano for b in estudo_e.BRACOS]
         return [{k: v for k, v in r.items() if k != "segundos"} for r in rodadas]
     assert medir() == medir()
 
@@ -83,4 +83,17 @@ def test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreate
         assert com["publicados"] <= sem["publicados"]
     wf_sem = {k: v for k, v in estudo_e._workflow(1, pedidos).items() if k != "segundos"}
     wf_com = {k: v for k, v in estudo_e._workflow(1, pedidos, perda=0.15).items() if k != "segundos"}
+    assert wf_sem == wf_com
+
+
+def test_an_unavailable_specialist_under_concurrency_never_publishes_an_untreated_critical():
+    """concorrencia_indisponibilidade: um especialista fora do ar por um tempo (como no bloco A), quatro meses ao mesmo
+    tempo. Todo pedido tem resposta explícita e nenhuma crítica sai sem tratamento; o workflow não é atingido."""
+    pedidos = [(c, ("alcada",)) for c in estudo_e.COMPETENCIAS[:4]]
+    for seed in range(1, 6):
+        com = estudo_e._sma(seed, pedidos, indisponibilidades=1)
+        assert com["criticas_publicadas_sem_tratamento"] == 0
+        assert com["publicados"] + com["falhas"] + com["recusados"] == 4
+    wf_sem = {k: v for k, v in estudo_e._workflow(1, pedidos).items() if k != "segundos"}
+    wf_com = {k: v for k, v in estudo_e._workflow(1, pedidos, indisponibilidades=1).items() if k != "segundos"}
     assert wf_sem == wf_com

@@ -78,10 +78,10 @@ Cada bloco: o slide dá o mapa, a tela vai para o editor e a fala percorre a fun
 | Barramento: a cadeia de validação | J | 2:00 | `src/fin_mas/core/bus.py`, `Bus.send` (l. 171) | Percorrer a ordem das recusas: envelope, autenticação do remetente (credencial), esquema, destinatário, papel no protocolo, conversa, FSM e, por último, a política (l. 266). Cada recusa vira registro `rejected` com a etapa. É aqui que os ataques da DSM2 morrem. |
 | Approval Gate e POL-06 | D | 2:30 | `src/fin_mas/services/politica.py`, `emitir` (l. 143) e `_validar_apr` (l. 234); `src/fin_mas/services/memoria.py`, `_reincide` (l. 142) e `_decidir_waiver` (l. 260) | O ticket guarda o hash do veto, o prazo e as opções. Na decisão, `_validar_apr` confere a pessoa (`_validar_pessoa`: atestado, cargo, envolvido, solicitante) e, no waiver, chama `_decidir_waiver`: relê o histórico **sob a trava**, aplica a mesma regra da oferta (`_reincide`: waiver do padrão em outro mês, antes ou depois) e grava na mesma transação. Recusado, o ticket perde a opção de waiver (`politica.py`, l. 281). É a correção do caso dos dois fechamentos simultâneos. |
 | Trava e memória entre execuções | D | 1:30 | `src/fin_mas/services/selado.py`, `trava` (l. 107); `src/fin_mas/live.py`, comando `limpar_memoria` | A trava do sistema operacional fica ao lado do arquivo (`memoria.json.lock`), então dois processos disputam a mesma trava mesmo com pastas de chaves diferentes. A memória do dashboard fica em arquivo e o reinício não a apaga; só o administrador limpa (`PERM-MEM-LIMPAR`), com registro no trace. |
-| Acesso: a decisão é da pessoa | D | 1:00 | `src/fin_mas/services/iam.py`, `atestar` (l. 586) e `exigir`; `models/permissions.yaml` e `roles.yaml` | Negado por padrão (IAM-05). A decisão sai com um atestado da sessão, ligado ao ticket e ao hash do veto; a caixa do aprovador não decide sozinha. Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar, também por outra conta da mesma pessoa do ERP (TEST-473). |
+| Acesso: a decisão é da pessoa | D | 1:00 | `src/fin_mas/services/iam.py`, `atestar` (l. 604) e `exigir`; `models/permissions.yaml` e `roles.yaml` | Negado por padrão (IAM-05). A decisão sai com um atestado da sessão, ligado ao ticket e ao hash do veto; a caixa do aprovador não decide sozinha. Operar e aprovar são permissões diferentes; quem reinicia o cenário é o solicitante e a POL-13 o impede de aprovar, também por outra conta da mesma pessoa do ERP (TEST-473). |
 | Agentes BDI: hipótese não é crença | J | 1:30 | `src/fin_mas/agents/orc.py`, `concluir_hipotese` (l. 545); `src/fin_mas/core/inferencia.py`, `validar_proposta` (l. 165) | A hipótese nasce de uma regra local (ou do LLM, opcional), passa por regras determinísticas e vira **ação epistêmica**: consultar o AG-CIN. Só a resposta dele confirma ou refuta, e a decisão cita a NORM-11. |
 | Negociação de prazo | J | 0:30 | `src/fin_mas/agents/orq.py`, `_negociar_prazo` (l. 241) | O especialista propõe (`propose`); o Orquestrador aceita ou recusa por regra (`accept-proposal`, l. 267), com limite de extensões. |
-| Workflow equivalente | D | 0:30 | `src/fin_mas/baseline_eq.py`, `executar` (l. 402) e `decidir_waiver` (l. 328) | Um controlador com as mesmas regras, veto, correção e aprovação, sem agentes nem mensagens entre componentes. Usa a mesma memória da POL-06 e recusa mês já atendido na fila: a linha de base justa pedida no feedback. |
+| Workflow equivalente | D | 0:30 | `src/fin_mas/baseline_eq.py`, `executar` (l. 405) e `decidir_waiver` (l. 331) | Um controlador com as mesmas regras, veto, correção e aprovação, sem agentes nem mensagens entre componentes. Usa a mesma memória da POL-06 e recusa mês já atendido na fila: a linha de base justa pedida no feedback. |
 
 ## Parte 3 — Testes (14:00 a 19:00, slides 10 e 11, editor e terminal)
 
@@ -91,7 +91,7 @@ Cada bloco: o slide dá o mapa, a tela vai para o editor e a fala percorre a fun
 | Os testes da POL-06 | D | 1:30 | `tests/e2e/test_approval_gate.py`: `test_recurrence_is_checked_again_when_the_waiver_is_decided` (TEST-424, as duas ordens de decisão), `test_uma_liberacao_entre_processos` (TEST-459, dois processos com barreira) e `..._com_pastas_de_chaves_diferentes` (TEST-470). `tests/integration/test_revisao_dsm4_memoria.py` (TEST-471: reiniciar não apaga a memória; só o admin limpa). Rodar: `python -m pytest tests/e2e/test_approval_gate.py tests/integration/test_revisao_dsm4_memoria.py -q -k "recurrence or processos or memory"`. |
 | Testes negativos de protocolo e ataques | J | 1:00 | `tests/e2e/test_protocolos_invalidos.py` (transições fora da FSM recusadas) e os cenários `ataque_decisao_forjada` e `ataque_acesso`; `python -m fin_mas invariantes` confere 10 propriedades só pelo trace. |
 | Equivalência do workflow | D | 0:45 | `tests/e2e/test_equivalencia_workflow.py`: sem falhas, o workflow e o SMA dão o mesmo resultado nos cenários comparáveis e em cargas sorteadas. É o teste que sustenta a palavra "equivalente". |
-| A suíte inteira e a partir do ZIP | J | 0:45 | Mostrar o fim de uma execução gravada de `python -m pytest`: 725 passaram e 1 pulado (o que só roda dentro do ZIP). E a execução a partir do ZIP, sem Git e sem `textual`/`anthropic`: sem falhas, com os pulados justificados (TUI, LLM, empacotamento). `python -m fin_mas cenarios --verificar`: 64 de 64. |
+| A suíte inteira e a partir do ZIP | J | 0:45 | Rodar na tela os testes da POL-06 (o comando do bloco anterior) e mostrar o fim de uma execução gravada da suíte inteira: no repositório, 725 passaram e 1 pulado (o que só roda dentro do ZIP); a partir do ZIP, num ambiente só com o projeto e o pytest, 701 passaram, 0 falharam e 4 pulados com motivo (TUI sem `textual`, LLM sem `anthropic`, o empacotamento que precisa do Git), também numa segunda execução. `python -m fin_mas cenarios --verificar`: 64 de 64. |
 
 ## Parte 4 — Demonstrações (19:00 a 23:40, slide 12)
 
@@ -123,11 +123,11 @@ No PowerShell, troque `| grep -E "..."` por `| Select-String -Pattern "..."`.
    lançamento vetado" e **Decidir** desabilitado. Na janela do `diego`: **Decidir** e **Corrigir no ERP**;
    o histórico registra "diego (gerente)".
 7. **Jiliard: POL-06 com dois fechamentos, ao vivo** (1:20). O `operador` reinicia `reincidencia_waiver`.
-   O `controller` abre o ticket de agosto e dá waiver com justificativa. Em setembro há dois casos, e os
-   dois servem. Se o ticket de setembro foi emitido depois da decisão de agosto, o diálogo já chega com
-   "reincidente" e o waiver desabilitado ("não admitido pela política"). Se os dois estavam abertos ao
-   mesmo tempo (o caso do professor na DSM3), o waiver ainda aparece; ao clicar, a política recusa com
-   "POL-06: reincidência" e a opção some do ticket. Nos dois casos o controller clica em **Bloquear**:
+   Para mostrar o caso do professor na DSM3, os dois tickets abertos ao mesmo tempo, o `controller`
+   **espera o ticket de setembro aparecer na aba Aprovações antes de decidir agosto** (o prazo do ticket
+   no dashboard é de cerca de 10 minutos; o `operador` pode pausar a simulação enquanto isso). Com os dois
+   pendentes, o controller dá waiver em agosto, com justificativa. Em setembro, o waiver ainda aparece;
+   ao clicar, a política recusa com "POL-06: reincidência" e a opção some do ticket. Nos dois casos o controller clica em **Bloquear**:
    setembro fica bloqueado por decisão humana, com o waiver negado pela política. Depois, o
    `operador` reinicia o cenário de novo: setembro continua sem waiver, porque a memória sobreviveu ao
    reinício. Fechar com o teste dos dois processos já mostrado na Parte 3.
@@ -142,7 +142,7 @@ No PowerShell, troque `| grep -E "..."` por `| Select-String -Pattern "..."`.
 | 13. Experimento: desenho | J | 0:30 | Pré-registro antes do código; quatro braços; 30 seeds; falhas, plantios, aprovador e ataques sorteados por seed. |
 | 14. Qualidade e robustez | D | 0:35 | Empate sem falhas (em boa parte por construção); o SMA perde a partir de 15% de perda; nenhuma crítica publicada. Desvio-padrão nas tabelas. |
 | 15. Custo, cognição, ablação, ataques | D | 0:30 | Mais mensagens; cognição sem ganho significativo; reenvio, reserva e correção valem; 0 ataques aceitos indevidamente. |
-| 16. Bloco E | J | 0:40 | Com a mesma memória e a recusa de mês já atendido no workflow, os resultados são iguais seed a seed, nos quatro portes; sobra o paralelismo (que um controlador com vários atendentes também teria) e o custo em mensagens. Sob 15% de perda e concorrência, o SMA publica menos, sempre com falha explícita e sem crítica sem tratamento. Volume mede só o tempo de parede. Mostrar a tabela `bloco_e/resumo.md`. |
+| 16. Bloco E | J | 0:40 | Com a mesma memória e a recusa de mês já atendido no workflow, os resultados são iguais seed a seed, nos quatro portes; sobra o paralelismo (que um controlador com vários atendentes também teria) e o custo em mensagens. Sob 15% de perda e concorrência, o SMA publica menos, sempre com falha explícita e sem crítica sem tratamento. Com um especialista fora do ar, o reenvio recupera e o SMA publica o mesmo que o workflow. Volume mede só o tempo de parede. Mostrar a tabela `bloco_e/resumo.md`. |
 | 17. Três rodadas | J | 0:15 | Nenhuma rodada posterior à primeira é confirmatória. A 1.1.0 repetiu o experimento inteiro: as mesmas métricas. |
 | 18. Revisão final | D | 0:30 | Um item por pedido do feedback, cada um com o seu teste. |
 | 19. Limitações | J | 0:20 | As que mais pesam; a lista completa está na documentação. |

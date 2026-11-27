@@ -56,8 +56,9 @@ estão no relatório e em
 
 ## Como executar do zero
 
-Requer Python 3.11+. Para o dashboard, bun e o Chrome; para o PDF, TeX Live com `latexmk` e `rsvg-convert`;
-para o `.pptx`, pandoc. Passo a passo completo, com tempos: [`docs/dsm4/reproducao.md`](../../docs/dsm4/reproducao.md).
+Requer Python 3.11+. O ZIP já traz o dashboard construído (`codigo/web/dist/`): `serve --demo` abre no
+navegador sem bun nem Node. bun e o Chrome só são necessários para reconstruir a interface e para os testes de
+navegador (Playwright); para o PDF, TeX Live com `latexmk` e `rsvg-convert`; para o `.pptx`, pandoc. Passo a passo completo, com tempos: [`docs/dsm4/reproducao.md`](../../docs/dsm4/reproducao.md).
 
 ```bash
 cd codigo                                                   # dentro do zip; no repositório, a raiz

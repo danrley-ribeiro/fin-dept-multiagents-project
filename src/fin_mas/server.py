@@ -191,8 +191,8 @@ def _receber_planilha(pasta, corpo) -> tuple[int, dict, bytes]:
 def _estatico(rota) -> tuple[int, dict, bytes]:
     if not WEB_DIST.exists():
         return 404, {"Content-Type": "text/plain; charset=utf-8"}, (
-            "Dashboard não construído: rode `npm install && npm run build` em web/ "
-            "ou use `npm run dev` (porta 5173).").encode("utf-8")
+            "Dashboard não construído: rode `bun install && bun run build` em web/ (ou `./iniciar.sh` / "
+            "`.\\iniciar.ps1`, que fazem isso). O ZIP da entrega já traz a build em web/dist.").encode("utf-8")
     alvo = (WEB_DIST / rota.lstrip("/")).resolve()
     if WEB_DIST.resolve() not in alvo.parents and alvo != WEB_DIST.resolve() or not alvo.is_file():
         alvo = WEB_DIST / "index.html"  # SPA: qualquer rota cai no index

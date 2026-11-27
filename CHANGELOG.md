@@ -28,6 +28,9 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
 - Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
   local; agora leem em UTF-8.
+- Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun
+  nem Node; o empacotador recusa build ausente ou mais velha que as fontes da interface. Antes, quem seguia o README
+  a partir do ZIP recebia um 404 pedindo `npm run build`.
 - Apresentação em vídeo de 15 a 30 minutos, com foco no código-fonte e nos testes (aviso do professor): roteiro em
   cinco partes, com arquivo e função de cada trecho, as evidências pedidas (negociação, hipótese confirmada e
   refutada, fechamento bloqueado, aprovação indevida recusada, POL-06 ao vivo) e os dois autores em arquitetura e

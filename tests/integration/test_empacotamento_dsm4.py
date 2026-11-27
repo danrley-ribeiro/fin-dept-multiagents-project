@@ -31,6 +31,7 @@ def _empacotador():
 
 def test_every_relative_link_in_the_package_opens_inside_the_zip(tmp_path, monkeypatch, capsys):
     empacotar = _empacotador()
+    monkeypatch.setattr(empacotar, "dashboard", lambda: ([], None))  # a build da interface não tem links .md
     destino = tmp_path / "DSM4-entrega.zip"
     monkeypatch.setattr(sys, "argv", ["empacotar_dsm4.py", "--destino", str(destino)])
     assert empacotar.main() == 0
@@ -48,3 +49,30 @@ def test_every_relative_link_in_the_package_opens_inside_the_zip(tmp_path, monke
                 if caminho not in nomes and caminho.rstrip("/") + "/" not in pastas:
                     quebrados.append(f"{nome}: {alvo}")
         assert not quebrados, "links que não abrem no ZIP:\n" + "\n".join(quebrados[:40])
+
+
+def test_package_carries_the_dashboard_build_only_when_it_is_fresh(tmp_path, monkeypatch):
+    """O ZIP leva web/dist pronto (serve --demo abre sem bun nem Node), mas só se a build for mais nova que as
+    fontes da interface: build ausente ou velha impede o pacote, em vez de entregar uma interface desatualizada."""
+    import os
+
+    empacotar = _empacotador()
+    monkeypatch.setattr(empacotar, "RAIZ", tmp_path)
+    fonte = tmp_path / "web" / "src" / "App.tsx"
+    fonte.parent.mkdir(parents=True)
+    fonte.write_text("x", encoding="utf-8")
+    monkeypatch.setattr(empacotar, "arquivos_git", lambda: ["web/src/App.tsx"])
+    arquivos, motivo = empacotar.dashboard()
+    assert arquivos == [] and "não existe" in motivo
+    indice = tmp_path / "web" / "dist" / "index.html"
+    (tmp_path / "web" / "dist" / "assets").mkdir(parents=True)
+    indice.write_text("<html>", encoding="utf-8")
+    (tmp_path / "web" / "dist" / "assets" / "app.js").write_text("js", encoding="utf-8")
+    os.utime(indice, (1_000, 1_000))  # build velha
+    arquivos, motivo = empacotar.dashboard()
+    assert arquivos == [] and "mais velho" in motivo
+    os.utime(indice, None)  # build nova
+    os.utime(fonte, (1_000, 1_000))
+    arquivos, motivo = empacotar.dashboard()
+    assert motivo is None
+    assert sorted(alvo for _, alvo in arquivos) == ["codigo/web/dist/assets/app.js", "codigo/web/dist/index.html"]

@@ -203,7 +203,7 @@ evidências pedidas no feedback e os dois autores em arquitetura e segurança. A
 - **bloco E:** duas execuções com o mesmo CSV;
 - **suíte a partir do ZIP:** extraído fora do repositório (sem Git), num venv só com o projeto e o
   pytest (Python 3.12). Rodada duas vezes seguidas, com `setuptools` e `wheel` para o teste do wheel rodar:
-  nas duas, 701 passaram, nenhum falhou e 4 foram pulados (os 2 módulos da TUI, sem `textual`; um de LLM, sem
+  nas duas, 707 passaram, nenhum falhou e 4 foram pulados (os 2 módulos da TUI, sem `textual`; um de LLM, sem
   `anthropic`; o que monta o pacote pelo Git). Os links dos Markdown e a build do dashboard são conferidos
   dentro do próprio pacote. A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
 feita pelo coautor.

@@ -119,6 +119,7 @@ def test_wheel_installs_in_a_clean_venv_and_runs_outside_the_repository(tmp_path
     pytest.importorskip("setuptools", reason="sem setuptools: build do wheel indisponível neste ambiente")
     pytest.importorskip("wheel", reason="sem o pacote wheel: build do wheel indisponível neste ambiente")
     pytest.importorskip("ensurepip", reason="sem ensurepip: não dá para criar o venv limpo")
+    pytest.importorskip("pip", reason="sem pip no interpretador da suíte (ex.: venv do uv): build do wheel indisponível")
     dist = tmp_path / "dist"
     opcoes = [] if (RAIZ / "web" / "dist" / "index.html").exists() else ["--sem-dashboard"]
     gerar = subprocess.run([sys.executable, str(RAIZ / "tools" / "empacotar_wheel.py"), "--saida", str(dist), "--sem-isolamento", *opcoes],

@@ -80,10 +80,10 @@ test("demonstração guiada respeita as permissões: o auditor lê o roteiro, ma
   await page.getByRole("button", { name: "Demonstração guiada" }).click();
   const guia = page.getByRole("complementary", { name: "Demonstração guiada" });
   await expect(guia.getByRole("button", { name: "Rodar o fechamento" })).toBeDisabled();
-  await expect(guia.getByLabel("Por que o passo está indisponível")).toContainText("Sua conta não tem o papel de operador (PERM-SIM-OPERAR)");
+  await expect(guia.getByLabel("Por que o passo está indisponível")).toContainText("Sua conta não tem o papel de operador e solicitante (PERM-SIM-OPERAR, PERM-SOL-CRIAR)");
   await guia.getByRole("button", { name: "Próximo" }).click();
   await guia.getByRole("button", { name: "Próximo" }).click();
-  await expect(guia.getByLabel("Por que o passo está indisponível")).toContainText("PERM-SIM-OPERAR, PERM-AGT-ENERGIA");
+  await expect(guia.getByLabel("Por que o passo está indisponível")).toContainText("PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-SOL-CRIAR");
   for (let i = 0; i < 3; i++) await guia.getByRole("button", { name: "Próximo" }).click();
   await guia.getByRole("button", { name: "Abrir SMA × workflow" }).click(); // o que não é comando continua disponível
   await expect(page.getByRole("region", { name: "Comparação com o baseline" })).toBeVisible();

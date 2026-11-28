@@ -54,10 +54,12 @@ As contagens atuais (testes por pasta, cenários, objetos rastreados) estão no 
 python -m fin_mas list                                  # catálogo
 python -m fin_mas run --scenario veto_correcao          # trilha causal legível
 python -m fin_mas run --scenario ataque_acesso          # ataques recusados
-python -m fin_mas serve --demo                          # dashboard: http://127.0.0.1:8765, avaliador / Demonstracao-SMA-2026
+python -m fin_mas serve --demo --acesso saidas/demo-dsm4/acesso  # escolha uma pasta de acesso nova
 ```
 
-Roteiro completo em {doc}`demonstracao`.
+O dashboard abre em `http://127.0.0.1:8765`. Entre com `avaliador` para operar e
+`controller` para decidir, ambos com `Demonstracao-SMA-2026`. O servidor preserva os papéis de um
+cadastro existente. Roteiro completo em {doc}`demonstracao`.
 
 ## 5. Experimento
 

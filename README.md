@@ -167,7 +167,7 @@ python -m fin_mas run --scenario orc_hipotese_local               # hipótese ve
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
 python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, de 5 a 10 min)
-python -m pytest                                                  # 734 testes: unit 95, e2e 439, integração 177, TUI 23 (make test)
+python -m pytest                                                  # 735 testes: unit 95, e2e 440, integração 177, TUI 23 (make test)
 ```
 
 Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).

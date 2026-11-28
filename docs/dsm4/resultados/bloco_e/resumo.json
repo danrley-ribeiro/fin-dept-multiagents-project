@@ -116,13 +116,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0024,
+    "desvio": 0.0012,
     "ic95": [
-     0.0124,
-     0.0141
+     0.0064,
+     0.0072
     ],
-    "media": 0.0132,
-    "mediana": 0.0125,
+    "media": 0.0068,
+    "mediana": 0.0063,
     "n": 30
    },
    "waivers": {
@@ -252,13 +252,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0008,
+    "desvio": 0.0006,
     "ic95": [
-     0.0012,
-     0.0017
+     0.0006,
+     0.0011
     ],
-    "media": 0.0014,
-    "mediana": 0.0015,
+    "media": 0.0009,
+    "mediana": 0.0008,
     "n": 30
    },
    "waivers": {
@@ -378,13 +378,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0025,
+    "desvio": 0.0031,
     "ic95": [
-     0.013,
-     0.0148
+     0.0069,
+     0.009
     ],
-    "media": 0.0139,
-    "mediana": 0.0133,
+    "media": 0.0078,
+    "mediana": 0.0069,
     "n": 30
    },
    "waivers": {
@@ -504,13 +504,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0007,
+    "desvio": 0.0003,
     "ic95": [
-     0.0011,
-     0.0016
+     0.0007,
+     0.0009
     ],
-    "media": 0.0014,
-    "mediana": 0.0015,
+    "media": 0.0008,
+    "mediana": 0.0009,
     "n": 30
    },
    "waivers": {
@@ -630,13 +630,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0068,
+    "desvio": 0.0024,
     "ic95": [
-     0.0235,
-     0.0283
+     0.0121,
+     0.0137
     ],
-    "media": 0.0256,
-    "mediana": 0.0241,
+    "media": 0.0129,
+    "mediana": 0.012,
     "n": 30
    },
    "waivers": {
@@ -756,13 +756,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0014,
+    "desvio": 0.0007,
     "ic95": [
-     0.0023,
-     0.0032
+     0.0012,
+     0.0017
     ],
-    "media": 0.0028,
-    "mediana": 0.0032,
+    "media": 0.0014,
+    "mediana": 0.0016,
     "n": 30
    },
    "waivers": {
@@ -882,13 +882,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0026,
+    "desvio": 0.0015,
     "ic95": [
-     0.0138,
-     0.0156
+     0.0071,
+     0.0082
     ],
-    "media": 0.0147,
-    "mediana": 0.0149,
+    "media": 0.0077,
+    "mediana": 0.0075,
     "n": 30
    },
    "waivers": {
@@ -1008,13 +1008,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0007,
+    "desvio": 0.0004,
     "ic95": [
-     0.0012,
-     0.0017
+     0.0007,
+     0.001
     ],
-    "media": 0.0015,
-    "mediana": 0.0016,
+    "media": 0.0009,
+    "mediana": 0.001,
     "n": 30
    },
    "waivers": {
@@ -1134,13 +1134,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0093,
+    "desvio": 0.0052,
     "ic95": [
-     0.0454,
-     0.0521
+     0.0237,
+     0.0273
     ],
-    "media": 0.0486,
-    "mediana": 0.0462,
+    "media": 0.0253,
+    "mediana": 0.0238,
     "n": 30
    },
    "waivers": {
@@ -1260,13 +1260,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0027,
+    "desvio": 0.0014,
     "ic95": [
-     0.0045,
-     0.0065
+     0.0024,
+     0.0034
     ],
-    "media": 0.0055,
-    "mediana": 0.006,
+    "media": 0.003,
+    "mediana": 0.003,
     "n": 30
    },
    "waivers": {
@@ -1396,13 +1396,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0046,
+    "desvio": 0.0013,
     "ic95": [
-     0.0117,
-     0.0148
+     0.0061,
+     0.007
     ],
-    "media": 0.0131,
-    "mediana": 0.0126,
+    "media": 0.0065,
+    "mediana": 0.006,
     "n": 30
    },
    "waivers": {
@@ -1532,13 +1532,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0006,
+    "desvio": 0.0003,
     "ic95": [
-     0.0004,
-     0.0008
+     0.0002,
+     0.0004
     ],
-    "media": 0.0006,
-    "mediana": 0.0003,
+    "media": 0.0003,
+    "mediana": 0.0002,
     "n": 30
    },
    "waivers": {
@@ -1668,13 +1668,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0025,
+    "desvio": 0.0016,
     "ic95": [
-     0.0135,
-     0.0153
+     0.0076,
+     0.0087
     ],
-    "media": 0.0144,
-    "mediana": 0.0143,
+    "media": 0.0081,
+    "mediana": 0.0077,
     "n": 30
    },
    "waivers": {
@@ -1804,13 +1804,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0007,
+    "desvio": 0.0004,
     "ic95": [
-     0.0012,
-     0.0018
+     0.0007,
+     0.0009
     ],
-    "media": 0.0015,
-    "mediana": 0.0017,
+    "media": 0.0008,
+    "mediana": 0.0009,
     "n": 30
    },
    "waivers": {
@@ -1942,11 +1942,11 @@
    "segundos": {
     "desvio": 0.0027,
     "ic95": [
-     0.0164,
-     0.0184
+     0.0087,
+     0.0105
     ],
-    "media": 0.0174,
-    "mediana": 0.0168,
+    "media": 0.0095,
+    "mediana": 0.0086,
     "n": 30
    },
    "waivers": {
@@ -2076,13 +2076,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0005,
+    "desvio": 0.0003,
     "ic95": [
-     0.0019,
-     0.0023
+     0.0011,
+     0.0014
     ],
-    "media": 0.0021,
-    "mediana": 0.002,
+    "media": 0.0012,
+    "mediana": 0.0011,
     "n": 30
    },
    "waivers": {
@@ -2212,13 +2212,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0029,
+    "desvio": 0.0013,
     "ic95": [
-     0.0138,
-     0.0159
+     0.0072,
+     0.0081
     ],
-    "media": 0.0149,
-    "mediana": 0.0145,
+    "media": 0.0076,
+    "mediana": 0.0077,
     "n": 30
    },
    "waivers": {
@@ -2348,13 +2348,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.001,
+    "desvio": 0.0004,
     "ic95": [
-     0.0014,
-     0.0021
+     0.0007,
+     0.001
     ],
-    "media": 0.0017,
-    "mediana": 0.0017,
+    "media": 0.0008,
+    "mediana": 0.0009,
     "n": 30
    },
    "waivers": {
@@ -2484,285 +2484,285 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0055,
+    "desvio": 0.0058,
     "ic95": [
-     0.0183,
-     0.0222
+     0.0099,
+     0.0139
+    ],
+    "media": 0.0115,
+    "mediana": 0.0106,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "wf_equivalente",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.7428,
+    "ic95": [
+     0.7667,
+     1.2667
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4302,
+    "ic95": [
+     0.6,
+     0.9
+    ],
+    "media": 0.7667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1509,
+    "ic95": [
+     18.0,
+     19.5
+    ],
+    "media": 18.8333,
+    "mediana": 20.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 0.8604,
+    "ic95": [
+     1.2,
+     1.8
+    ],
+    "media": 1.5333,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "96",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0004,
+    "ic95": [
+     0.0008,
+     0.0011
+    ],
+    "media": 0.001,
+    "mediana": 0.0011,
+    "n": 30
+   },
+   "waivers": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   }
+  },
+  {
+   "braco": "sma_basico",
+   "conformidade_correta": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_corrigidas": {
+    "desvio": 0.7428,
+    "ic95": [
+     0.7667,
+     1.2667
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "criticas_publicadas_sem_tratamento": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "falhas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "fator": "volume",
+   "intervencoes_humanas": {
+    "desvio": 0.4302,
+    "ic95": [
+     0.6,
+     0.9
+    ],
+    "media": 0.7667,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "makespan_ticks": {
+    "desvio": 2.1509,
+    "ic95": [
+     19.0,
+     20.5
+    ],
+    "media": 19.8333,
+    "mediana": 21.0,
+    "n": 30
+   },
+   "mensagens": {
+    "desvio": 1.7207,
+    "ic95": [
+     23.4,
+     24.6
+    ],
+    "media": 24.0667,
+    "mediana": 25.0,
+    "n": 30
+   },
+   "modo": "-",
+   "nivel": "400",
+   "publicacoes_indevidas": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "publicados": {
+    "desvio": 0.0,
+    "ic95": [
+     1.0,
+     1.0
+    ],
+    "media": 1.0,
+    "mediana": 1.0,
+    "n": 30
+   },
+   "reconsideracoes": {
+    "desvio": 0.8604,
+    "ic95": [
+     1.2,
+     1.8
+    ],
+    "media": 1.5333,
+    "mediana": 2.0,
+    "n": 30
+   },
+   "recusados": {
+    "desvio": 0.0,
+    "ic95": [
+     0.0,
+     0.0
+    ],
+    "media": 0.0,
+    "mediana": 0.0,
+    "n": 30
+   },
+   "segundos": {
+    "desvio": 0.0039,
+    "ic95": [
+     0.0187,
+     0.0216
     ],
     "media": 0.02,
-    "mediana": 0.0197,
-    "n": 30
-   },
-   "waivers": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   }
-  },
-  {
-   "braco": "wf_equivalente",
-   "conformidade_correta": {
-    "desvio": 0.0,
-    "ic95": [
-     1.0,
-     1.0
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "criticas_corrigidas": {
-    "desvio": 0.7428,
-    "ic95": [
-     0.7667,
-     1.2667
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "criticas_publicadas_sem_tratamento": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "falhas": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "fator": "volume",
-   "intervencoes_humanas": {
-    "desvio": 0.4302,
-    "ic95": [
-     0.6,
-     0.9
-    ],
-    "media": 0.7667,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "makespan_ticks": {
-    "desvio": 2.1509,
-    "ic95": [
-     18.0,
-     19.5
-    ],
-    "media": 18.8333,
-    "mediana": 20.0,
-    "n": 30
-   },
-   "mensagens": {
-    "desvio": 0.8604,
-    "ic95": [
-     1.2,
-     1.8
-    ],
-    "media": 1.5333,
-    "mediana": 2.0,
-    "n": 30
-   },
-   "modo": "-",
-   "nivel": "96",
-   "publicacoes_indevidas": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "publicados": {
-    "desvio": 0.0,
-    "ic95": [
-     1.0,
-     1.0
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "reconsideracoes": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "recusados": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "segundos": {
-    "desvio": 0.0009,
-    "ic95": [
-     0.0015,
-     0.0021
-    ],
-    "media": 0.0018,
-    "mediana": 0.0019,
-    "n": 30
-   },
-   "waivers": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   }
-  },
-  {
-   "braco": "sma_basico",
-   "conformidade_correta": {
-    "desvio": 0.0,
-    "ic95": [
-     1.0,
-     1.0
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "criticas_corrigidas": {
-    "desvio": 0.7428,
-    "ic95": [
-     0.7667,
-     1.2667
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "criticas_publicadas_sem_tratamento": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "falhas": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "fator": "volume",
-   "intervencoes_humanas": {
-    "desvio": 0.4302,
-    "ic95": [
-     0.6,
-     0.9
-    ],
-    "media": 0.7667,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "makespan_ticks": {
-    "desvio": 2.1509,
-    "ic95": [
-     19.0,
-     20.5
-    ],
-    "media": 19.8333,
-    "mediana": 21.0,
-    "n": 30
-   },
-   "mensagens": {
-    "desvio": 1.7207,
-    "ic95": [
-     23.4,
-     24.6
-    ],
-    "media": 24.0667,
-    "mediana": 25.0,
-    "n": 30
-   },
-   "modo": "-",
-   "nivel": "400",
-   "publicacoes_indevidas": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "publicados": {
-    "desvio": 0.0,
-    "ic95": [
-     1.0,
-     1.0
-    ],
-    "media": 1.0,
-    "mediana": 1.0,
-    "n": 30
-   },
-   "reconsideracoes": {
-    "desvio": 0.8604,
-    "ic95": [
-     1.2,
-     1.8
-    ],
-    "media": 1.5333,
-    "mediana": 2.0,
-    "n": 30
-   },
-   "recusados": {
-    "desvio": 0.0,
-    "ic95": [
-     0.0,
-     0.0
-    ],
-    "media": 0.0,
-    "mediana": 0.0,
-    "n": 30
-   },
-   "segundos": {
-    "desvio": 0.006,
-    "ic95": [
-     0.0375,
-     0.0417
-    ],
-    "media": 0.0394,
-    "mediana": 0.0386,
+    "mediana": 0.0188,
     "n": 30
    },
    "waivers": {
@@ -2892,13 +2892,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.001,
+    "desvio": 0.0006,
     "ic95": [
-     0.0025,
-     0.0032
+     0.0014,
+     0.0018
     ],
-    "media": 0.0028,
-    "mediana": 0.003,
+    "media": 0.0016,
+    "mediana": 0.0017,
     "n": 30
    },
    "waivers": {
@@ -3028,13 +3028,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0065,
+    "desvio": 0.0013,
     "ic95": [
-     0.0133,
-     0.0176
+     0.007,
+     0.0079
     ],
-    "media": 0.0151,
-    "mediana": 0.013,
+    "media": 0.0074,
+    "mediana": 0.0071,
     "n": 30
    },
    "waivers": {
@@ -3164,13 +3164,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0012,
+    "desvio": 0.0005,
     "ic95": [
-     0.0012,
-     0.0021
+     0.0007,
+     0.0011
     ],
-    "media": 0.0017,
-    "mediana": 0.0019,
+    "media": 0.0009,
+    "mediana": 0.0012,
     "n": 30
    },
    "waivers": {
@@ -3300,13 +3300,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0029,
+    "desvio": 0.0014,
     "ic95": [
-     0.0127,
-     0.0147
+     0.0064,
+     0.0074
     ],
-    "media": 0.0137,
-    "mediana": 0.0132,
+    "media": 0.0068,
+    "mediana": 0.0065,
     "n": 30
    },
    "waivers": {
@@ -3436,13 +3436,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0007,
+    "desvio": 0.0004,
     "ic95": [
-     0.0012,
-     0.0017
+     0.0006,
+     0.0009
     ],
-    "media": 0.0015,
-    "mediana": 0.0016,
+    "media": 0.0008,
+    "mediana": 0.0008,
     "n": 30
    },
    "waivers": {
@@ -3572,13 +3572,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0027,
+    "desvio": 0.0035,
     "ic95": [
-     0.0124,
-     0.0142
+     0.0064,
+     0.0089
     ],
-    "media": 0.0132,
-    "mediana": 0.0128,
+    "media": 0.0074,
+    "mediana": 0.0065,
     "n": 30
    },
    "waivers": {
@@ -3708,13 +3708,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0008,
+    "desvio": 0.0003,
     "ic95": [
-     0.0013,
-     0.0018
+     0.0006,
+     0.0009
     ],
-    "media": 0.0015,
-    "mediana": 0.0016,
+    "media": 0.0007,
+    "mediana": 0.0008,
     "n": 30
    },
    "waivers": {
@@ -3844,13 +3844,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0067,
+    "desvio": 0.003,
     "ic95": [
-     0.0136,
-     0.0183
+     0.0067,
+     0.0087
     ],
-    "media": 0.0156,
-    "mediana": 0.0148,
+    "media": 0.0075,
+    "mediana": 0.0069,
     "n": 30
    },
    "waivers": {
@@ -3980,13 +3980,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0006,
+    "desvio": 0.0003,
     "ic95": [
-     0.0014,
-     0.0019
+     0.0008,
+     0.001
     ],
-    "media": 0.0017,
-    "mediana": 0.0018,
+    "media": 0.0009,
+    "mediana": 0.0009,
     "n": 30
    },
    "waivers": {
@@ -4106,13 +4106,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0071,
+    "desvio": 0.0042,
     "ic95": [
-     0.0208,
-     0.0259
+     0.0107,
+     0.0136
     ],
-    "media": 0.0233,
-    "mediana": 0.0238,
+    "media": 0.0121,
+    "mediana": 0.0118,
     "n": 30
    },
    "waivers": {
@@ -4232,13 +4232,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0013,
+    "desvio": 0.0007,
     "ic95": [
-     0.0021,
-     0.0031
+     0.0013,
+     0.0017
     ],
-    "media": 0.0026,
-    "mediana": 0.0029,
+    "media": 0.0015,
+    "mediana": 0.0016,
     "n": 30
    },
    "waivers": {
@@ -4358,13 +4358,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0091,
+    "desvio": 0.0054,
     "ic95": [
-     0.0417,
-     0.0479
+     0.0209,
+     0.0246
     ],
-    "media": 0.0447,
-    "mediana": 0.0437,
+    "media": 0.0226,
+    "mediana": 0.0219,
     "n": 30
    },
    "waivers": {
@@ -4484,13 +4484,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0028,
+    "desvio": 0.0015,
     "ic95": [
-     0.0045,
-     0.0065
+     0.0024,
+     0.0035
     ],
-    "media": 0.0055,
-    "mediana": 0.0063,
+    "media": 0.0029,
+    "mediana": 0.0033,
     "n": 30
    },
    "waivers": {
@@ -4610,13 +4610,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0077,
+    "desvio": 0.0047,
     "ic95": [
-     0.0237,
-     0.0291
+     0.0127,
+     0.0159
     ],
-    "media": 0.026,
-    "mediana": 0.0252,
+    "media": 0.0141,
+    "mediana": 0.0123,
     "n": 30
    },
    "waivers": {
@@ -4736,13 +4736,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0014,
+    "desvio": 0.0008,
     "ic95": [
-     0.0023,
-     0.0033
+     0.0012,
+     0.0018
     ],
-    "media": 0.0028,
-    "mediana": 0.0029,
+    "media": 0.0015,
+    "mediana": 0.0016,
     "n": 30
    },
    "waivers": {
@@ -4862,13 +4862,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0086,
+    "desvio": 0.0063,
     "ic95": [
-     0.0464,
-     0.0522
+     0.0235,
+     0.0278
     ],
-    "media": 0.0493,
-    "mediana": 0.0479,
+    "media": 0.0255,
+    "mediana": 0.0238,
     "n": 30
    },
    "waivers": {
@@ -4988,13 +4988,13 @@
     "n": 30
    },
    "segundos": {
-    "desvio": 0.0028,
+    "desvio": 0.0016,
     "ic95": [
-     0.0044,
-     0.0064
+     0.0024,
+     0.0035
     ],
-    "media": 0.0054,
-    "mediana": 0.0057,
+    "media": 0.003,
+    "mediana": 0.0033,
     "n": 30
    },
    "waivers": {
@@ -8663,16 +8663,16 @@
    "b": "12",
    "cliff": 1.0,
    "comparacao": "400 x 12 (sma_basico)",
-   "diferenca_media": 0.0245,
+   "diferenca_media": 0.0123,
    "estatistica": 0.0,
    "familia": "E:volume",
    "ic95_diferenca": [
-    0.0228,
-    0.0266
+    0.0112,
+    0.0138
    ],
    "magnitude": "grande",
-   "media_a": 0.0394,
-   "media_b": 0.0149,
+   "media_a": 0.02,
+   "media_b": 0.0076,
    "metodo": "normal",
    "metrica": "segundos",
    "n": 30,
@@ -8685,24 +8685,24 @@
   {
    "a": "400",
    "b": "12",
-   "cliff": 0.56,
+   "cliff": 0.6167,
    "comparacao": "400 x 12 (wf_equivalente)",
-   "diferenca_media": 0.0011,
-   "estatistica": 9.5,
+   "diferenca_media": 0.0008,
+   "estatistica": 0.0,
    "familia": "E:volume",
    "ic95_diferenca": [
-    0.0008,
-    0.0013
+    0.0006,
+    0.0009
    ],
    "magnitude": "grande",
-   "media_a": 0.0028,
-   "media_b": 0.0017,
+   "media_a": 0.0016,
+   "media_b": 0.0008,
    "metodo": "normal",
    "metrica": "segundos",
    "n": 30,
-   "p": 5e-06,
-   "p_holm": 5e-06,
-   "pares_diferentes": 30,
+   "p": 3e-06,
+   "p_holm": 4e-06,
+   "pares_diferentes": 29,
    "significativo": true,
    "tipo": "Wilcoxon pareado"
   }

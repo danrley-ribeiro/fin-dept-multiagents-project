@@ -56,6 +56,23 @@ test("operador opera a simulação e pede (reiniciar dispara pedidos), mas não 
   expect(r.status()).toBe(403);
   expect((await r.json()).erro).toContain("PERM-APR-DECIDIR");
   await contexto.close();
+
+  const papeisOperador = ["--como", "admin", "usuario", "papeis", "operador", "ROLE-OPE"];
+  cliAcesso(papeisOperador);
+  try {
+    const semSolicitacao = await paginaDe(browser, "operador");
+    try {
+      await expect(semSolicitacao.page.getByRole("button", { name: /Pausar|Retomar/ })).toBeEnabled();
+      await expect(semSolicitacao.page.getByRole("button", { name: "Reiniciar cenário" })).toBeDisabled();
+      await expect(semSolicitacao.page.getByRole("combobox", { name: "Cenário" })).toBeDisabled();
+      await semSolicitacao.page.getByRole("button", { name: "Demonstração guiada" }).click();
+      await expect(semSolicitacao.page.getByRole("button", { name: "Rodar o fechamento" })).toBeDisabled();
+    } finally {
+      await semSolicitacao.contexto.close();
+    }
+  } finally {
+    cliAcesso([...papeisOperador, "ROLE-SOL"]);
+  }
 });
 
 test("auditor só lê: consulta e exporta os logs, não opera nem configura", async ({ browser }) => {

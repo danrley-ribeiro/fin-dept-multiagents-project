@@ -293,7 +293,7 @@ export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cena
   const ve = pode(sessao, "PERM-MOD-VER");
   const { dados, erro, recarregar } = useRota<LLMApi>(ve ? "/api/llm" : null, 2500);
   const edita = pode(sessao, "PERM-MOD-CONFIG");
-  const opera = pode(sessao, "PERM-SIM-OPERAR");
+  const trocaNivel = edita && pode(sessao, "PERM-SIM-OPERAR") && pode(sessao, "PERM-SOL-CRIAR");
   const segredos = pode(sessao, "PERM-MOD-SEGREDOS");
   const [rascunho, setRascunho] = useState<Record<string, Partial<AgenteLLM>>>({});
   if (erro) return <Secao titulo="Agentes e LLM"><Alert severity="error">{erro}</Alert></Secao>;
@@ -304,7 +304,7 @@ export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cena
       <Stack direction="row" spacing={2} alignItems="center" useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
         <FormControl size="small" sx={{ minWidth: 340 }}>
           <InputLabel id="nivel-cognicao">Nível de cognição</InputLabel>
-          <Select labelId="nivel-cognicao" label="Nível de cognição" value={dados.cognicao} disabled={!opera}
+          <Select labelId="nivel-cognicao" label="Nível de cognição" value={dados.cognicao} disabled={!trocaNivel}
             onChange={(e) => aoComando({ tipo: "reiniciar", cenario, cognicao: e.target.value })}>
             {NIVEIS.map(([v, r]) => <MenuItem key={v} value={v}>{r}</MenuItem>)}
           </Select>

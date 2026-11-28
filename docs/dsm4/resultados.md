@@ -737,12 +737,12 @@ reconsiderações de intenção do SMA de 0,4 para 1,5 e 2,0 (o workflow não re
 crítica foi publicada sem tratamento, nos dois braços e nos três níveis, e os dois corrigiram as
 mesmas críticas: a frequência muda o custo, não a qualidade.
 
-**Volume.** Com 12, 96 e 400 lançamentos de base, os ticks não mudam, por construção (o relógio do
-barramento conta eventos, não lançamentos). O custo aparece no tempo de parede: o SMA passa de
-0,015 s para 0,039 s por fechamento (400 × 12, p < 0,001) e o workflow, de 0,002 s para 0,003 s. O SMA custa dez vezes ou mais tempo de máquina por fechamento. O valor absoluto
-varia entre rodadas na mesma máquina (uma rodada anterior deu 0,037 s e 0,097 s), mas a proporção
-se manteve: cerca de 2,6 vezes de 12 para 400 lançamentos no SMA. Serve como ordem de grandeza. Os tempos ficam em `resultados/bloco_e/tempo_parede.csv`, fora do
-CSV reproduzível.
+**Volume.** Os ticks são iguais com 12, 96 e 400 lançamentos de base. O relógio lógico conta eventos.
+Após a revisão do PR #10, repetimos a medição com os dados preparados antes de ligar o cronômetro
+e a coleta de métricas fora da janela em ambos os braços. De 12 para 400 lançamentos, a média do SMA
+passou de 0,0076 s para 0,0200 s e a do workflow, de 0,0008 s para 0,0016 s (`p < 0,001` nos dois
+contrastes pareados). Esses tempos descrevem esta máquina e esta carga. Os valores ficam em
+`resultados/bloco_e/tempo_parede.csv`. O CSV de métricas determinísticas permaneceu idêntico.
 
 **Variabilidade.** Na DSM3 as réplicas só confirmavam o determinismo (desvio zero). No bloco E as
 métricas que dependem dos plantios variam entre seeds (por exemplo, ticks 19,8 ± 2,2 e mensagens
@@ -787,6 +787,8 @@ adulterado (uma publicação indevida plantada) refuta a H-E1 (TEST-486 e TEST-4
 
 Os números são próximos dos do exploratório (por exemplo, 17,1 × 64,2 ticks virou 17,6 × 63,8) e
 nenhum mudou de sentido. Duas execuções da replicação produzem o mesmo `execucoes.csv` (SHA-256
-`052615d2…`). O alcance é o de uma replicação com seeds novas no mesmo aparato: ela afasta o acaso
+`052615d2…`). Após o PR #10, repetimos a medição de tempo nas mesmas sementes com a janela
+padronizada. As oito decisões do verificador permaneceram iguais. Essa repetição é uma conferência
+metodológica posterior ao pré-registro, sem novas sementes. O alcance é o de uma replicação com seeds novas no mesmo aparato: ela afasta o acaso
 das seeds 1 a 30, não as ameaças que vêm do próprio simulador (dados sintéticos, latência
 modelada, uma máquina).

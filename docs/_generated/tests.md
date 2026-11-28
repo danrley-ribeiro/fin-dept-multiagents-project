@@ -3957,3 +3957,15 @@
 **Resultado esperado:** o verificador aplica os critérios pré-registrados de H-E1 a H-E8, a conferência publicada bate com os dados publicados e uma publicação indevida plantada refuta a H-E1  
 **Execução:** DSM4 (status atual: executado).
 ````
+
+````{test} test_block_d_double_approval_is_independent_of_demo_roles
+:id: TEST-488
+:entrega: DSM4
+:status: executado
+:verifies: REQ-S02
+:derived_from: SVC-POL
+
+`test_block_d_double_approval_is_independent_of_demo_roles()` — tipo *experimento*.  
+**Resultado esperado:** a segunda pessoa do cadastro experimental conclui a dupla aprovação da seed 24 sem depender dos papéis da demonstração  
+**Execução:** DSM4 (status atual: executado).
+````

@@ -13,11 +13,14 @@ import type { Controle } from "../types";
 
 const PAPEL_DA_PERMISSAO: Record<string, string> = {
   "PERM-SIM-OPERAR": "operador", "PERM-AGT-ENERGIA": "operador", "PERM-MOD-CONFIG": "operador",
+  "PERM-SOL-CRIAR": "solicitante",
 };
 
 /** Comandos do passo para esta conta e o motivo, se ela não puder dispará-los. */
 export function prepararAcao(acao: AcaoDemo, sessao: Sessao | null, controle: Controle | null) {
-  const faltam = acao.permissoes.filter((p) => !pode(sessao, p));
+  const permissoes = new Set(acao.permissoes);
+  if (acao.comandos.some((c) => c.tipo === "reiniciar")) permissoes.add("PERM-SOL-CRIAR");
+  const faltam = [...permissoes].filter((p) => !pode(sessao, p));
   const motivo = faltam.length ? `Sua conta não tem o papel de ${[...new Set(faltam.map((p) => PAPEL_DA_PERMISSAO[p] ?? p))].join(" e ")
   } (${faltam.join(", ")}).` : null;
   // mudar o nível de cognição é ajuste de modelo (PERM-MOD-CONFIG): sem a permissão, o passo roda no nível atual

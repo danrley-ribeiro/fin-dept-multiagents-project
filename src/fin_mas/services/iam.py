@@ -88,8 +88,10 @@ def validar_pessoa_erp(pessoa):
     números, ponto, hífen e sublinhado, depois da forma canônica. Homóglifos (o "е" cirílico em "еlisa"), letras de
     outros alfabetos e espaços não passam: normalizar texto livre não fecha essa classe, validar fecha (correção
     simulada da DSM4: uma conta "еlisa" pedia e a conta "elisa" aprovava)."""
+    if pessoa is None:
+        return None
     canonica = pessoa_canonica(pessoa)
-    if canonica is not None and (not isinstance(canonica, str) or not PESSOA_ERP.fullmatch(canonica)):
+    if not isinstance(canonica, str) or not PESSOA_ERP.fullmatch(canonica):
         raise AcessoNegado("IAM-05", f"pessoa do ERP inválida: {pessoa!r} (use o identificador do ERP: letras sem "
                                      "acento, números, ponto, hífen ou sublinhado)")
     return canonica

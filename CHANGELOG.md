@@ -2,6 +2,14 @@
 
 Registro por entrega.
 
+## DSM4 v1.1.0 — integração do PR #10
+
+- O bloco D tem um aprovador próprio no cadastro experimental. A conta da demonstração continua com papéis separados.
+- O dashboard exige operação e solicitação para oferecer reinício. A edição de vínculo com o ERP rejeita texto que
+  fica vazio após a normalização. O roteiro indica um cadastro de demonstração vazio para carregar os papéis atuais.
+- O tempo de parede do bloco E foi medido novamente. Nos dois braços, a janela começa após preparar os dados e
+  termina antes de coletar as métricas.
+
 ## DSM4 v1.1.0 — revisão final (26/11/2026)
 
 Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisao`).

@@ -275,6 +275,7 @@ function AoVivo(p: TelaProps) {
   // o que a conta pode fazer (models/permissions.yaml); o servidor confere de novo em cada comando
   const s = p.sessao ?? null;
   const opera = pode(s, "PERM-SIM-OPERAR"), solicita = pode(s, "PERM-SOL-CRIAR"), decide = pode(s, "PERM-APR-DECIDIR");
+  const reinicia = opera && solicita;
   const energia = pode(s, "PERM-AGT-ENERGIA");
   const semPapel = (papel: string) => `Sua conta não tem o papel de ${papel}`;
   const cenarioAtual = p.catalogo.cenarios.find((c) => c.nome === controle?.cenario);
@@ -292,7 +293,7 @@ function AoVivo(p: TelaProps) {
     <>
       <Topo {...p} modo="aovivo" aba={aba} setAba={(a) => { setFiltroLogs(undefined); setAba(a); }} conectado={conectado}
         pendentes={pendentes.length} aoAbrirPendencia={() => setDecidindo(pendentes[0]?.solicitacao ?? null)}>
-        <FormControl size="small" sx={{ minWidth: 190 }} disabled={!opera}>
+        <FormControl size="small" sx={{ minWidth: 190 }} disabled={!reinicia}>
           <InputLabel id="cenario-vivo">Cenário</InputLabel>
           <Select labelId="cenario-vivo" label="Cenário" value={controle?.cenario ?? ""}
             onChange={(e) => cmd({ tipo: "reiniciar", cenario: e.target.value })}>
@@ -310,8 +311,8 @@ function AoVivo(p: TelaProps) {
         </Tooltip>
         {opera && <Ritmo valor={1240 - velocidade} aoMudar={(v) => cmd({ tipo: "velocidade", ms_por_tick: 1240 - v })}
           min={20} max={1200} />}
-        <Tooltip title={opera ? "Reinicia o cenário do zero (mesma seed)" : semPapel("operador")}>
-          <span><IconButton aria-label="Reiniciar cenário" onClick={() => cmd({ tipo: "reiniciar" })} disabled={!opera}>
+        <Tooltip title={reinicia ? "Reinicia o cenário do zero (mesma seed)" : semPapel(opera ? "solicitante" : "operador")}>
+          <span><IconButton aria-label="Reiniciar cenário" onClick={() => cmd({ tipo: "reiniciar" })} disabled={!reinicia}>
             <ReplayIcon /></IconButton></span>
         </Tooltip>
         <Tooltip title={solicita ? "Pedir fechamento do mês ou avaliação orçamentária" : semPapel("solicitante")}>
@@ -363,7 +364,7 @@ function AoVivo(p: TelaProps) {
       {fonte && <FonteDialog fonte={fonte} estado={estado} aoFechar={() => setFonte(null)}
         aoAbrirDados={() => { setFonte(null); setDados(true); }} />}
       {periodos && <PeriodosDialog estado={estado} aoFechar={() => setPeriodos(false)} />}
-      <DadosEmpresaDialog aberto={dados} aoVivo portes={p.catalogo.portes ?? []} porteAtual={controle?.porte}
+      <DadosEmpresaDialog aberto={dados} aoVivo podeReiniciar={reinicia} portes={p.catalogo.portes ?? []} porteAtual={controle?.porte}
         fonteAtual={controle?.fonte} aoFechar={() => setDados(false)} aoExecutar={(c) => {
           cmd({ tipo: "reiniciar", cenario: controle?.cenario ?? "fechar_mes", ...c });
           setDados(false);

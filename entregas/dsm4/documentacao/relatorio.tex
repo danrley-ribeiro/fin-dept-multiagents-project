@@ -912,13 +912,12 @@ as intervenções humanas (0,2, 0,8 e 1,0 por fechamento) e as reconsiderações
 o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em nenhum dos braços, e os dois corrigiram
 as mesmas críticas: a frequência muda o custo, não a qualidade.
 
-\paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
-barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,015 s para 0,039 s por
-fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,002 s para 0,003 s. O fator volume mede só isso: o
-relógio lógico não muda com o volume. O SMA é mais caro em
-tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
-entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica
-em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.
+\paragraph{Volume.} Os ticks são iguais com 12, 96 e 400 lançamentos de base. O relógio lógico
+conta eventos. Na revisão do PR \#10, ambos os braços passaram a medir da execução sobre os dados já
+preparados até o fim da execução, antes de coletar as métricas. A média do SMA passou de 0,0076 s para
+0,0200 s, de 12 para 400 lançamentos. A do workflow passou de 0,0008 s para 0,0016 s
+($p<0{,}001$ nos dois contrastes pareados). O tempo de parede depende da máquina e fica em
+\code{tempo\_parede.csv}. O CSV de métricas determinísticas permaneceu idêntico.
 
 \paragraph{Replicação confirmatória.} O bloco E foi desenhado depois de ver os blocos A a D; o que ele mostrou
 poderia ser acaso das seeds 1 a 30. Por isso as oito conclusões viraram hipóteses fechadas, com critério de decisão,
@@ -928,7 +927,8 @@ seeds mudam (\code{python -m fin\_mas.estudo\_e -{}-replicas 30 -{}-primeira-see
 \code{tools/confirmar\_bloco\_e.py} aplica os critérios aos dados e grava \code{confirmacao.md}; um teste confere que a
 conferência publicada é a que os dados produzem e que um dado adulterado refuta a hipótese (TEST-486 e TEST-487).
 As oito foram confirmadas (Tabela~\ref{tab:blocoe}). Duas execuções da replicação dão o mesmo \code{execucoes.csv}
-(SHA-256 começando por \code{052615d2}).
+(SHA-256 começando por \code{052615d2}). A remedição de tempo com janela padronizada ocorreu após o
+pré-registro, nas mesmas sementes, e preservou as oito decisões do verificador.
 
 \begin{tabela}{Bloco E: hipóteses pré-registradas e replicação com as seeds 31 a 60 (1.140 execuções; Wilcoxon pareado por seed, Holm dentro de cada fator).\label{tab:blocoe}}
 \begin{tabularx}{\linewidth}{l Y Y l}

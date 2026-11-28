@@ -285,8 +285,10 @@ def build_system(seed=42, plantar=(), faults=(), decisao_aprovador="nenhuma", tt
         parametros.aplicar_limiares(ds)
     prazo = prazo_aprovacao or (PRAZO_APROVACAO_INTERATIVO if interativo else PRAZO_APROVACAO)
     if acesso == "simulado":
-        acesso = Acesso.simulado_com({u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c}
-                                      for u, n, p, e, c in CONTAS_DEMO}, relogio=lambda: bus.now)
+        contas = {u: {"nome": n, "papeis": p, "pessoa_erp": e, "cargo": c} for u, n, p, e, c in CONTAS_DEMO}
+        if caos is not None:
+            contas.update(caos.contas_experimentais())
+        acesso = Acesso.simulado_com(contas, relogio=lambda: bus.now)
     compensatorio = "; ".join(f"{k}: {v}" for k, v in sorted(ds.perfil["controle_compensatorio"].items())) or None
     politica = PoliticaAprovacao(bus, aprovadores=aprovadores, prazo=prazo, acesso=acesso,
                                  controle_compensatorio=compensatorio, perfil=ds.perfil)

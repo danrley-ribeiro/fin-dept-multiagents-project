@@ -107,8 +107,10 @@ def _sma(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, decisao
         ambiente = Ambiente(seed, agenda=agenda, porte=porte)
     sc = Scenario("bloco_e", "bloco E", "fechar_mes", decisao_aprovador=decisao_aprovador, porte=porte,
                   pedidos=tuple(("fechar_mes", c, 1) for c, _ in pedidos))
-    inicio = time.perf_counter()
     caos = SoPerda(seed, perda=perda, indisponibilidades=indisponibilidades) if perda or indisponibilidades else None
+    for competencia in agenda:
+        ambiente.dataset(competencia)  # geração fora da medição em todos os volumes
+    inicio = time.perf_counter()
     e = run_scenario(sc, seed=seed, ambiente=ambiente, caos=caos)
     segundos = time.perf_counter() - inicio  # só o fechamento; as medidas abaixo ficam fora do tempo de parede
     medidas = [metricas.medir(e, sid) for sid in e.sids]
@@ -141,17 +143,18 @@ def _workflow(seed, pedidos: list[tuple[str, tuple]], volume=12, porte=PORTE, de
               perda=0.0, indisponibilidades=0) -> dict:  # sem especialistas nem mensagens: não é atingido
     """O controlador centralizado atende os pedidos em fila, sobre os mesmos dados (o ERP guarda as correções), com a
     mesma memória (POL-06 entre pedidos) e recusando mês já atendido na fila (equivalente à reserva de período)."""
-    ambientes, linhas, digest, segundos = {}, [], hashlib.sha256(), 0.0
+    ambientes, linhas, digest = {}, [], hashlib.sha256()
     memoria, atendidos = baseline_eq.nova_memoria(), set()
     for c, p in pedidos:
         if c not in ambientes:
             ds = Dataset(seed, competencia=c, porte=porte, plantar=p, volume_base=volume) if volume != 12 else \
                 Ambiente(seed, agenda={c: p}, porte=porte).dataset(c)
             ambientes[c] = Ambiente.de_dataset(ds)
-        inicio = time.perf_counter()
-        w = baseline_eq.executar(seed=seed, ambiente=ambientes[c], decisao_aprovador=decisao_aprovador,
-                                 memoria=memoria, atendidos=atendidos)
-        segundos += time.perf_counter() - inicio
+    inicio = time.perf_counter()
+    resultados = [(c, baseline_eq.executar(seed=seed, ambiente=ambientes[c], decisao_aprovador=decisao_aprovador,
+                                           memoria=memoria, atendidos=atendidos)) for c, _ in pedidos]
+    segundos = time.perf_counter() - inicio
+    for c, w in resultados:
         criticas = [n for n in w.dataset.gold["nao_conformidades"] if n["severidade"] == "critica"]
         corrigidos = {x["lancamento"] for x in w.dataset.correcoes}
         linhas.append((c, w, criticas, corrigidos))
@@ -310,7 +313,8 @@ def tabela_md(resumo) -> str:
               "frequência e volume e é sorteado por seed (corrigir, waiver, bloquear) em concorrência e porte.",
               "Em concorrencia_perda, 15% das mensagens entre agentes se perdem; em concorrencia_indisponibilidade, um",
               "especialista sai do ar por um tempo (como no bloco A); o workflow não tem nenhum dos dois. O fator volume",
-              "mede só o tempo de parede: o relógio lógico não muda com o volume, por construção.", ""]
+              "mede o tempo de parede: o relógio lógico não muda com o volume. A medição começa depois de preparar",
+              "os dados e termina antes de coletar as métricas em ambos os braços.", ""]
     cols = ("publicados", "recusados", "falhas", "publicacoes_indevidas", "criticas_publicadas_sem_tratamento",
             "mensagens",
             "makespan_ticks", "reconsideracoes", "intervencoes_humanas", "waivers", "segundos")
@@ -330,7 +334,7 @@ def tabela_md(resumo) -> str:
                 linhas.append(f"| {t['comparacao']} | {t['metrica']} | {t['media_a']} | {t['media_b']} | "
                               f"{t['diferenca_media']} [{ic[0]}; {ic[1]}] | {_p(t)} | {t['cliff']} |")
         linhas.append("")
-    return "\n".join(linhas) + "\n"
+    return "\n".join(linhas).rstrip() + "\n"
 
 
 def gravar(out: Path, linhas, tempos, resumo) -> str:

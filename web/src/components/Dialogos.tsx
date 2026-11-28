@@ -105,8 +105,8 @@ interface Modelo { arquivo: string; porte: string | null; descricao: string }
 interface SituacaoDados { planilha: string | null; erros?: string[]; porte?: string; competencia?: string;
   razao_social?: string; lancamentos?: number }
 
-export function DadosEmpresaDialog({ aberto, aoVivo, portes, porteAtual, fonteAtual, aoFechar, aoExecutar }: {
-  aberto: boolean; aoVivo: boolean; portes: Porte[]; porteAtual?: string; fonteAtual?: string; aoFechar: () => void;
+export function DadosEmpresaDialog({ aberto, aoVivo, podeReiniciar = false, portes, porteAtual, fonteAtual, aoFechar, aoExecutar }: {
+  aberto: boolean; aoVivo: boolean; podeReiniciar?: boolean; portes: Porte[]; porteAtual?: string; fonteAtual?: string; aoFechar: () => void;
   aoExecutar: (cmd: { porte?: string; fonte: "sintetico" | "planilha" }) => void;
 }) {
   const [aba, setAba] = useState<"porte" | "planilha">(fonteAtual === "planilha" ? "planilha" : "porte");
@@ -209,10 +209,10 @@ export function DadosEmpresaDialog({ aberto, aoVivo, portes, porteAtual, fonteAt
       <DialogActions>
         <Button onClick={aoFechar}>Cancelar</Button>
         {aba === "porte" ? (
-          <Button variant="contained" disabled={!aoVivo} onClick={() => aoExecutar({ porte, fonte: "sintetico" })}>
+          <Button variant="contained" disabled={!podeReiniciar} onClick={() => aoExecutar({ porte, fonte: "sintetico" })}>
             Reiniciar com este porte</Button>
         ) : (
-          <Button variant="contained" disabled={!aoVivo || !situacao?.planilha}
+          <Button variant="contained" disabled={!podeReiniciar || !situacao?.planilha}
             onClick={() => aoExecutar({ fonte: "planilha" })}>Executar com a minha planilha</Button>
         )}
       </DialogActions>

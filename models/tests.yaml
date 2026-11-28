@@ -673,3 +673,5 @@ items:
      esperado: "a replicação confirmatória do bloco E usa as seeds 31 a 60, disjuntas das 1 a 30 do exploratório, com o mesmo plano por seed", entrega: DSM4, status: executado}
   - {id: TEST-487, nome: test_hypothesis_checker_confirms_and_refutes_from_the_data, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
      esperado: "o verificador aplica os critérios pré-registrados de H-E1 a H-E8, a conferência publicada bate com os dados publicados e uma publicação indevida plantada refuta a H-E1", entrega: DSM4, status: executado}
+  - {id: TEST-488, nome: test_block_d_double_approval_is_independent_of_demo_roles, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: experimento,
+     esperado: "a segunda pessoa do cadastro experimental conclui a dupla aprovação da seed 24 sem depender dos papéis da demonstração", entrega: DSM4, status: executado}

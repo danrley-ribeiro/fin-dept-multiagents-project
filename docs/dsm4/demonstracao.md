@@ -19,8 +19,11 @@ python -m fin_mas cenarios --verificar      # aquecimento: todos "ok" e "sim" (a
 Num segundo terminal, deixe o escritório no ar e o navegador aberto em `http://127.0.0.1:8765`:
 
 ```bash
-python -m fin_mas serve --demo               # contas de demonstração, senha Demonstracao-SMA-2026
+python -m fin_mas serve --demo --acesso saidas/demo-dsm4/acesso  # escolha uma pasta de acesso nova
 ```
+
+Entre com `avaliador` para operar e `controller` para decidir, ambos com `Demonstracao-SMA-2026`.
+O servidor preserva os papéis quando o caminho já contém um cadastro.
 
 No Windows (PowerShell), o mesmo preparo é `.\.venv\Scripts\Activate.ps1`,
 `$env:PYTHONPATH = "src"`, `$env:PYTHONIOENCODING = "utf-8"` e
@@ -60,7 +63,7 @@ Use fonte grande no terminal e `| less -R` quando a saída for longa.
 |---|---|
 | `.venv` ausente ou dependência faltando | `python3 tools/iniciar.py cli --cenario veto_correcao` prepara o ambiente e roda o cenário |
 | Dashboard não sobe ou o navegador não conecta | `./iniciar.sh replay` (traces exportados, sem servidor Python, em `http://127.0.0.1:4173`); ou mostrar o mesmo cenário no terminal |
-| Porta 8765 ocupada | `python -m fin_mas serve --demo --porta 8766` |
+| Porta 8765 ocupada | `python -m fin_mas serve --demo --porta 8766 --acesso saidas/demo-dsm4/acesso` |
 | `experimento --rapido` lento ou com erro | mostrar o que está versionado: `docs/dsm4/resultados/resumo.md`, as figuras SVG e `manifesto.json` (com o SHA-256 do CSV) |
 | A âncora não confere | rodar `python -m fin_mas verificar a.jsonl` sem a âncora (cadeia íntegra com a chave local) e explicar que a âncora muda se o cenário mudar |
 | O teste demora (máquina lenta) | `python -m pytest tests/e2e/test_protocolos_invalidos.py -q` (transições inválidas dos protocolos) |

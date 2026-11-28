@@ -62,4 +62,4 @@ Critérios: docs/dsm4/experimento-bloco-e.md. Gerado por `tools/confirmar_bloco_
 
 - sma_basico: seeds em que o makespan muda com o volume: 0 de 30
 - wf_equivalente: seeds em que o makespan muda com o volume: 0 de 30
-- SMA, segundos 400 × 12 lançamentos: 0.0702 × 0.027 (dif. 0.0432, p < 0,001)
+- SMA, segundos 400 × 12 lançamentos: 0.0197 × 0.0075 (dif. 0.0121, p < 0,001)

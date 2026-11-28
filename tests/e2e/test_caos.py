@@ -32,6 +32,14 @@ def test_chaos_and_parameters_change_nothing_by_default():
         assert not any("caos" in r or "parametros" in r for r in a.audit.records if r["kind"] == "meta")
 
 
+def test_block_d_double_approval_is_independent_of_demo_roles():
+    """A segunda pessoa experimental está disponível mesmo que o avaliador do dashboard não aprove."""
+    celula = estudo.Celula("D", "sma_basico", "nominal", "media", "fechar_mes", 24, "acesso", acesso=True)
+    linha, _ = estudo.executar_celula(celula)
+    assert linha["status"] == "publicado_com_ressalva"
+    assert linha["aprovacoes_expiradas"] == 0
+
+
 def test_same_seed_repeats_the_run_and_each_factor_has_its_own_draw():
     falhas = {"perda": 0.15, "jitter": 2, "indisponibilidades": 1, "aprovador": "lento", "ataque": True}
     a, b = rodar(305, **falhas), rodar(305, **falhas)

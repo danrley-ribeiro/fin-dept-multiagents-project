@@ -302,3 +302,11 @@ ajuste de modelos e cotas passou do aprovador para a operação. Duas limitaçõ
 `avaliador` opera e aprova" e "quem decide vetos também liga o LLM"). Os testes Python e de navegador que decidiam com
 a `avaliador` passaram a decidir com o `controller`; os que conferiam a POL-13 para quem opera e aprova usam uma conta
 criada pelo administrador com os dois papéis.
+
+
+## Ajustes após a revisão do PR nº 10
+
+Usamos assistência de IA para revisar o PR e corrigir a separação entre o cadastro de demonstração e o
+aprovador simulado do bloco D, a validação do vínculo com o ERP e os controles de reinício do dashboard.
+No bloco E, padronizamos a janela de tempo de parede e repetimos a medição com as mesmas sementes.
+Essa alteração metodológica é posterior ao pré-registro e está descrita nos resultados.

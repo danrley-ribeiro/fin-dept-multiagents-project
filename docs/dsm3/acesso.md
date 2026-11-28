@@ -201,7 +201,9 @@ remontadas. A exportação nunca sobrescreve arquivo existente e fica na trilha.
 `python -m fin_mas serve --demo`, `fin-mas instalar --demo` ou `acesso demo` criam, numa pasta
 vazia, as contas abaixo, todas com a senha pública **`Demonstracao-SMA-2026`** (documentada de
 propósito; não use fora de avaliação e aula). O modo ao vivo do comando único (`./iniciar.sh`,
-`.\iniciar.ps1`) sobe com `--demo`.
+`.\iniciar.ps1`) sobe com `--demo`. Cadastros existentes preservam os papéis gravados. Para
+avaliar a separação atual entre operação e aprovação, use um caminho ainda vazio, como
+`python -m fin_mas serve --demo --acesso saidas/demo-dsm4/acesso`.
 
 | Usuário | Papéis | Cargo | Pessoa do ERP | Para que serve |
 |---|---|---|---|---|

@@ -35,3 +35,8 @@ menor que 0,05, no sentido indicado.
 
 Qualquer mudança no aparato, nos critérios ou nas seeds depois deste commit é desvio e será declarada em
 {doc}`resultados`. O tempo de parede depende da máquina; só a direção (H-E8) é testada, não o valor.
+
+Na revisão do PR #10, a janela de medição foi padronizada nos dois braços. A preparação dos dados e
+a coleta de métricas ficaram fora da janela. Os critérios e as sementes foram mantidos, e o CSV de
+métricas determinísticas permaneceu idêntico. A repetição com a janela ajustada ocorreu após o
+pré-registro.

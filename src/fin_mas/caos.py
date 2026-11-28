@@ -44,7 +44,7 @@ PLANTIOS_BASE = ("alcada", "sod", "duplicidade", "competencia", "desvio_orcament
 PERFIS = (("diligente", 0.75), ("cauteloso", 0.15), ("rigoroso", 0.10))
 P_VARIANTE_OBSERVACAO = 0.3  # observação parafraseada (desvio_irregular) ou alarme falso (desvio_orcamentario)
 ATRASO_HUMANO = (0.3, 1.3)  # fração do prazo de aprovação que o aprovador lento demora
-SEGUNDA_PESSOA = "avaliador"  # segunda conta com cargo para a dupla aprovação no bloco com acesso
+SEGUNDA_PESSOA = "avaliador"  # identificador histórico da segunda pessoa nos traces do bloco D
 P_AUSENTE = 0.15
 INICIO_INDISPONIBILIDADE = (1, 30)  # tick em que o especialista sai do ar
 DURACAO_INDISPONIBILIDADE = (8, 30)  # ticks fora do ar
@@ -135,6 +135,12 @@ class ModeloFalhas:
         if self.jitter <= 0 or msg.protocol not in ENTRE_AGENTES:
             return 0
         return self._proxima("jitter", msg).randint(0, self.jitter)
+
+    def contas_experimentais(self) -> dict:
+        """Segunda pessoa do bloco D, restrita ao cadastro simulado do experimento."""
+        if self.persona is None:
+            return {}
+        return {SEGUNDA_PESSOA: {"nome": "Aprovador experimental", "papeis": ("ROLE-APR",), "cargo": "controller"}}
 
     # ---- instalação num sistema montado ---------------------------------------------------
     def instalar(self, sistema) -> None:

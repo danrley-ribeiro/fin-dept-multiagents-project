@@ -72,7 +72,7 @@ python tools/trace.py --check                               # rastreabilidade: 0
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)
 python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (de 5 a 10 minutos)
-python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
+python -m fin_mas serve --demo --acesso saidas/demo-dsm4/acesso  # use uma pasta de cadastro nova
 ```
 
 No Windows (PowerShell; não há `make`, e o ambiente fica em `.venv\Scripts`):
@@ -86,11 +86,13 @@ python tools\trace.py --check                               # rastreabilidade: 0
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out $env:TEMP\exp  # aparato do experimento em 3 seeds
 python -m fin_mas.estudo_e --replicas 30 --out saidas\bloco_e   # bloco E: concorrência, frequência e volume
-python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
+python -m fin_mas serve --demo --acesso saidas/demo-dsm4/acesso  # use uma pasta de cadastro nova
 cd web; bun run test; $env:PW_CHANNEL = "chromium"; bun run test:e2e   # sem o Chrome do sistema: Chromium do Playwright
 ```
 
-A tela de entrada do dashboard mostra a conta de demonstração quando o servidor sobe com `--demo`. Quem
+A tela de entrada do dashboard mostra a conta de demonstração quando o servidor sobe com `--demo`.
+Use uma pasta de acesso nova para iniciar com os papéis atuais. Um cadastro já criado mantém os papéis
+gravados. Quem
 reinicia um cenário dispara os pedidos dele e, pela POL-13, não decide sobre eles: para decidir, entre com
 outra conta (por exemplo, `controller`, com a mesma senha).
 

@@ -127,6 +127,10 @@ class Simulacao:
         validar(cmd)
         if self.acesso is not None:  # negado por padrão: sem sessão ou sem a permissão do comando, não entra na fila
             self.acesso.exigir(ator, PERMISSAO_COMANDO[cmd["tipo"]])
+            if cmd["tipo"] == "reiniciar":
+                # reiniciar dispara os pedidos do roteiro do cenário, no nome de quem reiniciou: quem não pode pedir
+                # não reinicia (correção simulada da DSM4: o operador, sem PERM-SOL-CRIAR, criava pedidos)
+                self.acesso.exigir(ator, "PERM-SOL-CRIAR")
             if cmd["tipo"] == "reiniciar" and cmd.get("cognicao") not in (None, self.cognicao or self.cenario.cognicao):
                 self.acesso.exigir(ator, "PERM-MOD-CONFIG")  # mudar o nível de cognição é ajuste de modelo
             cadastro = self.cadastro_da_empresa()
@@ -308,7 +312,10 @@ class Simulacao:
                 "conversas": {cid: {"protocolo": c.protocol.id, "estado": c.state, "iniciador": c.initiator,
                                     "contraparte": c.counterpart, "final": c.is_final}
                               for cid, c in s.bus.conversations.items()},
-                "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content}
+                # opções vivas do ticket (a política pode tirar o waiver depois da proposta, POL-06): as mesmas de
+                # /api/aprovacoes; antes vinham do conteúdo da proposta e ficavam desatualizadas
+                "pendentes_humanos": [{"solicitacao": sid, "conversation_id": m.conversation_id, **m.content,
+                                       "opcoes": s.aprovador._opcoes(m)}
                                       for sid, m in s.aprovador.pendentes.items()
                                       if not s.bus.conversations[m.conversation_id].is_final],  # vencidas saem
                 "solicitacoes": {sid: (lambda r: None if r is None else {"performative": r.performative,

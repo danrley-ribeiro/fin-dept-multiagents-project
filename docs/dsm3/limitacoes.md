@@ -143,7 +143,7 @@ entrega); estes ficam registrados:
   real, a fonte (ERP ou planilha) é quem limita. Até a 6ª rodada, um pedido assim também apagava
   a memória de waivers (a retenção era aplicada a partir da competência pedida) e desligava a
   POL-06; isso foi corrigido: a consulta filtra e não apaga.
-- **Quem decide vetos também liga o LLM.** O papel ROLE-APR inclui `PERM-MOD-CONFIG`: um aprovador
+- **Quem decide vetos também liga o LLM** (resolvido na DSM4: `PERM-MOD-CONFIG` passou para o ROLE-OPE). O papel ROLE-APR inclui `PERM-MOD-CONFIG`: um aprovador
   com cargo de analista pode ligar o LLM do AG-REL, apontar um `base_url` e dar o consentimento de
   envio externo. Está na tabela de papéis ({doc}`acesso`), mas a separação é fraca; separar o papel
   de configuração de modelos fica para a DSM4.

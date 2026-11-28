@@ -209,9 +209,10 @@ def test_roles_matrix_and_incompatible_combinations_board(demo):
         assert linha(pilot, "#tabela-matriz", "PERM-IAM-USUARIOS")[2:] == ["·", "·", "·", "·", "sim"]
         quadro = texto(pilot, "#incompativeis")
         assert "IAM-06" not in quadro  # o serviço não deixa nascer conta com ROLE-ADM e ROLE-APR
-        for conta in ("ana", "avaliador", "controller", "elisa"):  # solicitam e aprovam: aviso da POL-13
+        for conta in ("ana", "controller", "elisa"):  # solicitam e aprovam: aviso da POL-13
             assert f"aviso POL-13  {conta} solicita e aprova" in quadro
-        assert "bruno" not in quadro and "carla" not in quadro
+        # bruno só pede, carla só aprova; o avaliador opera, pede e audita, mas não aprova (desde a DSM4)
+        assert "bruno" not in quadro and "carla" not in quadro and "avaliador" not in quadro
     no_console(demo, roteiro)
 
 

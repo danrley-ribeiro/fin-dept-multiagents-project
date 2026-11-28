@@ -1,7 +1,8 @@
 // Áreas de trabalho do escritório: solicitações e relatórios, aprovações, logs com explicação, porte, cognição e LLM.
-// Roda com a conta `avaliador` (opera, solicita, aprova e audita), já logada pela preparação dos testes.
+// Roda com a conta `avaliador` (opera, solicita e audita), já logada pela preparação dos testes; as decisões são do
+// `controller`, numa página própria (desde a DSM4 o avaliador não aprova).
 import { expect, test } from "@playwright/test";
-import { abrir, chipAgente, comando, reiniciar } from "./apoio";
+import { abrir, chipAgente, comando, paginaDe, reiniciar } from "./apoio";
 
 test("solicitações: pedir, acompanhar e abrir o relatório para baixar", async ({ page, request }) => {
   await reiniciar(request, "fechar_mes");
@@ -26,9 +27,9 @@ test("solicitações: pedir, acompanhar e abrir o relatório para baixar", async
   expect(await baixado.text()).toContain("<svg");
 });
 
-test("aprovações: fila com prazo, decisão com justificativa e histórico com a pessoa", async ({ page, request }) => {
+test("aprovações: fila com prazo, decisão com justificativa e histórico com a pessoa", async ({ browser, request }) => {
   await reiniciar(request, "veto_waiver");
-  await abrir(page);
+  const { page, contexto } = await paginaDe(browser, "controller");
   await page.getByRole("tab", { name: "Aprovações" }).click();
   const central = page.getByRole("region", { name: "Central de aprovações" });
   const ticket = central.getByLabel("Ticket APR-001");
@@ -41,9 +42,10 @@ test("aprovações: fila com prazo, decisão com justificativa e histórico com 
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
   const linha = central.getByRole("table", { name: "Histórico de aprovações" }).getByRole("row").filter({ hasText: "APR-001" });
   await expect(linha).toContainText("waiver", { timeout: 20_000 });
-  await expect(linha).toContainText("avaliador (controller)");
+  await expect(linha).toContainText("controller (controller)");
   await expect(linha).toContainText("aceito o risco");
   await expect(central).toContainText("Nenhum veto aguardando decisão.");
+  await contexto.close();
 });
 
 test("logs: filtros por agente e tipo, busca, por quê e sequência da conversa", async ({ page, request }) => {

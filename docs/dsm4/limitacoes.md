@@ -25,6 +25,10 @@ empresas) e trouxeram limitações próprias, nas seções "Conectores e fontes"
   foram feitas depois de ver resultados (a do barramento, depois da primeira; as da correção simulada
   da DSM4, depois da segunda). Entre a primeira e a segunda mudaram três coisas (correção, lugar do
   sorteio do atraso, conteúdo do braço local).
+- **O bloco E foi exploratório; a confirmação é no mesmo aparato.** As oito conclusões dele foram
+  pré-registradas e confirmadas com seeds novas (31 a 60, {doc}`experimento-bloco-e`). Isso afasta o
+  acaso das primeiras seeds, não as ameaças do próprio simulador (dados sintéticos, latência
+  modelada, uma máquina).
 
 ## Validade do experimento
 
@@ -230,20 +234,13 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   quantas vezes o mês for reexecutado (TEST-460). A memória guarda uma entrada por padrão e competência, com a
   proveniência do primeiro ticket; as liberações seguintes do mesmo mês ficam só no trace e na trilha de
   acesso, não na memória.
-- **A conta de demonstração `avaliador` opera e aprova.** Ela acumula operação, pedidos, aprovação e
-  auditoria por decisão dos autores, para o professor testar tudo com uma conta só. A POL-13 impede que
-  ela decida sobre os pedidos que ela mesma disparou (reinício ou pedido novo). Os pedidos do cenário
-  carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
-  (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
-  separação, opere com `operador` e decida com `controller`.
-- **O caminho do arquivo de memória não é normalizado** antes de derivar o nome da chave e do contador.
-  No Windows, o mesmo arquivo aberto com o caminho escrito em outra caixa (maiúsculas) é tratado como
-  outro arquivo e a memória fica "comprometida". É falha fechada (nenhum waiver passa), mas tira a
-  disponibilidade. Normalizar mudaria o nome das chaves das instalações existentes; fica para uma
-  migração.
+- **Uma conta criada pelo administrador ainda pode operar e aprovar.** Nenhuma conta de demonstração
+  acumula os dois (desde a DSM4 a `avaliador` opera, pede e audita, mas não decide; quem decide é o
+  `controller`, a `elisa`, o `diego`...). O serviço não proíbe a combinação ROLE-OPE + ROLE-APR: quem a
+  recebe continua impedido pela POL-13 de decidir os pedidos que disparou (reinício ou pedido novo), e a
+  trilha registra quem atribuiu os papéis (TEST-453).
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
-- **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
 - **Conta-fantoche do administrador**: ele não acumula ROLE-APR (IAM-06), mas cria outra conta com
   ROLE-APR e cargo alto, sabe a senha temporária e faz o primeiro acesso dela, inclusive o cadastro do
   segundo fator. Fica tudo na trilha; impedir exige quatro olhos na criação de contas.
@@ -269,7 +266,7 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador, com a perda marcada pela posição da mensagem na conversa (achado C1 da correção simulada); 0 execuções sem resposta na segunda e na terceira rodada |
 | A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3; reproduzida pelo professor na correção da DSM3) | a política confere o histórico e registra a liberação sob a mesma trava; o segundo ticket continua pendente nas duas ordens de decisão, inclusive entre processos (TEST-424 e TEST-459). Na revisão de 26/11, oferta e decisão passaram a usar a mesma janela (waiver do padrão em outra competência, antes ou depois), o ticket concorrente recusado perde a opção de waiver e o modo em lote bloqueia em vez de esperar o prazo (TEST-460 a TEST-464) |
-| Reinício pelo dashboard criava a demanda do roteiro sem dono: quem operava e aprovava liberava o pedido que disparou (feedback da DSM3) | os pedidos do reinício ficam no nome de quem reiniciou e a POL-13 vale para ele; os roteiros de navegador reiniciam como `operador` e decidem como `avaliador` (TEST-453) |
+| Reinício pelo dashboard criava a demanda do roteiro sem dono: quem operava e aprovava liberava o pedido que disparou (feedback da DSM3) | os pedidos do reinício ficam no nome de quem reiniciou e a POL-13 vale para ele; os roteiros de navegador reiniciam como `operador` e decidem como `controller`; a conta `avaliador` deixou de aprovar e o ajuste de modelos (`PERM-MOD-CONFIG`) passou do aprovador para a operação (TEST-453) |
 | Trocar o porte para micro, sem empresa cadastrada, dispensava a POL-13 pelo controle compensatório (feedback da DSM3) | no dashboard o controle compensatório só vale para o porte do cadastro da empresa; o cenário em lote (`run`) continua com o controle do porte (TEST-465) |
 | Aviso de decisão humana perdido contornava a POL-06 ou gerava segundo ticket | reentrega pelo transporte dos avisos ao AG-CIN, até 5 tentativas (achado C2) |
 | Segundo fator derrubável por força bruta; fontes compartilhadas entre empresas; restauração gravava fora do destino | contador por conta com bloqueio e senha exigida (C3); registro de fontes por empresa (C4); backup validado antes de gravar, com o cofre no pacote de chaves (C5) |
@@ -279,6 +276,11 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | Duas execuções simultâneas sobre a memória perdiam entradas | SVC-MEM sobre o `ArquivoSelado`, gravação na trava entre processos |
 | A trava da memória ficava na pasta de chaves: dois processos com pastas de chaves diferentes sobre o mesmo arquivo não se excluíam e os dois waivers passavam (correção simulada da DSM4, 3 de 6 tentativas) | a trava é `<arquivo>.lock`, ao lado do arquivo de dados (TEST-470) |
 | A POL-13 comparava só o nome da conta: uma conta de operação ligada à mesma pessoa do ERP pedia e a conta de aprovação dessa pessoa aprovava (correção simulada da DSM4) | a POL-13 confere a conta e a pessoa do ERP, como a POL-12 (TEST-473) |
+| A pessoa do ERP era comparada como texto exato: "Elisa", " elisa ", "Élisa" ou a grafia em largura total contornavam a POL-13, e "Cárla" a POL-03 (correções simuladas da DSM4) | forma canônica gravada no cadastro e usada nas POL-03, 12 e 13 (Unicode NFKC, sem acentos, espaços e maiúsculas); o painel mostra o mesmo impedimento (TEST-473, TEST-479) |
+| A pessoa do ERP aceitava qualquer texto: homóglifos ("еlisa" com "е" cirílico) e caracteres invisíveis contornavam a POL-13 (quinta correção simulada) | o vínculo é validado como identificador do ERP (letras ASCII sem acento, números, ponto, hífen, sublinhado), depois da forma canônica, que remove caracteres invisíveis (TEST-483) |
+| O `operador`, sem permissão de pedir, disparava pedidos ao reiniciar um cenário | reiniciar exige também PERM-SOL-CRIAR; a conta de demonstração `operador` tem ROLE-OPE e ROLE-SOL, e a POL-13 a impede de aprovar o que disparou (TEST-482) |
+| Um aprovador sem cargo no porte (dado mal digitado) derrubava o AG-CIN com KeyError, e o pedido terminava em timeout | vira violação de alçada explícita ("alçada não verificável"), vetada e corrigida como as outras, também no workflow equivalente (TEST-484) |
+| No Windows, o mesmo arquivo de memória com o caminho escrito em outra caixa, criado por dois processos ao mesmo tempo, gerava duas chaves e a memória ficava "comprometida" | o nome dos arquivos de estado usa o caminho com `normcase`; o nome antigo é migrado na primeira abertura, e o backup lê os dois (TEST-480, TEST-481) |
 | No dashboard de demonstração, a memória vivia só no processo: reiniciar o cenário esquecia o waiver anterior e a POL-06 liberava de novo (correção simulada da DSM4) | a memória fica em `<pasta de dados>/memoria.json` e reiniciar não a apaga; limpar é o comando `limpar_memoria`, só do administrador (`PERM-MEM-LIMPAR`), registrado no trace (TEST-471, TEST-472) |
 | Uma empresa por cadastro | empresas no cadastro, escopo por conta e empresa ativa por sessão (API e seletor no dashboard) |
 | Fonte de dados só sintética ou planilha no modelo da SMA | conectores genéricos e entendimento determinístico de fontes, com confirmação humana (`docs/dsm4/ADR-011-conectores-e-entendimento.md`) |

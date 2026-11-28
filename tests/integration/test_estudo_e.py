@@ -1,4 +1,5 @@
-"""Bloco E do experimento (revisão da DSM4, feedback da DSM3): concorrência, frequência de irregularidades e volume.
+"""Bloco E do experimento (revisão da DSM4, feedback da DSM3): concorrência, frequência de irregularidades, volume e
+porte.
 
 Confere o aparato, não os números: reprodutibilidade, sorteios aninhados, e as propriedades que a análise usa.
 """
@@ -13,9 +14,11 @@ MES = estudo_e.COMPETENCIAS[0]
 def test_block_e_is_reproducible():
     """Duas execuções do plano dão as mesmas linhas (o tempo de parede fica em outro arquivo)."""
     plano = list(estudo_e.celulas(1))[:4]  # um pedaço do plano com a seed 1 basta para conferir
+
     def medir():
-        rodadas = [(estudo_e._sma if b == "sma_basico" else estudo_e._workflow)(seed, pedidos, volume)
-                   for _, _, _, seed, pedidos, volume in plano for b in estudo_e.BRACOS]
+        rodadas = [(estudo_e._sma if b == "sma_basico" else estudo_e._workflow)(seed, pedidos, volume, porte, decide,
+                                                                               perda, fora)
+                   for _, _, _, seed, pedidos, volume, porte, decide, perda, fora in plano for b in estudo_e.BRACOS]
         return [{k: v for k, v in r.items() if k != "segundos"} for r in rodadas]
     assert medir() == medir()
 
@@ -26,13 +29,30 @@ def test_frequency_draws_are_nested():
         assert baixa <= media <= alta
 
 
+def test_approver_draw_covers_the_three_decisions():
+    assert {estudo_e.decisao(s) for s in range(1, 31)} == set(estudo_e.DECISOES)
+
+
 @pytest.mark.parametrize("n", [2, 4])
-def test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue(n):
+def test_same_period_requests_publish_once_in_both_arms(n):
+    """O SMA reserva o período (PROT-LCK); o workflow recusa mês já atendido na fila (o equivalente num controlador
+    único). Antes, o workflow publicava o mesmo mês n vezes: a comparação media mecanismo ausente."""
     pedidos = [(MES, ("alcada",))] * n
     sma, wf = estudo_e._sma(1, pedidos), estudo_e._workflow(1, pedidos)
-    assert (sma["publicados"], sma["recusados"], sma["publicacoes_indevidas"]) == (1, n - 1, 0)  # PROT-LCK
-    assert (wf["publicados"], wf["publicacoes_indevidas"]) == (n, n - 1)  # fila sem reserva: o mês sai n vezes
+    for braco in (sma, wf):
+        assert (braco["publicados"], braco["recusados"], braco["publicacoes_indevidas"]) == (1, n - 1, 0)
     assert sma["criticas_corrigidas"] == wf["criticas_corrigidas"] == 1  # a mesma correção conta uma vez
+
+
+def test_recurrence_limits_waivers_in_both_arms():
+    """Quatro meses com a mesma violação de alçada e o aprovador pedindo waiver: a POL-06 deixa passar um waiver por
+    padrão nos dois braços (o workflow usa a mesma memória, SVC-MEM)."""
+    pedidos = [(c, ("alcada",)) for c in estudo_e.COMPETENCIAS[:4]]
+    sma = estudo_e._sma(1, pedidos, decisao_aprovador="waiver")
+    wf = estudo_e._workflow(1, pedidos, decisao_aprovador="waiver")
+    assert sma["waivers"] == wf["waivers"] == 1
+    assert sma["publicados"] == wf["publicados"] == 1
+    assert sma["criticas_publicadas_sem_tratamento"] == wf["criticas_publicadas_sem_tratamento"] == 0
 
 
 def test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue():
@@ -49,3 +69,31 @@ def test_logical_time_does_not_depend_on_volume():
     medidas = [estudo_e._sma(1, [(MES, ("alcada",))], v) for v in estudo_e.VOLUMES]
     assert len({m["makespan_ticks"] for m in medidas}) == 1
     assert [m["lancamentos"] for m in medidas] == sorted(m["lancamentos"] for m in medidas)
+
+
+def test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical():
+    """concorrencia_perda: 15% de perda entre agentes, quatro meses ao mesmo tempo. O SMA pode deixar de publicar
+    (falha explícita), mas não publica crítica sem tratamento; só a perda muda, não a decisão do aprovador; o workflow,
+    sem mensagens entre componentes, não é atingido."""
+    pedidos = [(c, ("alcada",)) for c in estudo_e.COMPETENCIAS[:4]]
+    for seed in range(1, 6):
+        sem, com = estudo_e._sma(seed, pedidos), estudo_e._sma(seed, pedidos, perda=0.15)
+        assert com["criticas_publicadas_sem_tratamento"] == 0
+        assert com["publicados"] + com["falhas"] + com["recusados"] == 4  # todo pedido tem resposta explícita
+        assert com["publicados"] <= sem["publicados"]
+    wf_sem = {k: v for k, v in estudo_e._workflow(1, pedidos).items() if k != "segundos"}
+    wf_com = {k: v for k, v in estudo_e._workflow(1, pedidos, perda=0.15).items() if k != "segundos"}
+    assert wf_sem == wf_com
+
+
+def test_an_unavailable_specialist_under_concurrency_never_publishes_an_untreated_critical():
+    """concorrencia_indisponibilidade: um especialista fora do ar por um tempo (como no bloco A), quatro meses ao mesmo
+    tempo. Todo pedido tem resposta explícita e nenhuma crítica sai sem tratamento; o workflow não é atingido."""
+    pedidos = [(c, ("alcada",)) for c in estudo_e.COMPETENCIAS[:4]]
+    for seed in range(1, 6):
+        com = estudo_e._sma(seed, pedidos, indisponibilidades=1)
+        assert com["criticas_publicadas_sem_tratamento"] == 0
+        assert com["publicados"] + com["falhas"] + com["recusados"] == 4
+    wf_sem = {k: v for k, v in estudo_e._workflow(1, pedidos).items() if k != "segundos"}
+    wf_com = {k: v for k, v in estudo_e._workflow(1, pedidos, indisponibilidades=1).items() if k != "segundos"}
+    assert wf_sem == wf_com

@@ -77,9 +77,30 @@ def chave_de(rotulo: str, caminho: Path) -> bytes:
     return chave
 
 
+def marca(caminho) -> str:
+    """Nome curto do arquivo de dados nos arquivos de estado (chave, contador): hash do caminho absoluto com
+    `os.path.normcase`. No Windows, `MEMORIA.JSON` e `memoria.json` são o mesmo arquivo e passam a ter a mesma marca
+    (antes, a grafia do caminho mudava a marca e a memória ficava "comprometida"; correção simulada da DSM4). No
+    Linux e no macOS o `normcase` não muda nada."""
+    return hashlib.sha256(os.path.normcase(str(Path(caminho).resolve())).encode("utf-8")).hexdigest()[:16]
+
+
+def marca_legada(caminho) -> str:
+    """A marca até a versão 1.1.0, sem `normcase` (lida para migrar instalações existentes)."""
+    return hashlib.sha256(str(Path(caminho).resolve()).encode("utf-8")).hexdigest()[:16]
+
+
 def _estado(rotulo: str, caminho: Path, sufixo: str) -> Path:
-    nome = hashlib.sha256(str(Path(caminho).resolve()).encode("utf-8")).hexdigest()[:16]
-    return pasta_de_chaves() / f"{rotulo}-{nome}.{sufixo}"
+    pasta = pasta_de_chaves()
+    novo = pasta / f"{rotulo}-{marca(caminho)}.{sufixo}"
+    antigo = pasta / f"{rotulo}-{marca_legada(caminho)}.{sufixo}"
+    if antigo != novo and not novo.exists() and antigo.exists():
+        try:  # migração do nome antigo: a mesma chave e o mesmo contador, com o nome novo
+            os.replace(antigo, novo)
+        except OSError:
+            if not novo.exists():  # outro processo migrou ao mesmo tempo, ou o arquivo está em uso: usa o antigo
+                return antigo
+    return novo
 
 
 @contextlib.contextmanager

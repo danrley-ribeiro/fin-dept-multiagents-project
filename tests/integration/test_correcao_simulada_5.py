@@ -70,10 +70,19 @@ def _ultimo_pedido(sim):
     return [r for r in sim.registros if r["kind"] == "open" and r["protocol"] == "PROT-SOL"][-1]["content"]
 
 
+def _conta_que_opera_e_aprova(acesso, porta):
+    """Nenhuma conta de demonstração opera e aprova (desde a DSM4); o administrador pode criar uma, e a POL-13 é o que
+    impede essa conta de decidir o pedido que ela mesma disparou."""
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "acumula", "Acumula Papéis", SENHA_DEMO, ["ROLE-OPE", "ROLE-SOL", "ROLE-APR"],
+                       cargo="controller", trocar_senha=False)
+    return entrar(porta, "acumula")
+
+
 def test_restart_never_creates_requests_in_someone_elses_name(servico):  # noqa: F811
     """Revisão da DSM4 (feedback da DSM3): quem reinicia dispara os pedidos do roteiro e responde por eles. Os
     pedidos ficam no nome de quem reiniciou (nunca de outra pessoa) e a POL-13 vale: quem reiniciou não decide."""
-    sim, _, porta = servico("solicitante_nao_aprova")
+    sim, acesso, porta = servico("solicitante_nao_aprova")
     assert _ultimo_pedido(sim).get("solicitado_por") == "elisa"  # ao subir o servidor, vale o roteiro do cenário
     operador, avaliador, controller = entrar(porta, "operador"), entrar(porta, "avaliador"), entrar(porta, "controller")
     reinicio = {"tipo": "reiniciar", "cenario": "solicitante_nao_aprova"}
@@ -86,7 +95,16 @@ def test_restart_never_creates_requests_in_someone_elses_name(servico):  # noqa:
     assert _ultimo_pedido(sim)["solicitado_por"] == "avaliador"
     _ate_humano(sim)
     decisao = {"tipo": "decidir", "solicitacao": "SOL-001", "decisao": "waiver", "justificativa": "risco aceito pela diretoria"}
-    assert avaliador.post("/api/comando", decisao)[0] == 202  # o comando entra; quem recusa é a política
+    # a conta de avaliação opera e pede, mas não tem o papel de aprovador: a decisão nem entra (desde a DSM4)
+    status, corpo = avaliador.post("/api/comando", decisao)
+    assert status == 403 and "PERM-APR-DECIDIR" in corpo["erro"]
+    # quem acumula os papéis (conta criada pelo administrador) reinicia e tenta decidir: a POL-13 recusa
+    acumula = _conta_que_opera_e_aprova(acesso, porta)
+    assert acumula.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})[0] == 202
+    sim.processar_comandos()
+    assert _ultimo_pedido(sim)["solicitado_por"] == "acumula"
+    _ate_humano(sim)
+    assert acumula.post("/api/comando", decisao)[0] == 202  # o comando entra; quem recusa é a política
     sim.processar_comandos()
     recusas = [r for r in sim.registros if r["kind"] == "rejected"]
     assert recusas and "POL-13" in recusas[-1]["motivo"]  # quem reiniciou não libera o pedido que disparou
@@ -99,8 +117,8 @@ def test_restart_never_creates_requests_in_someone_elses_name(servico):  # noqa:
 def test_choosing_micro_size_on_restart_does_not_exempt_the_requester(servico):  # noqa: F811
     """Feedback da DSM3: sem empresa cadastrada, quem opera trocava o porte para micro e, pelo controle
     compensatório, liberava o próprio pedido. No dashboard, o controle só vale para o porte do cadastro."""
-    sim, _, porta = servico("fechar_mes")
-    avaliador = entrar(porta, "avaliador")
+    sim, acesso, porta = servico("fechar_mes")
+    avaliador = _conta_que_opera_e_aprova(acesso, porta)  # só quem acumula os papéis chegaria a decidir o próprio pedido
     assert avaliador.post("/api/comando", {"tipo": "reiniciar", "cenario": "micro_controle_compensatorio",
                                            "porte": "micro"})[0] == 202
     sim.processar_comandos()

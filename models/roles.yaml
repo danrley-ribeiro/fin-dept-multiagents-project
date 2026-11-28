@@ -16,10 +16,10 @@ items:
     titulo: Aprovador (controller humano)
     exercido_por: [STK-02]
     resp: [Decidir sobre ações restritas, Conceder waiver a não conformidades]
-    perm: [Aprovar ou rejeitar ActionRequest, Ajustar configuração de modelos e cotas]
+    perm: [Aprovar ou rejeitar ActionRequest]
     obl: [Registrar justificativa da decisão]
     protocolos: [PROT-APR]
-    permissoes: [PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER]
+    permissoes: [PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-DAD-VER, PERM-AUD-VER]
     llm: nao_aplicavel
     entrega: DSM1
 
@@ -30,9 +30,12 @@ items:
     exercido_por: [STK-06]
     plataforma: true
     resp: [Acompanhar a execução dos agentes, Operar a simulação e as fontes de dados]
-    perm: [Pausar e retomar a execução, Ligar e desligar especialistas, Enviar planilhas validadas]
+    perm: [Pausar e retomar a execução, Ligar e desligar especialistas, Enviar planilhas validadas,
+           Ajustar configuração de modelos e cotas]
     obl: [Agir só pela interface autenticada, Não decidir no Approval Gate sem o papel de aprovador]
-    permissoes: [PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER, PERM-AUD-VER]
+    # DSM4: ajustar modelos e cotas passou do aprovador para a operação (quem decide vetos não liga o LLM)
+    permissoes: [PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER,
+                 PERM-MOD-CONFIG, PERM-AUD-VER]
     llm: nao_aplicavel
     entrega: DSM3
 

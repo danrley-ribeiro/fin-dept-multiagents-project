@@ -194,16 +194,19 @@ Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado com
 pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
 evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
 
-- **pytest:** 707 de 707, em 11,5 minutos;
-- **rastreabilidade:** 538 objetos, 0 erros;
+- **pytest:** 733 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 18,2 minutos (12,5 numa rodada anterior, com a máquina livre);
+- **rastreabilidade:** 552 objetos, 0 erros;
 - **vitest:** 12 de 12;
 - **Playwright:** 41 de 41, com o Chromium do Playwright;
 - **experimento inteiro:** rodado duas vezes, com o mesmo `execucoes.csv`; as métricas são iguais
   às da terceira rodada em todas as linhas;
 - **bloco E:** duas execuções com o mesmo CSV;
 - **suíte a partir do ZIP:** extraído fora do repositório (sem Git), num venv só com o projeto e o
-  pytest. 677 passaram e nenhum falhou. Foram pulados os 23 da TUI (sem `textual`), um de LLM (sem
-  `anthropic`), o do wheel (sem `setuptools`) e o do empacotamento (sem Git). A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
+  pytest (Python 3.11, versão com a replicação do bloco E). Rodada três vezes: nas três, 708 passaram, nenhum
+  falhou e 5 foram pulados, cada um com motivo (os 2 módulos da TUI, sem `textual`; um de LLM, sem `anthropic`;
+  o que monta o pacote pelo Git; o do wheel, sem o pacote `wheel`). Numa rodada anterior, com `setuptools` e
+  `wheel` instalados, o teste do wheel também passou. Os links dos Markdown e a build do dashboard são conferidos
+  dentro do próprio pacote. A revisão humana desta etapa é a do pull request `dsm4-revisao` → `main`,
 feita pelo coautor.
 
 ### Correção simulada da entrega final (26/11/2026)
@@ -235,5 +238,67 @@ segunda, o aviso do professor sobre o vídeo. Nenhum dos dois agentes viu as con
   comparava só o nome da conta, e duas contas da mesma pessoa do ERP pediam e aprovavam. Ela foi
   corrigida com teste (TEST-473, que falha sem a correção). Ficaram declarados como limitação:
   - o caminho de memória sem normalização (falha fechada);
-  - o workflow equivalente, que vale para um pedido;
+  - o workflow equivalente, que valia para um pedido: depois desta rodada ele ganhou a mesma memória da POL-06 e a
+    recusa de mês já atendido, com teste (TEST-474 a 476), e o bloco E ganhou o fator porte e o aprovador sorteado;
   - o bloco E, que é exploratório.
+- **Terceira rodada: nota 9,1, depois de os autores pedirem as correções que a segunda apontou.** O workflow
+  equivalente ganhou a mesma memória da POL-06 e a recusa de mês já atendido; o bloco E ganhou porte e aprovador
+  sorteado. O avaliador não conseguiu liberar dois waivers em 26 rodadas concorrentes. Achou:
+  - a POL-13 comparando a pessoa do ERP como texto exato ("Elisa" e "elisa " contornavam a regra);
+  - o painel sem o aviso do impedimento pela pessoa;
+  - `/api/estado` com as opções desatualizadas;
+  - o teste de empacotamento pulado no ZIP;
+  - o SHA antigo no README e o diagrama da arquitetura desatualizado;
+  - no roteiro: o fechamento bloqueado só por prazo, a conta "14 de 14" sem explicação e pouco tempo para o
+    experimento.
+
+  Tudo foi corrigido, com teste (TEST-473 com as grafias, TEST-477), e o bloco E ganhou a concorrência sob perda
+  de mensagens (TEST-478; 1.020 execuções).
+- **Quarta rodada: nota 9,1.** Nenhuma tentativa liberou dois waivers (20 rodadas com dois processos,
+  dashboard com reinícios do cenário e do servidor, CLI concorrente). O avaliador achou:
+  - a pessoa do ERP ainda contornável por acento ou caracteres de largura total ("Élisa" na POL-13, "Cárla"
+    na POL-03);
+  - a suíte do ZIP falhando numa segunda execução, por causa do `build/` deixado pelo teste do wheel;
+  - duas referências de linha erradas no roteiro e números antigos neste arquivo;
+  - o diagrama da arquitetura sem a ligação SVC-POL → SVC-MEM;
+  - a memória "comprometida" quando dois processos criam o mesmo arquivo com grafias diferentes do caminho
+    (limitação que estava declarada).
+
+  Tudo foi corrigido, com teste (TEST-473 e TEST-479 com as grafias Unicode, TEST-480 e TEST-481 para o nome dos
+  arquivos de estado e a migração). Um teste novo confere toda referência de linha do roteiro, e a suíte do ZIP
+  foi rodada duas vezes seguidas sem falha.
+- **Quinta rodada: nota 9,3.** Nenhum caminho liberou dois waivers (12 corridas entre processos, sete grafias do
+  caminho, dois servidores sobre a mesma pasta, arquivo apagado e versão antiga recolocada). O avaliador achou:
+  - a pessoa do ERP ainda contornável por homóglifo ("е" cirílico) ou caractere invisível;
+  - o `operador` disparando pedidos sem ter a permissão de pedir;
+  - um aprovador sem cargo no porte derrubando o AG-CIN (KeyError) em vez de virar achado;
+  - a demo 7 que, na velocidade padrão, mostra o caso sequencial e não o simultâneo;
+  - tempos declarados abaixo do medido.
+
+  Tudo foi corrigido, com teste (TEST-482 a 485). A correção da pessoa do ERP mudou de natureza: em vez de só
+  normalizar texto livre, o vínculo passou a ser validado como identificador do ERP. O bloco E ganhou a
+  concorrência com um especialista fora do ar.
+
+### Replicação confirmatória do bloco E (27/11/2026)
+
+Depois da quinta correção simulada restavam limitações declaradas. A pedido dos autores, o Claude avaliou quais
+dava para corrigir e foi feita a que dependia só de método: o bloco E deixou de ser apenas exploratório. A ordem
+foi esta:
+
+1. As oito conclusões do bloco E viraram hipóteses com critério de decisão (H-E1 a H-E8), escritas em
+   `docs/dsm4/experimento-bloco-e.md` e publicadas no PR (commit `95e7923`) **antes** de rodar qualquer seed nova
+   e antes de mudar o código.
+2. O código ganhou só a opção `--primeira-seed`; a replicação rodou com as seeds 31 a 60, duas vezes, com o mesmo
+   `execucoes.csv`.
+3. O verificador `tools/confirmar_bloco_e.py` foi escrito enquanto a replicação rodava e conferido primeiro nas
+   seeds 1 a 30. Resultado na replicação: 8 de 8 confirmadas. Os testes TEST-486 e TEST-487 conferem as seeds
+   novas e que um dado adulterado refuta a hipótese.
+
+O Orquestrador como ponto único de falha e o workflow distribuído continuam como limitações declaradas: corrigi-los
+mudaria a arquitetura na véspera da entrega.
+
+Na mesma rodada, a pedido dos autores, a conta de demonstração `avaliador` deixou de aprovar (opera, pede e audita) e o
+ajuste de modelos e cotas passou do aprovador para a operação. Duas limitações declaradas saíram da lista ("a conta
+`avaliador` opera e aprova" e "quem decide vetos também liga o LLM"). Os testes Python e de navegador que decidiam com
+a `avaliador` passaram a decidir com o `controller`; os que conferiam a POL-13 para quem opera e aprova usam uma conta
+criada pelo administrador com os dois papéis.

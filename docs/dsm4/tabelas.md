@@ -25,3 +25,15 @@ a leitura está em {doc}`resultados` (seção "Bloco E").
 ```{include} resultados/bloco_e/resumo.md
 :heading-offset: 2
 ```
+
+## Bloco E: replicação confirmatória (seeds 31 a 60)
+
+Mesmo aparato, seeds novas; hipóteses e critérios em {doc}`experimento-bloco-e`.
+
+```{include} resultados/bloco_e_confirmatorio/confirmacao.md
+:heading-offset: 2
+```
+
+```{include} resultados/bloco_e_confirmatorio/resumo.md
+:heading-offset: 2
+```

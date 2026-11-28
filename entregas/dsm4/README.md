@@ -40,6 +40,9 @@ estão no relatório e em
 - **Bloco E.** Um bloco E exploratório varia pedidos concorrentes, frequência de irregularidades e
   volume, com desvio-padrão e testes por seed ([resultados](../../docs/dsm4/resultados.md), seção
   "Bloco E"). Para repeti-lo: `python -m fin_mas.estudo_e --replicas 30 --out saidas/bloco_e`.
+  As oito conclusões dele foram pré-registradas ([experimento-bloco-e](../../docs/dsm4/experimento-bloco-e.md))
+  e confirmadas numa replicação com as seeds 31 a 60: `python -m fin_mas.estudo_e --replicas 30
+  --primeira-seed 31 --out saidas/bloco_e_conf` e `python tools/confirmar_bloco_e.py saidas/bloco_e_conf`.
 
 ## Conteúdo do pacote
 
@@ -64,11 +67,11 @@ navegador (Playwright); para o PDF, TeX Live com `latexmk` e `rsvg-convert`; par
 cd codigo                                                   # dentro do zip; no repositório, a raiz
 python3 -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt
 source .venv/bin/activate && export PYTHONPATH=src
-python -m pytest                                            # suíte inteira, offline (de 5 a 15 minutos, conforme a máquina)
+python -m pytest                                            # suíte inteira, offline (de 10 a 25 minutos, conforme a máquina)
 python tools/trace.py --check                               # rastreabilidade: 0 erros
 python -m fin_mas cenarios --verificar                      # cada cenário duas vezes: resposta, invariantes, mesmo hash
 python -m fin_mas experimento --rapido --out /tmp/exp       # aparato do experimento em 3 seeds (segundos)
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (de 5 a 8 minutos)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao      # experimento completo (de 5 a 10 minutos)
 python -m fin_mas serve --demo                              # dashboard em http://127.0.0.1:8765 (avaliador / Demonstracao-SMA-2026)
 ```
 
@@ -101,7 +104,7 @@ Atalho para tudo: `./iniciar.sh` (Linux/macOS) ou `.\iniciar.ps1` (Windows), com
 |---|---|
 | Sistema final e corretude (25%) | `codigo/src/fin_mas/`; cenários do catálogo, todos com resposta explícita, invariantes e repetibilidade conferidos por `cenarios --verificar` ([catálogo da DSM4](../../docs/dsm4/cenarios-de-teste.md), [da DSM3](../../docs/dsm3/cenarios-de-teste.md)); invariantes de segurança sobre qualquer trace (`fin-mas invariantes`); cenários adversariais com todos os ataques recusados; relatório §3 a §8 |
 | Arquitetura e SMA (20%) | [arquitetura final](../../docs/dsm4/arquitetura-final.md) e ADR-002 a ADR-012; quem é BDI, quem é reativo e por quê ([ADR-010](../../docs/dsm4/ADR-010-especialistas-bdi.md), incluindo onde a cognição não se justificou); protocolos com transições inválidas testadas ([protocolos](../../docs/dsm3/protocolos.md)); coordenação e comportamento coletivo (relatório §5 e §10.5); proposta de modelo ≠ crença ([ADR-008](../../docs/dsm3/ADR-008-cognicao-local-e-llm.md)) |
-| Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as três rodadas, o que não se confirmou, o que não foi testado, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (reproduzível byte a byte, SHA-256 em `manifesto.json`); relatório §10 |
+| Experimentação e análise (20%) | [pré-registro](../../docs/dsm4/experimento.md) versionado antes do código; [resultados](../../docs/dsm4/resultados.md) por pergunta, com as três rodadas, o que não se confirmou, o que não foi testado, desvios e ameaças; [tabelas e testes gerados](../../docs/dsm4/tabelas.md); dado bruto `docs/dsm4/resultados/execucoes.csv` (terceira rodada, versão 1.0.0); na versão 1.1.0 entregue, `experimento --replicas 30` reproduz byte a byte o `docs/dsm4/resultados/revisao-final/execucoes.csv` (SHA-256 `b324fc61…` no `manifesto.json` dessa pasta), com as mesmas métricas: só a coluna de hash muda, porque a versão entra no trace; relatório §10 |
 | Testes e reprodutibilidade (15%) | `codigo/tests/` (unit, e2e, integração, TUI), `codigo/web/e2e/` (Playwright), vitest; `tools/trace.py --check`; mesmo hash por seed; [reprodução do zero](../../docs/dsm4/reproducao.md); números do relatório gerados por `tools/relatorio_numeros.py` |
 | Documentação (10%) | relatório técnico (`documentacao/relatorio.pdf`); documentação navegável (`docs/`, Sphinx, <https://fin-dept-multiagents-project.readthedocs.io>); [limitações](../../docs/dsm4/limitacoes.md); diagramas editáveis; este README |
 | Demonstração e autoria (10%) | vídeo (link acima) com os dois autores; [roteiro do vídeo](apresentacao/roteiro.md); [roteiro de demonstração](../../docs/dsm4/demonstracao.md), `apresentacao/`; [`USO_DE_IA.md`](USO_DE_IA.md); [checkpoints CP1–CP13](../../docs/checkpoints.md) |
@@ -146,7 +149,7 @@ A lista completa está em [`docs/dsm4/limitacoes.md`](../../docs/dsm4/limitacoes
 - A cognição local não mostrou ganho na medida registrada; o AG-REL BDI não acrescenta capacidade; nenhum
   LLM real foi avaliado.
 - A robustez favorece o workflow por construção; um workflow distribuído não foi construído. Dados
-  sintéticos com plantio. Nenhuma rodada depois da primeira é confirmatória. A latência entre os braços é
+  sintéticos com plantio. Nenhuma rodada depois da primeira é confirmatória (o bloco E, sim: replicado com seeds novas). A latência entre os braços é
   modelada (3 ticks por etapa no workflow, premissa que decide o sinal sem falhas); com 5 seeds diferentes ou
   menos os testes não têm poder; H6b não foi testada com o controle de acesso ligado.
 - Raiz de confiança no processo e na pasta de chaves; o cofre garante integridade, não confidencialidade

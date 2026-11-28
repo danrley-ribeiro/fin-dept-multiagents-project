@@ -741,12 +741,14 @@ def numeros_sistema(M: Macros, suite: bool):
         s = suite_pytest()
         M["testes.passaram"] = inteiro(s["passed"])
         M["testes.falharam"] = inteiro(s["failed"] + s["error"] + s["errors"])
+        M["testes.pulados"] = inteiro(s["skipped"])
         M["testes.minutos"] = num((s["segundos"] or 0) / 60, 1)
         M["testes.vitest.passaram"] = v["passaram"] if v else "não executado"
         M["testes.suite"] = "executada"
     else:
         M["testes.passaram"] = "não executada nesta geração"
         M["testes.falharam"] = "---"
+        M["testes.pulados"] = "---"
         M["testes.minutos"] = "---"
         M["testes.vitest.passaram"] = "não executado"
         M["testes.suite"] = "não executada nesta geração (use --suite)"

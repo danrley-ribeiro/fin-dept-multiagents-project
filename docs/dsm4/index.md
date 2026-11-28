@@ -17,6 +17,7 @@ Páginas da DSM4 disponíveis até aqui.
 | Página | Conteúdo |
 |---|---|
 | {doc}`experimento` | Pré-registro: perguntas, hipóteses, braços, fatores, métricas, plano de análise e ameaças previstas. Versionado antes de existir qualquer resultado. |
+| {doc}`experimento-bloco-e` | Pré-registro da replicação confirmatória do bloco E (seeds 31 a 60): hipóteses e critérios fixados antes de rodar. |
 | {doc}`resultados` | O que foi medido, em três rodadas (antes da correção do defeito que a primeira revelou, depois dela e na versão final 1.0.0, depois da correção simulada): resposta a cada pergunta, comportamento coletivo, o que não se confirmou, o que não foi testado, defeitos encontrados, desvios do pré-registro e ameaças à validade. |
 | {doc}`tabelas` | Todas as tabelas e todos os testes de hipótese da terceira rodada (versão 1.0.0), gerados pelo comando do experimento. |
 | {doc}`cognicao` | Especialistas BDI, aprendizado local, estratégias de compromisso e base normativa. |
@@ -26,7 +27,7 @@ Páginas da DSM4 disponíveis até aqui.
 | {doc}`ADR-011-conectores-e-entendimento` | Conectores genéricos e entendimento automático de fontes, sem IA generativa. |
 
 ```bash
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # ou: make experimento (de 5 a 8 minutos, conforme a máquina)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # ou: make experimento (de 5 a 10 minutos, conforme a máquina)
 python -m fin_mas experimento --rapido --out /tmp/experimento            # 3 seeds, alguns segundos
 ```
 
@@ -40,6 +41,7 @@ cenarios-de-teste
 limitacoes
 
 experimento
+experimento-bloco-e
 resultados
 tabelas
 cognicao

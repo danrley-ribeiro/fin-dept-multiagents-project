@@ -39,9 +39,11 @@ import base64
 import contextlib
 import hashlib
 import hmac
+import re
 import secrets
 import threading
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -62,6 +64,35 @@ SENHAS_PROIBIDAS = {"123456789012", "senha1234567", "password1234", "administrad
 ESTADOS = ("ativa", "bloqueada", "desativada")
 PAPEL_ADM = "ROLE-ADM"
 MANTER = object()  # sentinela: "não alterar este campo" (diferente de None, que remove)
+
+
+def pessoa_canonica(pessoa):
+    """Forma canônica da pessoa do ERP: Unicode NFKC (largura total vira a letra comum), sem acentos, espaços internos
+    reduzidos a um, sem espaços nas pontas e sem diferença de maiúsculas. É a forma gravada no cadastro e a usada nas
+    POL-03, POL-12 e POL-13: "Elisa", " elisa ", "Élisa" e "ｅｌｉｓａ" são a mesma pessoa que "elisa" (correção
+    simulada da DSM4: uma grafia diferente contornava "quem pede não aprova" e "quem participou não decide")."""
+    if not isinstance(pessoa, str):
+        return pessoa
+    texto = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", pessoa))
+    # sem acentos e sem caracteres de formatação invisíveis (espaço de largura zero, hífen suave...)
+    texto = "".join(c for c in texto if not unicodedata.combining(c) and unicodedata.category(c) != "Cf")
+    texto = " ".join(texto.split()).casefold()
+    return texto or None
+
+
+PESSOA_ERP = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")
+
+
+def validar_pessoa_erp(pessoa):
+    """O vínculo da conta com o ERP é um identificador de pessoa do ERP (ex.: `elisa`): letras ASCII minúsculas,
+    números, ponto, hífen e sublinhado, depois da forma canônica. Homóglifos (o "е" cirílico em "еlisa"), letras de
+    outros alfabetos e espaços não passam: normalizar texto livre não fecha essa classe, validar fecha (correção
+    simulada da DSM4: uma conta "еlisa" pedia e a conta "elisa" aprovava)."""
+    canonica = pessoa_canonica(pessoa)
+    if canonica is not None and (not isinstance(canonica, str) or not PESSOA_ERP.fullmatch(canonica)):
+        raise AcessoNegado("IAM-05", f"pessoa do ERP inválida: {pessoa!r} (use o identificador do ERP: letras sem "
+                                     "acento, números, ponto, hífen ou sublinhado)")
+    return canonica
 
 
 class AcessoNegado(PermissionError):
@@ -248,7 +279,8 @@ class Acesso(AcessoAvancado):
         return self.conta(usuario)
 
     def _nova(self, usuario, nome, papeis, senha, pessoa_erp, cargo, trocar) -> dict:
-        return {"usuario": usuario, "nome": nome, "papeis": list(papeis), "pessoa_erp": pessoa_erp, "cargo": cargo,
+        return {"usuario": usuario, "nome": nome, "papeis": list(papeis), "pessoa_erp": pessoa_canonica(pessoa_erp),
+                "cargo": cargo,
                 "estado": "ativa", "senha": _hash_senha(senha, self.custo) if senha else None, "trocar_senha": trocar,
                 "falhas": 0, "bloqueada_ate": None, "criada_em": round(self.relogio(), 3)}
 
@@ -260,6 +292,7 @@ class Acesso(AcessoAvancado):
         papeis = self._validar_papeis(papeis)
         if cargo is not None and cargo not in permissoes.cargos():
             raise AcessoNegado("IAM-05", f"cargo desconhecido: {cargo} (use {', '.join(permissoes.cargos())})")
+        pessoa_erp = validar_pessoa_erp(pessoa_erp)
         with self._tx(self._contas) as dados:
             if usuario in dados["contas"]:
                 raise AcessoNegado("IAM-02", f"o usuário {usuario} já existe")
@@ -303,6 +336,8 @@ class Acesso(AcessoAvancado):
                                                                     or not pessoa_erp.strip()):
             # "" apagaria o vínculo sem pedido explícito (e a POL-03 deixaria de reconhecer a pessoa)
             raise AcessoNegado("IAM-05", "pessoa do ERP vazia: para remover o vínculo, peça explicitamente")
+        if pessoa_erp is not MANTER:
+            pessoa_erp = validar_pessoa_erp(pessoa_erp)
         novos = {k: v for k, v in (("pessoa_erp", pessoa_erp), ("cargo", cargo)) if v is not MANTER}
         if not novos:
             raise AcessoNegado("IAM-05", "informe a pessoa do ERP, o cargo ou ambos")
@@ -630,7 +665,9 @@ SENHA_DEMO = "Demonstracao-SMA-2026"
 CONTAS_DEMO = (
     # usuario, nome, papeis, pessoa_erp, cargo
     ("admin", "Administração de Acesso", ("ROLE-ADM",), None, None),
-    ("operador", "Operação da Plataforma", ("ROLE-OPE",), None, None),
+    # operar e pedir: reiniciar um cenário dispara os pedidos do roteiro (exige PERM-SOL-CRIAR); a POL-13 impede
+    # que quem reiniciou aprove esses pedidos, e o operador não tem o papel de aprovador
+    ("operador", "Operação da Plataforma", ("ROLE-OPE", "ROLE-SOL"), None, None),
     ("auditor", "Auditoria Interna", ("ROLE-AUD",), None, None),
     ("controller", "Controller", ("ROLE-APR", "ROLE-SOL"), None, "controller"),
     ("elisa", "Elisa Prado", ("ROLE-SOL", "ROLE-APR"), "elisa", "diretor"),
@@ -638,8 +675,9 @@ CONTAS_DEMO = (
     ("diego", "Diego Rocha", ("ROLE-APR",), "diego", "gerente"),
     ("ana", "Ana Lima", ("ROLE-SOL", "ROLE-APR"), "ana", "analista"),
     ("bruno", "Bruno Souza", ("ROLE-SOL",), "bruno", "analista"),
-    ("avaliador", "Avaliação (operação, pedidos, aprovação e auditoria)",
-     ("ROLE-OPE", "ROLE-SOL", "ROLE-APR", "ROLE-AUD"), None, "controller"),
+    # quem avalia opera, pede e audita, mas não aprova: a decisão é de outra conta (controller, diego...), como no
+    # feedback da DSM3 (operar x aprovar). Ajustar modelos e cotas é da operação desde a DSM4.
+    ("avaliador", "Avaliação (operação, pedidos e auditoria)", ("ROLE-OPE", "ROLE-SOL", "ROLE-AUD"), None, None),
 )
 
 

@@ -426,7 +426,7 @@ para o cofre, nunca volta pela API, pelo trace ou pela trilha e só é enviada a
 \code{tests/e2e} & \V{testes.e2e} & cenários completos verificados pelo trace: protocolos válidos e inválidos, ataques, equivalência do workflow, especialistas BDI, portes \\
 \code{tests/integration} & \V{testes.integration} & servidor HTTP real, CLI em subprocesso, wheel, contêiner, backup, experimento \\
 \code{tests/tui} & \V{testes.tui} & console de administração pelo Pilot do Textual \\
-\textbf{pytest, total} & \textbf{\V{testes.total}} & resultado nesta geração: \V{testes.passaram} passaram, \V{testes.falharam} falharam \\
+\textbf{pytest, total} & \textbf{\V{testes.total}} & resultado nesta geração: \V{testes.passaram} passaram, \V{testes.falharam} falharam, \V{testes.pulados} pulado(s) (o que só roda dentro do ZIP extraído) \\
 vitest (dashboard) & \V{testes.vitest} & reducer e regra da justificativa do waiver \\
 Playwright (dashboard) & \V{testes.playwright} & roteiros de uso no Chrome, todos aprovados em 25/11/2026 \\
 \code{cenarios -{}-verificar} & \V{cenarios.verificados} de \V{cenarios.total} & cada cenário duas vezes: resposta explícita, invariantes e mesmo hash \\
@@ -452,7 +452,8 @@ plantios, falhas, perfil do aprovador e ataques sorteados por seed, por fluxos i
 (\code{random.Random(f"\{seed\}:\{fator\}")}). Perguntas, hipóteses, métricas, plano de análise, critérios de parada e
 ameaças previstas foram escritos e versionados antes do código do experimento \parencite{nosek2018}; o histórico do
 git é a prova (\code{docs/dsm4/experimento.md}). Depois do feedback da DSM3, um bloco E exploratório acrescentou pedidos
-concorrentes, frequência de irregularidades e volume (Seção~\ref{sec:revisao-final}).
+concorrentes, frequência de irregularidades e volume (Seção~\ref{sec:revisao-final}); as hipóteses que ele sugeriu
+foram pré-registradas e confirmadas numa replicação com seeds novas (Tabela~\ref{tab:blocoe}).
 
 \subsection{Perguntas, braços, condições e métricas}
 \begin{tabela}{Perguntas de pesquisa, hipóteses pré-registradas e veredito na versão final (terceira rodada).\label{tab:rq}}
@@ -854,30 +855,57 @@ TEST-460 a TEST-464 cobrem a reexecução com a mesma memória, o lote, a grava�
 conservadora: o waiver é gravado antes de a decisão chegar ao Orquestrador; se ela se perdesse depois, a
 reincidência bloquearia um waiver futuro (Seção~\ref{sec:limitacoes}).
 
+\subsection{Onde mora a garantia da POL-06}
+A garantia de que dois waivers do mesmo padrão não passam fica num serviço (SVC-POL com o SVC-MEM) chamado pelo
+barramento como validador do PROT-APR, e não numa negociação entre agentes. É uma decisão de segurança: um agente pode
+falhar, perder mensagens ou ser comprometido, e a regra não pode depender de ele cooperar. O comportamento coletivo
+continua nos agentes: o AG-CIN marca a reincidência ao vetar, a política deixa de oferecer o waiver, o Orquestrador
+respeita a decisão; o serviço só garante que, mesmo se essa cooperação falhar, a decisão é conferida e registrada numa
+transação sob trava. O preço é concentrar a garantia num componente, o que o relatório registra junto do Orquestrador
+como ponto único (Seção~\ref{sec:limitacoes}).
+
 \subsection{Operar e aprovar}
 Também a pedido do professor, as permissões de operação e de aprovação foram revistas. Quem reinicia um cenário pelo
 dashboard dispara os pedidos dele: os pedidos ficam no nome de quem reiniciou e a POL-13 (quem pede não aprova) vale
 para ele; antes, uma conta que operava e aprovava liberava o pedido que ela mesma disparou. Sem empresa cadastrada, o
 controle compensatório do porte micro, que dispensa a POL-13, deixou de valer para um porte escolhido no reinício
-(TEST-453 e TEST-465). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
+(TEST-453 e TEST-465). Nenhuma conta de demonstração acumula mais operar e aprovar: a \code{avaliador} opera, pede e
+audita, e quem decide é outra conta (\code{controller}, \code{diego}\ldots); o ajuste de modelos e cotas
+(\code{PERM-MOD-CONFIG}) passou do aprovador para a operação, e quem decide vetos não liga mais o LLM (TEST-115 e
+TEST-153). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
 precisam deles são pulados, não falham.
 
-\subsection{Bloco E: pedidos concorrentes, frequência de irregularidades e volume}
+\subsection{Bloco E: pedidos concorrentes, frequência de irregularidades, volume e porte}
 Os blocos A a D não variavam três fatores pedidos no feedback. O bloco E, acrescentado depois dos blocos A a D e por
 isso exploratório (desvio do pré-registro declarado em \code{docs/dsm4/resultados.md}), compara o SMA básico e o
-workflow equivalente sob as mesmas 30 seeds, no porte médio, com o aprovador que corrige: 660 execuções em
-\code{docs/dsm4/resultados/bloco\_e/}. A unidade é a seed; as tabelas trazem média, desvio-padrão e IC de 95\% por
+workflow equivalente sob as mesmas 30 seeds: 1.140 execuções em \code{docs/dsm4/resultados/bloco\_e/}. O workflow atende
+os pedidos em fila com a \emph{mesma memória} (SVC-MEM: a POL-06 vale entre pedidos) e recusa mês já atendido na fila,
+o equivalente, num controlador único, à reserva de período do SMA; a equivalência na reincidência é testada
+(TEST-474 e TEST-475). O aprovador corrige nos fatores frequência e volume e é sorteado por seed (corrigir, waiver ou
+bloquear) em concorrência e porte, o mesmo nos dois braços. A unidade é a seed; as tabelas trazem média, desvio-padrão e IC de 95\% por
 bootstrap, e os testes são Wilcoxon pareados com Holm dentro de cada fator. As irregularidades são sorteadas por seed
 (quatro tipos, cada um com sua probabilidade), por isso as métricas variam entre seeds, ao contrário da DSM3.
 
-\paragraph{Pedidos concorrentes.} Com pedidos simultâneos do \emph{mesmo} mês, o SMA reserva o período (PROT-LCK),
-publica um e recusa os demais: zero publicações indevidas. O workflow, que atende em fila e não tem reserva, publica o
-mesmo mês duas e quatro vezes (uma e três publicações indevidas; $p<0{,}001$). Esta vantagem vem de um mecanismo
-que o workflow equivalente não implementa, e não do paradigma: num controlador único, o equivalente seria recusar mês
-já publicado. Com meses \emph{diferentes}, o SMA atende em paralelo: 19,8 ticks para um, dois ou quatro pedidos,
-contra 37,7 e 75,3 ticks do workflow em fila ($p<0{,}001$); um controlador com vários atendentes também
-paralelizaria, e o ganho de tempo é do atendimento simultâneo com reserva, não da autonomia dos agentes. O custo é de coordenação: cerca de 24 mensagens por
-pedido no SMA, contra 1,5 no workflow.
+\paragraph{Pedidos concorrentes e porte.} Com os mesmos mecanismos nos dois braços, o resultado é o mesmo:
+publicações, recusas, waivers e críticas sem tratamento são iguais seed a seed, nos quatro portes. Com 2 e 4 pedidos do
+\emph{mesmo} mês, os dois publicam no máximo uma vez (zero publicações indevidas); com meses diferentes e o aprovador
+pedindo waiver, a POL-06 deixa passar um waiver por padrão nos dois. O que difere é o tempo e o custo. Com meses
+\emph{diferentes}, o SMA atende em paralelo (17,1 ticks para dois ou quatro pedidos) contra 32,4 e 64,2 ticks do
+workflow em fila ($p<0{,}001$); um controlador com vários atendentes também paralelizaria, e o ganho é do
+atendimento simultâneo, não da autonomia. O custo é de coordenação: cerca de 22 mensagens por pedido no SMA, contra
+1,5. Na primeira versão do bloco, o workflow não tinha memória nem recusa de mês já atendido e publicava o mesmo mês
+mais de uma vez; a correção simulada apontou que isso media um mecanismo ausente, e ele passou a ter os dois.
+
+\paragraph{Concorrência sob perda de mensagens.} Com 2 e 4 meses diferentes ao mesmo tempo e 15\% de perda entre
+agentes (só a perda, sem trocar o aprovador), o SMA publica menos (0,63 contra 1,23 e 1,07 contra 2,30;
+$p<0{,}01$): os pedidos atingidos terminam em falha explícita, nunca em silêncio, e nenhuma crítica é publicada sem
+tratamento. O workflow não troca mensagens entre componentes e não é atingido. É o resultado do bloco A sob
+concorrência.
+
+\paragraph{Concorrência com um especialista fora do ar.} Com um especialista fora do ar por um tempo, como no
+bloco A, o SMA publica o mesmo que o workflow (2,27 contra 2,30 com quatro meses; $p=1{,}0$), porque o reenvio da
+subtarefa recupera, e continua mais rápido (24,9 contra 64,2 ticks). Um especialista que volta é recuperado;
+mensagens perdidas em vários pontos, não.
 
 \paragraph{Frequência de irregularidades.} Com 15\%, 40\% e 80\% de chance por tipo, crescem as mensagens, o tempo,
 as intervenções humanas (0,2, 0,8 e 1,0 por fechamento) e as reconsiderações de intenção do SMA (0,4, 1,5 e 2,0;
@@ -885,11 +913,38 @@ o workflow não reconsidera). Nenhuma crítica foi publicada sem tratamento em n
 as mesmas críticas: a frequência muda o custo, não a qualidade.
 
 \paragraph{Volume.} Com 12, 96 e 400 lançamentos de base, o tempo lógico não muda, por construção (o relógio do
-barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,012 s para 0,030 s por
-fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,001 s para 0,002 s. O SMA é mais caro em
+barramento conta eventos). O custo do volume aparece no tempo de parede: o SMA passa de 0,015 s para 0,039 s por
+fechamento (400 contra 12 lançamentos, $p<0{,}001$) e o workflow, de 0,002 s para 0,003 s. O fator volume mede só isso: o
+relógio lógico não muda com o volume. O SMA é mais caro em
 tempo de máquina por fechamento, uma ordem de grandeza acima do workflow. O valor absoluto variou cerca de três vezes
 entre rodadas na mesma máquina; a proporção de 12 para 400 lançamentos (cerca de 2,6 vezes no SMA) se manteve. O tempo de parede depende da máquina e fica
 em arquivo separado (\code{tempo\_parede.csv}); o \code{execucoes.csv} é reproduzível byte a byte.
+
+\paragraph{Replicação confirmatória.} O bloco E foi desenhado depois de ver os blocos A a D; o que ele mostrou
+poderia ser acaso das seeds 1 a 30. Por isso as oito conclusões viraram hipóteses fechadas, com critério de decisão,
+pré-registradas em \code{docs/dsm4/experimento-bloco-e.md} (commit \code{95e7923}, publicado antes de rodar) e testadas
+numa replicação com as seeds 31 a 60, que nenhuma rodada anterior usou: mesmo código, fatores, braços e análise, só as
+seeds mudam (\code{python -m fin\_mas.estudo\_e -{}-replicas 30 -{}-primeira-seed 31}). O script
+\code{tools/confirmar\_bloco\_e.py} aplica os critérios aos dados e grava \code{confirmacao.md}; um teste confere que a
+conferência publicada é a que os dados produzem e que um dado adulterado refuta a hipótese (TEST-486 e TEST-487).
+As oito foram confirmadas (Tabela~\ref{tab:blocoe}). Duas execuções da replicação dão o mesmo \code{execucoes.csv}
+(SHA-256 começando por \code{052615d2}).
+
+\begin{tabela}{Bloco E: hipóteses pré-registradas e replicação com as seeds 31 a 60 (1.140 execuções; Wilcoxon pareado por seed, Holm dentro de cada fator).\label{tab:blocoe}}
+\begin{tabularx}{\linewidth}{l Y Y l}
+\toprule
+\textbf{Id} & \textbf{Hipótese} & \textbf{Replicação (SMA × workflow)} & \textbf{Veredito}\\ \midrule
+H-E1 & Mesmo mês publicado no máximo uma vez; os demais recusados & 0 publicações indevidas; recusados $= n-1$ em todas as seeds & confirmada\\
+H-E2 & Meses diferentes: SMA termina antes & 17,6 × 32,5 e 17,6 × 63,8 ticks; $p<0{,}001$ & confirmada\\
+H-E3 & SMA troca mais mensagens & de 23,1 × 1,6 a 89,1 × 6,4; $p<0{,}001$ nos cinco níveis & confirmada\\
+H-E4 & Mesmos mecanismos, mesmo resultado & 270 pares seed a seed, nenhum diferente & confirmada\\
+H-E5 & 15\% de perda: SMA publica menos, sem crítica sem tratamento & 0,5 × 1,3 e 0,9 × 2,2; $p<0{,}001$; 0 críticas & confirmada\\
+H-E6 & Especialista fora do ar: o reenvio recupera & publicados idênticos; 27,0 × 63,8 ticks com 4 meses & confirmada\\
+H-E7 & Mais irregularidades, mais intervenções & 0,40, 0,80 e 0,97 nos dois braços; 0 críticas & confirmada\\
+H-E8 & Tempo lógico não depende do volume; o de parede, sim & ticks idênticos nas 60 séries; 400 > 12 lançamentos, $p<0{,}001$ & confirmada\\
+\bottomrule
+\end{tabularx}
+\end{tabela}
 
 O ensaio exploratório de carga anterior (\code{carga.csv}, 240 pares) continua no pacote; o bloco E o substitui na
 análise, porque varia a frequência por tipo e por seed (e não um sorteio único de alçada) e mede o tempo de parede.

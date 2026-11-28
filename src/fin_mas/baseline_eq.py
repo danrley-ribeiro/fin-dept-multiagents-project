@@ -14,8 +14,16 @@ controlador único, sequencial**, que aplica as mesmas regras de negócio, na me
   pelo **mesmo aprovador simulado** (`env/scenarios.Aprovador`) numa conversa PROT-APR; a
   correção só toca o ERP depois de `autorizar_efeito`, e o pacote é reavaliado.
 
+- reincidência (POL-06): com `memoria`, o controlador consulta o **mesmo SVC-MEM**
+  (`services/memoria.py`) com a mesma chave de reincidência do AG-CIN, marca o achado reincidente
+  antes de emitir o ticket (a política não oferece o waiver) e liga a mesma conferência da decisão
+  (`_decidir_waiver`, sob a trava). A mesma memória atende a fila inteira de pedidos;
+- mês já atendido: com `atendidos`, um pedido de competência que o controlador já atendeu nesta
+  fila é recusado. É o equivalente, num controlador único que atende um pedido de cada vez, à
+  reserva de período do SMA (PROT-LCK), que recusa um segundo fechamento do mesmo mês.
+
 O que **não** existe aqui, de propósito: agentes, mensagens entre componentes, consulta entre
-especialistas, reenvio, negociação de prazo, replanejamento, reserva de período (há um só
+especialistas, reenvio, negociação de prazo, replanejamento, atendimento simultâneo (há um só
 controlador, que faz uma coisa de cada vez) e hipóteses. As únicas mensagens são as duas do
 Approval Gate, porque o aprovador é uma pessoa fora do controlador.
 
@@ -29,7 +37,7 @@ que o SMA com cognição básica. Latência lógica: `TICKS_POR_ETAPA` por etapa
 """
 from dataclasses import dataclass, field
 
-from fin_mas.agents.cin import CORRECAO_POR_REGRA
+from fin_mas.agents.cin import CORRECAO_POR_REGRA, REINCIDENCIA_POR
 from fin_mas.agents.orc import TOLERANCIA_FONTE
 from fin_mas.agents.orq import ressalvas as linhas_de_ressalva
 from fin_mas.core.agent import Agent
@@ -38,6 +46,7 @@ from fin_mas.env.dataset import EFEITO_ORCAMENTARIO, RATEIO, Ambiente, brl, rate
 from fin_mas.env.portes import PORTE_PADRAO
 from fin_mas.env.scenarios import Aprovador
 from fin_mas.parametros import PADRAO
+from fin_mas.services.memoria import Memoria
 from fin_mas.services.politica import PRAZO_APROVACAO, PoliticaAprovacao
 
 CONTROLADOR = "WF-CTRL"
@@ -50,7 +59,7 @@ BLOQUEIO = "publicação bloqueada por veto (NORM-04)"
 @dataclass
 class ResultadoEq:
     intencao: str
-    status: str  # publicado | publicado_com_ressalva | bloqueado
+    status: str  # publicado | publicado_com_ressalva | bloqueado | recusado (mês já atendido nesta fila)
     sinalizadas: list
     atribuidas: list
     dre: dict | None
@@ -77,9 +86,10 @@ class Controlador(Agent):
 
     PAPEL = "ROLE-ORQ"
 
-    def __init__(self, bus, ds, politica, parametros):
+    def __init__(self, bus, ds, politica, parametros, memoria=None):
         super().__init__(CONTROLADOR, bus)
         self.ds, self.politica, self.p = ds, politica, parametros
+        self.memoria = memoria  # SVC-MEM compartilhado pela fila (POL-06), ou None
         self.caixa, self.etapas = [], []
 
     def on_message(self, msg) -> None:
@@ -193,8 +203,11 @@ class Controlador(Agent):
         vistos, por_lancamento = set(), {}
         for lanc in ds.lancamentos:
             v = []
-            teto = p["limites_alcada"][p["pessoas"][lanc["aprovador"]]]
-            if teto is not None and lanc["valor"] > teto:
+            cargo = p["pessoas"].get(lanc["aprovador"])
+            if cargo is None:  # a mesma regra do AG-CIN: aprovador sem cargo no porte é violação de alçada
+                v.append(("alcada", f"aprovador {lanc['aprovador']} sem cargo cadastrado no porte: "
+                                    "alçada não verificável"))
+            elif (teto := p["limites_alcada"][cargo]) is not None and lanc["valor"] > teto:
                 v.append(("alcada", f"valor acima da alçada de {lanc['aprovador']}"))
             if lanc["criador"] == lanc["aprovador"]:
                 extra = f"; {compensatorio['sod']}" if "sod" in compensatorio else ""
@@ -262,6 +275,7 @@ class Controlador(Agent):
                 + ["waiver", "bloquear"]
             self.decide(SOLICITACAO, "NORM-04: não conformidade crítica bloqueia a publicação",
                         {"achados": [a["lancamento"] for a in criticos]}, "VETADO")
+            self._marcar_reincidencias(achados)
             envolvidos = sorted({p for a in criticos for p in self._pessoas(a["lancamento"])})
             ticket = self.politica.emitir(solicitacao=SOLICITACAO, competencia=self.ds.competencia, cmp=VERIFICACAO,
                                           ciclo=len(aprovacoes) + 1, aprovador="APR",
@@ -284,6 +298,45 @@ class Controlador(Agent):
                 self.avancar(ticket["id"], "execute")
                 return primeiro, False
             return primeiro, True  # rejeitada, expirada, negada ou em estado inesperado: fica bloqueado
+
+    # ---- reincidência (POL-06), com a mesma memória e a mesma chave do AG-CIN ---------------------
+    def chave_reincidencia(self, achado) -> str | None:
+        campo = REINCIDENCIA_POR.get(achado["regra"])
+        lanc = next((x for x in self.ds.lancamentos if x["id"] == achado["lancamento"]), {})
+        valor = lanc.get(campo)
+        if not valor or self.memoria is None:
+            return None
+        return f"{achado['regra']}|{campo}={self.memoria.pseudonimo(valor) if campo != 'fornecedor' else valor}"
+
+    def _marcar_reincidencias(self, achados) -> None:
+        """Como o AG-CIN: achado crítico com waiver do mesmo padrão em outra competência (ou memória
+        comprometida) vai marcado para o ticket, e a política não oferece o waiver."""
+        if self.memoria is None:
+            return
+        criticos = [a for a in achados if a["severidade"] == "critica"]
+        if not self.memoria.integra:
+            for a in criticos:
+                a["reincidencia"] = {"memoria": "SVC-MEM comprometida", "competencia": None, "aprovacao": None}
+            return
+        visao = _visao(self.memoria)
+        for a in criticos:
+            chave = self.chave_reincidencia(a)
+            anteriores = visao.consultar("waiver", chave, competencia_atual=self.ds.competencia, cid=VERIFICACAO,
+                                         janela="outras") if chave else []
+            if anteriores:
+                m = anteriores[-1]
+                a["reincidencia"] = {"memoria": m["id"], "competencia": m["competencia"],
+                                     "aprovacao": m["proveniencia"]["aprovacao"]}
+
+    def decidir_waiver(self, ticket, aprovador):
+        """A mesma conferência do SMA no instante da decisão (SVC-MEM, sob a trava)."""
+        padroes = {}
+        for a in ticket["achados"]:
+            if a["severidade"] == "critica":
+                chave = self.chave_reincidencia(a)
+                if chave:
+                    padroes.setdefault(chave, {"regra": a["regra"], "lancamento": a["lancamento"]})
+        return self.memoria._decidir_waiver(ticket, padroes, aprovador)
 
     def _pessoas(self, lancamento) -> list:
         lanc = next(x for x in self.ds.lancamentos if x["id"] == lancamento)
@@ -337,18 +390,44 @@ def correcoes_ciclos(aprovacoes) -> list:
     return [t for t, desfecho in aprovacoes if desfecho == "corrigir"]
 
 
+def nova_memoria() -> Memoria:
+    """SVC-MEM em memória para uma fila de pedidos do workflow (a mesma classe do SMA)."""
+    return Memoria(None, lambda: 0)
+
+
+def _visao(memoria: Memoria):
+    """Visão de leitura do waiver (o controlador acumula a função do AG-CIN), uma por memória."""
+    if not hasattr(memoria, "_visao_workflow"):
+        memoria._visao_workflow = memoria.visao("AG-CIN")
+    return memoria._visao_workflow
+
+
 def executar(seed=42, plantar=(), intencao="fechar_mes", porte=PORTE_PADRAO, decisao_aprovador="nenhuma",
-             parametros=None, caos=None, ambiente=None) -> ResultadoEq:
-    """Roda o workflow sobre a mesma empresa sintética que `build_system(seed, plantar, porte=...)` monta."""
+             parametros=None, caos=None, ambiente=None, memoria=None, atendidos=None) -> ResultadoEq:
+    """Roda o workflow sobre a mesma empresa sintética que `build_system(seed, plantar, porte=...)` monta.
+
+    `memoria`: SVC-MEM compartilhado pelos pedidos de uma fila (POL-06 entre pedidos); `atendidos`: conjunto das
+    competências já atendidas nesta fila (o pedido de uma delas é recusado e a competência atendida entra nele)."""
     p = parametros or PADRAO
     bus = Bus(caos=caos)
     if ambiente is None:
         ambiente = Ambiente(seed, plantar=plantar, porte=porte)
     ds = ambiente.dataset()
+    if atendidos is not None:
+        if ds.competencia in atendidos:  # equivalente à reserva de período do SMA, num controlador único
+            bus.audit.record(bus.now, "decision", agente=CONTROLADOR, conversation_id=SOLICITACAO,
+                             regra="mês já atendido nesta fila", resultado="recusado")
+            return ResultadoEq(intencao, "recusado", [], [], None, None, {}, [], [], [], [], [], bus.now, [],
+                               bus.audit, [], ds)
+        atendidos.add(ds.competencia)
     p.aplicar_limiares(ds)
     compensatorio = "; ".join(f"{k}: {v}" for k, v in sorted(ds.perfil["controle_compensatorio"].items())) or None
     politica = PoliticaAprovacao(bus, prazo=p.prazo_aprovacao or PRAZO_APROVACAO, controle_compensatorio=compensatorio)
-    controlador = Controlador(bus, ds, politica, p)
+    if memoria is not None:  # a memória da fila passa a registrar neste trace, com este relógio e esta política
+        memoria.audit, memoria.clock, memoria.politica = bus.audit, (lambda: bus.now), politica
+    controlador = Controlador(bus, ds, politica, p, memoria)
+    if memoria is not None:
+        politica.decidir_waiver = controlador.decidir_waiver
     aprovador = AprovadorDoWorkflow(bus, decisao_aprovador, ambiente)
     if caos is not None:  # do modelo de falhas, só o que alcança o workflow: o comportamento do aprovador
         caos.instalar_aprovador(aprovador, bus, politica.prazo)

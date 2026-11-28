@@ -104,3 +104,63 @@ def test_equivalence_stops_where_messages_can_be_lost_and_the_minimal_workflow_n
     assert minimo.status == "publicado_com_ressalva" and minimo.criticas_publicadas == 1
     assert baseline_eq.executar(1, veto.plantar, "fechar_mes").status == "bloqueado"
     assert metricas.status_mas(run_scenario("veto_bloqueio", seed=1).resposta) == "bloqueado"
+
+
+# ---- revisão da DSM4 (correção simulada): POL-06 e mês já atendido também no workflow ------------------------
+def _fila_do_workflow(sc, decisoes=None):
+    """O workflow atende os pedidos do cenário em fila, com a mesma memória (SVC-MEM) e o registro dos meses atendidos."""
+    from fin_mas.env.dataset import Ambiente
+
+    memoria, atendidos = baseline_eq.nova_memoria(), set()
+    ambiente = Ambiente(sc.seed, agenda=dict(sc.agenda), porte=sc.porte)
+    resultados = []
+    for (_, competencia, _), decisao in zip(sc.pedidos, decisoes or sc.decisao_aprovador):
+        w = baseline_eq.executar(seed=sc.seed, ambiente=Ambiente.de_dataset(ambiente.dataset(competencia)),
+                                 decisao_aprovador=decisao, memoria=memoria, atendidos=atendidos)
+        resultados.append((competencia, w))
+    return resultados, memoria
+
+
+def test_equivalent_workflow_applies_recurrence_with_the_same_memory():
+    """reincidencia_waiver: agosto com waiver, setembro com o mesmo padrão. Com a mesma memória, o workflow não
+    oferece o waiver em setembro (POL-06) e chega ao mesmo resultado que o SMA."""
+    sc = CENARIOS["reincidencia_waiver"]
+    e = run_scenario(sc, seed=sc.seed)
+    sma = {r.content.get("competencia"): r.content.get("status") for r in e.respostas.values()}
+    fila, memoria = _fila_do_workflow(sc)
+    assert {c: w.status for c, w in fila} == sma == {"2026-08": "publicado_com_ressalva", "2026-09": "publicado"}
+    emitido = next(r for r in fila[1][1].audit.records if r["kind"] == "politica" and r.get("evento") == "emitido")
+    assert "waiver" not in emitido["opcoes"] and emitido["negadas"][0]["regra"] == "POL-06"
+    assert [(x["tipo"], x["competencia"]) for x in memoria.entradas] == [("waiver", "2026-08")]
+
+
+def test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_served():
+    sc = CENARIOS["reincidencia_waiver"]
+    fila, memoria = _fila_do_workflow(sc, decisoes=("waiver", "waiver"))
+    assert [w.status for _, w in fila] == ["publicado_com_ressalva", "bloqueado"]  # o segundo waiver não passa
+    assert sum(x["tipo"] == "waiver" for x in memoria.entradas) == 1
+    repetido = Scenario("repetido", "o mesmo mês duas vezes na fila", "fechar_mes", agenda=(("2026-09", ("alcada",)),),
+                        pedidos=(("fechar_mes", "2026-09", 1), ("fechar_mes", "2026-09", 1)))
+    fila, _ = _fila_do_workflow(repetido, decisoes=("corrigir", "corrigir"))
+    assert [w.status for _, w in fila] == ["publicado", "recusado"]  # como a reserva de período do SMA
+
+
+def test_an_approver_without_a_role_in_the_size_is_an_explicit_finding_in_both_arms():
+    """Correção simulada da DSM4: um aprovador que não existe no cadastro do porte ("Ana" em vez de "ana") derrubava o
+    AG-CIN (KeyError), e o pedido terminava em timeout sem diagnóstico. Agora é violação de alçada ("alçada não
+    verificável"), vetada e corrigida como as outras, e o workflow equivalente faz o mesmo."""
+    from fin_mas.env.dataset import Ambiente
+    from fin_mas.env.scenarios import build_system
+
+    s = build_system(plantar=(), decisao_aprovador="corrigir")
+    s.ambiente.dataset().lancamentos[0]["aprovador"] = "Ana"
+    sid = s.usuario.solicitar("fechar_mes")
+    s.bus.run()
+    assert not [r for r in s.bus.audit.records if r["kind"] == "erro_agente"]
+    assert any("alçada não verificável" in str(r) for r in s.bus.audit.records)  # o motivo fica no trace
+    assert any(r["kind"] == "politica" and r.get("evento") == "emitido" for r in s.bus.audit.records)  # vetado
+    ambiente = Ambiente(42)
+    ambiente.dataset().lancamentos[0]["aprovador"] = "Ana"
+    w = baseline_eq.executar(ambiente=ambiente, decisao_aprovador="corrigir")
+    assert any(a["regra"] == "alcada" and a["lancamento"] == "L-001" for a in w.achados)
+    assert s.usuario.resposta(sid).content["status"] == w.status

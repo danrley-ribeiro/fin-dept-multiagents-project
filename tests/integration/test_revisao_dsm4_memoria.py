@@ -92,20 +92,25 @@ def test_demo_server_gives_the_main_simulation_a_memory_file(tmp_path, monkeypat
     assert sim.sistema.memoria.caminho == pasta / "memoria.json"
 
 
-def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico):  # noqa: F811
-    """Correção simulada da DSM4: a POL-13 comparava só o nome da conta. A conta "elisa.op" (operação, ligada à
-    pessoa elisa do ERP) reiniciava o cenário e a conta "elisa" aprovava. Agora vale também a pessoa do ERP."""
+@pytest.mark.parametrize("grafia", ["elisa", "Elisa", "  elisa ", "Élisa", "ｅｌｉｓａ"])
+def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico, grafia):  # noqa: F811
+    """Correção simulada da DSM4: a POL-13 comparava só o nome da conta; depois, a pessoa do ERP como texto exato. A
+    conta de operação da mesma pessoa (com qualquer grafia: "Elisa", " elisa ") reinicia o cenário e a conta "elisa"
+    não aprova; o painel de aprovações já mostra o impedimento antes do clique."""
     from fin_mas.services.iam import SENHA_DEMO
 
     sim, acesso, porta = servico("veto_waiver")
     adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
-    acesso.criar_conta(adm, "elisa.op", "Elisa Prado (operação)", SENHA_DEMO, ("ROLE-OPE",), pessoa_erp="elisa",
+    acesso.criar_conta(adm, "elisa.op", "Elisa Prado (operação)", SENHA_DEMO, ("ROLE-OPE", "ROLE-SOL"), pessoa_erp=grafia,
                        trocar_senha=False)
+    assert acesso.conta("elisa.op")["pessoa_erp"] == "elisa"  # gravada na forma canônica
     elisa_op, elisa, diego = entrar(porta, "elisa.op"), entrar(porta, "elisa"), entrar(porta, "diego")
     assert elisa_op.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})[0] == 202
     sim.processar_comandos()
     _ate_humano(sim)
     sid = next(iter(sim.sistema.aprovador.pendentes))
+    painel = elisa.get("/api/aprovacoes")[1]["aprovacoes"]
+    assert any("POL-13" in (t.get("impedimento") or "") for t in painel)  # o botão Decidir já vem desabilitado
     decisao = {"tipo": "decidir", "solicitacao": sid, "decisao": "corrigir", "justificativa": JUSTIFICATIVA}
     assert elisa.post("/api/comando", decisao)[0] == 202
     sim.processar_comandos()
@@ -115,3 +120,75 @@ def test_two_accounts_of_the_same_person_cannot_request_and_approve(servico):  #
     assert diego.post("/api/comando", decisao)[0] == 202  # outra pessoa decide
     sim.processar_comandos()
     assert sid not in sim.sistema.aprovador.pendentes
+
+
+def test_state_shows_the_live_ticket_options_after_a_recurrence_refusal(servico, tmp_path):  # noqa: F811
+    """/api/estado mostrava as opções da proposta original: depois da recusa pela POL-06, o waiver ainda aparecia ali
+    (em /api/aprovacoes já não). Agora as duas rotas mostram as opções vivas do ticket."""
+    sim, _, porta = servico("reincidencia_waiver", memoria=str(tmp_path / "memoria.json"))
+    operador, controller = entrar(porta, "operador"), entrar(porta, "controller")
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cenario": "reincidencia_waiver"})[0] == 202
+    sim.processar_comandos()
+    sid, _ = _pendente_de(sim, "2026-08")
+    _decidir(sim, controller, sid, "waiver")
+    sid, ticket = _pendente_de(sim, "2026-09")
+    _decidir(sim, controller, sid, "waiver")  # concorrente: a política recusa (POL-06) e tira o waiver do ticket
+    assert "waiver" not in sim.sistema.politica.tickets[ticket]["opcoes"]
+    estado = controller.get("/api/estado")[1]
+    setembro = next(p for p in estado["pendentes_humanos"] if p["solicitacao"] == sid)
+    aprovacoes = {t["id"]: t["opcoes"] for t in controller.get("/api/aprovacoes")[1]["aprovacoes"]}
+    assert "waiver" not in setembro["opcoes"] and setembro["opcoes"] == aprovacoes[ticket]
+
+
+@pytest.mark.parametrize("grafia", ["carla", "Cárla", " CARLA ", "ｃａｒｌａ"])
+def test_an_account_of_an_involved_person_cannot_decide_with_another_spelling(servico, grafia):  # noqa: F811
+    """POL-03 pela pessoa do ERP canônica: uma conta ligada a "Cárla" (ou outra grafia) é a Carla, que participou do
+    lançamento vetado em decisao_por_pessoa, e não decide sobre ele (correção simulada da DSM4)."""
+    from fin_mas.services.iam import SENHA_DEMO
+
+    sim, acesso, porta = servico("decisao_por_pessoa")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "carla.acc", "Carla Mendes (outra conta)", SENHA_DEMO, ("ROLE-APR",), pessoa_erp=grafia,
+                       cargo="gerente", trocar_senha=False)
+    operador, outra = entrar(porta, "operador"), entrar(porta, "carla.acc")
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cenario": "decisao_por_pessoa"})[0] == 202
+    sim.processar_comandos()
+    _ate_humano(sim)
+    sid = next(iter(sim.sistema.aprovador.pendentes))
+    painel = outra.get("/api/aprovacoes")[1]["aprovacoes"]
+    assert any("POL-03" in (t.get("impedimento") or "") for t in painel)
+    assert outra.post("/api/comando", {"tipo": "decidir", "solicitacao": sid, "decisao": "corrigir",
+                                       "justificativa": JUSTIFICATIVA})[0] == 202
+    sim.processar_comandos()
+    recusas = [r for r in sim.registros if r["kind"] == "rejected"]
+    assert recusas and "POL-03" in recusas[-1]["motivo"]
+    assert sid in sim.sistema.aprovador.pendentes
+
+
+def test_restarting_fires_requests_so_it_needs_the_request_permission(servico):  # noqa: F811
+    """Correção simulada da DSM4: o reinício dispara os pedidos do roteiro no nome de quem reiniciou; uma conta só de
+    operação (sem PERM-SOL-CRIAR) criava pedidos assim. Agora reiniciar exige também PERM-SOL-CRIAR."""
+    from fin_mas.services.iam import SENHA_DEMO
+
+    sim, acesso, porta = servico("veto_waiver")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "so.opera", "Só operação", SENHA_DEMO, ("ROLE-OPE",), trocar_senha=False)
+    so_opera = entrar(porta, "so.opera")
+    status, erro = so_opera.post("/api/comando", {"tipo": "reiniciar", "cenario": "veto_waiver"})
+    assert status == 403 and "PERM-SOL-CRIAR" in erro["erro"]
+    assert so_opera.post("/api/comando", {"tipo": "pausar"})[0] == 202  # operar continua permitido
+
+
+@pytest.mark.parametrize("grafia", ["\u0435lisa", "ana lima", "elisa!"])
+def test_an_erp_person_link_outside_the_erp_identifier_format_is_refused(servico, grafia):  # noqa: F811
+    """Homóglifos ("е" cirílico) e textos que não são identificador do ERP não viram vínculo: a forma canônica não
+    fecha essa classe, a validação fecha (correção simulada da DSM4)."""
+    from fin_mas.services.iam import SENHA_DEMO, AcessoNegado
+
+    _, acesso, _ = servico("veto_waiver")
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    with pytest.raises(AcessoNegado, match="pessoa do ERP inválida"):
+        acesso.criar_conta(adm, "outra", "Outra conta", SENHA_DEMO, ("ROLE-SOL",), pessoa_erp=grafia,
+                           trocar_senha=False)
+    with pytest.raises(AcessoNegado, match="pessoa do ERP inválida"):
+        acesso.definir_vinculo(adm, "bruno", pessoa_erp=grafia)

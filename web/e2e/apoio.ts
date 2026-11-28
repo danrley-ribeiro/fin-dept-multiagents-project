@@ -37,8 +37,9 @@ export async function limparMemoria() {
 }
 
 /** Reinicia o cenário como `operador`. Quem reinicia dispara os pedidos do roteiro e, pela POL-13, não decide
- * sobre eles: reiniciando com outra conta, o `avaliador` do contexto padrão continua podendo decidir. Trocar a
- * cognição exige PERM-MOD-CONFIG (o operador não tem): o avaliador ajusta a cognição e o operador reinicia. */
+ * sobre eles; quem decide nos roteiros é o `controller` (o `avaliador` do contexto padrão opera, pede e audita, mas
+ * não aprova desde a DSM4). Trocar a cognição exige PERM-MOD-CONFIG, que é da operação: o contexto padrão ajusta a
+ * cognição e o operador reinicia. */
 export async function reiniciar(request: APIRequestContext, cenario: string, pausado = false, extras: Record<string, unknown> = {},
   manterMemoria = false) {
   if (!manterMemoria) await limparMemoria();  // cada roteiro começa sem histórico de outro roteiro

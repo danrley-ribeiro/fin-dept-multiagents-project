@@ -35,12 +35,13 @@ test("senha errada mostra erro genérico e cinco erros bloqueiam a conta", async
   await expect(page.getByText("● ao vivo")).toBeHidden();
 });
 
-test("operador opera a simulação, mas não pede nem decide", async ({ browser }) => {
+test("operador opera a simulação e pede (reiniciar dispara pedidos), mas não decide", async ({ browser }) => {
   await reiniciar(avaliador, "veto_waiver");
   const { page, contexto } = await paginaDe(browser, "operador");
   await expect(page.getByLabel("Conta em uso")).toContainText("operador");
   await expect(page.getByRole("button", { name: "Pausar" })).toBeEnabled();
-  await expect(page.getByRole("button", { name: "Novo pedido" })).toBeDisabled();
+  // desde a quinta correção simulada da DSM4, reiniciar exige PERM-SOL-CRIAR: o operador tem ROLE-SOL e pode pedir
+  await expect(page.getByRole("button", { name: "Novo pedido" })).toBeEnabled();
   await expect(page.getByRole("tab", { name: "Logs" })).toBeVisible();
   const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
@@ -70,7 +71,7 @@ test("auditor só lê: consulta e exporta os logs, não opera nem configura", as
   expect((await exportado.text()).split("\n")[0]).toContain('"kind": "decision"');
   await page.getByRole("tab", { name: "Agentes e LLM" }).click();
   await expect(page.getByRole("checkbox", { name: "Ligar LLM de AG-ORC" })).toBeDisabled();
-  await expect(page.getByText("Só o aprovador (controller) ajusta modelos e cotas")).toBeVisible();
+  await expect(page.getByText("Só a operação (operador) ajusta modelos e cotas")).toBeVisible();
   await contexto.close();
 });
 

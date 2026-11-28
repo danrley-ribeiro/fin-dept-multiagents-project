@@ -100,6 +100,28 @@ Cada entrega tem uma pasta própria com tudo o que é submetido.
 
 Enunciados e o exemplo de formato estão em [`enunciados/`](enunciados/).
 
+## Branches e tags
+
+O trabalho segue no **`main`**, que é a versão final (DSM4). Mudanças entram por pull request, a partir de uma
+branch de trabalho que é apagada depois do merge.
+
+| Tag | O que é |
+|---|---|
+| `dsm3-v0.5.0` | versão 0.5.0 da DSM3, citada na documentação da DSM3 |
+| `dsm3-entrega-final` | commit de onde saiu o ZIP entregue na DSM3 (16/11/2026) |
+| `dsm4-v1.1.0` | entrega final da DSM4, de onde sai o ZIP (criada no fechamento) |
+| `arquivo/dsm3-inicial` | a antiga branch `dsm3`: início da DSM3 (12/11/2026), substituída pela história do `main` |
+| `arquivo/dsm3-v0.5.1` | a antiga branch `dsm3-v0.5.1`: rodadas 5 e 6 da correção simulada da DSM3, levadas ao `main` pelo PR #7 |
+
+As branches das entregas anteriores foram apagadas em 27/11/2026, depois de conferir que todo commit delas estava
+no `main` ou numa tag: `dsm3-entrega`, `dsm3-windows` e `dsm3-links-zip` (na tag `dsm3-entrega-final`);
+`dsm3-ajustes-finais` (PR #4), `dsm4-correcoes-dsm3-v0.5.1` (PR #7), `dsm4-revisao` (PR #8) e
+`dsm4-ajustes-pos-revisao` (no `main`); `dsm3` e `dsm3-v0.5.1`, as duas únicas com commits fora do `main`, nas tags
+`arquivo/…` acima.
+
+A documentação da DSM3 cita também uma tag `dsm3-base` (a suíte com 249 testes, antes da revisão do PR); ela não
+existe mais no repositório, e a menção ficou só como registro histórico.
+
 ## Estrutura
 
 ```
@@ -130,8 +152,8 @@ Protocolo/Norma → Componente → Teste → Métrica** (falha com ID órfão, l
 incompleto) e gera os objetos da documentação (`docs/_generated/`) e as máquinas de estados dos
 protocolos (`entregas/dsm1/modelos-editaveis/protocols_fsm_*.mmd`).
 
-Situação atual (DSM4, v1.1.0): **26/26 requisitos (100%) com cadeia completa**, 538 objetos rastreados,
-316 testes modelados (316 **executados**), 29 métricas, 0 erros.
+Situação atual (DSM4, v1.1.0): **26/26 requisitos (100%) com cadeia completa**, 552 objetos rastreados,
+328 testes modelados (328 **executados**), 29 métricas, 0 erros.
 
 ## Como executar
 
@@ -144,15 +166,15 @@ python -m fin_mas run --scenario ataque_acesso                    # 15 ataques a
 python -m fin_mas run --scenario orc_hipotese_local               # hipótese verificada com o AG-CIN
 python -m fin_mas run --scenario negociacao_prazo                 # negociação de prazo no PROT-DEL
 python -m fin_mas serve --demo                                    # dashboard com login em http://127.0.0.1:8765
-python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, de 5 a 8 min)
-python -m pytest                                                  # 707 testes: unit 95, e2e 436, integração 153, TUI 23 (make test)
+python -m fin_mas experimento --replicas 30 --out saidas/reproducao   # o experimento da DSM4 (make experimento, de 5 a 10 min)
+python -m pytest                                                  # 734 testes: unit 95, e2e 439, integração 177, TUI 23 (make test)
 ```
 
 Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao.md](docs/dsm4/reproducao.md).
 Roteiro de demonstração de 10 minutos: [docs/dsm4/demonstracao.md](docs/dsm4/demonstracao.md).
 
 **Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),
-todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (vê e faz tudo, menos administrar acesso), `admin`,
+todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (opera, pede e audita; para decidir, use `controller`), `admin`,
 `operador`, `auditor`, `controller`, `elisa`, `carla`, `diego`, `ana` e `bruno`. Papéis e para que serve cada uma:
 [docs/dsm3/acesso.md](docs/dsm3/acesso.md), seção "Contas de demonstração".
 

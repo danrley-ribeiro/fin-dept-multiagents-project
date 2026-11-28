@@ -64,6 +64,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
 from fin_mas import __version__
+from fin_mas.services import selado
 from fin_mas.services.selado import ArquivoComprometido, ArquivoSelado, chave_de, pasta_de_chaves, trava
 
 FORMATO = "fin-mas-backup"
@@ -83,20 +84,22 @@ class BackupRecusado(RuntimeError):
 
 
 def _marca(caminho) -> str:
-    """Mesma regra de `services/selado.py::_estado`: o caminho absoluto entra no nome do estado."""
-    return hashlib.sha256(str(Path(caminho).resolve()).encode("utf-8")).hexdigest()[:16]
+    """Mesma regra de `services/selado.py::_estado`: o caminho absoluto (com `normcase`) entra no nome do estado."""
+    return selado.marca(caminho)
 
 
 def _estados(caminho, chaves: Path | None = None) -> dict[str, bytes]:
     """Arquivos de estado de um arquivo de dados na pasta de chaves: {"<rotulo>.<sufixo>": conteúdo}."""
     pasta = chaves or pasta_de_chaves()
-    marca, achados = _marca(caminho), {}
+    achados = {}
     if not pasta.is_dir():
         return achados
-    for arquivo in sorted(pasta.glob(f"*-{marca}.*")):
-        rotulo, _, resto = arquivo.name.rpartition(f"-{marca}.")
-        if (rotulo, resto) != ("trava", "lock"):  # coordenação do SO, recriada no destino
-            achados[f"{rotulo}.{resto}"] = arquivo.read_bytes()
+    # a marca antiga (até a 1.1.0, sem normcase) primeiro: se as duas existirem, vale a nova
+    for marca in dict.fromkeys((selado.marca_legada(caminho), _marca(caminho))):
+        for arquivo in sorted(pasta.glob(f"*-{marca}.*")):
+            rotulo, _, resto = arquivo.name.rpartition(f"-{marca}.")
+            if (rotulo, resto) != ("trava", "lock"):  # coordenação do SO, recriada no destino
+                achados[f"{rotulo}.{resto}"] = arquivo.read_bytes()
     return achados
 
 
@@ -316,7 +319,7 @@ def _chaves_locais(manifesto) -> tuple[bytes, dict, dict]:
     """Mesma máquina: as chaves e os cofres da pasta de origem ainda estão na pasta de chaves."""
     from fin_mas.services.cofre import caminho_padrao
     origem = Path(manifesto["origem"])
-    arquivo = pasta_de_chaves() / f"{ROTULO_BACKUP}-{_marca(origem)}.chave"
+    arquivo = selado._estado(ROTULO_BACKUP, origem, "chave")  # com a migração do nome antigo
     if not arquivo.exists():
         raise BackupRecusado("a chave deste backup não está nesta máquina: informe o arquivo de chaves (--chaves)")
     cofres = {}
@@ -350,7 +353,8 @@ def _alvos_de_estado(base: Path, chaves: Path, estados: dict, cofres: dict) -> l
             rotulo, _, sufixo = nome.rpartition(".")
             alvos.append((chaves / f"{rotulo}-{marca}.{sufixo}", conteudo))
     for rel_dir, (conteudo, e) in cofres.items():
-        cofre = chaves / f"cofre-{_marca(base if rel_dir == '.' else base / rel_dir)}.json"
+        # o nome do arquivo do cofre segue a regra de `cofre.caminho_padrao` (sem normcase)
+        cofre = chaves / f"cofre-{selado.marca_legada(base if rel_dir == '.' else base / rel_dir)}.json"
         alvos.append((cofre, conteudo))
         for nome, b in e.items():
             rotulo, _, sufixo = nome.rpartition(".")

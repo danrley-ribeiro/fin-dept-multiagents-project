@@ -44,7 +44,7 @@ ou `serve --demo`; teste `test_server_refuses_to_start_without_accounts`).
 | Aba *Logs* (filtros, por quê, sequência) | `PERM-AUD-VER` | | ✓ | ✓ | ✓ | ✓ |
 | Exportar recorte dos logs | `PERM-AUD-EXPORTAR` | | | | ✓ | ✓ |
 | Aba *Agentes e LLM* (ver) | `PERM-MOD-VER` | | ✓ | ✓ | ✓ | |
-| Ligar LLM, trocar provedor, usos, cota, consentimento | `PERM-MOD-CONFIG` | | ✓ | | | |
+| Ligar LLM, trocar provedor, usos, cota, consentimento (da operação desde a DSM4) | `PERM-MOD-CONFIG` | | | ✓ | | |
 
 Botões sem a permissão aparecem desabilitados com a explicação; a aba que exige permissão nem
 aparece. A interface só reflete a regra: quem decide é o servidor, que recusa com 403 e a regra

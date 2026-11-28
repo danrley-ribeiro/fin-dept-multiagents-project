@@ -26,8 +26,32 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   comando `limpar_memoria`, com a permissão nova `PERM-MEM-LIMPAR`, só do administrador. As tabelas do experimento
   principal mostram o desvio-padrão entre seeds, como o pré-registro prometia. Na segunda rodada, a POL-13 passou a
   conferir também a pessoa do ERP: duas contas da mesma pessoa não pedem e aprovam (TEST-473).
+- Quinta correção simulada: o vínculo da conta com o ERP é validado (identificador ASCII do ERP; homóglifos como o
+  "е" cirílico são recusados, caracteres invisíveis removidos; TEST-483); reiniciar um cenário dispara pedidos e
+  passa a exigir PERM-SOL-CRIAR (a conta de demonstração `operador` ganhou ROLE-SOL; TEST-482); um aprovador sem
+  cargo no porte vira achado de alçada explícito, no AG-CIN e no workflow (antes, KeyError e timeout; TEST-484); o
+  bloco E cruza a concorrência com um especialista fora do ar (1.140 execuções; TEST-485).
+- Quarta correção simulada: a pessoa do ERP passa a ser comparada pela forma canônica completa (Unicode NFKC, sem
+  acentos, espaços e maiúsculas: "Élisa" e a grafia em largura total não contornam mais a POL-13, nem "Cárla" a
+  POL-03; TEST-473, TEST-479); o nome dos arquivos de estado usa o caminho com `normcase`, com migração do nome
+  antigo e leitura dos dois no backup (TEST-480, TEST-481); o teste de links ignora `build/` (a suíte do ZIP pode
+  rodar duas vezes); um teste confere toda referência de linha do roteiro do vídeo; o diagrama da arquitetura
+  mostra a ligação SVC-POL → SVC-MEM.
 - Windows: o gerador de números do relatório e o teste do wheel liam a saída dos subprocessos na página de código
   local; agora leem em UTF-8.
+- Experimento (terceira correção simulada): o workflow equivalente passou a usar a mesma memória da POL-06 (SVC-MEM,
+  com a chave de reincidência do AG-CIN) e a recusar mês já atendido na fila, o equivalente à reserva de período
+  (TEST-474 a 476). O bloco E ganhou o fator porte, o aprovador sorteado e a concorrência sob perda de mensagens
+  (1.020 execuções; TEST-478) e com um especialista fora do ar (1.140 execuções): publicações, recusas,
+  waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
+  experimento principal não muda (mesmo CSV, `b324fc61…`).
+- Operar × aprovar: a conta de demonstração `avaliador` deixou de aprovar (opera, pede e audita; quem decide é o
+  `controller`, a `elisa`, o `diego`...), e o ajuste de modelos e cotas (`PERM-MOD-CONFIG`) passou do ROLE-APR para o
+  ROLE-OPE: quem decide vetos não liga o LLM. Testes de navegador decidem como `controller` (TEST-115, 153, 453).
+- Experimento: replicação confirmatória do bloco E. As oito conclusões do exploratório viraram hipóteses com
+  critério de decisão, pré-registradas em `docs/dsm4/experimento-bloco-e.md` (commit `95e7923`, antes de rodar),
+  e foram testadas com as seeds 31 a 60 (`--primeira-seed 31`; 1.140 execuções, CSV `052615d2…`, idêntico em
+  duas execuções). `tools/confirmar_bloco_e.py` aplica os critérios: 8 de 8 confirmadas (TEST-486, TEST-487).
 - Pacote: o ZIP leva o dashboard já construído (`codigo/web/dist/`), então `serve --demo` abre no navegador sem bun
   nem Node; o empacotador recusa build ausente ou mais velha que as fontes da interface. Antes, quem seguia o README
   a partir do ZIP recebia um 404 pedindo `npm run build`.

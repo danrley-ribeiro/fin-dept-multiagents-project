@@ -232,7 +232,7 @@ items:
   - {id: TEST-114, nome: test_access_attacks_are_all_rejected_and_nothing_is_published, verifica: [REQ-S05, REQ-S04], derivado_de: NORM-12, tipo: seguranca,
      esperado: "15 ataques ao controle de acesso rejeitados; nada publicado; nenhum token no trace", entrega: DSM3, status: executado}
   - {id: TEST-115, nome: test_each_role_can_only_do_what_its_permissions_allow, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
-     esperado: "matriz papel x comando pelo HTTP: 202 só para quem tem a permissão", entrega: DSM3, status: executado}
+     esperado: "matriz papel x comando pelo HTTP: 202 só para quem tem a permissão; desde a DSM4 o ajuste de modelos é da operação, não do aprovador, e a conta avaliador não decide", entrega: DSM3, status: executado}
   - {id: TEST-116, nome: test_decision_is_bound_to_the_logged_in_person, verifica: [REQ-S05], derivado_de: NORM-13, tipo: integracao,
      esperado: "a decisão pelo dashboard fica no ticket, no trace e na trilha com a pessoa", entrega: DSM3, status: executado}
   - {id: TEST-117, nome: test_revoked_session_stops_at_once_and_closes_the_event_stream, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
@@ -309,7 +309,7 @@ items:
   - {id: TEST-152, nome: test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "identificador não textual e conteúdo não copiável são rejeitados com registro", entrega: DSM3, status: executado}
   - {id: TEST-153, nome: test_changing_the_cognition_level_on_restart_needs_the_model_permission, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
-     esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}
+     esperado: "mudar a cognição no reinício exige a permissão de modelos (da operação desde a DSM4): quem só pede ou só aprova recebe 403; agente desconhecido é recusado", entrega: DSM3, status: executado}
   - {id: TEST-154, nome: test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita", entrega: DSM3, status: executado}
   - {id: TEST-155, nome: test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: seguranca,
@@ -604,7 +604,7 @@ items:
   - {id: TEST-452, nome: test_orchestrator_internal_error_becomes_an_explicit_failure, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: robustez,
      esperado: "erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período", entrega: DSM4, status: executado}
   - {id: TEST-453, nome: test_restart_never_creates_requests_in_someone_elses_name, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
-     esperado: "os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa, e a POL-13 o impede de decidir sobre eles", entrega: DSM4, status: executado}
+     esperado: "os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa; a conta avaliador (sem aprovação) recebe 403 ao decidir, e uma conta que acumula operar e aprovar é impedida pela POL-13 de decidir sobre eles", entrega: DSM4, status: executado}
   - {id: TEST-454, nome: test_invalid_delivery_delay_is_rejected_and_audited, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado", entrega: DSM4, status: executado}
   - {id: TEST-455, nome: test_far_future_request_does_not_erase_the_waiver_memory, verifica: [REQ-F07, REQ-S02], derivado_de: SVC-MEM, tipo: seguranca,
@@ -633,8 +633,8 @@ items:
      esperado: "a rota pública mostra a conta de demonstração só no modo --demo, nunca numa instalação real", entrega: DSM4, status: executado}
   - {id: TEST-467, nome: test_block_e_is_reproducible, verifica: [REQ-NF01], derivado_de: SVC-AUD, tipo: reprodutibilidade,
      esperado: "o bloco E do experimento dá as mesmas linhas em duas execuções (o tempo de parede fica fora)", entrega: DSM4, status: executado}
-  - {id: TEST-468, nome: test_same_period_requests_reserve_in_the_mas_and_duplicate_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
-     esperado: "pedidos simultâneos do mesmo mês: o SMA publica um e recusa os demais; o workflow em fila publica o mês mais de uma vez", entrega: DSM4, status: executado}
+  - {id: TEST-468, nome: test_same_period_requests_publish_once_in_both_arms, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
+     esperado: "pedidos simultâneos do mesmo mês: o SMA reserva o período e o workflow recusa mês já atendido na fila; os dois publicam uma vez", entrega: DSM4, status: executado}
   - {id: TEST-469, nome: test_distinct_periods_run_in_parallel_in_the_mas_and_in_sequence_in_the_queue, verifica: [REQ-S02], derivado_de: PROT-LCK, tipo: experimento,
      esperado: "meses diferentes: o SMA atende em paralelo (tempo de um pedido) e o workflow em fila soma os tempos", entrega: DSM4, status: executado}
   - {id: TEST-470, nome: test_uma_liberacao_entre_processos_com_pastas_de_chaves_diferentes, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: concorrencia,
@@ -644,4 +644,32 @@ items:
   - {id: TEST-472, nome: test_demo_server_gives_the_main_simulation_a_memory_file, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: configuracao,
      esperado: "serve --demo sem empresa: a simulação principal grava a memória em <pasta de dados>/memoria.json", entrega: DSM4, status: executado}
   - {id: TEST-473, nome: test_two_accounts_of_the_same_person_cannot_request_and_approve, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
-     esperado: "a conta elisa.op (mesma pessoa do ERP) pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa; outra pessoa decide", entrega: DSM4, status: executado}
+     esperado: "a conta elisa.op (mesma pessoa do ERP, com qualquer grafia: elisa, Elisa, ' elisa ') pede e a conta elisa tenta aprovar: a POL-13 recusa pela pessoa e o painel já mostra o impedimento; outra pessoa decide", entrega: DSM4, status: executado}
+  - {id: TEST-482, nome: test_restarting_fires_requests_so_it_needs_the_request_permission, verifica: [REQ-S02], derivado_de: ROLE-OPE, tipo: seguranca,
+     esperado: "uma conta só de operação (sem PERM-SOL-CRIAR) não reinicia o cenário, que dispara pedidos; continua operando a simulação", entrega: DSM4, status: executado}
+  - {id: TEST-483, nome: test_an_erp_person_link_outside_the_erp_identifier_format_is_refused, verifica: [REQ-S02], derivado_de: SVC-IAM, tipo: seguranca,
+     esperado: "vínculo com homóglifo (е cirílico) ou texto que não é identificador do ERP é recusado na criação e na alteração da conta", entrega: DSM4, status: executado}
+  - {id: TEST-484, nome: test_an_approver_without_a_role_in_the_size_is_an_explicit_finding_in_both_arms, verifica: [REQ-F05], derivado_de: ROLE-CIN, tipo: robustez,
+     esperado: "aprovador sem cargo no porte vira violação de alçada explícita no AG-CIN e no workflow, sem erro de agente, com o mesmo desfecho nos dois", entrega: DSM4, status: executado}
+  - {id: TEST-485, nome: test_an_unavailable_specialist_under_concurrency_never_publishes_an_untreated_critical, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "quatro meses ao mesmo tempo com um especialista fora do ar: toda solicitação com resposta explícita, nenhuma crítica sem tratamento; o workflow não é atingido", entrega: DSM4, status: executado}
+  - {id: TEST-479, nome: test_an_account_of_an_involved_person_cannot_decide_with_another_spelling, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: seguranca,
+     esperado: "uma conta ligada a Cárla (ou outra grafia da carla) não decide sobre o lançamento vetado de que a Carla participou (POL-03); o painel mostra o impedimento", entrega: DSM4, status: executado}
+  - {id: TEST-480, nome: test_two_spellings_of_a_file_not_yet_created_get_the_same_state_name, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: concorrencia,
+     esperado: "no Windows, duas grafias do caminho de um arquivo de memória ainda não criado dão o mesmo nome de estado (a marca antiga dava dois)", entrega: DSM4, status: executado}
+  - {id: TEST-481, nome: test_state_files_with_the_legacy_name_are_migrated, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: robustez,
+     esperado: "chave e contador com o nome da versão anterior são migrados na primeira abertura e a memória continua íntegra", entrega: DSM4, status: executado}
+  - {id: TEST-478, nome: test_loss_under_concurrency_fails_explicitly_and_never_publishes_an_untreated_critical, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "quatro meses ao mesmo tempo com 15% de perda: o SMA pode não publicar (falha explícita, toda solicitação com resposta), nunca publica crítica sem tratamento; o workflow não é atingido", entrega: DSM4, status: executado}
+  - {id: TEST-477, nome: test_state_shows_the_live_ticket_options_after_a_recurrence_refusal, verifica: [REQ-S02], derivado_de: SVC-POL, tipo: interface,
+     esperado: "depois da recusa do waiver pela POL-06, /api/estado e /api/aprovacoes mostram as mesmas opções vivas do ticket, sem o waiver", entrega: DSM4, status: executado}
+  - {id: TEST-474, nome: test_equivalent_workflow_applies_recurrence_with_the_same_memory, verifica: [REQ-F05], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "reincidencia_waiver: o workflow com a mesma memória não oferece o waiver em setembro (POL-06) e chega ao mesmo resultado que o SMA", entrega: DSM4, status: executado}
+  - {id: TEST-475, nome: test_equivalent_workflow_refuses_the_second_waiver_and_a_month_already_served, verifica: [REQ-F05], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "no workflow, o segundo waiver do mesmo padrão não passa e o mesmo mês pedido duas vezes é recusado na segunda", entrega: DSM4, status: executado}
+  - {id: TEST-476, nome: test_recurrence_limits_waivers_in_both_arms, verifica: [REQ-S02], derivado_de: SVC-MEM, tipo: experimento,
+     esperado: "bloco E: quatro meses com a mesma violação e aprovador pedindo waiver: um waiver por padrão nos dois braços, nenhuma crítica sem tratamento", entrega: DSM4, status: executado}
+  - {id: TEST-486, nome: test_confirmatory_replication_uses_only_new_seeds, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "a replicação confirmatória do bloco E usa as seeds 31 a 60, disjuntas das 1 a 30 do exploratório, com o mesmo plano por seed", entrega: DSM4, status: executado}
+  - {id: TEST-487, nome: test_hypothesis_checker_confirms_and_refutes_from_the_data, verifica: [REQ-F03], derivado_de: PROT-SOL, tipo: experimento,
+     esperado: "o verificador aplica os critérios pré-registrados de H-E1 a H-E8, a conferência publicada bate com os dados publicados e uma publicação indevida plantada refuta a H-E1", entrega: DSM4, status: executado}

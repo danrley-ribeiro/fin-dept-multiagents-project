@@ -675,8 +675,9 @@ CONTAS_DEMO = (
     ("diego", "Diego Rocha", ("ROLE-APR",), "diego", "gerente"),
     ("ana", "Ana Lima", ("ROLE-SOL", "ROLE-APR"), "ana", "analista"),
     ("bruno", "Bruno Souza", ("ROLE-SOL",), "bruno", "analista"),
-    ("avaliador", "Avaliação (operação, pedidos, aprovação e auditoria)",
-     ("ROLE-OPE", "ROLE-SOL", "ROLE-APR", "ROLE-AUD"), None, "controller"),
+    # quem avalia opera, pede e audita, mas não aprova: a decisão é de outra conta (controller, diego...), como no
+    # feedback da DSM3 (operar x aprovar). Ajustar modelos e cotas é da operação desde a DSM4.
+    ("avaliador", "Avaliação (operação, pedidos e auditoria)", ("ROLE-OPE", "ROLE-SOL", "ROLE-AUD"), None, None),
 )
 
 

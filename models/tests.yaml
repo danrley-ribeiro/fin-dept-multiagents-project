@@ -232,7 +232,7 @@ items:
   - {id: TEST-114, nome: test_access_attacks_are_all_rejected_and_nothing_is_published, verifica: [REQ-S05, REQ-S04], derivado_de: NORM-12, tipo: seguranca,
      esperado: "15 ataques ao controle de acesso rejeitados; nada publicado; nenhum token no trace", entrega: DSM3, status: executado}
   - {id: TEST-115, nome: test_each_role_can_only_do_what_its_permissions_allow, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
-     esperado: "matriz papel x comando pelo HTTP: 202 só para quem tem a permissão", entrega: DSM3, status: executado}
+     esperado: "matriz papel x comando pelo HTTP: 202 só para quem tem a permissão; desde a DSM4 o ajuste de modelos é da operação, não do aprovador, e a conta avaliador não decide", entrega: DSM3, status: executado}
   - {id: TEST-116, nome: test_decision_is_bound_to_the_logged_in_person, verifica: [REQ-S05], derivado_de: NORM-13, tipo: integracao,
      esperado: "a decisão pelo dashboard fica no ticket, no trace e na trilha com a pessoa", entrega: DSM3, status: executado}
   - {id: TEST-117, nome: test_revoked_session_stops_at_once_and_closes_the_event_stream, verifica: [REQ-S05], derivado_de: NORM-12, tipo: integracao,
@@ -309,7 +309,7 @@ items:
   - {id: TEST-152, nome: test_unhashable_or_uncopiable_input_is_rejected_and_audited_not_raised, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "identificador não textual e conteúdo não copiável são rejeitados com registro", entrega: DSM3, status: executado}
   - {id: TEST-153, nome: test_changing_the_cognition_level_on_restart_needs_the_model_permission, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
-     esperado: "mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado", entrega: DSM3, status: executado}
+     esperado: "mudar a cognição no reinício exige a permissão de modelos (da operação desde a DSM4): quem só pede ou só aprova recebe 403; agente desconhecido é recusado", entrega: DSM3, status: executado}
   - {id: TEST-154, nome: test_message_lost_after_the_opening_never_leaves_the_requester_without_an_answer, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "resposta final ou mensagem do meio perdida na entrega: o iniciador é avisado, reenvia uma vez ou falha de forma explícita", entrega: DSM3, status: executado}
   - {id: TEST-155, nome: test_waiver_denied_by_policy_is_not_turned_into_a_block_in_the_dashboard, verifica: [REQ-S02, REQ-O04], derivado_de: SVC-POL, tipo: seguranca,
@@ -604,7 +604,7 @@ items:
   - {id: TEST-452, nome: test_orchestrator_internal_error_becomes_an_explicit_failure, verifica: [REQ-F01], derivado_de: PROT-SOL, tipo: robustez,
      esperado: "erro interno do Orquestrador (inclusive envio recusado) vira failure para o solicitante e libera o período", entrega: DSM4, status: executado}
   - {id: TEST-453, nome: test_restart_never_creates_requests_in_someone_elses_name, verifica: [REQ-S05], derivado_de: SVC-IAM, tipo: seguranca,
-     esperado: "os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa, e a POL-13 o impede de decidir sobre eles", entrega: DSM4, status: executado}
+     esperado: "os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa; a conta avaliador (sem aprovação) recebe 403 ao decidir, e uma conta que acumula operar e aprovar é impedida pela POL-13 de decidir sobre eles", entrega: DSM4, status: executado}
   - {id: TEST-454, nome: test_invalid_delivery_delay_is_rejected_and_audited, verifica: [REQ-S04], derivado_de: SVC-A2A, tipo: robustez,
      esperado: "atraso de entrega em texto, None, zero, negativo ou fracionário é rejeitado e auditado", entrega: DSM4, status: executado}
   - {id: TEST-455, nome: test_far_future_request_does_not_erase_the_waiver_memory, verifica: [REQ-F07, REQ-S02], derivado_de: SVC-MEM, tipo: seguranca,

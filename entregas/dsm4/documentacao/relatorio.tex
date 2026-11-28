@@ -869,7 +869,10 @@ Também a pedido do professor, as permissões de operação e de aprovação for
 dashboard dispara os pedidos dele: os pedidos ficam no nome de quem reiniciou e a POL-13 (quem pede não aprova) vale
 para ele; antes, uma conta que operava e aprovava liberava o pedido que ela mesma disparou. Sem empresa cadastrada, o
 controle compensatório do porte micro, que dispensa a POL-13, deixou de valer para um porte escolhido no reinício
-(TEST-453 e TEST-465). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
+(TEST-453 e TEST-465). Nenhuma conta de demonstração acumula mais operar e aprovar: a \code{avaliador} opera, pede e
+audita, e quem decide é outra conta (\code{controller}, \code{diego}\ldots); o ajuste de modelos e cotas
+(\code{PERM-MOD-CONFIG}) passou do aprovador para a operação, e quem decide vetos não liga mais o LLM (TEST-115 e
+TEST-153). A suíte passou a rodar a partir do ZIP sem Git e sem as dependências opcionais: os testes que
 precisam deles são pulados, não falham.
 
 \subsection{Bloco E: pedidos concorrentes, frequência de irregularidades, volume e porte}

@@ -12,7 +12,7 @@ import { ROTEIRO, type AcaoDemo, type PassoDemo } from "../demo/roteiro";
 import type { Controle } from "../types";
 
 const PAPEL_DA_PERMISSAO: Record<string, string> = {
-  "PERM-SIM-OPERAR": "operador", "PERM-AGT-ENERGIA": "operador", "PERM-MOD-CONFIG": "aprovador (controller)",
+  "PERM-SIM-OPERAR": "operador", "PERM-AGT-ENERGIA": "operador", "PERM-MOD-CONFIG": "operador",
 };
 
 /** Comandos do passo para esta conta e o motivo, se ela não puder dispará-los. */

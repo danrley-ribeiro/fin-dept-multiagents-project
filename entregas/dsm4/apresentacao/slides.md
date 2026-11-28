@@ -223,7 +223,7 @@ Jiliard. A primeira revelou "resposta perdida vira silêncio"; a segunda veio de
 
 - **POL-06 na aprovação:** conferida e gravada numa transação, sob trava ao lado do arquivo; o segundo ticket concorrente perde o waiver (TEST-424, 459, 470)
 - **Memória entre execuções:** mesma regra na oferta e na decisão (TEST-460); o reinício do dashboard não apaga a memória (TEST-471)
-- **Operar × aprovar:** quem reinicia é o solicitante e não aprova (POL-13), nem por outra conta da mesma pessoa (TEST-473); o porte micro não dispensa a regra; limpar a memória é só do administrador
+- **Operar × aprovar:** quem reinicia é o solicitante e não aprova (POL-13), nem por outra conta da mesma pessoa (TEST-473); o porte micro não dispensa a regra; nenhuma conta de demonstração opera e aprova, e quem aprova não liga o LLM; limpar a memória é só do administrador
 - **Suíte a partir do ZIP:** sem Git e sem as dependências opcionais, nenhuma falha
 - **Experimento:** workflow equivalente, 30 seeds, desvio-padrão nas tabelas e bloco E (concorrência, frequência, volume)
 
@@ -237,7 +237,7 @@ Danrley. Cada item tem teste. O waiver é gravado antes de a decisão chegar ao 
 - Orquestrador é ponto único de falha, não exercitado; a robustez favorece o workflow por construção
 - O workflow equivalente atende em fila: não paraleliza meses diferentes (um controlador com vários atendentes paralelizaria)
 - Em aberto: bloqueio do 2FA por quem já tem a senha, intenções BDI abertas sob falha, reentrega só até 5 tentativas
-- O waiver é gravado antes de a decisão chegar ao Orquestrador; a conta de demonstração `avaliador` acumula papéis por praticidade
+- O waiver é gravado antes de a decisão chegar ao Orquestrador; uma conta criada pelo administrador ainda pode receber operar e aprovar (a POL-13 continua valendo)
 - Cognição local sem ganho; nenhum LLM real avaliado; dados sintéticos, uma máquina, só loopback
 
 ::: notes

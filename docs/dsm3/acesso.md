@@ -40,7 +40,7 @@ padrão: só passa o que algum papel da conta concede (IAM-05).
 | `PERM-DAD-VER` ver planilha e baixar modelos | ✓ | ✓ | ✓ | ✓ | |
 | `PERM-DAD-ENVIAR` enviar planilha | | | ✓ | | |
 | `PERM-MOD-VER` ver configuração de LLM | | ✓ | ✓ | ✓ | |
-| `PERM-MOD-CONFIG` ajustar LLM, usos, cota, consentimento | | ✓ | | | |
+| `PERM-MOD-CONFIG` ajustar LLM, usos, cota, consentimento (da operação desde a DSM4) | | | ✓ | | |
 | `PERM-AUD-VER` ver trace, trilha e explicações | | ✓ | ✓ | ✓ | ✓ |
 | `PERM-AUD-EXPORTAR` exportar recortes | | | | ✓ | ✓ |
 | `PERM-IAM-USUARIOS` criar, bloquear, desativar contas, redefinir senha | | | | | ✓ |
@@ -205,7 +205,7 @@ propósito; não use fora de avaliação e aula). O modo ao vivo do comando úni
 
 | Usuário | Papéis | Cargo | Pessoa do ERP | Para que serve |
 |---|---|---|---|---|
-| `avaliador` | OPE, SOL, APR, AUD | controller | — | ver tudo numa conta só (não administra acesso) |
+| `avaliador` | OPE, SOL, AUD | — | — | avaliar com uma conta: opera (inclusive o LLM), pede e audita; **não decide** desde a DSM4 (para decidir, `controller`, `diego`...) |
 | `admin` | ADM | — | — | administrar contas, papéis e sessões |
 | `operador` | OPE, SOL | — | — | operar a simulação e reiniciar cenários (o reinício dispara os pedidos do roteiro, por isso exige PERM-SOL-CRIAR desde a DSM4); não decide |
 | `auditor` | AUD | — | — | ler e exportar logs e trilha; não opera |

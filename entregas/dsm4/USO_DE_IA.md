@@ -194,7 +194,7 @@ Cada correção tem teste (TEST-453, 460 a 469), e o bloco E está declarado com
 pré-registro (desvio 14 em `docs/dsm4/resultados.md`). O roteiro passou a ser de vídeo, com as
 evidências pedidas no feedback e os dois autores em arquitetura e segurança. A verificação foi feita em sequência, em Windows, na versão 1.1.0:
 
-- **pytest:** 733 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 24,1 minutos (12,5 numa rodada anterior, com a máquina livre);
+- **pytest:** 733 passaram, 0 falharam e 1 pulado (o teste que só roda dentro do ZIP extraído), em 18,2 minutos (12,5 numa rodada anterior, com a máquina livre);
 - **rastreabilidade:** 552 objetos, 0 erros;
 - **vitest:** 12 de 12;
 - **Playwright:** 41 de 41, com o Chromium do Playwright;
@@ -296,3 +296,9 @@ foi esta:
 
 O Orquestrador como ponto único de falha e o workflow distribuído continuam como limitações declaradas: corrigi-los
 mudaria a arquitetura na véspera da entrega.
+
+Na mesma rodada, a pedido dos autores, a conta de demonstração `avaliador` deixou de aprovar (opera, pede e audita) e o
+ajuste de modelos e cotas passou do aprovador para a operação. Duas limitações declaradas saíram da lista ("a conta
+`avaliador` opera e aprova" e "quem decide vetos também liga o LLM"). Os testes Python e de navegador que decidiam com
+a `avaliador` passaram a decidir com o `controller`; os que conferiam a POL-13 para quem opera e aprova usam uma conta
+criada pelo administrador com os dois papéis.

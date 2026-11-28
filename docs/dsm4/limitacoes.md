@@ -234,15 +234,13 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
   quantas vezes o mês for reexecutado (TEST-460). A memória guarda uma entrada por padrão e competência, com a
   proveniência do primeiro ticket; as liberações seguintes do mesmo mês ficam só no trace e na trilha de
   acesso, não na memória.
-- **A conta de demonstração `avaliador` opera e aprova.** Ela acumula operação, pedidos, aprovação e
-  auditoria por decisão dos autores, para o professor testar tudo com uma conta só. A POL-13 impede que
-  ela decida sobre os pedidos que ela mesma disparou (reinício ou pedido novo). Os pedidos do cenário
-  carregado na subida do servidor, sem solicitante do roteiro, ela pode decidir. Numa instalação real
-  (`acesso iniciar`), as contas são criadas pelo administrador com os papéis de cada pessoa. Para ver a
-  separação, opere com `operador` e decida com `controller`.
+- **Uma conta criada pelo administrador ainda pode operar e aprovar.** Nenhuma conta de demonstração
+  acumula os dois (desde a DSM4 a `avaliador` opera, pede e audita, mas não decide; quem decide é o
+  `controller`, a `elisa`, o `diego`...). O serviço não proíbe a combinação ROLE-OPE + ROLE-APR: quem a
+  recebe continua impedido pela POL-13 de decidir os pedidos que disparou (reinício ou pedido novo), e a
+  trilha registra quem atribuiu os papéis (TEST-453).
 - **Competência sem dados reais é fechada** no ambiente sintético (`2099-12` passa no formato e o gerador
   cria dados); só uma fonte real (ERP, planilha, conector) limita.
-- **Quem decide vetos também liga o LLM**: o ROLE-APR inclui `PERM-MOD-CONFIG`.
 - **Conta-fantoche do administrador**: ele não acumula ROLE-APR (IAM-06), mas cria outra conta com
   ROLE-APR e cargo alto, sabe a senha temporária e faz o primeiro acesso dela, inclusive o cadastro do
   segundo fator. Fica tudo na trilha; impedir exige quatro olhos na criação de contas.
@@ -268,7 +266,7 @@ TEST-458). Conferidos contra o código da versão final, estes continuam:
 | CP8 sem conhecimento com proveniência | base normativa versionada com busca lexical e "sem evidência" ({doc}`cognicao`) |
 | Resposta perdida entre agentes podia deixar a solicitação sem resposta | aviso de prazo ao iniciador, com a perda marcada pela posição da mensagem na conversa (achado C1 da correção simulada); 0 execuções sem resposta na segunda e na terceira rodada |
 | A POL-06 só era conferida na emissão do ticket: dois vetos do mesmo padrão pendentes ao mesmo tempo podiam receber waiver os dois (limitação anotada pelo coautor na revisão do PR #4 da DSM3; reproduzida pelo professor na correção da DSM3) | a política confere o histórico e registra a liberação sob a mesma trava; o segundo ticket continua pendente nas duas ordens de decisão, inclusive entre processos (TEST-424 e TEST-459). Na revisão de 26/11, oferta e decisão passaram a usar a mesma janela (waiver do padrão em outra competência, antes ou depois), o ticket concorrente recusado perde a opção de waiver e o modo em lote bloqueia em vez de esperar o prazo (TEST-460 a TEST-464) |
-| Reinício pelo dashboard criava a demanda do roteiro sem dono: quem operava e aprovava liberava o pedido que disparou (feedback da DSM3) | os pedidos do reinício ficam no nome de quem reiniciou e a POL-13 vale para ele; os roteiros de navegador reiniciam como `operador` e decidem como `avaliador` (TEST-453) |
+| Reinício pelo dashboard criava a demanda do roteiro sem dono: quem operava e aprovava liberava o pedido que disparou (feedback da DSM3) | os pedidos do reinício ficam no nome de quem reiniciou e a POL-13 vale para ele; os roteiros de navegador reiniciam como `operador` e decidem como `controller`; a conta `avaliador` deixou de aprovar e o ajuste de modelos (`PERM-MOD-CONFIG`) passou do aprovador para a operação (TEST-453) |
 | Trocar o porte para micro, sem empresa cadastrada, dispensava a POL-13 pelo controle compensatório (feedback da DSM3) | no dashboard o controle compensatório só vale para o porte do cadastro da empresa; o cenário em lote (`run`) continua com o controle do porte (TEST-465) |
 | Aviso de decisão humana perdido contornava a POL-06 ou gerava segundo ticket | reentrega pelo transporte dos avisos ao AG-CIN, até 5 tentativas (achado C2) |
 | Segundo fator derrubável por força bruta; fontes compartilhadas entre empresas; restauração gravava fora do destino | contador por conta com bloqueio e senha exigida (C3); registro de fontes por empresa (C4); backup validado antes de gravar, com o cofre no pacote de chaves (C5) |

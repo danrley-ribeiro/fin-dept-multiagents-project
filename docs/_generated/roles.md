@@ -29,7 +29,7 @@
 :llm: nao_aplicavel
 :played_by: STK-02
 :uses_protocol: PROT-APR
-:grants: PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-DAD-VER, PERM-AUD-VER
+:grants: PERM-SIM-VER, PERM-APR-DECIDIR, PERM-APR-DELEGAR, PERM-MOD-VER, PERM-DAD-VER, PERM-AUD-VER
 
 **Responsabilidades (Resp)**
 
@@ -39,7 +39,6 @@
 **Permissões (Perm)**
 
 - Aprovar ou rejeitar ActionRequest
-- Ajustar configuração de modelos e cotas
 
 **Obrigações (Obl)**
 
@@ -53,7 +52,7 @@
 :llm: nao_aplicavel
 :plataforma: sim
 :played_by: STK-06
-:grants: PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER, PERM-AUD-VER
+:grants: PERM-SIM-VER, PERM-SIM-OPERAR, PERM-AGT-ENERGIA, PERM-DAD-VER, PERM-DAD-ENVIAR, PERM-DAD-CONECTAR, PERM-MOD-VER, PERM-MOD-CONFIG, PERM-AUD-VER
 
 **Responsabilidades (Resp)**
 
@@ -65,6 +64,7 @@
 - Pausar e retomar a execução
 - Ligar e desligar especialistas
 - Enviar planilhas validadas
+- Ajustar configuração de modelos e cotas
 
 **Obrigações (Obl)**
 

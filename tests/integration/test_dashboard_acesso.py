@@ -219,8 +219,10 @@ def test_each_role_can_only_do_what_its_permissions_allow(servico):
     desligar = {"tipo": "agente", "agente": "AG-CUS", "online": False}
     modelo = {"tipo": "modelo", "agente": "AG-REL", "llm": True, "modelo": "mock-narrador"}
     esperado = {  # conta -> (pausar, pedir, decidir, desligar, modelo)
-        "operador": (202, 202, 403, 202, 403), "auditor": (403, 403, 403, 403, 403),  # operador também pede (reinicia)
-        "bruno": (403, 202, 403, 403, 403), "carla": (403, 403, 202, 403, 202), "admin": (403, 403, 403, 403, 403),
+        # operador também pede (reinicia) e, desde a DSM4, ajusta modelos; quem decide vetos não liga o LLM
+        "operador": (202, 202, 403, 202, 202), "auditor": (403, 403, 403, 403, 403),
+        "bruno": (403, 202, 403, 403, 403), "carla": (403, 403, 202, 403, 403), "admin": (403, 403, 403, 403, 403),
+        "avaliador": (202, 202, 403, 202, 202),  # avalia operando, pedindo e auditando; não aprova
     }
     for usuario, codigos in esperado.items():
         n = entrar(porta, usuario)
@@ -367,15 +369,15 @@ def test_llm_configuration_needs_permission_is_validated_and_survives_restart(se
     carla, operador = entrar(porta, "carla"), entrar(porta, "operador")
     cfg = {"tipo": "modelo", "agente": "AG-ORC", "llm": True, "provedor": "mock", "modelo": "mock-analista",
            "usos": ["hipoteses"]}
-    assert operador.post("/api/comando", cfg)[0] == 403
-    assert carla.post("/api/comando", cfg)[0] == 202
-    assert carla.post("/api/comando", {**cfg, "agente": "AG-CIN"})[0] == 202  # aceito na fila, recusado pela NORM-07
+    assert carla.post("/api/comando", cfg)[0] == 403  # desde a DSM4, quem decide vetos não liga o LLM
+    assert operador.post("/api/comando", cfg)[0] == 202
+    assert operador.post("/api/comando", {**cfg, "agente": "AG-CIN"})[0] == 202  # aceito na fila, recusado pela NORM-07
     erros = []
     sim.ouvintes.append(lambda ev: erros.append(ev.get("erro")) if ev.get("erro") else None)
     sim.processar_comandos()
     assert any("NORM-07" in e for e in erros)
     assert carla.get("/api/llm")[1]["agentes"]["AG-ORC"]["modelo"] == "mock-analista"
-    assert carla.post("/api/comando", {**cfg, "usos": "hipoteses"})[0] == 400  # tipo de campo errado
+    assert operador.post("/api/comando", {**cfg, "usos": "hipoteses"})[0] == 400  # tipo de campo errado
     assert operador.post("/api/comando", {"tipo": "reiniciar", "cenario": "orc_hipotese_llm", "cognicao": "llm"})[0] == 202
     sim.processar_comandos()
     _ate_esvaziar(sim)
@@ -445,9 +447,15 @@ def test_wrong_passwords_by_a_stranger_do_not_drop_the_live_session_of_the_accou
 
 
 def test_changing_the_cognition_level_on_restart_needs_the_model_permission(servico):
-    """Correção simulada da v0.5.0 (m1): o operador (sem PERM-MOD-CONFIG) reiniciava com `cognicao: llm`."""
-    sim, _, porta = servico()
+    """Correção simulada da v0.5.0 (m1): o operador (então sem PERM-MOD-CONFIG) reiniciava com `cognicao: llm`.
+
+    Desde a DSM4 ajustar modelos é da operação (ROLE-OPE), não do aprovador; a exigência continua no reinício e é
+    conferida com uma conta que pode reiniciar mas não tem PERM-MOD-CONFIG (criada pelo administrador)."""
+    sim, acesso, porta = servico()
+    adm, _ = acesso.autenticar("admin", SENHA_DEMO, origem="cli")
+    acesso.criar_conta(adm, "pede", "Só pede", SENHA_DEMO, ["ROLE-SOL"], trocar_senha=False)
+    assert entrar(porta, "pede").post("/api/comando", {"tipo": "reiniciar", "cognicao": "llm"})[0] == 403
+    assert entrar(porta, "carla").post("/api/comando", {"tipo": "reiniciar", "cognicao": "llm"})[0] == 403  # aprovador
     operador = entrar(porta, "operador")
-    assert operador.post("/api/comando", {"tipo": "reiniciar", "cognicao": "llm"})[0] == 403
-    assert operador.post("/api/comando", {"tipo": "reiniciar", "cognicao": sim.cognicao or sim.cenario.cognicao})[0] == 202
+    assert operador.post("/api/comando", {"tipo": "reiniciar", "cognicao": "llm"})[0] == 202
     assert operador.post("/api/comando", {"tipo": "agente", "agente": "AG-XYZ", "online": False})[0] == 400

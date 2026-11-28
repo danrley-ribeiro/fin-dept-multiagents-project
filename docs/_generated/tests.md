@@ -1374,7 +1374,7 @@
 :derived_from: NORM-12
 
 `test_each_role_can_only_do_what_its_permissions_allow()` — tipo *integracao*.  
-**Resultado esperado:** matriz papel x comando pelo HTTP: 202 só para quem tem a permissão  
+**Resultado esperado:** matriz papel x comando pelo HTTP: 202 só para quem tem a permissão; desde a DSM4 o ajuste de modelos é da operação, não do aprovador, e a conta avaliador não decide  
 **Execução:** DSM3 (status atual: executado).
 ````
 
@@ -1830,7 +1830,7 @@
 :derived_from: SVC-IAM
 
 `test_changing_the_cognition_level_on_restart_needs_the_model_permission()` — tipo *seguranca*.  
-**Resultado esperado:** mudar a cognição no reinício exige a permissão de modelos; agente desconhecido é recusado  
+**Resultado esperado:** mudar a cognição no reinício exige a permissão de modelos (da operação desde a DSM4): quem só pede ou só aprova recebe 403; agente desconhecido é recusado  
 **Execução:** DSM3 (status atual: executado).
 ````
 
@@ -3546,7 +3546,7 @@
 :derived_from: SVC-IAM
 
 `test_restart_never_creates_requests_in_someone_elses_name()` — tipo *seguranca*.  
-**Resultado esperado:** os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa, e a POL-13 o impede de decidir sobre eles  
+**Resultado esperado:** os pedidos do reinício ficam no nome de quem reiniciou, nunca de outra pessoa; a conta avaliador (sem aprovação) recebe 403 ao decidir, e uma conta que acumula operar e aprovar é impedida pela POL-13 de decidir sobre eles  
 **Execução:** DSM4 (status atual: executado).
 ````
 

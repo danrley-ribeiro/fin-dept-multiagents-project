@@ -47,7 +47,7 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1440, height: 900 },
     trace: "retain-on-failure",
-    storageState: SESSAO_PADRAO, // conta `avaliador` (opera, solicita, aprova e audita); os testes de acesso trocam
+    storageState: SESSAO_PADRAO, // conta `avaliador` (opera, solicita e audita; não aprova); quem decide e os testes de acesso trocam
   },
   projects: [
     { name: "escritorio", testIgnore: ROTEIRO_AVANCADO },

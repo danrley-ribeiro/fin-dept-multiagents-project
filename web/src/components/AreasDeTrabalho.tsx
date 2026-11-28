@@ -384,7 +384,7 @@ export function ConfigLLM({ sessao, aoComando, cenario }: { sessao: Sessao; cena
           );
         })}
       </Stack>
-      {!edita && <Alert severity="info" sx={{ mt: 1.5 }}>Só o aprovador (controller) ajusta modelos e cotas; você pode consultar.</Alert>}
+      {!edita && <Alert severity="info" sx={{ mt: 1.5 }}>Só a operação (operador) ajusta modelos e cotas; você pode consultar.</Alert>}
       </>)}
       {segredos && <ChavesLLM aoMudar={recarregar} />}
     </Secao>

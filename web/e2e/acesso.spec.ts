@@ -71,7 +71,7 @@ test("auditor só lê: consulta e exporta os logs, não opera nem configura", as
   expect((await exportado.text()).split("\n")[0]).toContain('"kind": "decision"');
   await page.getByRole("tab", { name: "Agentes e LLM" }).click();
   await expect(page.getByRole("checkbox", { name: "Ligar LLM de AG-ORC" })).toBeDisabled();
-  await expect(page.getByText("Só o aprovador (controller) ajusta modelos e cotas")).toBeVisible();
+  await expect(page.getByText("Só a operação (operador) ajusta modelos e cotas")).toBeVisible();
   await contexto.close();
 });
 

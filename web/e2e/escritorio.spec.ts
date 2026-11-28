@@ -1,6 +1,9 @@
 // Uso real do escritório da SMA: navegador de verdade, servidor Python de verdade, agentes executando ao vivo.
 import { expect, test } from "@playwright/test";
-import { abrir, chipAgente, comando, estado, pedido, reiniciar } from "./apoio";
+import { abrir, chipAgente, comando, estado, paginaDe, pedido, reiniciar } from "./apoio";
+
+// A conta padrão (`avaliador`) opera e pede, mas não aprova (desde a DSM4): quem decide os vetos é o `controller`,
+// numa página própria, como a pessoa que aprova faria.
 
 test("primeira visita mostra o guia e o escritório com códigos e departamentos", async ({ page, request }) => {
   await reiniciar(request, "fechar_mes");
@@ -33,9 +36,9 @@ test("operador pausa, avança evento a evento e retoma", async ({ page, request 
   await expect(pedido(page, "SOL-001")).toContainText("publicado", { timeout: 20_000 });
 });
 
-test("veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera", async ({ page, request }) => {
+test("veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera", async ({ browser, request }) => {
   await reiniciar(request, "veto_waiver");
-  await abrir(page);
+  const { page, contexto } = await paginaDe(browser, "controller");
   const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await expect(sino).toContainText("1");
@@ -55,11 +58,12 @@ test("veto vira notificação; o humano corrige no ERP e o AG-CIN reconsidera", 
   await expect(mente.getByRole("table", { name: "Opções para parecer:CMP-001" }).last()).toContainText("▶ P-VETAR-COM-CORRECAO");
   await mente.getByRole("tab", { name: /Intenções/ }).click();
   await expect(mente).toContainText("substituída após reavaliação das crenças");
+  await contexto.close();
 });
 
-test("waiver exige justificativa e libera com ressalva", async ({ page, request }) => {
+test("waiver exige justificativa e libera com ressalva", async ({ browser, request }) => {
   await reiniciar(request, "veto_waiver");
-  await abrir(page);
+  const { page, contexto } = await paginaDe(browser, "controller");
   const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await sino.click();
@@ -70,9 +74,10 @@ test("waiver exige justificativa e libera com ressalva", async ({ page, request 
   await dialogo.getByLabel("Justificativa").fill("risco aceito pela diretoria; ajuste no próximo ciclo");
   await dialogo.getByRole("button", { name: "Waiver (aceitar o risco)" }).click();
   await expect(pedido(page, "SOL-001")).toContainText("publicado c/ ressalva", { timeout: 20_000 });
+  await contexto.close();
 });
 
-test("reincidência: a política nega o waiver e o diálogo não o oferece", async ({ page, request }) => {
+test("reincidência: a política nega o waiver e o diálogo não o oferece", async ({ browser, request }) => {
   // Determinístico: agosto é decidido antes de o veto de setembro ser emitido, para que o diálogo de
   // setembro já chegue sem o waiver (com os dois pendentes, a POL-06 recusa só na decisão, TEST-424).
   await reiniciar(request, "reincidencia_waiver", true);
@@ -80,7 +85,7 @@ test("reincidência: a política nega o waiver e o diálogo não o oferece", asy
     .map((p) => p.solicitacao);
   for (let i = 0; i < 400 && !(await pendentes()).includes("SOL-001"); i++) await comando(request, { tipo: "passo", n: 1 });
   expect(await pendentes()).toEqual(["SOL-001"]);
-  await abrir(page);
+  const { page, contexto } = await paginaDe(browser, "controller");
   const sino = page.getByRole("button", { name: "Decisões humanas pendentes" });
   await expect(sino).toBeEnabled({ timeout: 20_000 });
   await sino.click();
@@ -98,6 +103,7 @@ test("reincidência: a política nega o waiver e o diálogo não o oferece", asy
   await expect(dialogo).toContainText("Waiver não admitido pela política");
   await dialogo.getByRole("button", { name: "Corrigir no ERP" }).click();
   await expect(pedido(page, "SOL-002")).toContainText("publicado", { timeout: 20_000 });
+  await contexto.close();
 });
 
 test("desligar o AG-CIN gera perdas, timeout, replanejamento do AG-ORC e falha explícita", async ({ page, request }) => {

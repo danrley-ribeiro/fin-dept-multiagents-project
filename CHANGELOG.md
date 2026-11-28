@@ -45,6 +45,9 @@ Revisão do commit `1e03ee5` e resposta ao feedback da DSM3 (branch `dsm4-revisa
   (1.020 execuções; TEST-478) e com um especialista fora do ar (1.140 execuções): publicações, recusas,
   waivers e críticas sem tratamento são iguais nos dois braços; sobram o paralelismo e o custo em mensagens. O
   experimento principal não muda (mesmo CSV, `b324fc61…`).
+- Operar × aprovar: a conta de demonstração `avaliador` deixou de aprovar (opera, pede e audita; quem decide é o
+  `controller`, a `elisa`, o `diego`...), e o ajuste de modelos e cotas (`PERM-MOD-CONFIG`) passou do ROLE-APR para o
+  ROLE-OPE: quem decide vetos não liga o LLM. Testes de navegador decidem como `controller` (TEST-115, 153, 453).
 - Experimento: replicação confirmatória do bloco E. As oito conclusões do exploratório viraram hipóteses com
   critério de decisão, pré-registradas em `docs/dsm4/experimento-bloco-e.md` (commit `95e7923`, antes de rodar),
   e foram testadas com as seeds 31 a 60 (`--primeira-seed 31`; 1.140 execuções, CSV `052615d2…`, idêntico em

@@ -196,10 +196,10 @@ def test_burst_of_anonymous_logins_does_not_hold_the_registry_lock(subir, monkey
 
 def test_infinite_price_is_refused_and_a_tampered_vault_answers_503(subir):
     _, acesso, porta, _ = subir("fechar_mes")
-    controller = entrar(porta, "controller")
-    status, _ = controller.pedir("POST", "/api/comando", b'{"tipo": "modelo", "agente": "AG-ORC", "preco_entrada": 1e999}')
+    operador = entrar(porta, "operador")  # ajustar modelos e cotas é da operação desde a DSM4
+    status, _ = operador.pedir("POST", "/api/comando", b'{"tipo": "modelo", "agente": "AG-ORC", "preco_entrada": 1e999}')
     assert status == 400
-    status, corpo = controller.pedir("GET", "/api/llm", cru=True)
+    status, corpo = operador.pedir("GET", "/api/llm", cru=True)
     assert status == 200 and b"Infinity" not in corpo
     json.loads(corpo, parse_constant=lambda c: pytest.fail(f"JSON com {c}"))  # JSON estrito, como no navegador
     admin = entrar(porta, "admin")

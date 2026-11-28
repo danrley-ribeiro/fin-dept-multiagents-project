@@ -174,7 +174,7 @@ Reprodução completa, do zero, com o tempo de cada passo: [docs/dsm4/reproducao
 Roteiro de demonstração de 10 minutos: [docs/dsm4/demonstracao.md](docs/dsm4/demonstracao.md).
 
 **Contas de demonstração** (`serve --demo`, `instalar --demo`, `acesso demo` e o modo ao vivo do comando único),
-todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (vê e faz tudo, menos administrar acesso), `admin`,
+todas com a senha pública `Demonstracao-SMA-2026`: `avaliador` (opera, pede e audita; para decidir, use `controller`), `admin`,
 `operador`, `auditor`, `controller`, `elisa`, `carla`, `diego`, `ana` e `bruno`. Papéis e para que serve cada uma:
 [docs/dsm3/acesso.md](docs/dsm3/acesso.md), seção "Contas de demonstração".
 
